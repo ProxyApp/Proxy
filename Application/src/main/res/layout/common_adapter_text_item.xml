@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/adapter_group_item_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_whitebox_darkclick"
+    android:clickable="true"
+    android:minHeight="@dimen/common_rect_small"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/adapter_group_name"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/common_margin_large"
+        android:paddingBottom="@dimen/common_margin_small"
+        android:paddingTop="@dimen/common_margin_small"
+        android:textColor="@color/common_text"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_margin_line"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="@dimen/common_margin_large"
+        android:background="@color/common_divider"/>
+</LinearLayout>
+    

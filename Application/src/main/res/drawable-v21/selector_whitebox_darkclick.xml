@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+        android:color="@color/common_text_disabled">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/common_divider"/>
+        </shape>
+    </item>
+    <item android:state_pressed="false">
+        <shape>
+            <solid android:color="@android:color/white"/>
+        </shape>
+    </item>
+</ripple>

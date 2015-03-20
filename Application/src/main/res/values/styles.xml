@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Proxy.Base" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/common_gray</item>
+        <item name="colorPrimaryDark">@color/common_gray_dark</item>
+        <item name="android:textColorPrimary">@color/common_text_inverse</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Widget.Proxy.App.Popup" parent="Theme.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/common_text</item>
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+
+    <style name="Widget.Proxy.EditText.FloatLabel" parent="android:TextAppearance.Small">
+        <item name="android:textColor">@color/common_text_disabled</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>
