@@ -24,3 +24,5 @@ local.properties
 
 # Local IDEA workspace
 *.pro
+# No Api Keys for Github
+/keys.xml

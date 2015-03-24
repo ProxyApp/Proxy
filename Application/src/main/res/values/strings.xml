@@ -16,6 +16,10 @@
     <string name="settings_logout">Logout</string>
     <string name="activity_login_title">Proxy</string>
     <string name="activity_login_sub_title">Reclaim your persona</string>
+    <string name="Notifications">Notifications</string>
+    <string name="Favorites">Favorites</string>
+    <string name="Groups">Groups</string>
+    <string name="Search">Search</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

@@ -1,24 +1,44 @@
 package com.proxy.widget.transform;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.bumptech.glide.load.Transformation;
+import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.proxy.util.ViewUtils;
 
-public class GlideCircleTransform extends BitmapTransformation {
-    public GlideCircleTransform(Context context) {
-        super(context);
+/**
+ * {@link Transformation} that returns a circular cropped image.
+ */
+public class GlideCircleTransform implements Transformation<Bitmap> {
+    private BitmapPool mBitmapPool;
+
+    /**
+     * Constructor.
+     *
+     * @param pool bitmap pool
+     */
+    private GlideCircleTransform(BitmapPool pool) {
+        this.mBitmapPool = pool;
+    }
+
+    /**
+     * Static new instance
+     *
+     * @param pool bitmap pool
+     * @return Circular Transform
+     */
+    public static GlideCircleTransform create(BitmapPool pool) {
+        return new GlideCircleTransform(pool);
     }
 
     @Override
-    protected Bitmap transform(BitmapPool pool, Bitmap source, int outWidth, int outHeight) {
-        return ViewUtils.getCircularBitmapImage(source);
+    public Resource<Bitmap> transform(Resource<Bitmap> resource, int outWidth, int outHeight) {
+        return ViewUtils.getCircularBitmapImage(resource, mBitmapPool);
     }
 
     @Override
     public String getId() {
-        return "Glide_Circle_Transformation";
+        return "CropCircleTransformation()";
     }
 }

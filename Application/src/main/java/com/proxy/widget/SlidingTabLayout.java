@@ -17,17 +17,20 @@
 package com.proxy.widget;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.HorizontalScrollView;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.Toast;
+
+import com.proxy.app.adapter.ImagePagerAdapter;
 
 /**
  * To be used with ViewPager to provide a tab indicator component which give constant feedback as to
@@ -56,11 +59,11 @@ public class SlidingTabLayout extends HorizontalScrollView {
     private int mTitleOffset;
 
     private int mTabViewLayoutId;
-    private int mTabViewTextViewId;
     private int mTabViewImageViewId;
 
     private ViewPager mViewPager;
     private ViewPager.OnPageChangeListener mViewPagerPageChangeListener;
+    private Rect mLayoutRect;
 
     /**
      * Constructor.
@@ -153,11 +156,11 @@ public class SlidingTabLayout extends HorizontalScrollView {
      * Set the custom layout to be inflated for the tab views.
      *
      * @param layoutResId Layout id to be inflated
-     * @param textViewId  id of the {@link android.widget.TextView} in the inflated view
+     * @param imageViewId id of the {@link android.widget.ImageView} in the inflated view
      */
-    public void setCustomTabView(int layoutResId, int textViewId) {
+    public void setCustomTabView(int layoutResId, int imageViewId) {
         mTabViewLayoutId = layoutResId;
-        mTabViewTextViewId = textViewId;
+        mTabViewImageViewId = imageViewId;
     }
 
     /**
@@ -183,63 +186,80 @@ public class SlidingTabLayout extends HorizontalScrollView {
      * @param context this context
      * @return default textview
      */
-    protected TextView createDefaultTabView(Context context) {
-        TextView textView = new TextView(context);
-        textView.setGravity(Gravity.CENTER);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_VIEW_TEXT_SIZE_SP);
-        textView.setTypeface(Typeface.DEFAULT_BOLD);
-
+    protected ImageView createDefaultTabView(Context context) {
+        ImageView imageView = new ImageView(context);
+        ViewCompat.setLayerType(imageView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // If we're running on Honeycomb or newer, then we can use the Theme's
             // selectableItemBackground to ensure that the View has a pressed state
             TypedValue outValue = new TypedValue();
             getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
                 outValue, true);
-            textView.setBackgroundResource(outValue.resourceId);
+            imageView.setBackgroundResource(outValue.resourceId);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            // If we're running on ICS or newer, enable all-caps to match the Action Bar tab style
-            textView.setAllCaps(true);
-        }
 
         int padding = (int) (TAB_VIEW_PADDING_DIPS * getResources().getDisplayMetrics().density);
-        textView.setPadding(padding, padding, padding, padding);
+        imageView.setPadding(padding, padding, padding, padding);
 
-        return textView;
+        return imageView;
     }
 
     /**
      * Add tab strip.
      */
     private void populateTabStrip() {
-        final PagerAdapter adapter = mViewPager.getAdapter();
+        final ImagePagerAdapter adapter = (ImagePagerAdapter) mViewPager.getAdapter();
         final OnClickListener tabClickListener = new TabClickListener();
 
         for (int i = 0; i < adapter.getCount(); i++) {
             View tabView = null;
-            TextView tabTitleView = null;
+            ImageView tabImageView = null;
 
             if (mTabViewLayoutId != 0) {
                 // If there is a custom tab view layout id set, try and inflate it
                 tabView = LayoutInflater.from(getContext()).inflate(mTabViewLayoutId, mTabStrip,
                     false);
-                tabTitleView = (TextView) tabView.findViewById(mTabViewTextViewId);
+                tabImageView = (ImageView) tabView.findViewById(mTabViewImageViewId);
             }
 
             if (tabView == null) {
                 tabView = createDefaultTabView(getContext());
             }
 
-            if (tabTitleView == null && TextView.class.isInstance(tabView)) {
-                tabTitleView = (TextView) tabView;
-                tabTitleView.setText(adapter.getPageTitle(i));
+            if (tabImageView == null && ImageView.class.isInstance(tabView)) {
+                tabImageView = (ImageView) tabView;
+                tabImageView.setImageDrawable(adapter.getPageImage(i));
             }
 
+            //This causes the TabView to be evenly distributed.
+            tabView.setLayoutParams(new TableLayout.LayoutParams(0, getHeight()
+                * (int) getResources().getDisplayMetrics().density, 1f));
             tabView.setOnClickListener(tabClickListener);
+            tabView.setOnLongClickListener(getLongClickListener(adapter, i));
 
             mTabStrip.addView(tabView);
         }
+    }
+
+
+    /**
+     * Add a long click listener to display content definition of a tab.
+     *
+     * @param adapter  ImageAdapter
+     * @param position of object image description in a list
+     * @return LongClickListener
+     */
+    private OnLongClickListener getLongClickListener(
+        final ImagePagerAdapter adapter, final int position) {
+        return new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(mViewPager.getContext(),
+                    adapter.getImageDescription(position), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        };
     }
 
     @Override
@@ -295,6 +315,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
         int getDividerColor(int position);
 
     }
+
 
     /**
      * Common ViewPageListener.

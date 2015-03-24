@@ -20,15 +20,16 @@ package com.proxy.widget;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.Checkable;
@@ -145,15 +146,18 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
     }
 
     /**
-     * Updates the background for non Lollipop devices. For now we just draw a circle TODO: add
-     * shadowing drawable to the layerlist drawable
+     * Updates the background for non Lollipop devices. For now we just draw a circle
+     * TODO: add shadowing drawable to the layerlist drawable
      */
     private void updateBackground() {
-        LayerDrawable layerDrawable = new LayerDrawable(
-            new Drawable[]{
-                createFillDrawable(),
-            });
-        setBackgroundCompat(layerDrawable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            Resources.Theme theme = getContext().getTheme();
+            // If we're running on Honeycomb or newer, then we can use the Theme's
+            // selectableItemBackground to ensure that the View has a pressed state
+            TypedValue outValue = new TypedValue();
+            theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            setBackgroundCompat(getResources().getDrawable(outValue.resourceId, theme));
+        }
     }
 
     /**
@@ -165,7 +169,15 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
         StateListDrawable drawable = new StateListDrawable();
         drawable.addState(new int[]{ android.R.attr.state_pressed },
             createCircleDrawable(mColorPressed));
-        drawable.addState(new int[]{ }, createCircleDrawable(mColorNormal));
+        drawable.addState(new int[]{}, createCircleDrawable(mColorNormal));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // If we're running on Honeycomb or newer, then we can use the Theme's
+            // selectableItemBackground to ensure that the View has a pressed state
+            TypedValue outValue = new TypedValue();
+            getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
+                outValue, true);
+            setBackgroundResource(outValue.resourceId);
+        }
         return drawable;
     }
 

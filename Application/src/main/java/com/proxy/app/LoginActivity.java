@@ -15,31 +15,25 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.plus.People;
-import com.google.android.gms.plus.People.LoadPeopleResult;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.util.IntentLauncher;
-
-import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import static com.proxy.Preferences.LOGOUT_CLICKED;
 import static com.proxy.util.DebugUtils.getSimpleName;
 
 /**
  * Activity to log in with google account.
  */
-public class LoginActivity extends BaseActivity implements
-    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-    ResultCallback<People.LoadPeopleResult>, View.OnClickListener, GoogleApiClient
-    .ServerAuthCodeCallbacks {
+public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
+    OnConnectionFailedListener, View.OnClickListener {
 
-    public static final String LOGOUT_CLICKED = "com.proxy.logout_clicked";
     private static final String TAG = getSimpleName(LoginActivity.class);
     private static final int STATE_DEFAULT = 0;
     private static final int STATE_SIGN_IN = 1;
@@ -92,10 +86,15 @@ public class LoginActivity extends BaseActivity implements
         mGoogleApiClient = buildGoogleApiClient();
     }
 
+    /**
+     * When we build the GoogleApiClient we specify where connected and connection failed callbacks
+     * should be returned, which Google APIs our app uses and which OAuth 2.0 scopes our app
+     * requests.
+     *
+     * @return Api Client
+     */
     private GoogleApiClient buildGoogleApiClient() {
-        // When we build the GoogleApiClient we specify where connected and
-        // connection failed callbacks should be returned, which Google APIs our
-        // app uses and which OAuth 2.0 scopes our app requests.
+
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
             .addConnectionCallbacks(this)
             .addOnConnectionFailedListener(this)
@@ -164,16 +163,19 @@ public class LoginActivity extends BaseActivity implements
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
         saveCurrentUser(currentUser);
-        Plus.PeopleApi.loadVisible(mGoogleApiClient, null)
-            .setResultCallback(this);
 
         // Indicate that the sign in process is complete.
         mSignInProgress = STATE_DEFAULT;
 
-        IntentLauncher.launchBaseActivity(LoginActivity.this);
+        IntentLauncher.launchContentActivity(LoginActivity.this);
         finish();
     }
 
+    /**
+     * Save a person in shared preferences.
+     *
+     * @param person current logged in user
+     */
     private void saveCurrentUser(Person person) {
         SharedPreferences settings = getPreferences(0);
         SharedPreferences.Editor editor = settings.edit();
@@ -213,11 +215,11 @@ public class LoginActivity extends BaseActivity implements
         }
     }
 
-    /* Starts an appropriate intent or dialog for user interaction to resolve
-     * the current error preventing the user from being signed in.  This could
-     * be a dialog allowing the user to select an account, an activity allowing
-     * the user to consent to the permissions being requested by your app, a
-     * setting to enable device networking, etc.
+    /**
+     * Starts an appropriate intent or dialog for user interaction to resolve the current error
+     * preventing the user from being signed in.  This could be a dialog allowing the user to select
+     * an account, an activity allowing the user to consent to the permissions being requested by
+     * your app, a setting to enable device networking, etc.
      */
     private void resolveSignInError() {
         if (mSignInIntent != null) {
@@ -276,10 +278,6 @@ public class LoginActivity extends BaseActivity implements
     }
 
     @Override
-    public void onResult(LoadPeopleResult peopleData) {
-    }
-
-    @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason.
         // We call connect() to attempt to re-establish the connection or get a
@@ -287,6 +285,11 @@ public class LoginActivity extends BaseActivity implements
         mGoogleApiClient.connect();
     }
 
+    /**
+     * Return log in error dialog based on the type of error.
+     *
+     * @return error dialog
+     */
     private Dialog createErrorDialog() {
         if (GooglePlayServicesUtil.isUserRecoverableError(mSignInError)) {
             return GooglePlayServicesUtil.getErrorDialog(
@@ -313,19 +316,6 @@ public class LoginActivity extends BaseActivity implements
                         }
                     }).create();
         }
-    }
-
-    @Override
-    public CheckResult onCheckServerAuthorization(String idToken, Set<Scope> scopeSet) {
-        Log.i(TAG, "Checking if server is authorized.");
-        // Server already has a valid refresh token with the correct scopes, no need to
-        // ask the user for offline access again.
-        return CheckResult.newAuthNotRequiredResult();
-    }
-
-    @Override
-    public boolean onUploadServerAuthCode(String idToken, String serverAuthCode) {
-        return false;
     }
 
 }
