@@ -4,7 +4,7 @@ package com.proxy.app.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,10 +33,16 @@ import static com.proxy.Constants.ARG_USER_LIST;
  */
 public class UserFragment extends BaseFragment {
 
+    public static final int DELAY_MILLIS = 5000;
     @InjectView(R.id.common_recyclerview)
     RecyclerView mRecyclerView;
+    @InjectView(R.id.common_recyclerview_swipe_refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
     private UserRecyclerAdapter mAdapter;
 
+    /**
+     * Constructor.
+     */
     public UserFragment() {
     }
 
@@ -45,7 +51,7 @@ public class UserFragment extends BaseFragment {
      *
      * @return user fragment
      */
-    public static Fragment newInstance() {
+    public static UserFragment newInstance() {
         return new UserFragment();
     }
 
@@ -79,8 +85,33 @@ public class UserFragment extends BaseFragment {
         ButterKnife.inject(this, rootView);
         initializeRecyclerView();
         initializeMockUserData();
+        initializeSwipeRefresh();
         return rootView;
     }
+
+    /**
+     * Initialize the color sequence of the swipe refresh view.
+     */
+    private void initializeSwipeRefresh() {
+        mSwipeRefreshLayout.setOnRefreshListener(refreshListener);
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.black, android.R.color
+            .holo_orange_dark, R.color.common_green);
+    }
+
+    SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout
+        .OnRefreshListener() {
+
+        @Override
+        public void onRefresh() {
+            mRecyclerView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyDataSetChanged();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            }, DELAY_MILLIS);
+        }
+    };
 
     @Override
     public void onDestroyView() {

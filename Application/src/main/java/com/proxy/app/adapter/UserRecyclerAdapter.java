@@ -10,9 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.proxy.R;
 import com.proxy.model.User;
 import com.proxy.widget.transform.GlideCircleTransform;
@@ -70,37 +67,9 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         Context context = holder.view.getContext();
         holder.userName.setText(user.firstName() + " " + user.lastName());
         Glide.with(context).load(user.userImageURL())
-            .transform(new GlideCircleTransform(context))
-            .placeholder(R.drawable.evan).error(R.drawable.evan)
-            .listener(getGlideListener(holder)).into(holder.userImage);
-    }
-
-    /**
-     * Create a new target to load bitmaps into.
-     *
-     * @param holder view holder
-     * @return Target
-     */
-    private RequestListener<String, GlideDrawable> getGlideListener(final ViewHolder holder) {
-        return new RequestListener<String, GlideDrawable>() {
-
-            @Override
-            public boolean onException(
-                Exception e, String model, Target<GlideDrawable> target,
-                boolean isFirstResource) {
-                return false;
-            }
-
-            @Override
-            public boolean onResourceReady(
-                GlideDrawable resource, String model,
-                Target<GlideDrawable> target, boolean isFromMemoryCache,
-                boolean isFirstResource) {
-                holder.userImage.setImageDrawable(resource);
-                return false;
-            }
-        };
-
+            .bitmapTransform(GlideCircleTransform.create(Glide.get(context).getBitmapPool()))
+            .crossFade()
+            .into(holder.userImage);
     }
 
     @Override

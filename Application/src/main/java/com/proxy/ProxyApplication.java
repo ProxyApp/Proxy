@@ -17,7 +17,7 @@ package com.proxy;
 
 import android.app.Application;
 
-import com.proxy.model.User;
+import com.firebase.client.Firebase;
 
 import timber.log.Timber;
 
@@ -26,21 +26,12 @@ import timber.log.Timber;
  */
 public class ProxyApplication extends Application {
 
-    private User mCurrentUser = null;
-
     @Override
     public void onCreate() {
         super.onCreate();
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-    }
-
-    public User getCurrentUser() {
-        return mCurrentUser;
-    }
-
-    public void setCurrentUser(User user) {
-        mCurrentUser = user;
+        Firebase.setAndroidContext(this);
     }
 }

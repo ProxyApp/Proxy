@@ -8,10 +8,23 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * RecyclerView that has an item click listener.
+ * {@link BaseRecyclerView} that has a {@link RecyclerItemClickListener}.
  */
 @SuppressWarnings("unused")
 public class BaseRecyclerView extends RecyclerView {
+
+    /**
+     * ClickListener CallBack.
+     */
+    public interface OnItemClickListener {
+        /**
+         * Return the view and position of the clicked item
+         *
+         * @param view     view pressed
+         * @param position position of the view in this {@link BaseRecyclerView}
+         */
+        void onItemClick(View view, int position);
+    }
 
     private static RecyclerItemClickListener mRecyclerItemClickListener = null;
 
@@ -60,14 +73,19 @@ public class BaseRecyclerView extends RecyclerView {
         return mRecyclerItemClickListener;
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
-    }
-
-    static class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
+    /**
+     * Create a static {@link OnItemTouchListener} for the {@link BaseRecyclerView}.
+     */
+    static final class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
         GestureDetector mGestureDetector;
         private OnItemClickListener mListener;
 
+        /**
+         * Implement {@link OnItemTouchListener}.
+         *
+         * @param context  activity context
+         * @param listener listener callback
+         */
         public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
             mListener = listener;
             mGestureDetector = new GestureDetector(context, new GestureDetector
