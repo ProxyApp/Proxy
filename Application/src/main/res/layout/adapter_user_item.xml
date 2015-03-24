@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/adapter_user_item_container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/selector_whitebox_darkclick"
-    android:clickable="true"
-    android:minHeight="@dimen/common_rect_small">
+<RelativeLayout android:id="@+id/adapter_user_item_container"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/common_circleimageview_item_radius"
+                android:background="@drawable/selector_whitebox_darkclick"
+                android:clickable="true"
+                android:minHeight="@dimen/common_rect_small">
 
     <ImageView
         android:id="@+id/adapter_user_image"
@@ -16,19 +15,15 @@
         android:layout_centerVertical="true"
         android:layout_marginBottom="@dimen/common_margin_xxtiny"
         android:layout_marginStart="@dimen/common_margin_xxtiny"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"
-        android:paddingTop="@dimen/common_margin_small"/>
+        android:layout_marginTop="@dimen/common_margin_xxtiny"/>
 
     <TextView
         android:id="@+id/adapter_user_name"
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/common_margin_huge"
         android:layout_marginStart="@dimen/common_margin_small"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"
         android:layout_toEndOf="@id/adapter_user_image"
         android:textColor="@color/common_text"/>
 
@@ -36,6 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_margin_line"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/common_margin_small"
         android:layout_toEndOf="@id/adapter_user_image"
         android:background="@color/common_divider"/>
 </RelativeLayout>

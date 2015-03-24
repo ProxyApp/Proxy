@@ -27,7 +27,6 @@
             android:layout_width="match_parent"
             android:selectAllOnFocus="true"
             android:layout_height="match_parent"
-            android:background="@drawable/selector_edittext_underline_green_gray"
             android:hint="@string/dialog_addgroup_title"
             android:inputType="textEmailAddress"
             android:singleLine="true"/>

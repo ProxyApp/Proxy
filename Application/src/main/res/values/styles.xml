@@ -14,6 +14,11 @@
         <item name="android:textColor">@color/common_text</item>
     </style>
 
+    <style name="Widget.Proxy.App.Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:textColorPrimary">@color/common_text</item>
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+
     <style name="Widget.Proxy.EditText.FloatLabel" parent="android:TextAppearance.Small">
         <item name="android:textColor">@color/common_text_disabled</item>
         <item name="android:textStyle">bold</item>

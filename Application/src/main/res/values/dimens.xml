@@ -18,13 +18,14 @@
     <dimen name="common_rect_medium">72dp</dimen>
     <dimen name="common_rect_large">84dp</dimen>
     <dimen name="common_rect_huge">96dp</dimen>
-    <dimen name="common_fab_elevation">4dp</dimen>
-    <dimen name="common_drawer_elevation">8dp</dimen>
-    <dimen name="common_fab_radius">60dp</dimen>
-    <dimen name="common_drawer_width">320dp</dimen>
-    <dimen name="common_circleimageview_item_radius">60dp</dimen>
-    <dimen name="common_circleimageview_settings_radius">75dp</dimen>
-    <dimen name="common_svg_small">24dp</dimen>
-    <dimen name="common_svg_medium">36dp</dimen>
-    <dimen name="common_svg_large">48dp</dimen>
+    <dimen name="common_fab_radius">@dimen/common_rect_small</dimen>
+    <dimen name="common_circleimageview_item_radius">@dimen/common_rect_small</dimen>
+    <dimen name="common_fab_elevation">@dimen/common_margin_xxtiny</dimen>
+    <dimen name="common_drawer_elevation">@dimen/common_margin_xxtiny</dimen>
+    <dimen name="common_drawer_width">312dp</dimen>
+    <dimen name="common_circleimageview_settings_radius">@dimen/common_rect_medium</dimen>
+    <dimen name="common_svg_small">@dimen/common_margin_medium</dimen>
+    <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
+    <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
+    <dimen name="common_svg_ultra">720dp</dimen>
 </resources>

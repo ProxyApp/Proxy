@@ -1,8 +1,8 @@
 package com.proxy.app.fragment;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
@@ -14,15 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.caverock.androidsvg.PreserveAspectRatio;
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParseException;
 import com.proxy.R;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
 import com.proxy.event.OttoBusDriver;
 import com.proxy.model.Group;
+import com.proxy.widget.FloatingActionButton;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -31,11 +29,12 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
-import timber.log.Timber;
 
 import static com.proxy.Constants.ARG_GROUP_LIST;
 import static com.proxy.util.DebugUtils.getDebugTAG;
 import static com.proxy.util.ViewUtils.dpToPx;
+import static com.proxy.util.ViewUtils.getLargeIconDimen;
+import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * Fragment that handles displaying a group list.
@@ -44,9 +43,10 @@ public class GroupFragment extends BaseFragment {
     private static final String TAG = getDebugTAG(GroupFragment.class);
     @InjectView(R.id.fragment_group_recyclerview)
     protected RecyclerView mRecyclerView;
+    @InjectView(R.id.fragment_group_add_item)
+    protected FloatingActionButton mActionButton;
     @InjectView(R.id.fragment_group_add_item_image)
-    protected ImageView mAddItemImage;
-    private float mImageWidth;
+    protected ImageView mActionButtonImage;
     private GroupRecyclerAdapter mAdapter;
 
     /**
@@ -55,6 +55,11 @@ public class GroupFragment extends BaseFragment {
     public GroupFragment() {
     }
 
+    /**
+     * Get a new Instance of this {@link GroupFragment}.
+     *
+     * @return {@link GroupFragment}
+     */
     public static GroupFragment newInstance() {
         return new GroupFragment();
     }
@@ -71,12 +76,6 @@ public class GroupFragment extends BaseFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         OttoBusDriver.register(this);
-        mImageWidth = dpToPx(activity, getResourceDimension(activity));
-
-    }
-
-    private float getResourceDimension(Activity activity) {
-        return activity.getResources().getDimension(R.dimen.common_svg_large);
     }
 
 
@@ -103,23 +102,27 @@ public class GroupFragment extends BaseFragment {
         ButterKnife.reset(this);
     }
 
+    /**
+     * Set the content image of this {@link GroupFragment#mActionButtonImage}
+     */
+    @SuppressWarnings("NewApi")
     private void initializeSVG() {
-        ViewCompat.setLayerType(mAddItemImage, ViewCompat.LAYER_TYPE_SOFTWARE, null);
-        try {
-            SVG svg = SVG.getFromResource(getActivity(), R.raw.add);
-            svg.setDocumentWidth(mImageWidth);
-            svg.setDocumentHeight(mImageWidth);
-            svg.setDocumentPreserveAspectRatio(PreserveAspectRatio.END);
-            Drawable drawable = new PictureDrawable(svg.renderToPicture());
-            mAddItemImage.setImageDrawable(drawable);
-        } catch (SVGParseException e) {
-            Timber.e(e, TAG + "initializeSVG()");
-        }
-        ViewCompat.setElevation(mAddItemImage, getElevation());
+        ViewCompat.setLayerType(mActionButtonImage, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+
+        Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.add,
+            getLargeIconDimen(getActivity()), Color.WHITE);
+        mActionButtonImage.setImageDrawable(drawable);
+
+        ViewCompat.setElevation(mActionButton, getElevation());
     }
 
+    /**
+     * Get a common {@link FloatingActionButton} elevation resource.
+     *
+     * @return elevation dimension
+     */
     private float getElevation() {
-        return dpToPx(getActivity(), getResources().getDimension(R.dimen.common_fab_elevation));
+        return dpToPx(getActivity().getResources(), R.dimen.common_fab_elevation);
     }
 
     @Override

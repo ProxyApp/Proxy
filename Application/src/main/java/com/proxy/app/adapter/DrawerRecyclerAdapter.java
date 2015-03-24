@@ -10,9 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.proxy.R;
 import com.proxy.model.Group;
 import com.proxy.model.User;
@@ -25,21 +22,25 @@ import butterknife.InjectView;
  * Adapter to handle creating a drawer with a User Header and User Settings.
  */
 public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String HEADER = "HEADER";
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
     private final User mUser = getUserVinny();
-    private String[] VALUES;
+    private String[] mValues;
 
     /**
      * Constructor for {@link DrawerRecyclerAdapter}.
+     *
+     * @param settingsArray array of drawer options
      */
     private DrawerRecyclerAdapter(String[] settingsArray) {
-        VALUES = settingsArray;
+        mValues = settingsArray;
     }
 
     /**
      * Create a newInstance of a {@link DrawerRecyclerAdapter} with blank data.
      *
+     * @param settingsArray array of drawer options
      * @return an {@link DrawerRecyclerAdapter} with no data
      */
     public static DrawerRecyclerAdapter newInstance(String[] settingsArray) {
@@ -53,7 +54,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
      */
     private User getUserVinny() {
         return User.builder().firstName("Vinny").lastName("Bucchino").email("vinny@gmail.com")
-            .userImageURL("http://upload.wikimedia.org/wikipedia/commons/0/0d/Astronaut_adam.jpg")
+            .userImageURL("http://i.imgur.com/DvpvklR.png")
             .build();
     }
 
@@ -63,7 +64,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (viewType == TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_drawer_header, parent, false);
-            return HeaderViewHolder.newInstance(view, parent.getContext());
+            return HeaderViewHolder.newInstance(view);
         } else {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.common_adapter_text_item, parent, false);
@@ -79,45 +80,19 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             Context context = viewHolder.view.getContext();
             viewHolder.userName.setText(mUser.firstName() + " " + mUser.lastName());
             Glide.with(context).load(mUser.userImageURL())
-                .transform(new GlideCircleTransform(context))
-                .placeholder(R.drawable.adam).error(R.drawable.evan)
-                .listener(getGlideListener(viewHolder)).into(viewHolder.userImage);
+                .bitmapTransform(GlideCircleTransform.create(Glide.get(context).getBitmapPool()))
+                .crossFade()
+
+                .into(viewHolder.userImage);
 
             viewHolder.backgroundContainer.setBackgroundColor(
-                viewHolder.view.getContext().getResources().getColor(R.color.common_deep_purple));
+                context.getResources().getColor(R.color.common_deep_purple));
         } else {
             ItemViewHolder viewHolder = (ItemViewHolder) holder;
-            viewHolder.name.setText(VALUES[position - 1]);
+            viewHolder.name.setText(mValues[position - 1]);
         }
     }
 
-
-    /**
-     * Create a new target to load bitmaps into.
-     *
-     * @param holder viewHolder
-     * @return Target
-     */
-    private RequestListener<String, GlideDrawable> getGlideListener(final HeaderViewHolder holder) {
-        return new RequestListener<String, GlideDrawable>() {
-
-            @Override
-            public boolean onException(
-                Exception e, String model, Target<GlideDrawable> target,
-                boolean isFirstResource) {
-                return false;
-            }
-
-            @Override
-            public boolean onResourceReady(
-                GlideDrawable resource, String model,
-                Target<GlideDrawable> target, boolean isFromMemoryCache,
-                boolean isFirstResource) {
-                holder.userImage.setImageDrawable(resource);
-                return false;
-            }
-        };
-    }
 
     @Override
     public int getItemViewType(int position) {
@@ -127,18 +102,22 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public int getItemCount() {
         // +1 for the header
-        return VALUES.length + 1;
+        return mValues.length + 1;
     }
 
     /**
      * Get Settings name.
      *
      * @param position position of item
-     * @return VALUES string
+     * @return mValues string
      */
 
     public String getSettingValue(int position) {
-        return VALUES[position - 1];
+        if (position == 0) {
+            return HEADER;
+        } else {
+            return mValues[position - 1];
+        }
     }
 
     /**
@@ -158,7 +137,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
          *
          * @param view the inflated view
          */
-        private HeaderViewHolder(View view, Context context) {
+        private HeaderViewHolder(View view) {
             super(view);
             ButterKnife.inject(this, view);
             this.view = view;
@@ -170,8 +149,8 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
          * @param view inflated in {@link #onCreateViewHolder}
          * @return a {@link Group} ViewHolder instance
          */
-        public static HeaderViewHolder newInstance(View view, Context context) {
-            return new HeaderViewHolder(view, context);
+        public static HeaderViewHolder newInstance(View view) {
+            return new HeaderViewHolder(view);
         }
     }
 
