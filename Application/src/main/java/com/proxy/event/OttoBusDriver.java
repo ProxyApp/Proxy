@@ -6,15 +6,12 @@ import com.squareup.otto.ThreadEnforcer;
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
-import static com.proxy.util.DebugUtils.getDebugTAG;
-
 /**
  * A Bus driver singleton pattern that allows one to easily send messages over {@link
  * ThreadEnforcer#ANY} thread or the {@link ThreadEnforcer#MAIN} ui thread.
  */
 @SuppressWarnings("unused")
 public class OttoBusDriver {
-    private static final String TAG = getDebugTAG(OttoBusDriver.class);
     private static final String EVENT_POSTED = " Posted";
     private static final String EVENT_UNREGISTERED = "UnRegistering listener: ";
     private static final String EVENT_REGISTERED = "Registering listener: ";
@@ -61,7 +58,7 @@ public class OttoBusDriver {
      * @param subscriber event subscriber.
      */
     public static void register(Object subscriber) {
-        Timber.v(TAG + EVENT_REGISTERED + subscriber);
+        Timber.v(EVENT_REGISTERED + subscriber);
         getAnyBusDriver().register(subscriber);
     }
 
@@ -71,7 +68,7 @@ public class OttoBusDriver {
      * @param subscriber event subscriber.
      */
     public static void unregister(Object subscriber) {
-        Timber.v(TAG + EVENT_UNREGISTERED + subscriber);
+        Timber.v(EVENT_UNREGISTERED + subscriber);
         getAnyBusDriver().unregister(subscriber);
     }
 
@@ -81,7 +78,7 @@ public class OttoBusDriver {
      * @param event event object.
      */
     public static void post(Object event) {
-        Timber.v(TAG + event.getClass().getSimpleName() + EVENT_POSTED);
+        Timber.v(event.getClass().getSimpleName() + EVENT_POSTED);
         getAnyBusDriver().post(event);
     }
 
@@ -91,7 +88,7 @@ public class OttoBusDriver {
      * @param subscriber event subscriber class.
      */
     public static void registerMainThread(Class subscriber) {
-        Timber.v(TAG + EVENT_REGISTERED + subscriber);
+        Timber.v(EVENT_REGISTERED + subscriber);
         getMainBusDriver().register(subscriber);
     }
 
@@ -102,7 +99,7 @@ public class OttoBusDriver {
      */
 
     public static void unregisterMainThread(Class subscriber) {
-        Timber.v(TAG + EVENT_UNREGISTERED + subscriber);
+        Timber.v(EVENT_UNREGISTERED + subscriber);
         getMainBusDriver().unregister(subscriber);
     }
 
@@ -113,7 +110,7 @@ public class OttoBusDriver {
      */
     @DebugLog
     public static void postMainThread(Object event) {
-        Timber.v(TAG + event.getClass().getSimpleName() + EVENT_POSTED);
+        Timber.v(event.getClass().getSimpleName() + EVENT_POSTED);
         getMainBusDriver().post(event);
     }
 

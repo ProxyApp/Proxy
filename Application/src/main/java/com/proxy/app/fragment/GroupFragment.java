@@ -15,11 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.proxy.R;
+import com.proxy.api.model.Group;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
 import com.proxy.event.OttoBusDriver;
-import com.proxy.api.model.Group;
 import com.proxy.widget.FloatingActionButton;
 import com.squareup.otto.Subscribe;
 
@@ -31,7 +31,7 @@ import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 
 import static com.proxy.Constants.ARG_GROUP_LIST;
-import static com.proxy.util.DebugUtils.getDebugTAG;
+import static com.proxy.util.DebugUtils.getSimpleName;
 import static com.proxy.util.ViewUtils.dpToPx;
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
@@ -40,7 +40,7 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
  * Fragment that handles displaying a group list.
  */
 public class GroupFragment extends BaseFragment {
-    private static final String TAG = getDebugTAG(GroupFragment.class);
+    private static final String TAG = getSimpleName(GroupFragment.class);
     @InjectView(R.id.fragment_group_recyclerview)
     protected RecyclerView mRecyclerView;
     @InjectView(R.id.fragment_group_add_item)
