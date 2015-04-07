@@ -15,6 +15,7 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -37,12 +38,16 @@ android {
         exclude 'META-INF/NOTICE'
 
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
 
 dependencies {
     //Local
     compile fileTree(dir: 'libs', include: '*.jar')
     //Google
+    compile 'com.android.support:multidex:1.0.0'
     compile 'com.google.android.gms:play-services:7.0.0'
     //Android
     compile 'com.android.support:appcompat-v7:22.0.0'
@@ -59,8 +64,8 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     //Third party
     compile 'com.firebase:firebase-client-android:2.2.3+'
-//    compile 'com.netflix.rxjava:rxjava-core:0.20.7'
-//    compile 'com.netflix.rxjava:rxjava-android:0.20.7'
+    compile 'io.reactivex:rxjava:1.0.8'
+    compile 'io.reactivex:rxandroid:0.24.0'
     compile 'io.realm:realm-android:0.80.0'
     compile 'com.github.bumptech.glide:glide:3.5.2'
     compile 'com.github.bumptech.glide:okhttp-integration:1.2.2'
