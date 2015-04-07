@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.proxy.R;
 import com.proxy.event.GroupAddedEvent;
 import com.proxy.event.OttoBusDriver;
-import com.proxy.model.Group;
+import com.proxy.api.model.Group;
 import com.proxy.widget.FloatLabelLayout;
 
 import butterknife.ButterKnife;
