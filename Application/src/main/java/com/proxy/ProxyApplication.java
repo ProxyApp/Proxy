@@ -16,6 +16,8 @@
 package com.proxy;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.firebase.client.Firebase;
 
@@ -33,5 +35,11 @@ public class ProxyApplication extends Application {
             Timber.plant(new Timber.DebugTree());
         }
         Firebase.setAndroidContext(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }
