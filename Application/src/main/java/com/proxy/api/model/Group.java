@@ -2,12 +2,15 @@ package com.proxy.api.model;
 
 import android.os.Parcelable;
 
+import com.proxy.api.gson.AutoGson;
+
 import auto.parcel.AutoParcel;
 
 /**
  * Groups only have names for now.
  */
 @AutoParcel
+@AutoGson(autoValueClass = AutoParcel_Group.class)
 public abstract class Group implements Parcelable {
     /**
      * create a new Group.

@@ -25,6 +25,8 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
+import com.proxy.api.RestClient;
+import com.proxy.api.model.User;
 import com.proxy.app.dialog.LoginErrorDialog;
 import com.proxy.event.LoginErrorDialogEvent;
 import com.squareup.otto.Subscribe;
@@ -34,6 +36,9 @@ import java.io.IOException;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import timber.log.Timber;
 
 import static com.proxy.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
@@ -391,7 +396,28 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
 
         @Override
         public void onAuthenticated(AuthData authData) {
-            Timber.i(TAG, provider + " auth successful");
+            Timber.i(TAG + provider);
+            RestClient restClient = RestClient.newInstance(LoginActivity.this);
+
+            String firstName = (String) authData.getProviderData().get("given_name");
+            String lastName = (String) authData.getProviderData().get("family_name");
+            String pictureURL = (String) authData.getProviderData().get("picture");
+
+            restClient.getUserService().registerUser(authData.getUid(), User.builder()
+                .firstName("Vinny").lastName("Bucchino").email("vinny@gmail.com")
+                .userImageURL("http://i.imgur.com/DvpvklR.png")
+                .build(), new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    Timber.i(TAG + " rest client success");
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Timber.i(TAG + " rest client failure");
+                    Timber.e(error.toString());
+                }
+            });
         }
 
         @Override
