@@ -6,14 +6,12 @@ import com.proxy.api.model.Group;
 
 import timber.log.Timber;
 
-import static com.proxy.util.DebugUtils.getDebugTAG;
 
 
 /**
  * Pass around a group.
  */
 public class GroupAddedEvent {
-    private static final String TAG = getDebugTAG(UserAddedEvent.class);
     public final Group group;
 
     /**
@@ -22,7 +20,7 @@ public class GroupAddedEvent {
      * @param group this events group
      */
     public GroupAddedEvent(@NonNull Group group) {
-        Timber.v(TAG + group);
+        Timber.v(group.toString());
         this.group = group;
     }
 }

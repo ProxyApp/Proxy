@@ -6,14 +6,12 @@ import com.proxy.api.model.User;
 
 import timber.log.Timber;
 
-import static com.proxy.util.DebugUtils.getDebugTAG;
 
 
 /**
  * Event to pass around a user.
  */
 public class UserAddedEvent {
-    private static final String TAG = getDebugTAG(UserAddedEvent.class);
     public final User user;
 
     /**
@@ -22,7 +20,7 @@ public class UserAddedEvent {
      * @param user this events user
      */
     public UserAddedEvent(@NonNull User user) {
-        Timber.v(TAG + user);
+        Timber.v(user.toString());
         this.user = user;
     }
 }

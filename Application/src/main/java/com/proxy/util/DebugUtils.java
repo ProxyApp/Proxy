@@ -22,14 +22,4 @@ public class DebugUtils {
         return klass.getSimpleName();
     }
 
-    /**
-     * Get a formatted TAG string.
-     *
-     * @param klass the class to create a TAG for
-     * @return return the TAG String
-     */
-    public static String getDebugTAG(Class klass) {
-        return klass.getSimpleName() + ": ";
-    }
-
 }

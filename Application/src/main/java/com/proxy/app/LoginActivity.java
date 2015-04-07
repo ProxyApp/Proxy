@@ -21,6 +21,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.proxy.IntentLauncher;
@@ -50,35 +51,23 @@ import static com.proxy.util.DebugUtils.getSimpleName;
 public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
 
+    public static final String AUTH_GOOGLE = "google";
+    public static final String GOOGLE_UID_PREFIX = "google:";
+    public static final String GOOGLE_ERROR_AUTH = "Error authenticating with "
+        + "Google: ";
     private static final String TAG = getSimpleName(LoginActivity.class);
     private static final int STATE_DEFAULT = 0;
     private static final int STATE_SIGN_IN = 1;
     private static final int STATE_IN_PROGRESS = 2;
     private static final int RC_SIGN_IN = 0;
-
+    private static final String EMAIL = "https://www.googleapis.com/auth/userinfo.email";
+    private static final String PROFILE = "https://www.googleapis.com/auth/userinfo.profile";
     // saved bundle strings
     private static final String SAVED_PROGRESS = "sign_in_progress";
-    public static final String AUTH_GOOGLE = "google";
-    public static final String GOOGLE_ERROR_AUTH = "Error authenticating with "
-        + "Google: ";
     @InjectView(R.id.activity_login_sign_in_button)
     protected SignInButton mSignInButton;
     private Firebase mFirebaseRef;
     private boolean mGoogleIntentInProgress = false;
-
-    /**
-     * Sign in click listener.
-     */
-    @OnClick(R.id.activity_login_sign_in_button)
-    protected void onClickSignIn() {
-        if (!mGoogleApiClient.isConnecting()) {
-            // We only process button clicks when GoogleApiClient is not transitioning
-            // between connected and not connected.
-            mSignInProgress = STATE_SIGN_IN;
-            mGoogleApiClient.connect();
-        }
-    }
-
     // GoogleApiClient wraps our service connection to Google Play services and
     // provides access to the users sign in state and Google's APIs.
     private GoogleApiClient mGoogleApiClient;
@@ -104,6 +93,19 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // Used to store the error code most recently returned by Google Play services
     // until the user clicks 'sign in'.
     private int mSignInError;
+
+    /**
+     * Sign in click listener.
+     */
+    @OnClick(R.id.activity_login_sign_in_button)
+    protected void onClickSignIn() {
+        if (!mGoogleApiClient.isConnecting()) {
+            // We only process button clicks when GoogleApiClient is not transitioning
+            // between connected and not connected.
+            mSignInProgress = STATE_SIGN_IN;
+            mGoogleApiClient.connect();
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -141,7 +143,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .addConnectionCallbacks(this)
             .addOnConnectionFailedListener(this)
             .addApi(Plus.API, Plus.PlusOptions.builder().build())
-            .addScope(Plus.SCOPE_PLUS_LOGIN);
+            .addScope(Plus.SCOPE_PLUS_LOGIN)
+            .addScope(new Scope(EMAIL))
+            .addScope(new Scope(PROFILE));
 
         return builder.build();
     }
@@ -176,10 +180,37 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     public void onConnected(Bundle connectionHint) {
         // Update the user interface to reflect that the user is signed in.
         mSignInButton.setEnabled(false);
+        // this will call an intent for the next activity
+
+        RestClient restClient = RestClient.newInstance(LoginActivity.this);
+
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-        Timber.i("Current User:" + currentUser.toString());
-        // this will call an intent for the next activity
+        String userId = currentUser.getId();
+        String firstName = currentUser.getName().getGivenName();
+        String lastName = currentUser.getName().getFamilyName();
+        String pictureURL = currentUser.getImage().getUrl();
+        String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+
+        User loggedInUser = User.builder().firstName(firstName).lastName(lastName).email(email)
+            .userImageURL(pictureURL).build();
+
+        Timber.i(loggedInUser.toString());
+
+        restClient.getUserService().registerUser(GOOGLE_UID_PREFIX + userId, loggedInUser,
+            new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    Timber.i(TAG + " rest client success");
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Timber.i(TAG + " rest client failure");
+                    Timber.e(error.toString());
+                }
+            });
+
         getGoogleOAuthTokenAndLogin();
     }
 
@@ -397,27 +428,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         @Override
         public void onAuthenticated(AuthData authData) {
             Timber.i(TAG + provider);
-            RestClient restClient = RestClient.newInstance(LoginActivity.this);
-
-            String firstName = (String) authData.getProviderData().get("given_name");
-            String lastName = (String) authData.getProviderData().get("family_name");
-            String pictureURL = (String) authData.getProviderData().get("picture");
-
-            restClient.getUserService().registerUser(authData.getUid(), User.builder()
-                .firstName("Vinny").lastName("Bucchino").email("vinny@gmail.com")
-                .userImageURL("http://i.imgur.com/DvpvklR.png")
-                .build(), new Callback<User>() {
-                @Override
-                public void success(User user, Response response) {
-                    Timber.i(TAG + " rest client success");
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    Timber.i(TAG + " rest client failure");
-                    Timber.e(error.toString());
-                }
-            });
         }
 
         @Override
