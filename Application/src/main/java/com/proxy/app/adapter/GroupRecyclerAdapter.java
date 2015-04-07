@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.model.Group;
+import com.proxy.api.model.Group;
 
 import java.util.ArrayList;
 

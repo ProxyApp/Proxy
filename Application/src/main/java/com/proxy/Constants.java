@@ -1,8 +1,8 @@
 package com.proxy;
 
 
-import com.proxy.model.Group;
-import com.proxy.model.User;
+import com.proxy.api.model.Group;
+import com.proxy.api.model.User;
 
 /**
  * Constant Values.

@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.proxy.R;
-import com.proxy.model.Group;
-import com.proxy.model.User;
+import com.proxy.api.model.Group;
+import com.proxy.api.model.User;
 import com.proxy.widget.transform.GlideCircleTransform;
 
 import butterknife.ButterKnife;

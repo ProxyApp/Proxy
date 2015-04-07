@@ -1,4 +1,4 @@
-package com.proxy.model;
+package com.proxy.api.model;
 
 import android.os.Parcelable;
 
