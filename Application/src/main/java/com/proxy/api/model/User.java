@@ -2,12 +2,15 @@ package com.proxy.api.model;
 
 import android.os.Parcelable;
 
+import com.proxy.api.gson.AutoGson;
+
 import auto.parcel.AutoParcel;
 
 /**
  * Users with some random information for now.
  */
 @AutoParcel
+@AutoGson(autoValueClass = AutoParcel_User.class)
 public abstract class User implements Parcelable {
 
     /**
@@ -41,28 +44,28 @@ public abstract class User implements Parcelable {
     }
 
     /**
-     * get users first name.
+     * Get users first name.
      *
      * @return first name
      */
     public abstract String firstName();
 
     /**
-     * get users last name.
+     * Get users last name.
      *
      * @return last name
      */
     public abstract String lastName();
 
     /**
-     * get users email.
+     * Get users email.
      *
      * @return email
      */
     public abstract String email();
 
     /**
-     * get user profile image.
+     * Get user profile image.
      *
      * @return profile image
      */
@@ -89,7 +92,7 @@ public abstract class User implements Parcelable {
     public interface Builder {
 
         /**
-         * set user first name.
+         * Set user first name.
          *
          * @param firstName user first name
          * @return first name string
@@ -97,7 +100,7 @@ public abstract class User implements Parcelable {
         Builder firstName(String firstName);
 
         /**
-         * set users last name.
+         * Set users last name.
          *
          * @param lastName user last name
          * @return last name string
@@ -105,7 +108,7 @@ public abstract class User implements Parcelable {
         Builder lastName(String lastName);
 
         /**
-         * set user email.
+         * Set user email.
          *
          * @param email this email
          * @return email string
@@ -113,7 +116,7 @@ public abstract class User implements Parcelable {
         Builder email(String email);
 
         /**
-         * set the user profile image URL.
+         * Set the user profile image URL.
          *
          * @param imageURL profile image url
          * @return URL string
@@ -127,4 +130,5 @@ public abstract class User implements Parcelable {
          */
         User build();
     }
+
 }
