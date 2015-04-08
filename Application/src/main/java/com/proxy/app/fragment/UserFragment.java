@@ -13,10 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proxy.R;
+import com.proxy.api.model.User;
 import com.proxy.app.adapter.UserRecyclerAdapter;
 import com.proxy.event.OttoBusDriver;
 import com.proxy.event.UserAddedEvent;
-import com.proxy.api.model.User;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
