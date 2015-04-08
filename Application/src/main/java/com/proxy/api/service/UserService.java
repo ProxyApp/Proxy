@@ -5,8 +5,10 @@ import com.proxy.api.model.User;
 
 import retrofit.Callback;
 import retrofit.http.Body;
+import retrofit.http.GET;
 import retrofit.http.PUT;
 import retrofit.http.Path;
+import rx.Observable;
 
 /**
  * User Observable.
@@ -16,15 +18,23 @@ public interface UserService {
     /**
      * Return a list of users.
      *
-     * @param userId unique id for users table
      * @return user observable
      */
-//    @GET("/user/{userId}/")
-//    Observable<User> listUser(@Path("userId") String userId);
-
+    @GET("/user/")
+    Observable<User> listUser();
 
     /**
-     * Return a list of users.
+     * Get a specific user.
+     *
+     * @param userId   user unique identifier
+     * @param callback async callback
+     * @return user
+     */
+    @GET("/user/{userId}.json")
+    User getUser(@Path("userId") String userId, Callback<User> callback);
+
+    /**
+     * Save a user.
      *
      * @param userId   unique id for users table
      * @param user     userData

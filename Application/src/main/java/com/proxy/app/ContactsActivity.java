@@ -15,7 +15,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
@@ -33,10 +39,8 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 /**
  * The main activity filled with contacts activity this application launches.
  */
-public class ContactsActivity extends BaseActivity implements BaseRecyclerView.OnItemClickListener {
-
-    //Static Fields
-//    private static final String TAG = getSimpleName(ContactsActivity.class);
+public class ContactsActivity extends BaseActivity implements BaseRecyclerView
+    .OnItemClickListener, ConnectionCallbacks, OnConnectionFailedListener {
     //Views
     @InjectView(R.id.common_toolbar)
     Toolbar mToolbar;
@@ -45,6 +49,7 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView.O
     @InjectView(R.id.activity_contacts_drawer_content)
     BaseRecyclerView mDrawerRecyclerView;
     private DrawerRecyclerAdapter mAdapter;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +60,18 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView.O
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
         initializeDrawer();
         initializeRecyclerView();
+        mGoogleApiClient = buildGoogleApiClient();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_contacts_fragment_container, new ContactsFragment())
                 .commit();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
     }
 
     /**
@@ -117,11 +129,35 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView.O
 
     @Override
     public void onItemClick(View view, int position) {
+
+        //if the user presses logout
         if (getString(R.string.settings_logout)
             .equals(mAdapter.getSettingValue(position))) {
-            IntentLauncher.launchLoginActivity(ContactsActivity.this, true);
-            finish();
+            // and the google api is connected
+            if (mGoogleApiClient.isConnected()) {
+                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                mGoogleApiClient.disconnect();
+                IntentLauncher.launchLoginActivity(ContactsActivity.this, true);
+                finish();
+            } else {
+                Toast.makeText(ContactsActivity.this, "Try Again Homie", Toast.LENGTH_SHORT).show();
+            }
         }
+    }
+
+    /**
+     * When we build the GoogleApiClient we specify where connected and connection failed callbacks
+     * should be returned, which Google APIs our app uses and which OAuth 2.0 scopes our app
+     * requests.
+     *
+     * @return Api Client
+     */
+    private GoogleApiClient buildGoogleApiClient() {
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(Plus.API, Plus.PlusOptions.builder().build());
+        return builder.build();
     }
 
     @Override
@@ -159,6 +195,21 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView.O
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 }
 
