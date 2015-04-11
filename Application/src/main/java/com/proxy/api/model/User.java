@@ -1,134 +1,176 @@
 package com.proxy.api.model;
 
-import android.os.Parcelable;
 
-import com.proxy.api.gson.AutoGson;
+import android.support.annotation.Nullable;
 
-import auto.parcel.AutoParcel;
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
- * Users with some random information for now.
+ * Users have a basic profile that contains their specific {@link Channel}s, {@link Contact}s, and
+ * {@link Group}s.
  */
-@AutoParcel
-@AutoGson(autoValueClass = AutoParcel_User.class)
-public abstract class User implements Parcelable {
+public class User extends RealmObject {
+    @PrimaryKey
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String imageURL;
+    @Nullable
+    private RealmList<Channel> channels;
+    @Nullable
+    private RealmList<Contact> contacts;
+    @Nullable
+    private RealmList<Group> groups;
 
     /**
-     * User Constructor.
+     * Getter.
      *
-     * @param firstName user first name
-     * @param lastName  user last name
-     * @param email     user email
-     * @param imageURL  user profile picture
-     * @return the entered user data
+     * @return unique user identifier
      */
-    @SuppressWarnings("unused")
-    public static User create(
-        String firstName, String lastName, String email, String imageURL) {
-        return builder().firstName(firstName).lastName(lastName).email(email)
-            .userImageURL(imageURL).build();
+    public String getUserId() {
+        return userId;
     }
 
     /**
-     * User builder.
+     * Setter.
      *
-     * @return this User.
+     * @param userId unique identifier
      */
-    public static Builder builder() {
-        // The subclass AutoParcel_PackagelessValueType is created by the annotation processor
-        // that is triggered by the presence of the @AutoParcel annotation. It has a constructor
-        // for each of the abstract getter methods here, in order. The constructor stashes the
-        // values here in private final fields, and each method is implemented to return the
-        // value of the corresponding field.
-        return new AutoParcel_User.Builder();
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     /**
-     * Get users first name.
+     * Getter.
      *
-     * @return first name
+     * @return Users First Name/Nickname
      */
-    public abstract String firstName();
-
-    /**
-     * Get users last name.
-     *
-     * @return last name
-     */
-    public abstract String lastName();
-
-    /**
-     * Get users email.
-     *
-     * @return email
-     */
-    public abstract String email();
-
-    /**
-     * Get user profile image.
-     *
-     * @return profile image
-     */
-    public abstract String userImageURL();
-
-    /**
-     * Validation conditions.
-     */
-    @AutoParcel.Validate
-    public void validate() {
-        if (firstName().length() == 0 || lastName() == null) {
-            throw new IllegalStateException("Need a valid first name");
-        }
-        if (lastName().length() == 0 || lastName() == null) {
-            throw new IllegalStateException("Need a valid last name");
-        }
+    public String getFirstName() {
+        return firstName;
     }
 
+    /**
+     * Setter.
+     *
+     * @param firstName string
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     /**
-     * User Builder.
+     * Getter.
+     *
+     * @return family name
      */
-    @AutoParcel.Builder
-    public interface Builder {
-
-        /**
-         * Set user first name.
-         *
-         * @param firstName user first name
-         * @return first name string
-         */
-        Builder firstName(String firstName);
-
-        /**
-         * Set users last name.
-         *
-         * @param lastName user last name
-         * @return last name string
-         */
-        Builder lastName(String lastName);
-
-        /**
-         * Set user email.
-         *
-         * @param email this email
-         * @return email string
-         */
-        Builder email(String email);
-
-        /**
-         * Set the user profile image URL.
-         *
-         * @param imageURL profile image url
-         * @return URL string
-         */
-        Builder userImageURL(String imageURL);
-
-        /**
-         * BUILD.
-         *
-         * @return User
-         */
-        User build();
+    public String getLastName() {
+        return lastName;
     }
+
+    /**
+     * Setter.
+     *
+     * @param lastName string
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
+     * Getter.
+     *
+     * @return users email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param email string
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * Getter.
+     *
+     * @return users profile picture url
+     */
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param imageURL string
+     */
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    /**
+     * Getter.
+     *
+     * @return users used channels list
+     */
+    @Nullable
+    public RealmList<Channel> getChannels() {
+        return channels;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param channels list
+     */
+    public void setChannels(@Nullable RealmList<Channel> channels) {
+        this.channels = channels;
+    }
+
+    /**
+     * Getter.
+     *
+     * @return users contacts
+     */
+    @Nullable
+    public RealmList<Contact> getContacts() {
+        return contacts;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param contacts list
+     */
+    public void setContacts(@Nullable RealmList<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    /**
+     * Getter.
+     *
+     * @return users groups
+     */
+    @Nullable
+    public RealmList<Group> getGroups() {
+        return groups;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param groups list
+     */
+    public void setGroups(@Nullable RealmList<Group> groups) {
+        this.groups = groups;
+    }
+
 
 }

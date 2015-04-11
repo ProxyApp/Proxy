@@ -3,7 +3,6 @@ package com.proxy.app.fragment;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,19 +12,21 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proxy.R;
+import com.proxy.api.RestClient;
 import com.proxy.api.model.User;
+import com.proxy.api.service.UserService;
 import com.proxy.app.adapter.UserRecyclerAdapter;
 import com.proxy.event.OttoBusDriver;
 import com.proxy.event.UserAddedEvent;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import hugo.weaving.DebugLog;
-
-import static com.proxy.Constants.ARG_USER_LIST;
+import rx.functions.Action1;
 
 
 /**
@@ -33,12 +34,25 @@ import static com.proxy.Constants.ARG_USER_LIST;
  */
 public class UserFragment extends BaseFragment {
 
-    public static final int DELAY_MILLIS = 5000;
     @InjectView(R.id.common_recyclerview)
     RecyclerView mRecyclerView;
     @InjectView(R.id.common_recyclerview_swipe_refresh)
     SwipeRefreshLayout mSwipeRefreshLayout;
     private UserRecyclerAdapter mAdapter;
+    SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout
+        .OnRefreshListener() {
+
+        @Override
+        public void onRefresh() {
+            mRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyDataSetChanged();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
+    };
 
     /**
      * Constructor.
@@ -67,16 +81,6 @@ public class UserFragment extends BaseFragment {
         OttoBusDriver.unregister(this);
     }
 
-    /**
-     * Build a user.
-     *
-     * @return Evan
-     */
-    public User getDefaultUser() {
-        return User.builder().firstName("Evan").lastName("Denerley").email("evan@gmail.com")
-            .userImageURL("http://i.imgur.com/DvpvklR.png").build();
-    }
-
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container,
@@ -84,7 +88,7 @@ public class UserFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.common_recyclerview, container, false);
         ButterKnife.inject(this, rootView);
         initializeRecyclerView();
-        initializeMockUserData();
+        initializeUserData();
         initializeSwipeRefresh();
         return rootView;
     }
@@ -98,21 +102,6 @@ public class UserFragment extends BaseFragment {
             .holo_orange_dark, R.color.common_green);
     }
 
-    SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout
-        .OnRefreshListener() {
-
-        @Override
-        public void onRefresh() {
-            mRecyclerView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.notifyDataSetChanged();
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
-            }, DELAY_MILLIS);
-        }
-    };
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -120,32 +109,18 @@ public class UserFragment extends BaseFragment {
     }
 
     /**
-     * Set some users
+     * Get the {@link User} data.
      */
-    private void initializeMockUserData() {
-        ArrayList<User> userArrayList = new ArrayList<>();
-        userArrayList.add(getDefaultUser());
-        userArrayList.add(getDefaultUser());
-        userArrayList.add(getDefaultUser());
-        userArrayList.add(getDefaultUser());
-        userArrayList.add(getDefaultUser());
-        mAdapter.setDataArray(userArrayList);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            ArrayList<User> arrayList = savedInstanceState.getParcelableArrayList(ARG_USER_LIST);
-            mAdapter.setDataArray(arrayList);
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(ARG_USER_LIST, mAdapter.getDataArray());
+    private void initializeUserData() {
+        UserService userService = RestClient.newInstance(getActivity()).getUserService();
+        userService.listUsers().subscribe(new Action1<Map<String, User>>() {
+            @Override
+            public void call(Map<String, User> userMap) {
+                for (Map.Entry<String, User> entry : userMap.entrySet()) {
+                    addUserToAdapter(entry.getValue());
+                }
+            }
+        });
     }
 
     /**
@@ -168,7 +143,16 @@ public class UserFragment extends BaseFragment {
     @DebugLog
     @SuppressWarnings("unused")
     public void userAdded(UserAddedEvent event) {
-        mAdapter.addUserData(event.user);
+        addUserToAdapter(event.user);
+    }
+
+    /**
+     * Add a user to the {@link ArrayList} persisted in the {@link UserRecyclerAdapter}.
+     *
+     * @param user to add
+     */
+    private void addUserToAdapter(User user) {
+        mAdapter.addUserData(user);
         mAdapter.notifyItemInserted(mAdapter.getItemCount());
     }
 

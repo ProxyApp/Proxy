@@ -23,30 +23,33 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
+import com.proxy.ProxyApplication;
 import com.proxy.R;
+import com.proxy.api.model.User;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
-import com.proxy.app.fragment.ContactsFragment;
+import com.proxy.app.fragment.MainFragment;
 import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import timber.log.Timber;
 
 import static com.proxy.util.ViewUtils.getMenuIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 
 /**
- * The main activity filled with contacts activity this application launches.
+ * The main activity filled with contacts.
  */
-public class ContactsActivity extends BaseActivity implements BaseRecyclerView
+public class MainActivity extends BaseActivity implements BaseRecyclerView
     .OnItemClickListener, ConnectionCallbacks, OnConnectionFailedListener {
     //Views
     @InjectView(R.id.common_toolbar)
     Toolbar mToolbar;
-    @InjectView(R.id.activity_contacts_drawer_layout)
+    @InjectView(R.id.activity_main_drawer_layout)
     DrawerLayout mDrawer;
-    @InjectView(R.id.activity_contacts_drawer_content)
+    @InjectView(R.id.activity_main_drawer_content)
     BaseRecyclerView mDrawerRecyclerView;
     private DrawerRecyclerAdapter mAdapter;
     private GoogleApiClient mGoogleApiClient;
@@ -54,7 +57,7 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contacts);
+        setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
@@ -63,7 +66,7 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
         mGoogleApiClient = buildGoogleApiClient();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_contacts_fragment_container, new ContactsFragment())
+                .replace(R.id.activity_main_fragment_container, new MainFragment())
                 .commit();
         }
     }
@@ -74,13 +77,22 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
         mGoogleApiClient.connect();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+
     /**
      * Initialize a RecyclerView with User data.
      */
     private void initializeRecyclerView() {
         mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = DrawerRecyclerAdapter.newInstance(
-            getResources().getStringArray(R.array.drawer_settings));
+            getCurrentUser(), getResources().getStringArray(R.array.drawer_settings));
         mDrawerRecyclerView.setAdapter(mAdapter);
         mDrawerRecyclerView.setHasFixedSize(true);
         mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -89,7 +101,16 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
     }
 
     /**
-     * Initialize this activities drawer view.
+     * Get the current user saved in {@link com.proxy.ProxyApplication}.
+     *
+     * @return current {@link User}
+     */
+    private User getCurrentUser() {
+        return ((ProxyApplication) getApplication()).getCurrentUser();
+    }
+
+    /**
+     * Initialize this activity's drawer view.
      */
     @SuppressLint("NewApi")
     private void initializeDrawer() {
@@ -129,18 +150,18 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
 
     @Override
     public void onItemClick(View view, int position) {
-
         //if the user presses logout
         if (getString(R.string.settings_logout)
             .equals(mAdapter.getSettingValue(position))) {
             // and the google api is connected
             if (mGoogleApiClient.isConnected()) {
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                mGoogleApiClient.disconnect();
-                IntentLauncher.launchLoginActivity(ContactsActivity.this, true);
+                IntentLauncher.launchLoginActivity(MainActivity.this, true);
                 finish();
             } else {
-                Toast.makeText(ContactsActivity.this, "Try Again Homie", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
+                    , Toast.LENGTH_SHORT).show();
+                mGoogleApiClient.connect();
             }
         }
     }
@@ -199,17 +220,20 @@ public class ContactsActivity extends BaseActivity implements BaseRecyclerView
 
     @Override
     public void onConnected(Bundle bundle) {
-
+        Timber.i("Connected to G+");
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        // The connection to Google Play services was lost for some reason.
+        // We call connect() to attempt to re-establish the connection or get a
+        // ConnectionResult that we can attempt to resolve.
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
+        mGoogleApiClient.connect();
     }
 }
 

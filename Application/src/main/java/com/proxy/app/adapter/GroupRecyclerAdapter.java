@@ -9,59 +9,59 @@ import android.widget.TextView;
 
 import com.proxy.R;
 import com.proxy.api.model.Group;
+import com.proxy.api.model.User;
 
-import java.util.ArrayList;
-
-import butterknife.ButterKnife;
 import butterknife.InjectView;
+import io.realm.RealmList;
 
 /**
  * An Adapter to handle displaying {@link Group}s.
  */
-public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.ViewHolder> {
+public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     //Persisted Group Array Data
-    private ArrayList<Group> mGroups;
+    private RealmList<Group> mGroups;
 
     /**
      * Constructor for {@link GroupRecyclerAdapter}.
      *
      * @param groups a list of {@link Group}s
      */
-    private GroupRecyclerAdapter(@NonNull ArrayList<Group> groups) {
+    private GroupRecyclerAdapter(@NonNull RealmList<Group> groups) {
         mGroups = groups;
     }
 
     /**
      * Create a newInstance of a {@link GroupRecyclerAdapter} with blank data.
      *
+     * @param groups initialize {@link User} {@link Group}s
      * @return an {@link GroupRecyclerAdapter} with no data
      */
-    public static GroupRecyclerAdapter newInstance() {
-        return new GroupRecyclerAdapter(new ArrayList<Group>());
+    public static GroupRecyclerAdapter newInstance(RealmList<Group> groups) {
+        return new GroupRecyclerAdapter(groups);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.common_adapter_text_item, parent, false);
-        return ViewHolder.newInstance(view);
+        return GroupViewHolder.newInstance(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
         Group group = getItemData(position);
-        setLineItemViewData(holder, group);
+        setLineItemViewData((GroupViewHolder) holder, group);
     }
 
     /**
      * Set this ViewHolders underlying {@link Group} data.
      *
-     * @param holder {@link Group} {@link ViewHolder}
+     * @param holder {@link Group} {@link GroupViewHolder}
      * @param group  the {@link Group} data
      */
-    private void setLineItemViewData(final ViewHolder holder, Group group) {
-        holder.groupName.setText(group.name());
+    private void setLineItemViewData(final GroupViewHolder holder, Group group) {
+        holder.groupName.setText(group.getLabel());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      *
      * @return the desired ArrayList<{@link Group}>
      */
-    public ArrayList<Group> getDataArray() {
+    public RealmList<Group> getDataArray() {
         return mGroups;
     }
 
@@ -83,7 +83,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
      *
      * @param groups {@link Group} array
      */
-    public void setDataArray(ArrayList<Group> groups) {
+    public void setDataArray(RealmList<Group> groups) {
         mGroups = groups;
     }
 
@@ -109,9 +109,44 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     }
 
     /**
+     * Add {@link Group} to this Adapter's array data at the specified position.
+     *
+     * @param position position in the array
+     * @param group    the {@link Group} to add
+     */
+    public void addGroupData(int position, @NonNull Group group) {
+        synchronized (GroupRecyclerAdapter.class) {
+            mGroups.add(position, group);
+        }
+    }
+
+    /**
+     * Get the desired {@link Group} based off its position in a list.
+     *
+     * @param position the position in the list
+     * @return the desired {@link Group}
+     */
+    public Group getGroupData(int position) {
+        return mGroups.get(position);
+    }
+
+    /**
+     * Remove item at specified position.
+     *
+     * @param position of item to delete
+     */
+    public void removeGroupData(int position) {
+        synchronized (GroupRecyclerAdapter.class) {
+            if (mGroups.size() > 0) {
+                mGroups.remove(position);
+            }
+        }
+    }
+
+    /**
      * ViewHolder for the entered {@link Group} data.
      */
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class GroupViewHolder extends BaseViewHolder {
         @InjectView(R.id.adapter_group_name)
         protected TextView groupName;
 
@@ -120,19 +155,17 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
          *
          * @param view the inflated view
          */
-        private ViewHolder(View view) {
+        private GroupViewHolder(View view) {
             super(view);
-            ButterKnife.inject(this, view);
         }
-
         /**
          * Create a new Instance of the ViewHolder.
          *
-         * @param view inflated in {@link #onCreateViewHolder}
-         * @return a {@link Group} ViewHolder instance
+         * @param view inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @return a ViewHolder instance
          */
-        public static ViewHolder newInstance(View view) {
-            return new ViewHolder(view);
+        public static GroupViewHolder newInstance(View view) {
+            return new GroupViewHolder(view);
         }
     }
 }

@@ -9,20 +9,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.proxy.R;
 import com.proxy.api.model.User;
-import com.proxy.widget.transform.GlideCircleTransform;
+import com.proxy.widget.transform.CircleTransform;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
+
 
 /**
  * An Adapter to handle displaying {@link User}s.
  */
-public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.ViewHolder> {
+public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     //Persisted User Array Data
     private ArrayList<User> mUsers;
 
@@ -45,30 +45,30 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_user_item, parent, false);
-        return ViewHolder.newInstance(view);
+        return UserViewHolder.newInstance(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        User user = getItemData(position);
-        setLineItemViewData(holder, user);
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
+        setItemViewData((UserViewHolder) holder, getItemData(position));
     }
 
     /**
      * Set this ViewHolders underlying {@link User} data.
      *
-     * @param holder {@link User} {@link ViewHolder}
+     * @param holder {@link User} {@link BaseViewHolder}
      * @param user   the {@link User} data
      */
-    private void setLineItemViewData(ViewHolder holder, User user) {
+    private void setItemViewData(UserViewHolder holder, User user) {
         Context context = holder.view.getContext();
-        holder.userName.setText(user.firstName() + " " + user.lastName());
-        Glide.with(context).load(user.userImageURL())
-            .bitmapTransform(GlideCircleTransform.create(Glide.get(context).getBitmapPool()))
-            .crossFade()
+
+        holder.userName.setText(user.getFirstName() + " " + user.getLastName());
+        Picasso.with(context).load(user.getImageURL())
+            .placeholder(R.drawable.proxy_icon)
+            .transform(new CircleTransform())
             .into(holder.userImage);
     }
 
@@ -119,22 +119,19 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     /**
      * ViewHolder for the entered {@link User} data.
      */
-    protected static class ViewHolder extends RecyclerView.ViewHolder {
+    protected static class UserViewHolder extends BaseViewHolder {
         @InjectView(R.id.adapter_user_name)
         protected TextView userName;
         @InjectView(R.id.adapter_user_image)
         protected ImageView userImage;
-        protected View view;
 
         /**
          * Constructor for the holder.
          *
          * @param view the inflated view
          */
-        private ViewHolder(View view) {
+        private UserViewHolder(View view) {
             super(view);
-            ButterKnife.inject(this, view);
-            this.view = view;
         }
 
         /**
@@ -143,8 +140,8 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
          * @param view inflated in {@link #onCreateViewHolder}
          * @return a {@link User} ViewHolder instance
          */
-        public static ViewHolder newInstance(View view) {
-            return new ViewHolder(view);
+        public static UserViewHolder newInstance(View view) {
+            return new UserViewHolder(view);
         }
     }
 }

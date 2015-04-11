@@ -3,6 +3,7 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         // NOTE: Do not place your application dependencies here; they belong
@@ -11,14 +12,19 @@ buildscript {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
         classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.0'
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 allprojects {
     repositories {
         jcenter()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     task checkstyle(type: Checkstyle) {
