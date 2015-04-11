@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -31,13 +30,13 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * {@link Fragment} to handle adding a {@link UserFragment} and {@link GroupFragment} to this {@link
- * ContactsFragment#mSlidingTabLayout}.
+ * MainFragment#mSlidingTabLayout}.
  */
-public class ContactsFragment extends BaseFragment {
+public class MainFragment extends BaseFragment {
 
-    @InjectView(R.id.fragment_contacts_viewpager)
+    @InjectView(R.id.fragment_main_viewpager)
     ViewPager mViewPager;
-    @InjectView(R.id.fragment_contacts_sliding_tabs)
+    @InjectView(R.id.fragment_main_sliding_tabs)
     SlidingTabLayout mSlidingTabLayout;
     private List<Pair<ContentDescriptionDrawable, Fragment>> mFragmentArray;
 
@@ -49,28 +48,43 @@ public class ContactsFragment extends BaseFragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
-    }
-
-    @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_contacts, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.inject(this, rootView);
         initialize();
         return rootView;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.reset(this);
+    /**
+     * Initialize this fragments data and {@link SlidingTabLayout}.
+     */
+    private void initialize() {
+        addTabFragments();
+        mViewPager.setAdapter(new ContactsFragmentPagerAdapter(getChildFragmentManager()));
+        // Give the SlidingTabLayout the ViewPager, this must be done AFTER the ViewPager has had
+        // it's PagerAdapter set.
+        mSlidingTabLayout.setViewPager(mViewPager);
+
+        // Set a TabColorizer to customize the indicator and divider colors. Here we just retrieve
+        // the tab at the position, and return it's set color
+        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+
+            @Override
+            public int getIndicatorColor(int position) {
+                return getActivity().getResources().getColor(R.color.common_text_inverse);
+            }
+
+            @Override
+            public int getDividerColor(int position) {
+                return Color.TRANSPARENT;
+            }
+
+        });
     }
 
     /**
-     * Add fragments to the List backing the {@link ContactsFragment#mSlidingTabLayout}.
+     * Add fragments to the List backing the {@link MainFragment#mSlidingTabLayout}.
      */
     private void addTabFragments() {
         if (mFragmentArray == null) {
@@ -122,43 +136,16 @@ public class ContactsFragment extends BaseFragment {
             .string.Groups));
     }
 
-    /**
-     * Initialize this fragments data and {@link SlidingTabLayout}.
-     */
-    private void initialize() {
-        addTabFragments();
-        mViewPager.setAdapter(new ContactsFragmentPagerAdapter(getChildFragmentManager()));
-        // Give the SlidingTabLayout the ViewPager, this must be done AFTER the ViewPager has had
-        // it's PagerAdapter set.
-        mSlidingTabLayout.setViewPager(mViewPager);
-
-        // Set a TabColorizer to customize the indicator and divider colors. Here we just retrieve
-        // the tab at the position, and return it's set color
-        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
-
-            @Override
-            public int getIndicatorColor(int position) {
-                return getActivity().getResources().getColor(R.color.common_text_inverse);
-            }
-
-            @Override
-            public int getDividerColor(int position) {
-                return Color.TRANSPARENT;
-            }
-
-        });
-        mSlidingTabLayout.setBackgroundColor(getActivity().getResources()
-            .getColor(R.color.common_gray));
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public void onDetach() {
+        super.onDetach();
+        OttoBusDriver.unregister(this);
     }
 
     /**

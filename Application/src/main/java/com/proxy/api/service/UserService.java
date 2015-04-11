@@ -3,6 +3,8 @@ package com.proxy.api.service;
 
 import com.proxy.api.model.User;
 
+import java.util.Map;
+
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
@@ -20,8 +22,8 @@ public interface UserService {
      *
      * @return user observable
      */
-    @GET("/user/")
-    Observable<User> listUser();
+    @GET("/users.json")
+    Observable<Map<String, User>> listUsers();
 
     /**
      * Get a specific user.
@@ -30,16 +32,17 @@ public interface UserService {
      * @param callback async callback
      * @return user
      */
-    @GET("/user/{userId}.json")
-    User getUser(@Path("userId") String userId, Callback<User> callback);
+    @GET("/users/{userId}.json")
+    void getUser(@Path("userId") String userId, Callback<User> callback);
 
     /**
      * Save a user.
      *
-     * @param userId   unique id for users table
-     * @param user     userData
+     * @param userId   unique id for {@link User} table
+     * @param user     {@link User} data
      * @param callback registerUser callback
      */
-    @PUT("/user/{userId}.json")
-    void registerUser(@Path("userId") String userId, @Body User user, Callback<User> callback);
+    @PUT("/users/{userId}.json")
+    void updateUser(@Path("userId") String userId, @Body User user, Callback<User> callback);
+
 }
