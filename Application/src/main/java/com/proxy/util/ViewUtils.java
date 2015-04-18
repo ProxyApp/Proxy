@@ -1,23 +1,22 @@
 package com.proxy.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.bumptech.glide.load.engine.Resource;
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.proxy.R;
 import com.proxy.widget.ContentDescriptionDrawable;
+import com.proxy.widget.FloatingActionButton;
 
 import timber.log.Timber;
 
@@ -32,6 +31,7 @@ import static com.proxy.util.DebugUtils.getSimpleName;
 public class ViewUtils {
 
     public static final String TAG = getSimpleName(ViewUtils.class);
+    public static final int NO_COLOR = Integer.MIN_VALUE;
 
     /**
      * Constructor
@@ -69,8 +69,8 @@ public class ViewUtils {
     /**
      * Convert density pixels to pixels
      *
-     * @param res app resources
-     * @param resId      dimension resource
+     * @param res   app resources
+     * @param resId dimension resource
      * @return float pixel size value
      */
     public static float dpToPx(Resources res, int resId) {
@@ -81,11 +81,11 @@ public class ViewUtils {
     /**
      * Get the dimensions of a 60x60px.
      *
-     * @param activity this activities resources
+     * @param context this activities resources
      * @return dimension
      */
-    public static int getMenuIconDimen(Activity activity) {
-        Resources res = activity.getResources();
+    public static int getMenuIconDimen(Context context) {
+        Resources res = context.getResources();
         return (int) (res.getDimension(R.dimen.common_rect_small)
             / res.getDisplayMetrics().density);
     }
@@ -93,22 +93,23 @@ public class ViewUtils {
     /**
      * Get the dimensions of a 48x48px.
      *
-     * @param activity this activities resources
+     * @param context this activities resources
      * @return dimension
      */
-    public static int getLargeIconDimen(Activity activity) {
-        Resources res = activity.getResources();
-        return (int) (res.getDimension(R.dimen.common_svg_large) / res.getDisplayMetrics().density);
+    public static int getLargeIconDimen(Context context) {
+        Resources res = context.getResources();
+        return (int) (res.getDimension(R.dimen.common_svg_large)
+            / res.getDisplayMetrics().density);
     }
 
     /**
      * Get the dimensions of a 36x36px icon.
      *
-     * @param activity this activities resources
+     * @param context this activities resources
      * @return dimension
      */
-    public static int getMediumIconDimen(Activity activity) {
-        Resources res = activity.getResources();
+    public static int getMediumIconDimen(Context context) {
+        Resources res = context.getResources();
         return (int) (res.getDimension(R.dimen.common_svg_medium)
             / res.getDisplayMetrics().density);
     }
@@ -116,11 +117,11 @@ public class ViewUtils {
     /**
      * Get the dimensions of a 24x24px icon.
      *
-     * @param activity this activities resources
+     * @param context this activities resources
      * @return dimension
      */
-    public static int getSmallIconDimen(Activity activity) {
-        Resources res = activity.getResources();
+    public static int getSmallIconDimen(Context context) {
+        Resources res = context.getResources();
         return (int) (res.getDimension(R.dimen.common_svg_small)
             / res.getDisplayMetrics().density);
     }
@@ -137,34 +138,62 @@ public class ViewUtils {
     }
 
     /**
+     * Get a common {@link FloatingActionButton} elevation resource.
+     *
+     * @param context activity context
+     * @return elevation dimension
+     */
+    public static float floatingActionButtonElevation(Context context) {
+        return dpToPx(context.getResources(), R.dimen.common_fab_elevation);
+    }
+
+    /**
      * Paint a circular bitmap.
      *
-     * @param resource    Bitmap to crop
-     * @param mBitmapPool bitmap pool
+     * @param source Bitmap to crop
      * @return the circular bitmap resource
      */
-    public static BitmapResource getCircularBitmapImage(
-        Resource<Bitmap> resource, BitmapPool mBitmapPool) {
+    public static Bitmap getCircularBitmapImage(Bitmap source) {
 
-        Bitmap source = resource.get();
         int size = Math.min(source.getWidth(), source.getHeight());
 
-        int width = (source.getWidth() - size) / 2;
-        int height = (source.getHeight() - size) / 2;
+        int x = (source.getWidth() - size) / 2;
+        int y = (source.getHeight() - size) / 2;
 
-        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
+        if (squaredBitmap != source) {
+            source.recycle();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        BitmapShader shader = new BitmapShader(bitmap,
-            BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
+        BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP,
+            BitmapShader.TileMode.CLAMP);
         paint.setShader(shader);
         paint.setAntiAlias(true);
 
         float r = size / 2f;
         canvas.drawCircle(r, r, r, paint);
-        bitmap.recycle();
-        return BitmapResource.obtain(bitmap, mBitmapPool);
+
+        squaredBitmap.recycle();
+        return bitmap;
     }
+
+
+    /**
+     * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.
+     *
+     * @param context    for resources
+     * @param resourceId resource ID of the SVG
+     * @param size       desired size of the icon
+     * @return parsed drawable
+     */
+    public static Drawable svgToBitmapDrawable(Context context, int resourceId, int size) {
+        return svgToBitmapDrawable(context, resourceId, size, NO_COLOR);
+    }
+
 
     /**
      * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.
@@ -177,36 +206,23 @@ public class ViewUtils {
      */
     public static ContentDescriptionDrawable svgToBitmapDrawable(
         Context context, int resourceId, int size, int color) {
+        Resources res = context.getResources();
+        ContentDescriptionDrawable drawable = null;
         try {
-            Resources res = context.getResources();
             SVG svg = SVG.getFromResource(res, resourceId);
 
             Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             svg.renderToCanvas(canvas);
 
-            ContentDescriptionDrawable drawable = new ContentDescriptionDrawable(res, bmp);
-            drawable.mutate().setColorFilter(color, SRC_IN);
-
-            return drawable;
+            drawable = new ContentDescriptionDrawable(res, bmp);
+            if (color != NO_COLOR) {
+                drawable.mutate().setColorFilter(color, SRC_IN);
+            }
         } catch (SVGParseException e) {
-            Timber.e(e, TAG + " svgToBitmapDrawable");
+            Timber.e(Log.getStackTraceString(e));
         }
-        throw new NullPointerException();
+        return drawable;
     }
 
-    /**
-     * Ensures that an object reference passed as a parameter to the calling method is not null.
-     *
-     * @param reference an object reference
-     * @param <T>       generic object
-     * @return the non-null reference that was validated
-     * @throws NullPointerException if {@code reference} is null
-     */
-    public static <T> T checkNotNull(T reference) {
-        if (reference == null) {
-            throw new NullPointerException();
-        }
-        return reference;
-    }
 }

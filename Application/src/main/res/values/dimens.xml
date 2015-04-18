@@ -28,4 +28,12 @@
     <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
     <dimen name="common_svg_ultra">720dp</dimen>
+    <dimen name="snackbar_horizontal_padding">24dp</dimen>
+    <dimen name="snackbar_vertical_padding">14dp</dimen>
+    <dimen name="snackbar_corner_radius">2dp</dimen>
+    <dimen name="snackbar_min_width">288dp</dimen>
+    <dimen name="snackbar_max_width">568dp</dimen>
+    <dimen name="snackbar_one_line_height">48dp</dimen>
+    <dimen name="snackbar_two_line_height">80dp</dimen>
+    <dimen name="snackbar_offset">24dp</dimen>
 </resources>
