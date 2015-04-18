@@ -27,4 +27,3 @@
         android:layout_marginStart="@dimen/common_margin_large"
         android:background="@color/common_divider"/>
 </LinearLayout>
-    

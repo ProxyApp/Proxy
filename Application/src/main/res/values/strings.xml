@@ -21,6 +21,8 @@
     <string name="Groups">Groups</string>
     <string name="Search">Search</string>
     <string name="ok">ok</string>
+    <string name="snackbar_group_removed">Group Removed</string>
+    <string name="common_undo">undo</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

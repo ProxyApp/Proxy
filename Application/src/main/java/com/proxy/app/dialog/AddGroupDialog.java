@@ -17,14 +17,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.proxy.R;
+import com.proxy.api.model.Group;
 import com.proxy.event.GroupAddedEvent;
 import com.proxy.event.OttoBusDriver;
-import com.proxy.api.model.Group;
 import com.proxy.widget.FloatLabelLayout;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnTextChanged;
+import io.realm.Realm;
 
 import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 
@@ -39,7 +40,15 @@ public class AddGroupDialog extends BaseDialogFragment {
     EditText mEditText;
     private int mGray;
     private int mGreen;
-
+    private Realm mRealm;
+    private final DialogInterface.OnClickListener mNegativeClicked =
+        new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                hideSoftwareKeyboard(mEditText);
+                dialogInterface.dismiss();
+            }
+        };
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
      * pressed.
@@ -67,24 +76,6 @@ public class AddGroupDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    private final DialogInterface.OnClickListener mNegativeClicked =
-        new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                hideSoftwareKeyboard(mEditText);
-                dialogInterface.dismiss();
-            }
-        };
-
-    /**
-     * Dispatch a Group Added Event
-     */
-    private void dispatchGroupEvent() {
-        String text = mEditText.getText().toString();
-        if (!TextUtils.isEmpty(text) && !text.trim().isEmpty()) {
-            OttoBusDriver.post(new GroupAddedEvent(Group.create(text)));
-        }
-    }
 
     /**
      * Create a new instance of a {@link AddGroupDialog}.
@@ -93,6 +84,18 @@ public class AddGroupDialog extends BaseDialogFragment {
      */
     public static AddGroupDialog newInstance() {
         return new AddGroupDialog();
+    }
+
+    /**
+     * Dispatch a Group Added Event
+     */
+    private void dispatchGroupEvent() {
+        String groupLabel = mEditText.getText().toString();
+        if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
+            Group group = new Group();
+            group.setLabel(groupLabel);
+            OttoBusDriver.post(new GroupAddedEvent(group));
+        }
     }
 
     /**
@@ -117,6 +120,7 @@ public class AddGroupDialog extends BaseDialogFragment {
             .inflate(R.layout.dialog_addgroup, null, false);
         ButterKnife.inject(this, view);
         mEditText.setOnEditorActionListener(onEditorActionListener);
+        mRealm = Realm.getInstance(getActivity());
         return new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog))
             .setTitle(R.string.dialog_addgroup_title)

@@ -2,8 +2,8 @@
 <resources>
 
     <style name="Theme.Proxy.Base" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/common_gray</item>
-        <item name="colorPrimaryDark">@color/common_gray_dark</item>
+        <item name="colorPrimary">@color/common_blue</item>
+        <item name="colorPrimaryDark">@color/common_blue_dark</item>
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>

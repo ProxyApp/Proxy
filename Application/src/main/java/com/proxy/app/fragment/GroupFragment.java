@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.proxy.ProxyApplication;
 import com.proxy.R;
+import com.proxy.api.RestClient;
 import com.proxy.api.model.Group;
+import com.proxy.api.model.User;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
@@ -23,21 +26,22 @@ import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.FloatingActionButton;
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import io.realm.RealmList;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
-import static com.proxy.Constants.ARG_GROUP_LIST;
 import static com.proxy.util.DebugUtils.getSimpleName;
-import static com.proxy.util.ViewUtils.dpToPx;
+import static com.proxy.util.ViewUtils.floatingActionButtonElevation;
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * Fragment that handles displaying a group list.
+ * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
  */
 public class GroupFragment extends BaseFragment {
     private static final String TAG = getSimpleName(GroupFragment.class);
@@ -47,10 +51,21 @@ public class GroupFragment extends BaseFragment {
     protected FloatingActionButton mActionButton;
     @InjectView(R.id.fragment_group_add_item_image)
     protected ImageView mActionButtonImage;
+    Callback<User> userCallBack = new Callback<User>() {
+        @Override
+        public void success(User user, Response response) {
+            ((ProxyApplication) getActivity().getApplication()).setCurrentUser(user);
+        }
+
+        @Override
+        public void failure(RetrofitError error) {
+
+        }
+    };
     private GroupRecyclerAdapter mAdapter;
 
     /**
-     * Constructor.
+     * {@link Fragment} Constructor.
      */
     public GroupFragment() {
     }
@@ -65,7 +80,7 @@ public class GroupFragment extends BaseFragment {
     }
 
     /**
-     * Add a new user on click.
+     * Prompt user with a {@link AddGroupDialog} to add a new {@link Group}.
      */
     @OnClick(R.id.fragment_group_add_item)
     public void onClick() {
@@ -77,7 +92,6 @@ public class GroupFragment extends BaseFragment {
         super.onAttach(activity);
         OttoBusDriver.register(this);
     }
-
 
     @Override
     public void onDetach() {
@@ -108,48 +122,36 @@ public class GroupFragment extends BaseFragment {
     @SuppressWarnings("NewApi")
     private void initializeSVG() {
         ViewCompat.setLayerType(mActionButtonImage, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+        ViewCompat.setElevation(mActionButton, floatingActionButtonElevation(getActivity()));
 
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.add,
             getLargeIconDimen(getActivity()), Color.WHITE);
         mActionButtonImage.setImageDrawable(drawable);
-
-        ViewCompat.setElevation(mActionButton, getElevation());
     }
 
     /**
-     * Get a common {@link FloatingActionButton} elevation resource.
-     *
-     * @return elevation dimension
-     */
-    private float getElevation() {
-        return dpToPx(getActivity().getResources(), R.dimen.common_fab_elevation);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            ArrayList<Group> arrayList = savedInstanceState.getParcelableArrayList(ARG_GROUP_LIST);
-            mAdapter.setDataArray(arrayList);
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(ARG_GROUP_LIST, mAdapter.getDataArray());
-    }
-
-    /**
-     * Initialize this RecyclerView.
+     * Initialize this fragments {@link Group} data and {@link RecyclerView}.
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = GroupRecyclerAdapter.newInstance();
+        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    /**
+     * Get Group Data from logged in user.
+     *
+     * @return Group List
+     */
+    private RealmList<Group> getGroupData() {
+        RealmList<Group> serverGroups = getLoggedInUser().getGroups();
+        if (serverGroups == null) {
+            return new RealmList<>();
+        } else {
+            return serverGroups;
+        }
     }
 
     /**
@@ -163,5 +165,21 @@ public class GroupFragment extends BaseFragment {
     public void groupAdded(GroupAddedEvent event) {
         mAdapter.addGroupData(event.group);
         mAdapter.notifyItemInserted(mAdapter.getItemCount());
+        mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount());
+        //update groups in firebase
+        User loggedInUser = getLoggedInUser();
+        loggedInUser.setGroups(mAdapter.getDataArray());
+        RestClient.newInstance(getActivity()).getUserService().updateUser(loggedInUser.getUserId(),
+            loggedInUser, userCallBack);
     }
+
+    /**
+     * Get the logged in user.
+     *
+     * @return Logged in user
+     */
+    private User getLoggedInUser() {
+        return ((ProxyApplication) getActivity().getApplication()).getCurrentUser();
+    }
+
 }

@@ -19,8 +19,11 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
+import com.proxy.api.model.User;
 
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 /**
@@ -28,13 +31,34 @@ import timber.log.Timber;
  */
 public class ProxyApplication extends Application {
 
+    User mCurrentUser;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
         Firebase.setAndroidContext(this);
+    }
+
+    /**
+     * Getter.
+     *
+     * @return currerntly logged in user
+     */
+    public User getCurrentUser() {
+        return mCurrentUser;
+    }
+
+    /**
+     * Setter.
+     *
+     * @param currentUser currently logged in user
+     */
+    public void setCurrentUser(User currentUser) {
+        mCurrentUser = currentUser;
     }
 
     @Override

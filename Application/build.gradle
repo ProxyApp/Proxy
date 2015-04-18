@@ -5,6 +5,10 @@ apply plugin: 'android-apt'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'maven'
+apply plugin: 'io.fabric'
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     compileSdkVersion 22
@@ -18,7 +22,11 @@ android {
         multiDexEnabled true
     }
     buildTypes {
+        debug {
+            manifestPlaceholders = [crashlytics_key: properties.CRASHLYTICS_API_KEY]
+        }
         release {
+            manifestPlaceholders = [crashlytics_key: properties.CRASHLYTICS_API_KEY]
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -52,7 +60,6 @@ dependencies {
     //Android
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:support-v4:22.0.0'
-    compile 'com.android.support:cardview-v7:21.0.3'
     compile 'com.android.support:recyclerview-v7:21.0.3'
     compile 'com.android.support:palette-v7:21.0.0'
     //Square
@@ -60,25 +67,17 @@ dependencies {
     compile 'com.jakewharton.timber:timber:2.5.1'
     compile 'com.squareup:otto:1.3.6'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     //Third party
+    compile 'io.realm:realm-android:0.80.0'
     compile 'com.firebase:firebase-client-android:2.2.3+'
     compile 'io.reactivex:rxjava:1.0.8'
-    compile 'io.reactivex:rxandroid:0.24.0'
-    compile 'io.realm:realm-android:0.80.0'
-    compile 'com.github.bumptech.glide:glide:3.5.2'
-    compile 'com.github.bumptech.glide:okhttp-integration:1.2.2'
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
-    compile 'com.github.frankiesardo:auto-parcel:0.3'
-    apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
-    //Testing
-//    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.0'
-//    androidTestCompile 'com.android.support.test:testing-support-lib:0.1'
-//    testCompile 'junit:junit:4.12'
-//    testCompile 'org.mockito:mockito-core:1.9.5'
-//    testCompile('org.robolectric:robolectric:2.4') {
-//        exclude group: 'commons-logging', module: 'commons-logging'
-//        exclude group: 'httpclient', module: 'httpclient'
-//    }
+    compile 'com.path:android-priority-jobqueue:1.1.2'
+    //Bug Tracking
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
+        transitive = true;
+    }
 }

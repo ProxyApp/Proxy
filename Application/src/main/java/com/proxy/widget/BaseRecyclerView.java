@@ -102,7 +102,6 @@ public class BaseRecyclerView extends RecyclerView {
             View childView = view.findChildViewUnder(e.getX(), e.getY());
             if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
                 mListener.onItemClick(childView, view.getChildPosition(childView));
-                return true;
             }
             return false;
         }
