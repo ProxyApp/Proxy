@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.proxy.AppIntents;
 import com.proxy.R;
 import com.proxy.api.model.Channel;
 import com.proxy.api.model.User;
@@ -27,7 +26,7 @@ import butterknife.InjectView;
 import timber.log.Timber;
 
 /**
- * Adapter for a users profile and their {@link AppIntents} package permissions.
+ * Adapter for a users profile and their {@link Channel} package permissions.
  */
 public class ChannelRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
@@ -120,13 +119,12 @@ public class ChannelRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder>
     public void onBindViewHolder(BaseViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
             setHeaderItemViewData((HeaderViewHolder) holder);
-        } else if (holder instanceof SectionViewHolder) {
-//            setItemViewData(holder, getItemData(position));
-        } else if (holder instanceof ContentViewHolder) {
-//            setItemViewData(holder, getItemData(position));
-        } else {
-            Timber.e("Unknown ViewHolder Instance check");
         }
+//        else if (holder instanceof SectionViewHolder) {
+//        } else if (holder instanceof ContentViewHolder) {
+//        } else {
+//            Timber.e("Unknown ViewHolder Instance check");
+//        }
     }
 
     /**
