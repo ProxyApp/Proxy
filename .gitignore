@@ -3,11 +3,11 @@ bin/
 gen/
 out/
 build/
-gradle/
 config/
 
 # Local configuration file (sdk path, etc)
-*.properties
+local.properties
+crashlytics.properties
 # Eclipse project files
 .classpath
 .project
@@ -25,6 +25,4 @@ config/
 *.iws
 
 # Gradle cache
-gradlew
-*.bat
 .gradle

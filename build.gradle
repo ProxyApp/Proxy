@@ -16,8 +16,11 @@ buildscript {
     }
 }
 
+
+if (project.rootProject.file('local.properties').exists()) {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
 
 allprojects {
     repositories {
