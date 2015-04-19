@@ -17,3 +17,8 @@ before_script:
 
 script:
     - ./gradlew clean assemble --stacktrace
+
+branches:
+  only:
+    - master
+    - develop
