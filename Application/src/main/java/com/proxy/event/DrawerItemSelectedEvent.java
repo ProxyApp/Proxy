@@ -1,0 +1,27 @@
+package com.proxy.event;
+
+import android.support.annotation.NonNull;
+import android.view.View;
+
+/**
+ * When a Drawer item is clicked dispatch this event.
+ */
+public class DrawerItemSelectedEvent {
+
+    public final View view;
+    public final int position;
+    public final String message;
+
+    /**
+     * Constructor.
+     *
+     * @param view     clicked
+     * @param position of item in list
+     * @param message  item message
+     */
+    public DrawerItemSelectedEvent(@NonNull View view, int position, String message) {
+        this.view = view;
+        this.position = position;
+        this.message = message;
+    }
+}
