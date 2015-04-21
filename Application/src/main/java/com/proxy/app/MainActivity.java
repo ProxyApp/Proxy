@@ -126,6 +126,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
      * @param event data
      */
     @Subscribe
+    @SuppressWarnings("unused")
     public void onDrawerItemSelected(DrawerItemSelectedEvent event) {
         //if the user presses logout
         if (getString(R.string.settings_logout)
