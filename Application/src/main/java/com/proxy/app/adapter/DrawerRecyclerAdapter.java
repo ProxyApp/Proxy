@@ -93,7 +93,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             Picasso.with(context).load(mUser.getImageURL())
                 .transform(CircleTransform.create())
-                .placeholder(R.drawable.proxy_icon)
+                .placeholder(R.mipmap.ic_proxy)
                 .into(getBitmapTargetView(viewHolder));
 
         } else {

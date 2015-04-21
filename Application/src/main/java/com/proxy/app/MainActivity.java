@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,13 +21,12 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
-import com.proxy.ProxyApplication;
 import com.proxy.R;
-import com.proxy.api.model.User;
-import com.proxy.app.adapter.DrawerRecyclerAdapter;
+import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
+import com.proxy.event.DrawerItemSelectedEvent;
 import com.proxy.event.OttoBusDriver;
-import com.proxy.widget.BaseRecyclerView;
+import com.squareup.otto.Subscribe;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -42,17 +39,27 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 /**
  * The main activity filled with contacts.
  */
-public class MainActivity extends BaseActivity implements BaseRecyclerView
-    .OnItemClickListener, ConnectionCallbacks, OnConnectionFailedListener {
+public class MainActivity extends BaseActivity implements ConnectionCallbacks,
+    OnConnectionFailedListener {
     //Views
     @InjectView(R.id.common_toolbar)
     Toolbar mToolbar;
     @InjectView(R.id.activity_main_drawer_layout)
     DrawerLayout mDrawer;
-    @InjectView(R.id.activity_main_drawer_content)
-    BaseRecyclerView mDrawerRecyclerView;
-    private DrawerRecyclerAdapter mAdapter;
     private GoogleApiClient mGoogleApiClient;
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        OttoBusDriver.register(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,51 +69,28 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
         initializeDrawer();
-        initializeRecyclerView();
         mGoogleApiClient = buildGoogleApiClient();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new MainFragment())
+                .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
                 .commit();
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
-
     /**
-     * Initialize a RecyclerView with User data.
-     */
-    private void initializeRecyclerView() {
-        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = DrawerRecyclerAdapter.newInstance(
-            getCurrentUser(), getResources().getStringArray(R.array.drawer_settings));
-        mDrawerRecyclerView.setAdapter(mAdapter);
-        mDrawerRecyclerView.setHasFixedSize(true);
-        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mDrawerRecyclerView.addOnItemTouchListener(
-            BaseRecyclerView.getItemClickListener(this, this));
-    }
-
-    /**
-     * Get the current user saved in {@link com.proxy.ProxyApplication}.
+     * When we build the GoogleApiClient we specify where connected and connection failed callbacks
+     * should be returned, which Google APIs our app uses and which OAuth 2.0 scopes our app
+     * requests.
      *
-     * @return current {@link User}
+     * @return Api Client
      */
-    private User getCurrentUser() {
-        return ((ProxyApplication) getApplication()).getCurrentUser();
+    private GoogleApiClient buildGoogleApiClient() {
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(Plus.API, Plus.PlusOptions.builder().build());
+        return builder.build();
     }
 
     /**
@@ -136,23 +120,16 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        OttoBusDriver.unregister(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        OttoBusDriver.register(this);
-    }
-
-    @Override
-    public void onItemClick(View view, int position) {
+    /**
+     * {@link DrawerItemSelectedEvent}.
+     *
+     * @param event data
+     */
+    @Subscribe
+    public void onDrawerItemSelected(DrawerItemSelectedEvent event) {
         //if the user presses logout
         if (getString(R.string.settings_logout)
-            .equals(mAdapter.getSettingValue(position))) {
+            .equals(event.message)) {
             // and the google api is connected
             if (mGoogleApiClient.isConnected()) {
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
@@ -166,19 +143,18 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
         }
     }
 
-    /**
-     * When we build the GoogleApiClient we specify where connected and connection failed callbacks
-     * should be returned, which Google APIs our app uses and which OAuth 2.0 scopes our app
-     * requests.
-     *
-     * @return Api Client
-     */
-    private GoogleApiClient buildGoogleApiClient() {
-        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .addApi(Plus.API, Plus.PlusOptions.builder().build());
-        return builder.build();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OttoBusDriver.unregister(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 
     @Override

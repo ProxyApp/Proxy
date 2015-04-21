@@ -67,7 +67,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         holder.userName.setText(user.getFirstName() + " " + user.getLastName());
         Picasso.with(context).load(user.getImageURL())
-            .placeholder(R.drawable.proxy_icon)
+            .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(holder.userImage);
     }
