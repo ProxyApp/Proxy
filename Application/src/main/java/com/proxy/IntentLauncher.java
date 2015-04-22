@@ -3,12 +3,9 @@ package com.proxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 
 import com.proxy.app.LoginActivity;
 import com.proxy.app.MainActivity;
-
-import static com.proxy.Preferences.LOGOUT_CLICKED;
 
 
 /**
@@ -52,11 +49,8 @@ public final class IntentLauncher {
      * @param logoutClicked boolean value to communicate if the use is logging out
      */
     public static void launchLoginActivity(Activity activity, boolean logoutClicked) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(LOGOUT_CLICKED, logoutClicked);
         Intent intent = new Intent(LocalIntents.ACTION_LOGIN).addFlags(
             Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtras(bundle);
         activity.startActivity(intent);
     }
 
@@ -66,8 +60,10 @@ public final class IntentLauncher {
      *
      * @param activity The context used to start this intent
      */
-    public static void launchGmail(Activity activity) {
-
+    public static void launchSearch(Activity activity) {
+        Intent intent = new Intent(LocalIntents.ACTION_SEARCH_VIEW);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
     /**

@@ -113,7 +113,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        if (((ProxyApplication) getApplication()).getCurrentUser() != null) {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
@@ -301,17 +303,22 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             // configuration might not be supported with the requested API or a required component
             // may not be installed, such as the Android Wear application. You may need to use a
             // second GoogleApiClient to manage the application's optional APIs.
-            Timber.w("API Unavailable.");
+            String error = getString(R.string.login_error_api_unavailable);
+            Timber.w(error);
+            showErrorDialog(error);
+        } else if (result.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
+            showErrorDialog(getString(R.string.login_error_update_play_service));
+        } else {
+            // We do not have an intent in progress so we should store the latest
+            // error resolution intent for use when the sign in button is clicked.
+            mSignInIntent = result.getResolution();
+            mSignInError = result.getErrorCode();
+            Timber.i(String.valueOf(mSignInError));
+            // STATE_SIGN_IN indicates the user already clicked the sign in button
+            // so we should continue processing errors until the user is signed in
+            // or they click cancel.
+            resolveSignInError();
         }
-        // We do not have an intent in progress so we should store the latest
-        // error resolution intent for use when the sign in button is clicked.
-        mSignInIntent = result.getResolution();
-        mSignInError = result.getErrorCode();
-        Timber.i(String.valueOf(mSignInError));
-        // STATE_SIGN_IN indicates the user already clicked the sign in button
-        // so we should continue processing errors until the user is signed in
-        // or they click cancel.
-        resolveSignInError();
     }
 
     /**
@@ -355,7 +362,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     });
             } else {
                 showErrorDialog(getString(R.string.login_error_failed_connection));
-
+                if (mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.disconnect();
+                }
             }
         }
     }

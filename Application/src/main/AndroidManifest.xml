@@ -52,6 +52,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".app.SearchActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.proxy.intent.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>

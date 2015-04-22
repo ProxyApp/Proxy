@@ -21,6 +21,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
+import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.model.Contact;
 import com.proxy.app.fragment.DrawerFragment;
@@ -134,6 +135,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             .equals(event.message)) {
             // and the google api is connected
             if (mGoogleApiClient.isConnected()) {
+                ((ProxyApplication) getApplication()).setCurrentUser(null);
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
                 IntentLauncher.launchLoginActivity(MainActivity.this, true);
                 finish();
@@ -191,6 +193,12 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_notification:
+                break;
+            case R.id.menu_search:
+                IntentLauncher.launchSearch(MainActivity.this);
+                break;
+            default:
+                Timber.e("Menu Item ID unknown");
                 break;
         }
         return false;
