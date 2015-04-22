@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
+import com.proxy.api.model.Contact;
 import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
 import com.proxy.event.DrawerItemSelectedEvent;
@@ -37,7 +38,7 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 
 /**
- * The main activity filled with contacts.
+ * The {@link MainActivity} filled with {@link Contact}s.
  */
 public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
