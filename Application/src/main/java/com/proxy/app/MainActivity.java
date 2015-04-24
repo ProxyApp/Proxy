@@ -19,7 +19,6 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
-import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.model.Contact;
 import com.proxy.app.fragment.DrawerFragment;
@@ -129,7 +128,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             .equals(event.message)) {
             // and the google api is connected
             if (mGoogleApiClient.isConnected()) {
-                ((ProxyApplication) getApplication()).setCurrentUser(null);
+                setCurrentUser(null);
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
                 IntentLauncher.launchLoginActivity(MainActivity.this, true);
                 finish();
