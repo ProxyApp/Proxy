@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,18 +24,11 @@ import butterknife.InjectView;
 /**
  * An Adapter to handle displaying {@link User}s.
  */
-public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
+    Filterable {
     //Persisted User Array Data
-    private ArrayList<User> mUsers;
-
-    /**
-     * Constructor for {@link UserRecyclerAdapter}.
-     *
-     * @param users a list of {@link User}s
-     */
-    private UserRecyclerAdapter(@NonNull ArrayList<User> users) {
-        mUsers = users;
-    }
+    private ArrayList<User> mUsers = new ArrayList<>();
+    private ArrayList<User> mAllUsers = new ArrayList<>();
 
     /**
      * Create a newInstance of a {@link UserRecyclerAdapter} with blank data.
@@ -41,7 +36,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return an {@link UserRecyclerAdapter} with no data
      */
     public static UserRecyclerAdapter newInstance() {
-        return new UserRecyclerAdapter(new ArrayList<User>());
+        return new UserRecyclerAdapter();
     }
 
     @Override
@@ -80,15 +75,6 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     /**
      * Get the {@link User} array.
      *
-     * @return the desired ArrayList<{@link User}>
-     */
-    public ArrayList<User> getDataArray() {
-        return mUsers;
-    }
-
-    /**
-     * Get the {@link User} array.
-     *
      * @param users {@link User} array
      */
     public void setDataArray(ArrayList<User> users) {
@@ -113,7 +99,13 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public void addUserData(@NonNull User user) {
         synchronized (UserRecyclerAdapter.class) {
             mUsers.add(mUsers.size(), user);
+            mAllUsers.add(user);
         }
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new UserFilter();
     }
 
     /**
@@ -142,6 +134,48 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
          */
         public static UserViewHolder newInstance(View view) {
             return new UserViewHolder(view);
+        }
+    }
+
+    /**
+     * Filter for searching this adapters {@link User}s.
+     */
+    public class UserFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            // Initiate our results objects
+            FilterResults results = new FilterResults();
+            ArrayList<User> filteredUsers = new ArrayList<>();
+
+            if (constraint == null || constraint.equals("")) {
+                results.values = mAllUsers;
+                results.count = mAllUsers.size();
+            } else {
+                // Make sure we're searching plain lower case strings
+                constraint = constraint.toString().toLowerCase();
+                for (User user : mAllUsers) {
+                    String firstName = user.getFirstName().toLowerCase();
+                    String lastName = user.getLastName().toLowerCase();
+                    String fullName = firstName + " " + lastName;
+                    if (firstName.contains(constraint)
+                        || lastName.contains(constraint)
+                        || fullName.contains(constraint)) {
+                        filteredUsers.add(user);
+                    }
+                }
+                results.values = filteredUsers;
+                results.count = filteredUsers.size();
+            }
+
+            return results;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            mUsers = (ArrayList<User>) results.values;
+            notifyDataSetChanged();
         }
     }
 }
