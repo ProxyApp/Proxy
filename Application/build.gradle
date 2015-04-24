@@ -78,7 +78,9 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     //Google
     compile 'com.android.support:multidex:1.0.0'
-    compile 'com.google.android.gms:play-services:7.0.0'
+    //motox doesnt have 7.0 yet
+//    compile 'com.google.android.gms:play-services:7.0.0'
+    compile 'com.google.android.gms:play-services:6.5.87'
     //Android
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:support-v4:22.0.0'

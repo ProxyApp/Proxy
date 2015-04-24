@@ -62,6 +62,7 @@ public class ViewUtils {
         InputMethodManager manager = (InputMethodManager) view.getContext()
             .getSystemService(INPUT_METHOD_SERVICE);
         if (manager != null) {
+            manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
             manager.showSoftInput(view, 0);
         }
     }
