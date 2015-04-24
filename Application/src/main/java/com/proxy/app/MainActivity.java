@@ -1,15 +1,11 @@
 package com.proxy.app;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,13 +19,13 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
-import com.proxy.ProxyApplication;
 import com.proxy.R;
-import com.proxy.api.model.User;
-import com.proxy.app.adapter.DrawerRecyclerAdapter;
+import com.proxy.api.model.Contact;
+import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
+import com.proxy.event.DrawerItemSelectedEvent;
 import com.proxy.event.OttoBusDriver;
-import com.proxy.widget.BaseRecyclerView;
+import com.squareup.otto.Subscribe;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -40,106 +36,22 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 
 /**
- * The main activity filled with contacts.
+ * The {@link MainActivity} filled with {@link Contact}s.
  */
-public class MainActivity extends BaseActivity implements BaseRecyclerView
-    .OnItemClickListener, ConnectionCallbacks, OnConnectionFailedListener {
+public class MainActivity extends BaseActivity implements ConnectionCallbacks,
+    OnConnectionFailedListener {
     //Views
     @InjectView(R.id.common_toolbar)
     Toolbar mToolbar;
     @InjectView(R.id.activity_main_drawer_layout)
     DrawerLayout mDrawer;
-    @InjectView(R.id.activity_main_drawer_content)
-    BaseRecyclerView mDrawerRecyclerView;
-    private DrawerRecyclerAdapter mAdapter;
     private GoogleApiClient mGoogleApiClient;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.inject(this);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
-        initializeDrawer();
-        initializeRecyclerView();
-        mGoogleApiClient = buildGoogleApiClient();
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MainFragment())
-                .commit();
-        }
-    }
 
     @Override
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
-
-    /**
-     * Initialize a RecyclerView with User data.
-     */
-    private void initializeRecyclerView() {
-        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = DrawerRecyclerAdapter.newInstance(
-            getCurrentUser(), getResources().getStringArray(R.array.drawer_settings));
-        mDrawerRecyclerView.setAdapter(mAdapter);
-        mDrawerRecyclerView.setHasFixedSize(true);
-        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mDrawerRecyclerView.addOnItemTouchListener(
-            BaseRecyclerView.getItemClickListener(this, this));
-    }
-
-    /**
-     * Get the current user saved in {@link com.proxy.ProxyApplication}.
-     *
-     * @return current {@link User}
-     */
-    private User getCurrentUser() {
-        return ((ProxyApplication) getApplication()).getCurrentUser();
-    }
-
-    /**
-     * Initialize this activity's drawer view.
-     */
-    @SuppressLint("NewApi")
-    private void initializeDrawer() {
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawer,
-            mToolbar, R.string.common_open, R.string.common_closed) {
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-        };
-        mDrawer.setDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewCompat.setElevation(mDrawer, getResources().getDimension(R.dimen
-                .common_drawer_elevation));
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        OttoBusDriver.unregister(this);
     }
 
     @Override
@@ -149,20 +61,19 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
     }
 
     @Override
-    public void onItemClick(View view, int position) {
-        //if the user presses logout
-        if (getString(R.string.settings_logout)
-            .equals(mAdapter.getSettingValue(position))) {
-            // and the google api is connected
-            if (mGoogleApiClient.isConnected()) {
-                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                IntentLauncher.launchLoginActivity(MainActivity.this, true);
-                finish();
-            } else {
-                Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
-                    , Toast.LENGTH_SHORT).show();
-                mGoogleApiClient.connect();
-            }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.inject(this);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
+        initializeDrawer();
+        mGoogleApiClient = buildGoogleApiClient();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, new MainFragment())
+                .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
+                .commit();
         }
     }
 
@@ -179,6 +90,68 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
             .addOnConnectionFailedListener(this)
             .addApi(Plus.API, Plus.PlusOptions.builder().build());
         return builder.build();
+    }
+
+    /**
+     * Initialize this activity's drawer view.
+     */
+    private void initializeDrawer() {
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawer,
+            mToolbar, R.string.common_open, R.string.common_closed) {
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+        mDrawer.setDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        ViewCompat.setElevation(mDrawer, getResources().getDimension(R.dimen
+            .common_drawer_elevation));
+    }
+
+    /**
+     * {@link DrawerItemSelectedEvent}.
+     *
+     * @param event data
+     */
+    @Subscribe
+    @SuppressWarnings("unused")
+    public void onDrawerItemSelected(DrawerItemSelectedEvent event) {
+        //if the user presses logout
+        if (getString(R.string.settings_logout)
+            .equals(event.message)) {
+            // and the google api is connected
+            if (mGoogleApiClient.isConnected()) {
+                setCurrentUser(null);
+                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                IntentLauncher.launchLoginActivity(MainActivity.this, true);
+                finish();
+            } else {
+                Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
+                    , Toast.LENGTH_SHORT).show();
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OttoBusDriver.unregister(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 
     @Override
@@ -213,6 +186,12 @@ public class MainActivity extends BaseActivity implements BaseRecyclerView
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_notification:
+                break;
+            case R.id.menu_search:
+                IntentLauncher.launchSearch(MainActivity.this);
+                break;
+            default:
+                Timber.e("Menu Item ID unknown");
                 break;
         }
         return false;

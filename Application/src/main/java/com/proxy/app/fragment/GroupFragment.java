@@ -14,11 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.model.Group;
 import com.proxy.api.model.User;
+import com.proxy.app.BaseActivity;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
@@ -54,7 +54,7 @@ public class GroupFragment extends BaseFragment {
     Callback<User> userCallBack = new Callback<User>() {
         @Override
         public void success(User user, Response response) {
-            ((ProxyApplication) getActivity().getApplication()).setCurrentUser(user);
+            ((BaseActivity) getActivity()).setCurrentUser(user);
         }
 
         @Override
@@ -179,7 +179,7 @@ public class GroupFragment extends BaseFragment {
      * @return Logged in user
      */
     private User getLoggedInUser() {
-        return ((ProxyApplication) getActivity().getApplication()).getCurrentUser();
+        return ((BaseActivity) getActivity()).getCurrentUser();
     }
 
 }

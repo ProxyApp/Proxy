@@ -135,7 +135,7 @@ public class ChannelRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder>
     private void setHeaderItemViewData(HeaderViewHolder holder) {
         Context context = holder.view.getContext();
         Picasso.with(context).load(profileUser.getImageURL())
-            .placeholder(R.drawable.proxy_icon)
+            .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(getBitmapTargetView(holder));
         holder.userName.setText(profileUser.getFirstName() + " " + profileUser.getLastName());

@@ -3,7 +3,6 @@ package com.proxy.app.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -66,8 +65,6 @@ public class LoginErrorDialog extends DialogFragment {
             .setPositiveButton(R.string.ok, mOnOkClicked);
 
         Dialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawable(
-            new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
         return dialog;
     }

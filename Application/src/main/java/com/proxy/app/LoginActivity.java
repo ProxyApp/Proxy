@@ -29,8 +29,6 @@ import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.model.User;
 import com.proxy.app.dialog.LoginErrorDialog;
-import com.proxy.event.LoginErrorDialogEvent;
-import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 
@@ -42,25 +40,18 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import timber.log.Timber;
 
-import static com.proxy.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
-
 /**
  * Activity to log in with google account.
  */
 public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
-
-    public static final String AUTH_GOOGLE = "google";
+    public static final String PROVIDER_GOOGLE = "google";
     public static final String GOOGLE_UID_PREFIX = "google:";
     public static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
-    private static final int STATE_DEFAULT = 0;
-    private static final int STATE_SIGN_IN = 1;
-    private static final int STATE_IN_PROGRESS = 2;
     private static final int REQUESTCODE_SIGN_IN = 0;
-    private static final String EMAIL = "https://www.googleapis.com/auth/userinfo.email";
-    private static final String PROFILE = "https://www.googleapis.com/auth/userinfo.profile";
-    // saved bundle strings
-    private static final String SAVED_PROGRESS = "sign_in_progress";
+    private static final String SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
+    private static final String SCOPE_PROFILE = "https://www.googleapis.com/auth/userinfo.profile";
+    // Views
     @InjectView(R.id.activity_login_sign_in_button)
     protected SignInButton mSignInButton;
     private Firebase mFirebaseRef;
@@ -68,22 +59,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // GoogleApiClient wraps our service connection to Google Play services and
     // provides access to the users sign in state and Google's APIs.
     private GoogleApiClient mGoogleApiClient;
-    // We use mSignInProgress to track whether user has clicked sign in.
-    // mSignInProgress can be one of three values:
-    //
-    //       STATE_DEFAULT: The default state of the application before the user
-    //                      has clicked 'sign in', or after they have clicked
-    //                      'sign out'.  In this state we will not attempt to
-    //                      resolve sign in errors and so will display our
-    //                      Activity in a signed out state.
-    //       STATE_SIGN_IN: This state indicates that the user has clicked 'sign
-    //                      in', so resolve successive errors preventing sign in
-    //                      until the user has successfully authorized an account
-    //                      for our app.
-    //   STATE_IN_PROGRESS: This state indicates that we have started an intent to
-    //                      resolve an error, and so we should not start further
-    //                      intents until the current intent completes.
-    private int mSignInProgress;
     // Used to store the PendingIntent most recently returned by Google Play
     // services until the user clicks 'sign in'.
     private PendingIntent mSignInIntent;
@@ -97,10 +72,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     @OnClick(R.id.activity_login_sign_in_button)
     protected void onClickSignIn() {
-        if (!mGoogleApiClient.isConnecting()) {
-            // We only process button clicks when GoogleApiClient is not transitioning
-            // between connected and not connected.
-            mSignInProgress = STATE_SIGN_IN;
+        if (mGoogleApiClient.isConnected()) {
+            getUserFromDatabase();
+        } else if (!mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect();
         }
     }
@@ -112,22 +86,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         ButterKnife.inject(this);
         // Button listeners
         mSignInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
-        if (savedInstanceState != null) {
-            mSignInProgress = savedInstanceState
-                .getInt(SAVED_PROGRESS, STATE_DEFAULT);
-        }
+        mSignInButton.setEnabled(true);
         mRestClient = RestClient.newInstance(LoginActivity.this);
         mGoogleApiClient = buildGoogleApiClient();
                 /* Create the Firebase ref that is used for all authentication with Firebase */
         mFirebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
-        mFirebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-                if (authData != null) {
-                    Timber.i("Auth State Changed");
-                }
-            }
-        });
     }
 
     /**
@@ -143,8 +106,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .addOnConnectionFailedListener(this)
             .addApi(Plus.API, Plus.PlusOptions.builder().build())
             .addScope(Plus.SCOPE_PLUS_LOGIN)
-            .addScope(new Scope(EMAIL))
-            .addScope(new Scope(PROFILE)).build();
+            .addScope(new Scope(SCOPE_EMAIL))
+            .addScope(new Scope(SCOPE_PROFILE)).build();
     }
 
     @Override
@@ -161,12 +124,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(SAVED_PROGRESS, mSignInProgress);
-    }
-
     /* onConnected is called when our Activity successfully connects to Google
      * Play services.  onConnected indicates that an account was selected on the
      * device, that the selected account has granted any requested permissions to
@@ -175,8 +132,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     @Override
     public void onConnected(Bundle connectionHint) {
-        // Update the user interface to reflect that the user is signed in.
-        mSignInButton.setEnabled(false);
+        // Update the user interface to reflect that the user is signed in
         getUserFromDatabase();
     }
 
@@ -185,26 +141,35 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private void getUserFromDatabase() {
         // Retrieve some profile information to personalize our app for the user.
+        mSignInButton.setEnabled(false);
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-        String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-        mRestClient.getUserService().getUser(userId, new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                Timber.i("HTTP response: " + response.getReason());
-                if (user != null) {
-                    ((ProxyApplication) getApplication()).setCurrentUser(user);
-                    getGoogleOAuthTokenAndLogin();
-                } else {
-                    addUserToDatabase(createUserFromGoogle());
+        if (currentUser != null) {
+            String userId = GOOGLE_UID_PREFIX + currentUser.getId();
+            mRestClient.getUserService().getUser(userId, new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    Timber.i("HTTP response: " + response.getReason());
+                    if (user == null) {
+                        addUserToDatabase(createUserFromGoogle());
+                    } else {
+                        setUserAndLogIn(user);
+                    }
                 }
-            }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Timber.e(error.toString());
-                addUserToDatabase(createUserFromGoogle());
+                @Override
+                public void failure(RetrofitError error) {
+                    Timber.e(error.toString());
+                    showErrorDialog(error.getMessage());
+                    mSignInButton.setEnabled(true);
+                }
+            });
+        } else {
+            showErrorDialog(getString(R.string.login_error_retrieving_user));
+            mSignInButton.setEnabled(true);
+            if (mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.disconnect();
             }
-        });
+        }
     }
 
 
@@ -220,7 +185,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
         String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
-        String imageURL = getUserImageURL(currentUser);
+        String imageURL = getLargeImageURL(currentUser);
 
         //Create a new {@link User} with empty groups, contacts, and channels
         User user = new User();
@@ -243,8 +208,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 @Override
                 public void success(User user, Response response) {
                     Timber.i("rest client success");
-                    ((ProxyApplication) getApplication()).setCurrentUser(user);
-                    getGoogleOAuthTokenAndLogin();
+                    setUserAndLogIn(user);
                 }
 
                 @Override
@@ -256,12 +220,22 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     /**
-     * Get a photo url with a specific size.
+     * Set the user in {@link ProxyApplication}.
+     *
+     * @param user to login
+     */
+    private void setUserAndLogIn(User user) {
+        setCurrentUser(user);
+        getGoogleOAuthTokenAndLogin();
+    }
+
+    /**
+     * Get a photo url with a larger size than the defualt return value.
      *
      * @param currentUser currently logged in user
      * @return photo url String
      */
-    private String getUserImageURL(Person currentUser) {
+    private String getLargeImageURL(Person currentUser) {
         return currentUser.getImage().getUrl().replace("?sz=50", "?sz=200");
     }
 
@@ -307,14 +281,12 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             protected void onPostExecute(String token) {
                 if (token != null) {
                     /* Successfully got OAuth token, now login with Google */
-                    mFirebaseRef.authWithOAuthToken(AUTH_GOOGLE, token, new AuthResultHandler(
-                        AUTH_GOOGLE));
-                    // Indicate that the sign in process is complete.
-                    mSignInProgress = STATE_DEFAULT;
+                    mFirebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, new AuthResultHandler(
+                        PROVIDER_GOOGLE));
                     IntentLauncher.launchMainActivity(LoginActivity.this);
                     finish();
                 } else if (errorMessage != null) {
-                    createErrorDialog(errorMessage).show(getSupportFragmentManager());
+                    showErrorDialog(errorMessage);
                 }
             }
         };
@@ -336,19 +308,21 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             // configuration might not be supported with the requested API or a required component
             // may not be installed, such as the Android Wear application. You may need to use a
             // second GoogleApiClient to manage the application's optional APIs.
-            Timber.w("API Unavailable.");
-        } else if (mSignInProgress != STATE_IN_PROGRESS) {
+            String error = getString(R.string.login_error_api_unavailable);
+            Timber.w(error);
+            showErrorDialog(error);
+        } else if (result.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
+            showErrorDialog(getString(R.string.login_error_update_play_service));
+        } else {
             // We do not have an intent in progress so we should store the latest
             // error resolution intent for use when the sign in button is clicked.
             mSignInIntent = result.getResolution();
             mSignInError = result.getErrorCode();
-
-            if (mSignInProgress == STATE_SIGN_IN) {
-                // STATE_SIGN_IN indicates the user already clicked the sign in button
-                // so we should continue processing errors until the user is signed in
-                // or they click cancel.
-                resolveSignInError();
-            }
+            Timber.i(String.valueOf(mSignInError));
+            // STATE_SIGN_IN indicates the user already clicked the sign in button
+            // so we should continue processing errors until the user is signed in
+            // or they click cancel.
+            resolveSignInError();
         }
     }
 
@@ -370,14 +344,12 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 // OnConnectionFailed callback.  This will allow the user to
                 // resolve the error currently preventing our connection to
                 // Google Play services.
-                mSignInProgress = STATE_IN_PROGRESS;
                 startIntentSenderForResult(mSignInIntent.getIntentSender(),
                     REQUESTCODE_SIGN_IN, null, 0, 0, 0);
             } catch (IntentSender.SendIntentException e) {
                 Timber.i("Sign in intent could not be sent: " + e.getLocalizedMessage());
                 // The intent was canceled before it was sent.  Attempt to connect to
                 // get an updated ConnectionResult.
-                mSignInProgress = STATE_SIGN_IN;
                 mGoogleApiClient.connect();
             }
         } else {
@@ -391,11 +363,13 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                         @Override
                         public void onCancel(DialogInterface dialog) {
                             Timber.e("Google Play services resolution cancelled");
-                            mSignInProgress = STATE_DEFAULT;
                         }
                     });
             } else {
-                createErrorDialog("google error").show(getSupportFragmentManager());
+                showErrorDialog(getString(R.string.login_error_failed_connection));
+                if (mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.disconnect();
+                }
             }
         }
     }
@@ -406,16 +380,13 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         mGoogleIntentInProgress = false;
         switch (requestCode) {
             case REQUESTCODE_SIGN_IN:
-                if (resultCode == RESULT_OK) {
-                    // If the error resolution was successful we should continue
-                    // processing errors.
-                    mSignInProgress = STATE_SIGN_IN;
-                } else {
-                    // If the error resolution was not successful or the user canceled,
-                    // we should stop processing errors.
-                    mSignInProgress = STATE_DEFAULT;
+                if (!mGoogleApiClient.isConnecting()) {
+                    // If Google Play services resolved the issue with a dialog then
+                    // onStart is not called so we need to re-attempt connection here.
+                    mGoogleApiClient.connect();
                 }
-
+                break;
+            default:
                 if (!mGoogleApiClient.isConnecting()) {
                     // If Google Play services resolved the issue with a dialog then
                     // onStart is not called so we need to re-attempt connection here.
@@ -437,23 +408,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * Return log in error dialog based on the type of error.
      *
      * @param message error message
-     * @return error dialog
      */
-    private LoginErrorDialog createErrorDialog(String message) {
-        return LoginErrorDialog.newInstance("Login Error", message);
-    }
-
-    /**
-     * An action occured with the error dialog created in {@link LoginActivity#createErrorDialog}.
-     *
-     * @param event dialog action
-     */
-    @Subscribe
-    @SuppressWarnings("unused")
-    protected void errorDialogAction(LoginErrorDialogEvent event) {
-        if (event.action.equals(DISMISS)) {
-            mSignInProgress = STATE_DEFAULT;
-        }
+    private void showErrorDialog(String message) {
+        LoginErrorDialog.newInstance(getString(R.string.login_error), message)
+            .show(getSupportFragmentManager());
     }
 
     /**
@@ -479,7 +437,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
 
         @Override
         public void onAuthenticationError(FirebaseError firebaseError) {
-            createErrorDialog(firebaseError.toString()).show(getSupportFragmentManager());
+            showErrorDialog(firebaseError.toString());
         }
     }
 
