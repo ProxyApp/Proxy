@@ -1,6 +1,5 @@
 package com.proxy.app.fragment;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 
 import com.proxy.R;
 import com.proxy.app.adapter.ImagePagerAdapter;
-import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.ContentDescriptionDrawable;
 import com.proxy.widget.SlidingTabLayout;
 
@@ -29,8 +27,8 @@ import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * {@link Fragment} to handle adding a {@link UserFragment} and {@link GroupFragment} to this {@link
- * MainFragment#mSlidingTabLayout}.
+ * {@link Fragment} to handle adding a {@link FavoriteUserFragment} and {@link GroupFragment} to
+ * this {@link MainFragment#mSlidingTabLayout}.
  */
 public class MainFragment extends BaseFragment {
 
@@ -39,13 +37,6 @@ public class MainFragment extends BaseFragment {
     @InjectView(R.id.fragment_main_sliding_tabs)
     SlidingTabLayout mSlidingTabLayout;
     private List<Pair<ContentDescriptionDrawable, Fragment>> mFragmentArray;
-
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        OttoBusDriver.register(this);
-    }
 
     @Override
     public View onCreateView(
@@ -97,11 +88,11 @@ public class MainFragment extends BaseFragment {
     /**
      * Pair an Image to a Fragment to simplify our {@link ContactsFragmentPagerAdapter}.
      *
-     * @return {@link UserFragment} and Drawable combo
+     * @return {@link FavoriteUserFragment} and Drawable combo
      */
     private Pair<ContentDescriptionDrawable, Fragment> getFavoritesTab() {
         return new Pair<ContentDescriptionDrawable, Fragment>(
-            getFavoritesDrawable(), UserFragment.newInstance());
+            getFavoritesDrawable(), FavoriteUserFragment.newInstance());
     }
 
     /**
@@ -140,12 +131,6 @@ public class MainFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
     }
 
     /**

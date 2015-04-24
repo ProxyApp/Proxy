@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.app.MainActivity;
-import com.proxy.event.OttoBusDriver;
 import com.proxy.util.ViewUtils;
 
 import butterknife.ButterKnife;
@@ -49,12 +48,6 @@ public class DispatchFragment extends BaseFragment {
      */
     public static DispatchFragment newInstance() {
         return new DispatchFragment();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        OttoBusDriver.register(this);
     }
 
     @Override
@@ -96,12 +89,6 @@ public class DispatchFragment extends BaseFragment {
      */
     private float getElevation() {
         return dpToPx(getActivity().getResources(), R.dimen.common_fab_elevation);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
     }
 
     @Override

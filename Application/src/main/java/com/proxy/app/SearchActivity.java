@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import com.proxy.R;
 import com.proxy.app.fragment.SearchFragment;
-import com.proxy.event.OttoBusDriver;
 
 import butterknife.ButterKnife;
 
@@ -12,11 +11,6 @@ import butterknife.ButterKnife;
  * Activity to handle displaying contacts and searching for new ones.
  */
 public class SearchActivity extends BaseActivity {
-    @Override
-    protected void onResume() {
-        super.onResume();
-        OttoBusDriver.register(this);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +22,6 @@ public class SearchActivity extends BaseActivity {
                 .replace(R.id.activity_search_container,
                     SearchFragment.newInstance()).commit();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        OttoBusDriver.unregister(this);
     }
 
     @Override

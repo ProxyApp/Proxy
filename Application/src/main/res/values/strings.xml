@@ -20,7 +20,7 @@
     <string name="Favorites">Favorites</string>
     <string name="Groups">Groups</string>
     <string name="Search">Search</string>
-    <string name="ok">ok</string>
+    <string name="ok">OK</string>
     <string name="snackbar_group_removed">Group Removed</string>
     <string name="common_undo">undo</string>
     <string name="action_menu_back_from_search">back from search</string>
@@ -31,6 +31,16 @@
     <string name="login_error_update_play_service">Please update your play services</string>
     <string name="login_error_api_unavailable">API Unavailable</string>
     <string name="search_contacts">Search contacts</string>
+
+    <string name="channel_image">channel image</string>
+    <string name="channel_header_image">channel header image</string>
+    <string name="channel_section_image">channel section image</string>
+    <string name="drawer_header_image">drawer header image</string>
+    <string name="user_image">user image</string>
+    <string name="proxy_logo">Proxy logo</string>
+    <string name="Add">Add</string>
+    <string name="Dial">Dial</string>
+    <string name="dialog_addchannel_title">Add Channel</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

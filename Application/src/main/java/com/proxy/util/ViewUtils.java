@@ -1,12 +1,18 @@
 package com.proxy.util;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +27,8 @@ import com.proxy.widget.FloatingActionButton;
 import timber.log.Timber;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.pm.PackageManager.NameNotFoundException;
+import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
 import static com.proxy.util.DebugUtils.getSimpleName;
 
@@ -78,6 +86,11 @@ public class ViewUtils {
         return res.getDimension(resId) / res.getDisplayMetrics().density;
     }
 
+    public static int getSectionIconDimen(Context context) {
+        Resources res = context.getResources();
+        return (int) (res.getDimension(R.dimen.common_rect_small)
+            / res.getDisplayMetrics().density);
+    }
 
     /**
      * Get the dimensions of a 60x60px.
@@ -86,9 +99,7 @@ public class ViewUtils {
      * @return dimension
      */
     public static int getMenuIconDimen(Context context) {
-        Resources res = context.getResources();
-        return (int) (res.getDimension(R.dimen.common_rect_small)
-            / res.getDisplayMetrics().density);
+        return getLargeIconDimen(context);
     }
 
     /**
@@ -155,6 +166,17 @@ public class ViewUtils {
      * @return the circular bitmap resource
      */
     public static Bitmap getCircularBitmapImage(Bitmap source) {
+        return getCircularBitmapImage(source, Color.TRANSPARENT);
+    }
+
+    /**
+     * Paint a circular bitmap.
+     *
+     * @param source          Bitmap to crop
+     * @param backgroundColor of the bitmap
+     * @return the circular bitmap resource
+     */
+    public static Bitmap getCircularBitmapImage(Bitmap source, int backgroundColor) {
 
         int size = Math.min(source.getWidth(), source.getHeight());
 
@@ -169,6 +191,7 @@ public class ViewUtils {
         Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
 
         Canvas canvas = new Canvas(bitmap);
+        //Set a BitmapShader as the paint for the source bitmap to draw itself as a circle.
         Paint paint = new Paint();
         BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP,
             BitmapShader.TileMode.CLAMP);
@@ -176,12 +199,71 @@ public class ViewUtils {
         paint.setAntiAlias(true);
 
         float r = size / 2f;
-        canvas.drawCircle(r, r, r, paint);
+        float rOffset = r - 2;
 
+        if (backgroundColor != Color.TRANSPARENT) {
+            Paint backgroundPaint = new Paint();
+            backgroundPaint.setColor(backgroundColor);
+            backgroundPaint.setAntiAlias(true);
+            canvas.drawCircle(r, r, r, backgroundPaint);
+            canvas.drawCircle(rOffset, rOffset, rOffset, paint);
+        } else {
+            canvas.drawCircle(r, r, r, paint);
+        }
         squaredBitmap.recycle();
         return bitmap;
     }
 
+    /**
+     * Paint a circular Drawable.
+     *
+     * @param context         activity context
+     * @param resourceId      Drawable to crop
+     * @param backgroundColor of the bitmap
+     * @return the circular bitmap resource
+     */
+    public static Drawable getCircularDrawableImage(
+        Context context, int resourceId, int backgroundColor) {
+        ShapeDrawable background = new ShapeDrawable(new OvalShape());
+        background.setColorFilter(backgroundColor, SRC);
+
+        int backgroundRadius = context.getResources()
+            .getDimensionPixelSize(R.dimen.common_margin_medium) * 2;
+        background.setIntrinsicWidth(backgroundRadius);
+        background.setIntrinsicHeight(backgroundRadius);
+
+        BitmapDrawable source = svgToBitmapDrawable(context, resourceId,
+            backgroundRadius / 2, Color.WHITE);
+
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
+        int inset = backgroundRadius / 2;
+        layerDrawable.setLayerInset(1, inset, inset, inset, inset);
+        return layerDrawable;
+    }
+
+    /**
+     * Paint a circular bitmap.
+     *
+     * @param context         activity context
+     * @param source          drawable
+     * @param backgroundColor of the bitmap
+     * @return the circular bitmap resource
+     */
+    public static Drawable getCircularDrawableImage(
+        Context context, Drawable source, int backgroundColor) {
+        ShapeDrawable background = new ShapeDrawable(new OvalShape());
+        background.setColorFilter(backgroundColor, SRC);
+
+        int backgroundRadius = context.getResources()
+            .getDimensionPixelSize(R.dimen.common_margin_medium);
+        background.setIntrinsicWidth(backgroundRadius);
+        background.setIntrinsicHeight(backgroundRadius);
+
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
+        int inset = backgroundRadius / 2;
+        layerDrawable.setLayerInset(1, inset, inset, inset, inset);
+        return layerDrawable;
+    }
 
     /**
      * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.
@@ -224,6 +306,36 @@ public class ViewUtils {
             Timber.e(Log.getStackTraceString(e));
         }
         return drawable;
+    }
+
+    /**
+     * Get the icon for the specified Activity Intent.
+     *
+     * @param context     activity context
+     * @param packageName name of the activity to find an image for
+     * @return activity drawable
+     */
+    public static Drawable getActivityIcon(Context context, String packageName) {
+        PackageManager pm = context.getPackageManager();
+        Drawable icon;
+        try {
+            icon = pm.getApplicationIcon(packageName);
+        } catch (NameNotFoundException e) {
+            icon = pm.getDefaultActivityIcon();
+            Timber.w("componentName not found, using generic app icon");
+        }
+        return icon;
+    }
+
+    /**
+     * Return a new Drawable of the entered resource icon.
+     *
+     * @param resId icon resource userId
+     * @return menu icon drawable
+     */
+    public static Drawable getMenuIcon(Context context, int resId) {
+        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
+            context.getResources().getColor(R.color.common_text_inverse));
     }
 
 }

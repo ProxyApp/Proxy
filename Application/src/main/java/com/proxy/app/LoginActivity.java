@@ -27,7 +27,7 @@ import com.proxy.IntentLauncher;
 import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.RestClient;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.User;
 import com.proxy.app.dialog.LoginErrorDialog;
 
 import java.io.IOException;
@@ -35,10 +35,13 @@ import java.io.IOException;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import io.realm.Realm;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import timber.log.Timber;
+
+import static com.proxy.api.domain.factory.UserFactory.createRealmUser;
 
 /**
  * Activity to log in with google account.
@@ -66,6 +69,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // until the user clicks 'sign in'.
     private int mSignInError;
     private RestClient mRestClient;
+    private Realm mRealm;
 
     /**
      * Sign in click listener.
@@ -82,6 +86,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mRealm = getDefaultRealm();
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
         // Button listeners
@@ -152,7 +157,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     if (user == null) {
                         addUserToDatabase(createUserFromGoogle());
                     } else {
-                        setUserAndLogIn(user);
+                        setUserAndAuth(user);
                     }
                 }
 
@@ -188,13 +193,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         String imageURL = getLargeImageURL(currentUser);
 
         //Create a new {@link User} with empty groups, contacts, and channels
-        User user = new User();
-        user.setUserId(userId);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setImageURL(imageURL);
-        return user;
+        return User.create(userId, firstName, lastName, email, imageURL, null, null, null);
     }
 
     /**
@@ -203,12 +202,12 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param loggedInUser the {@link User} to log in
      */
     private void addUserToDatabase(User loggedInUser) {
-        mRestClient.getUserService().updateUser(loggedInUser.getUserId(),
+        mRestClient.getUserService().updateUser(loggedInUser.userId(),
             loggedInUser, new Callback<User>() {
                 @Override
                 public void success(User user, Response response) {
                     Timber.i("rest client success");
-                    setUserAndLogIn(user);
+                    setUserAndAuth(user);
                 }
 
                 @Override
@@ -224,8 +223,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      *
      * @param user to login
      */
-    private void setUserAndLogIn(User user) {
-        setCurrentUser(user);
+    private void setUserAndAuth(final User user) {
+        setLoggedInUser(user);
+        transactRealmObject(mRealm, createRealmUser(user));
         getGoogleOAuthTokenAndLogin();
     }
 

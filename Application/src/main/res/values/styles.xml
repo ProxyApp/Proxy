@@ -6,7 +6,7 @@
         <item name="colorPrimaryDark">@color/common_blue_dark</item>
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Widget.Proxy.App.Popup" parent="Theme.AppCompat.Light">

@@ -5,13 +5,11 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.view.ContextThemeWrapper;
 
 import com.proxy.R;
 import com.proxy.event.LoginErrorDialogEvent;
-import com.proxy.event.OttoBusDriver;
 
 import static com.proxy.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
 import static com.proxy.util.DebugUtils.getSimpleName;
@@ -19,7 +17,7 @@ import static com.proxy.util.DebugUtils.getSimpleName;
 /**
  * Dialog to handle error messaging during login.
  */
-public class LoginErrorDialog extends DialogFragment {
+public class LoginErrorDialog extends BaseDialogFragment {
     private static final String TAG = getSimpleName(LoginErrorDialog.class);
     private static final String ARG_TITLE = "title";
     private static final String ARG_MESSAGE = "message";
@@ -49,7 +47,7 @@ public class LoginErrorDialog extends DialogFragment {
     private DialogInterface.OnClickListener mOnOkClicked = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            OttoBusDriver.post(new LoginErrorDialogEvent(DISMISS));
+            getRxBus().post(new LoginErrorDialogEvent(DISMISS));
             dialog.dismiss();
         }
     };

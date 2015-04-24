@@ -13,6 +13,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_proxy"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/Theme.Proxy.Base">
         <activity
             android:name=".app.DispatchActivity"
@@ -57,6 +58,15 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.proxy.intent.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".app.ChannelListActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.proxy.intent.action.ADD_CHANNEL_LIST"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

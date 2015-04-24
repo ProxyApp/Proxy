@@ -1,4 +1,6 @@
-package com.proxy.api.model;
+package com.proxy.api.domain.realm;
+
+import android.support.annotation.Nullable;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -7,13 +9,14 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Groups only have names for now.
  */
-public class Group extends RealmObject {
+public class RealmGroup extends RealmObject {
 
-    @PrimaryKey
+    @Nullable
     private String groupId;
+    @PrimaryKey
     private String label;
-    private RealmList<Channel> channels;
-    private RealmList<Contact> contacts;
+    private RealmList<RealmChannel> channels;
+    private RealmList<RealmContact> contacts;
 
 
     /**
@@ -55,9 +58,9 @@ public class Group extends RealmObject {
     /**
      * Getter.
      *
-     * @return channel permissions shared with this {@link Group}
+     * @return channel permissions shared with this {@link RealmGroup}
      */
-    public RealmList<Channel> getChannels() {
+    public RealmList<RealmChannel> getChannels() {
         return channels;
     }
 
@@ -66,25 +69,25 @@ public class Group extends RealmObject {
      *
      * @param channels group channels
      */
-    public void setChannels(RealmList<Channel> channels) {
+    public void setChannels(RealmList<RealmChannel> channels) {
         this.channels = channels;
     }
 
     /**
      * Getter.
      *
-     * @return contacts in this {@link Group}
+     * @return contacts in this {@link RealmGroup}
      */
-    public RealmList<Contact> getContacts() {
+    public RealmList<RealmContact> getContacts() {
         return contacts;
     }
 
     /**
      * Setter.
      *
-     * @param contacts in this {@link Group}
+     * @param contacts in this {@link RealmGroup}
      */
-    public void setContacts(RealmList<Contact> contacts) {
+    public void setContacts(RealmList<RealmContact> contacts) {
         this.contacts = contacts;
     }
 

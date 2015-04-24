@@ -8,26 +8,28 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.api.model.Group;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.Group;
+import com.proxy.api.domain.model.User;
+
+import java.util.ArrayList;
 
 import butterknife.InjectView;
-import io.realm.RealmList;
 
 /**
  * An Adapter to handle displaying {@link Group}s.
  */
-public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
+    BaseViewHolder.ItemClickListener {
 
     //Persisted Group Array Data
-    private RealmList<Group> mGroups;
+    private ArrayList<Group> mGroups;
 
     /**
      * Constructor for {@link GroupRecyclerAdapter}.
      *
      * @param groups a list of {@link Group}s
      */
-    private GroupRecyclerAdapter(@NonNull RealmList<Group> groups) {
+    private GroupRecyclerAdapter(@NonNull ArrayList<Group> groups) {
         mGroups = groups;
     }
 
@@ -37,7 +39,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param groups initialize {@link User} {@link Group}s
      * @return an {@link GroupRecyclerAdapter} with no data
      */
-    public static GroupRecyclerAdapter newInstance(RealmList<Group> groups) {
+    public static GroupRecyclerAdapter newInstance(ArrayList<Group> groups) {
         return new GroupRecyclerAdapter(groups);
     }
 
@@ -45,7 +47,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.common_adapter_text_item, parent, false);
-        return GroupViewHolder.newInstance(view);
+        return GroupViewHolder.newInstance(view, this);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param group  the {@link Group} data
      */
     private void setLineItemViewData(final GroupViewHolder holder, Group group) {
-        holder.groupName.setText(group.getLabel());
+        holder.groupName.setText(group.label());
     }
 
     @Override
@@ -74,7 +76,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      *
      * @return the desired ArrayList<{@link Group}>
      */
-    public RealmList<Group> getDataArray() {
+    public ArrayList<Group> getDataArray() {
         return mGroups;
     }
 
@@ -83,7 +85,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      *
      * @param groups {@link Group} array
      */
-    public void setDataArray(RealmList<Group> groups) {
+    public void setDataArray(ArrayList<Group> groups) {
         mGroups = groups;
     }
 
@@ -143,6 +145,11 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        //TODO: What happens when you click a group?
+    }
+
     /**
      * ViewHolder for the entered {@link Group} data.
      */
@@ -153,19 +160,22 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         /**
          * Constructor for the holder.
          *
-         * @param view the inflated view
+         * @param view              the inflated view
+         * @param itemClickListener click listener for each viewholder item
          */
-        private GroupViewHolder(View view) {
-            super(view);
+        private GroupViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
         }
+
         /**
          * Create a new Instance of the ViewHolder.
          *
-         * @param view inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param view              inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param itemClickListener click listener for each viewholder item
          * @return a ViewHolder instance
          */
-        public static GroupViewHolder newInstance(View view) {
-            return new GroupViewHolder(view);
+        public static GroupViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new GroupViewHolder(view, itemClickListener);
         }
     }
 }

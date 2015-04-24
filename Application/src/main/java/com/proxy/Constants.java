@@ -1,8 +1,9 @@
 package com.proxy;
 
 
-import com.proxy.api.model.Group;
-import com.proxy.api.model.User;
+import android.app.Activity;
+
+import com.proxy.api.domain.model.User;
 
 /**
  * Constant Values.
@@ -10,13 +11,11 @@ import com.proxy.api.model.User;
 public class Constants {
 
     /**
-     * Bundled extra for the {@link User} list.
+     * Bundled extra containing the user profile to be opened with {@link
+     * IntentLauncher#launchUserProfileActivity(Activity, User)}.
      */
-    public static final String ARG_USER_LIST = "com.proxy.user_list";
-    /**
-     * Bundled extra for the {@link Group} list.
-     */
-    public static final String ARG_GROUP_LIST = "com.proxy.group_list";
+    public static final String ARG_USER_SELECTED_PROFILE = "com.proxy.user_selected_profile";
+    public static final String ARG_USER_LOGGED_IN = "com.proxy.user_is_currently_logged_in";
 
     /**
      * Private Constants constructor.

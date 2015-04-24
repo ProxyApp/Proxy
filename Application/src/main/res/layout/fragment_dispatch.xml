@@ -9,6 +9,7 @@
         android:id="@+id/fragment_dispatch_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/proxy_logo"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/common_rect_huge"/>
 

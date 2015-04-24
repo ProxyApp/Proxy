@@ -1,18 +1,18 @@
-package com.proxy.api.model;
+package com.proxy.api.domain.realm;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Contacts are {@link User}s who you'd like to communicate with.
+ * Contacts are {@link RealmUser}s who you'd like to communicate with.
  */
-public class Contact extends RealmObject {
+public class RealmContact extends RealmObject {
 
     @PrimaryKey
     private String contactId;
     private String label;
-    private RealmList<Channel> channels;
+    private RealmList<RealmChannel> channels;
 
     /**
      * Getter.
@@ -55,7 +55,7 @@ public class Contact extends RealmObject {
      *
      * @return Contact's channel permissions
      */
-    public RealmList<Channel> getChannels() {
+    public RealmList<RealmChannel> getChannels() {
         return channels;
     }
 
@@ -64,7 +64,7 @@ public class Contact extends RealmObject {
      *
      * @param channels list
      */
-    public void setChannels(RealmList<Channel> channels) {
+    public void setChannels(RealmList<RealmChannel> channels) {
         this.channels = channels;
     }
 

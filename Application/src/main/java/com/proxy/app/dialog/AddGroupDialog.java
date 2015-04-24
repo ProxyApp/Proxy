@@ -17,15 +17,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.api.model.Group;
+import com.proxy.api.domain.model.Group;
 import com.proxy.event.GroupAddedEvent;
-import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.FloatLabelLayout;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnTextChanged;
-import io.realm.Realm;
 
 import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 
@@ -38,9 +36,6 @@ public class AddGroupDialog extends BaseDialogFragment {
     FloatLabelLayout mFloatLabel;
     @InjectView(R.id.dialog_addgroup_edittext)
     EditText mEditText;
-    private int mGray;
-    private int mGreen;
-    private Realm mRealm;
     private final DialogInterface.OnClickListener mNegativeClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -76,6 +71,8 @@ public class AddGroupDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
+    private int mGray;
+    private int mGreen;
 
     /**
      * Create a new instance of a {@link AddGroupDialog}.
@@ -92,9 +89,8 @@ public class AddGroupDialog extends BaseDialogFragment {
     private void dispatchGroupEvent() {
         String groupLabel = mEditText.getText().toString();
         if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-            Group group = new Group();
-            group.setLabel(groupLabel);
-            OttoBusDriver.post(new GroupAddedEvent(group));
+            Group group = Group.create(null, groupLabel, null, null);
+            getRxBus().post(new GroupAddedEvent(group));
         }
     }
 
@@ -120,7 +116,6 @@ public class AddGroupDialog extends BaseDialogFragment {
             .inflate(R.layout.dialog_addgroup, null, false);
         ButterKnife.inject(this, view);
         mEditText.setOnEditorActionListener(onEditorActionListener);
-        mRealm = Realm.getInstance(getActivity());
         return new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog))
             .setTitle(R.string.dialog_addgroup_title)

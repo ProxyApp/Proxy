@@ -2,7 +2,7 @@ package com.proxy.event;
 
 import android.support.annotation.NonNull;
 
-import com.proxy.api.model.Group;
+import com.proxy.api.domain.model.Group;
 
 import timber.log.Timber;
 

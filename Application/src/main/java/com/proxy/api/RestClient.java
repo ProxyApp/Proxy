@@ -1,5 +1,6 @@
 package com.proxy.api;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.google.gson.ExclusionStrategy;
@@ -7,6 +8,7 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.proxy.R;
+import com.proxy.api.gson.AutoParcelAdapterFactory;
 import com.proxy.api.service.UserService;
 
 import io.realm.RealmObject;
@@ -26,7 +28,7 @@ public class RestClient {
      * @param context app context
      */
     public RestClient(Context context) {
-        Gson gson = new GsonBuilder()
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new AutoParcelAdapterFactory())
             .setExclusionStrategies(new ExclusionStrategy() {
                 @Override
                 public boolean shouldSkipField(FieldAttributes f) {
@@ -53,7 +55,7 @@ public class RestClient {
      * @param context app context
      * @return RestClient
      */
-    public static RestClient newInstance(Context context) {
+    public static RestClient newInstance(Activity context) {
         return new RestClient(context);
     }
 

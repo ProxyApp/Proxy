@@ -1,6 +1,6 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/activity_main_drawer_layout"
@@ -14,7 +14,6 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/common_toolbar"
                 layout="@layout/common_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -29,9 +28,9 @@
         <FrameLayout
             android:id="@+id/activity_main_drawer_fragment_container"
             android:layout_width="@dimen/common_drawer_width"
-            android:layout_gravity="start"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_gravity="start"/>
 
     </android.support.v4.widget.DrawerLayout>
 
-</FrameLayout>
+</merge>
