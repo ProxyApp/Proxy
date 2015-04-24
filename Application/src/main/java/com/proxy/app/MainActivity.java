@@ -1,9 +1,7 @@
 package com.proxy.app;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -98,7 +96,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     /**
      * Initialize this activity's drawer view.
      */
-    @SuppressLint("NewApi")
     private void initializeDrawer() {
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawer,
             mToolbar, R.string.common_open, R.string.common_closed) {
@@ -115,11 +112,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         };
         mDrawer.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewCompat.setElevation(mDrawer, getResources().getDimension(R.dimen
-                .common_drawer_elevation));
-        }
+        ViewCompat.setElevation(mDrawer, getResources().getDimension(R.dimen
+            .common_drawer_elevation));
     }
 
     /**
