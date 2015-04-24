@@ -16,8 +16,8 @@
         android:layout_width="@dimen/common_fab_radius"
         android:layout_height="@dimen/common_fab_radius"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/common_rect_small"
-        android:layout_marginEnd="@dimen/common_rect_small"
+        android:layout_marginBottom="@dimen/common_rect_tiny"
+        android:layout_marginEnd="@dimen/common_rect_tiny"
         android:background="@color/common_red"
         app:colorNormal="@color/common_red"
         app:colorPressed="@color/common_red_light">

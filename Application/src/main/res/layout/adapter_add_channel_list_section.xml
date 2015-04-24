@@ -1,0 +1,25 @@
+<LinearLayout
+    android:id="@+id/adapter_add_channel_list_section_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/common_rect_tiny"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/adapter_add_channel_list_section_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/common_margin_small"
+        android:contentDescription="@string/channel_section_image"/>
+
+    <TextView
+        android:id="@+id/adapter_add_channel_list_section_label"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/common_margin_tiny"
+        android:textColor="@color/common_text"/>
+
+</LinearLayout>

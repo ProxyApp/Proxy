@@ -3,30 +3,26 @@ package com.proxy.widget;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * {@link BaseRecyclerView} that has a {@link RecyclerItemClickListener}.
+ * {@link BaseRecyclerView} that has a {@link ItemClickListener}.
  */
 @SuppressWarnings("unused")
 public class BaseRecyclerView extends RecyclerView {
 
-    /**
-     * ClickListener CallBack.
-     */
-    public interface OnItemClickListener {
-        /**
-         * Return the view and position of the clicked item
-         *
-         * @param view     view pressed
-         * @param position position of the view in this {@link BaseRecyclerView}
-         */
-        void onItemClick(View view, int position);
-    }
+    private View mEmptyView;
 
-    private static RecyclerItemClickListener mRecyclerItemClickListener = null;
+    /**
+     * Observer to monitor if we have an empty dataset.
+     */
+    private AdapterDataObserver mDataObserver = new AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            updateEmptyView();
+        }
+    };
 
     /**
      * Constructor.
@@ -59,55 +55,35 @@ public class BaseRecyclerView extends RecyclerView {
     }
 
     /**
-     * Get ItemClickListener.
+     * Designate a view as the empty view. When the backing adapter has no data this view will be
+     * made visible and the recycler view hidden.
      *
-     * @param context       activity context
-     * @param clickListener implemented click listener in adapter
-     * @return ItemClickListener
+     * @param emptyView the view to display when this array has no data
      */
-    public static RecyclerItemClickListener getItemClickListener(
-        Context context, OnItemClickListener clickListener) {
-        if (mRecyclerItemClickListener == null) {
-            mRecyclerItemClickListener = new RecyclerItemClickListener(context, clickListener);
+    public void setEmptyView(View emptyView) {
+        mEmptyView = emptyView;
+    }
+
+    @Override
+    public void setAdapter(RecyclerView.Adapter adapter) {
+        if (getAdapter() != null) {
+            getAdapter().unregisterAdapterDataObserver(mDataObserver);
         }
-        return mRecyclerItemClickListener;
+        if (adapter != null) {
+            adapter.registerAdapterDataObserver(mDataObserver);
+        }
+        super.setAdapter(adapter);
+        updateEmptyView();
     }
 
     /**
-     * Create a static {@link OnItemTouchListener} for the {@link BaseRecyclerView}.
+     * Show or hide the empty view.
      */
-    static final class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
-        GestureDetector mGestureDetector;
-        private OnItemClickListener mListener;
-
-        /**
-         * Implement {@link OnItemTouchListener}.
-         *
-         * @param context  activity context
-         * @param listener listener callback
-         */
-        public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
-            mListener = listener;
-            mGestureDetector = new GestureDetector(context, new GestureDetector
-                .SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-            });
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
-            View childView = view.findChildViewUnder(e.getX(), e.getY());
-            if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-                mListener.onItemClick(childView, view.getChildPosition(childView));
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
+    private void updateEmptyView() {
+        if (mEmptyView != null && getAdapter() != null) {
+            boolean showEmptyView = getAdapter().getItemCount() == 0;
+            mEmptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
+            setVisibility(showEmptyView ? GONE : VISIBLE);
         }
     }
 }

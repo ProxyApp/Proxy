@@ -1,41 +1,35 @@
 package com.proxy.app.fragment;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.api.RestClient;
-import com.proxy.api.model.User;
-import com.proxy.api.service.UserService;
+import com.proxy.api.domain.model.User;
+import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.UserRecyclerAdapter;
-import com.proxy.event.OttoBusDriver;
-import com.proxy.event.UserAddedEvent;
-import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.Map;
+import com.proxy.event.UserSelectedEvent;
+import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import hugo.weaving.DebugLog;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
- * A RecyclerView of {@link User}s.
+ * A RecyclerView of Favorite {@link User}s.
  */
-public class UserFragment extends BaseFragment {
-
+public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
     @InjectView(R.id.common_recyclerview)
-    RecyclerView mRecyclerView;
+    BaseRecyclerView mRecyclerView;
     @InjectView(R.id.common_recyclerview_swipe_refresh)
     SwipeRefreshLayout mSwipeRefreshLayout;
     private UserRecyclerAdapter mAdapter;
@@ -53,32 +47,21 @@ public class UserFragment extends BaseFragment {
             });
         }
     };
+    private CompositeSubscription mSubscriptions;
 
     /**
      * Constructor.
      */
-    public UserFragment() {
+    public FavoriteUserFragment() {
     }
 
     /**
-     * Create a new user fragment.
+     * Create a new fragment with favorite contacts.
      *
      * @return user fragment
      */
-    public static UserFragment newInstance() {
-        return new UserFragment();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        OttoBusDriver.register(this);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
+    public static FavoriteUserFragment newInstance() {
+        return new FavoriteUserFragment();
     }
 
     @Override
@@ -88,7 +71,6 @@ public class UserFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.common_recyclerview, container, false);
         ButterKnife.inject(this, rootView);
         initializeRecyclerView();
-        initializeUserData();
         initializeSwipeRefresh();
         return rootView;
     }
@@ -109,51 +91,48 @@ public class UserFragment extends BaseFragment {
     }
 
     /**
-     * Get the {@link User} data.
-     */
-    private void initializeUserData() {
-        UserService userService = RestClient.newInstance(getActivity()).getUserService();
-        userService.listUsers().subscribe(new Action1<Map<String, User>>() {
-            @Override
-            public void call(Map<String, User> userMap) {
-                for (Map.Entry<String, User> entry : userMap.entrySet()) {
-                    addUserToAdapter(entry.getValue());
-                }
-            }
-        });
-    }
-
-    /**
      * Initialize a RecyclerView with User data.
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = UserRecyclerAdapter.newInstance();
+        mAdapter = UserRecyclerAdapter.newInstance(getDefaultRealm(), this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
-    /**
-     * User Added Event
-     *
-     * @param event user data
-     */
-    @Subscribe
-    @DebugLog
-    @SuppressWarnings("unused")
-    public void userAdded(UserAddedEvent event) {
-        addUserToAdapter(event.user);
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSubscriptions = new CompositeSubscription();
+        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof UserSelectedEvent) {
+                        onUserSelected((UserSelectedEvent) event);
+                    }
+                }
+            }));
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        getRxBus().post(new UserSelectedEvent(mAdapter.getItemData(position)));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSubscriptions.unsubscribe();
     }
 
     /**
-     * Add a user to the {@link ArrayList} persisted in the {@link UserRecyclerAdapter}.
+     * User selected is this Fragments underlying RecyclerView.Adapter.
      *
-     * @param user to add
+     * @param event data
      */
-    private void addUserToAdapter(User user) {
-        mAdapter.addUserData(user);
-        mAdapter.notifyItemInserted(mAdapter.getItemCount());
+    public void onUserSelected(UserSelectedEvent event) {
+        IntentLauncher.launchUserProfileActivity(getActivity(), event.user);
     }
-
 }

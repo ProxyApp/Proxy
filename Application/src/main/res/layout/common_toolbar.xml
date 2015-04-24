@@ -6,5 +6,5 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/actionBarSize"
     android:background="?attr/colorPrimary"
-    app:popupTheme="@style/Widget.Proxy.App.Popup"
-    app:theme="@style/Theme.Proxy.Base"/>
+    android:theme="@style/Theme.Proxy.Base"
+    app:popupTheme="@style/Widget.Proxy.App.Popup"/>

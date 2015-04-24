@@ -1,6 +1,5 @@
 package com.proxy.app.fragment;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -13,34 +12,34 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.api.RestClient;
-import com.proxy.api.model.Contact;
-import com.proxy.api.model.User;
-import com.proxy.api.service.UserService;
+import com.proxy.api.domain.model.Contact;
 import com.proxy.app.SearchActivity;
+import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.UserRecyclerAdapter;
-import com.proxy.event.OttoBusDriver;
+import com.proxy.event.UserSelectedEvent;
+import com.proxy.util.ViewUtils;
 import com.proxy.widget.BaseRecyclerView;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import io.realm.Realm;
 import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.proxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * Fragment to handle searching for {@link Contact}s.
  */
-public class SearchFragment extends BaseFragment {
+public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
 
     @InjectView(R.id.fragment_search_back_button)
     protected ImageView mBackButton;
@@ -51,6 +50,8 @@ public class SearchFragment extends BaseFragment {
     @InjectView(R.id.fragment_search_recyclerview)
     protected BaseRecyclerView mRecyclerView;
     private UserRecyclerAdapter mAdapter;
+    private Realm mRealm;
+    private CompositeSubscription mSubscriptions;
 
     /**
      * Constructor.
@@ -93,19 +94,13 @@ public class SearchFragment extends BaseFragment {
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     @SuppressWarnings("unused")
     public void onSearchStringChanged(Editable editable) {
-        mAdapter.getFilter().filter(editable.toString());
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        OttoBusDriver.register(this);
+        mAdapter.updateSearchText(editable.toString());
     }
 
     @Override
     public View onCreateView(
-        LayoutInflater inflater, ViewGroup container,
-        Bundle savedInstanceState) {
+        LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mRealm = getDefaultRealm();
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.inject(this, rootView);
         initialize();
@@ -119,56 +114,30 @@ public class SearchFragment extends BaseFragment {
         mBackButton.setImageDrawable(getBackArrowDrawable());
         mClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
-        initializeUserData();
         showSoftwareKeyboard(mEditText);
     }
 
-    /**
-     * Get the {@link User} data.
-     */
-    private void initializeUserData() {
-        UserService userService = RestClient.newInstance(getActivity()).getUserService();
-        userService.listUsers().subscribe(new Action1<Map<String, User>>() {
-            @Override
-            public void call(Map<String, User> userMap) {
-                for (Map.Entry<String, User> entry : userMap.entrySet()) {
-                    addUserToAdapter(entry.getValue());
-                }
-            }
-        });
-    }
-
-    /**
-     * Add a user to the {@link ArrayList} persisted in the {@link UserRecyclerAdapter}.
-     *
-     * @param user to add
-     */
-    private void addUserToAdapter(User user) {
-        mAdapter.addUserData(user);
-        mAdapter.notifyItemInserted(mAdapter.getItemCount());
-    }
 
     /**
      * Initialize a RecyclerView with User data.
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = UserRecyclerAdapter.newInstance();
+        mAdapter = UserRecyclerAdapter.newInstance(mRealm, this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        getRxBus().post(new UserSelectedEvent(mAdapter.getItemData(position)));
     }
 
     /**
@@ -189,6 +158,37 @@ public class SearchFragment extends BaseFragment {
     private Drawable getClearSearchDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.clear,
             getLargeIconDimen(getActivity()), Color.GRAY);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSubscriptions = new CompositeSubscription();
+        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof UserSelectedEvent) {
+                        onUserSelected((UserSelectedEvent) event);
+                    }
+                }
+            }));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ViewUtils.hideSoftwareKeyboard(getView());
+        mSubscriptions.unsubscribe();
+    }
+
+    /**
+     * User selected is this Fragments underlying RecyclerView.Adapter.
+     *
+     * @param event data
+     */
+    public void onUserSelected(UserSelectedEvent event) {
+        IntentLauncher.launchUserProfileActivity(getActivity(), event.user);
     }
 
 }

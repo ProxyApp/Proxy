@@ -1,49 +1,56 @@
 package com.proxy.app.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.User;
+import com.proxy.api.domain.realm.RealmUser;
 import com.proxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
 import butterknife.InjectView;
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static com.proxy.util.TextHelper.joinWithSpace;
 
 
 /**
  * An Adapter to handle displaying {@link User}s.
  */
-public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> implements
-    Filterable {
+public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+    private final BaseViewHolder.ItemClickListener mClickListener;
     //Persisted User Array Data
-    private ArrayList<User> mUsers = new ArrayList<>();
-    private ArrayList<User> mAllUsers = new ArrayList<>();
+    private Realm mRealm;
+    private RealmResults<RealmUser> mUsers;
+
+    public UserRecyclerAdapter(Realm realm, BaseViewHolder.ItemClickListener listener) {
+        mRealm = realm;
+        mUsers = realm.where(RealmUser.class).findAllSorted("lastName");
+        mClickListener = listener;
+    }
 
     /**
      * Create a newInstance of a {@link UserRecyclerAdapter} with blank data.
      *
      * @return an {@link UserRecyclerAdapter} with no data
      */
-    public static UserRecyclerAdapter newInstance() {
-        return new UserRecyclerAdapter();
+    public static UserRecyclerAdapter newInstance(Realm realm, BaseViewHolder.ItemClickListener
+        listener) {
+        return new UserRecyclerAdapter(realm, listener);
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_user_item, parent, false);
-        return UserViewHolder.newInstance(view);
+        return UserViewHolder.newInstance(view, mClickListener);
     }
 
     @Override
@@ -57,10 +64,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> im
      * @param holder {@link User} {@link BaseViewHolder}
      * @param user   the {@link User} data
      */
-    private void setItemViewData(UserViewHolder holder, User user) {
+    private void setItemViewData(UserViewHolder holder, RealmUser user) {
         Context context = holder.view.getContext();
-
-        holder.userName.setText(user.getFirstName() + " " + user.getLastName());
+        holder.userName.setText(joinWithSpace(new String[]{ user.getFirstName(),
+            user.getLastName() }));
         Picasso.with(context).load(user.getImageURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
@@ -73,39 +80,26 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> im
     }
 
     /**
-     * Get the {@link User} array.
-     *
-     * @param users {@link User} array
-     */
-    public void setDataArray(ArrayList<User> users) {
-        mUsers = users;
-    }
-
-    /**
      * Get the desired {@link User} based off its position in a list.
      *
      * @param position the position in the list
      * @return the desired {@link User}
      */
-    public User getItemData(int position) {
+    public RealmUser getItemData(int position) {
         return mUsers.get(position);
     }
 
-    /**
-     * Add {@link User} to this RecyclerView.Adapter's array data set at the end of the set.
-     *
-     * @param user the {@link User} to add
-     */
-    public void addUserData(@NonNull User user) {
-        synchronized (UserRecyclerAdapter.class) {
-            mUsers.add(mUsers.size(), user);
-            mAllUsers.add(user);
+    public void updateSearchText(CharSequence constraint) {
+        if (constraint.equals("")) {
+            mUsers = mRealm.where(RealmUser.class).findAllSorted("lastName");
+        } else {
+            mUsers = mRealm.where(RealmUser.class)
+                .contains("firstName", constraint.toString(), false)
+                .or().contains("lastName", constraint.toString(), false)
+                .or().contains("fullName", constraint.toString(), false)
+                .findAllSorted("lastName");
         }
-    }
-
-    @Override
-    public Filter getFilter() {
-        return new UserFilter();
+        notifyDataSetChanged();
     }
 
     /**
@@ -120,62 +114,23 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> im
         /**
          * Constructor for the holder.
          *
-         * @param view the inflated view
+         * @param view              the inflated view
+         * @param itemClickListener click listener for each item
          */
-        private UserViewHolder(View view) {
-            super(view);
+        private UserViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
         }
 
         /**
          * Create a new Instance of the ViewHolder.
          *
-         * @param view inflated in {@link #onCreateViewHolder}
+         * @param view              inflated in {@link #onCreateViewHolder}
+         * @param itemClickListener click listener for each ViewHolder item
          * @return a {@link User} ViewHolder instance
          */
-        public static UserViewHolder newInstance(View view) {
-            return new UserViewHolder(view);
+        public static UserViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new UserViewHolder(view, itemClickListener);
         }
     }
 
-    /**
-     * Filter for searching this adapters {@link User}s.
-     */
-    public class UserFilter extends Filter {
-
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            // Initiate our results objects
-            FilterResults results = new FilterResults();
-            ArrayList<User> filteredUsers = new ArrayList<>();
-
-            if (constraint == null || constraint.equals("")) {
-                results.values = mAllUsers;
-                results.count = mAllUsers.size();
-            } else {
-                // Make sure we're searching plain lower case strings
-                constraint = constraint.toString().toLowerCase();
-                for (User user : mAllUsers) {
-                    String firstName = user.getFirstName().toLowerCase();
-                    String lastName = user.getLastName().toLowerCase();
-                    String fullName = firstName + " " + lastName;
-                    if (firstName.contains(constraint)
-                        || lastName.contains(constraint)
-                        || fullName.contains(constraint)) {
-                        filteredUsers.add(user);
-                    }
-                }
-                results.values = filteredUsers;
-                results.count = filteredUsers.size();
-            }
-
-            return results;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            mUsers = (ArrayList<User>) results.values;
-            notifyDataSetChanged();
-        }
-    }
 }

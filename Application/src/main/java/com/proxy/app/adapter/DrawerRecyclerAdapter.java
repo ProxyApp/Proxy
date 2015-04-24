@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.User;
 import com.proxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -27,19 +27,22 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final String HEADER = "HEADER";
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
-    private final User mUser;
+    private final User mCurrentUser;
     private String[] mValues;
     private Target mTarget;
+    private BaseViewHolder.ItemClickListener mClickListener;
 
     /**
      * Constructor for {@link DrawerRecyclerAdapter}.
-     *
-     * @param currentUser   currently logged in User
+     *  @param currentUser   currently logged in User
      * @param settingsArray array of drawer options
+     * @param listener
      */
-    private DrawerRecyclerAdapter(User currentUser, String[] settingsArray) {
+    private DrawerRecyclerAdapter(User currentUser, String[] settingsArray, BaseViewHolder
+        .ItemClickListener listener) {
         mValues = settingsArray;
-        mUser = currentUser;
+        mCurrentUser = currentUser;
+        mClickListener = listener;
     }
 
     /**
@@ -49,8 +52,8 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
      * @param settingsArray array of drawer options
      * @return an {@link DrawerRecyclerAdapter} with no data
      */
-    public static DrawerRecyclerAdapter newInstance(User currentUser, String[] settingsArray) {
-        return new DrawerRecyclerAdapter(currentUser, settingsArray);
+    public static DrawerRecyclerAdapter newInstance(User currentUser, String[] settingsArray, BaseViewHolder.ItemClickListener listener) {
+        return new DrawerRecyclerAdapter(currentUser, settingsArray, listener);
     }
 
     /**
@@ -76,11 +79,11 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (viewType == TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_drawer_header, parent, false);
-            return HeaderViewHolder.newInstance(view);
+            return HeaderViewHolder.newInstance(view, mClickListener);
         } else {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.common_adapter_text_item, parent, false);
-            return ItemViewHolder.newInstance(view);
+            return ItemViewHolder.newInstance(view, mClickListener);
         }
     }
 
@@ -89,9 +92,10 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder;
             Context context = viewHolder.view.getContext();
-            viewHolder.userName.setText(mUser.getFirstName() + " " + mUser.getLastName());
+            viewHolder.userName.setText(mCurrentUser.firstName() + " "
+                + mCurrentUser.lastName());
 
-            Picasso.with(context).load(mUser.getImageURL())
+            Picasso.with(context).load(mCurrentUser.imageURL())
                 .transform(CircleTransform.create())
                 .placeholder(R.mipmap.ic_proxy)
                 .into(getBitmapTargetView(viewHolder));
@@ -114,7 +118,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    Palette.generateAsync(bitmap, getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
                 }
 
                 @Override
@@ -122,7 +126,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     Bitmap bitmap = Bitmap.createBitmap(errorDrawable.getIntrinsicWidth(),
                         errorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    Palette.generateAsync(bitmap, getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
                 }
 
                 @Override
@@ -130,7 +134,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     Bitmap bitmap = Bitmap.createBitmap(placeHolderDrawable.getIntrinsicWidth(),
                         placeHolderDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    Palette.generateAsync(bitmap, getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
                 }
             };
         }
@@ -164,6 +168,16 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     /**
+     * Is the item at the specified position a header?
+     *
+     * @param position of item
+     * @return is the item a header
+     */
+    public static boolean isHeader(int position) {
+        return position == 0;
+    }
+
+    /**
      * ViewHolder for the settings header.
      */
     protected static class HeaderViewHolder extends BaseViewHolder {
@@ -177,20 +191,22 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         /**
          * Constructor for the HeaderViewHolder.
          *
-         * @param view the inflated view
+         * @param view              the inflated view
+         * @param itemClickListener click listener for this view
          */
-        private HeaderViewHolder(View view) {
-            super(view);
+        private HeaderViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
         }
 
         /**
          * Create a new Instance of the ViewHolder.
          *
-         * @param view inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param view              inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param itemClickListener click listener for this view
          * @return a ViewHolder instance
          */
-        public static HeaderViewHolder newInstance(View view) {
-            return new HeaderViewHolder(view);
+        public static HeaderViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new HeaderViewHolder(view, itemClickListener);
         }
     }
 
@@ -204,21 +220,22 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         /**
          * Constructor for the ItemViewHolder.
          *
-         * @param view the inflated view
+         * @param view              the inflated view
+         * @param itemClickListener click listener for this view
          */
-        private ItemViewHolder(View view) {
-            super(view);
+        private ItemViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
         }
+
         /**
          * Create a new Instance of the ViewHolder.
          *
-         * @param view inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param view              inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
+         * @param itemClickListener click listener for this view
          * @return a ViewHolder instance
          */
-        public static ItemViewHolder newInstance(View view) {
-            return new ItemViewHolder(view);
+        public static ItemViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new ItemViewHolder(view, itemClickListener);
         }
     }
-
-
 }

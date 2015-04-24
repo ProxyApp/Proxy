@@ -1,7 +1,7 @@
 package com.proxy.api.service;
 
-import com.proxy.api.model.Group;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.Group;
+import com.proxy.api.domain.model.User;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public interface GroupService {
     /**
      * Get a {@link User}'s {@link Group}s.
      *
-     * @param userId unique id for {@link User} table
+     * @param userId unique userId for {@link User} table
      */
     @GET("/users/{userId}/Groups.json")
     Observable<Map<String, Group>> getUserGroups(@Path("userId") String userId);

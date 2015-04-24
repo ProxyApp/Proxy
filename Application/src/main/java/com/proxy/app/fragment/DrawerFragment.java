@@ -8,11 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proxy.R;
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.User;
 import com.proxy.app.BaseActivity;
+import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.event.DrawerItemSelectedEvent;
-import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
@@ -20,10 +20,9 @@ import butterknife.InjectView;
 
 
 /**
- * Created by Evan on 4/21/15.
+ * Drawer Fragment to handle displaying a user profile with options.
  */
-public class DrawerFragment extends BaseFragment implements BaseRecyclerView
-    .OnItemClickListener {
+public class DrawerFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
 
     @InjectView(R.id.fragment_drawer_recyclerview)
     BaseRecyclerView mDrawerRecyclerView;
@@ -45,12 +44,16 @@ public class DrawerFragment extends BaseFragment implements BaseRecyclerView
     private void initializeRecyclerView() {
         mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = DrawerRecyclerAdapter.newInstance(
-            getCurrentUser(), getResources().getStringArray(R.array.drawer_settings));
+            getCurrentUser(), getResources().getStringArray(R.array.drawer_settings), this);
         mDrawerRecyclerView.setAdapter(mAdapter);
         mDrawerRecyclerView.setHasFixedSize(true);
         mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mDrawerRecyclerView.addOnItemTouchListener(
-            BaseRecyclerView.getItemClickListener(getActivity(), this));
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        getRxBus().post(new DrawerItemSelectedEvent(view, position, mAdapter.getSettingValue
+            (position)));
     }
 
     /**
@@ -59,12 +62,7 @@ public class DrawerFragment extends BaseFragment implements BaseRecyclerView
      * @return current {@link User}
      */
     private User getCurrentUser() {
-        return ((BaseActivity) getActivity()).getCurrentUser();
+        return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
-    @Override
-    public void onItemClick(View view, int position) {
-        OttoBusDriver.post(new DrawerItemSelectedEvent(view, position,
-            mAdapter.getSettingValue(position)));
-    }
 }

@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@android:color/white"
               android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/fragment_search_bar_container"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_rect_small"
         android:background="@android:color/white"
@@ -29,7 +29,7 @@
             android:layout_weight="1"
             android:background="@null"
             android:hint="@string/search_contacts"
-            android:imeOptions="flagNoExtractUi"
+            android:imeOptions="flagNoExtractUi|actionDone"
             android:inputType="textFilter"
             android:singleLine="true"
             android:textColor="@color/common_text"
@@ -44,17 +44,15 @@
             android:paddingStart="@dimen/common_margin_small"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_margin_line"
+        android:background="@color/common_divider"/>
+
     <com.proxy.widget.BaseRecyclerView
         android:id="@+id/fragment_search_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@android:color/white"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/common_margin_line"
-        android:layout_gravity="bottom"
-        android:background="@color/common_divider"/>
+        android:layout_weight="1"/>
 
 </LinearLayout>

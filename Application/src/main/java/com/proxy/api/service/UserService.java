@@ -1,7 +1,7 @@
 package com.proxy.api.service;
 
 
-import com.proxy.api.model.User;
+import com.proxy.api.domain.model.User;
 
 import java.util.Map;
 
@@ -38,7 +38,7 @@ public interface UserService {
     /**
      * Save a user.
      *
-     * @param userId   unique id for {@link User} table
+     * @param userId   unique userId for {@link User} table
      * @param user     {@link User} data
      * @param callback registerUser callback
      */

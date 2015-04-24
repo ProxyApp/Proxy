@@ -12,7 +12,8 @@
         android:layout_height="@dimen/common_circleimageview_settings_radius"
         android:layout_marginBottom="@dimen/common_margin_small"
         android:layout_marginStart="@dimen/common_margin_huge"
-        android:layout_marginTop="@dimen/common_margin_xhuge"/>
+        android:layout_marginTop="@dimen/common_margin_xhuge"
+        android:contentDescription="@string/drawer_header_image"/>
 
     <TextView
         android:id="@+id/adapter_drawer_header_name"

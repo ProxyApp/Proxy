@@ -1,4 +1,4 @@
-package com.proxy;
+package com.proxy.api.prefs;
 
 import android.content.SharedPreferences;
 

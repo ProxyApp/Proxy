@@ -1,6 +1,5 @@
 package com.proxy.app.fragment;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -16,29 +15,31 @@ import android.widget.ImageView;
 
 import com.proxy.R;
 import com.proxy.api.RestClient;
-import com.proxy.api.model.Group;
-import com.proxy.api.model.User;
-import com.proxy.app.BaseActivity;
+import com.proxy.api.domain.factory.UserFactory;
+import com.proxy.api.domain.model.Group;
+import com.proxy.api.domain.model.User;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
-import com.proxy.event.OttoBusDriver;
 import com.proxy.widget.FloatingActionButton;
-import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import hugo.weaving.DebugLog;
-import io.realm.RealmList;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 import static com.proxy.util.DebugUtils.getSimpleName;
 import static com.proxy.util.ViewUtils.floatingActionButtonElevation;
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
@@ -54,15 +55,16 @@ public class GroupFragment extends BaseFragment {
     Callback<User> userCallBack = new Callback<User>() {
         @Override
         public void success(User user, Response response) {
-            ((BaseActivity) getActivity()).setCurrentUser(user);
+            Timber.i("Group updated Successfully");
         }
 
         @Override
         public void failure(RetrofitError error) {
-
+            Timber.i("Group failed to update");
         }
     };
     private GroupRecyclerAdapter mAdapter;
+    private CompositeSubscription mSubscriptions;
 
     /**
      * {@link Fragment} Constructor.
@@ -85,18 +87,6 @@ public class GroupFragment extends BaseFragment {
     @OnClick(R.id.fragment_group_add_item)
     public void onClick() {
         AddGroupDialog.newInstance().show(getFragmentManager(), TAG);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        OttoBusDriver.register(this);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        OttoBusDriver.unregister(this);
     }
 
     @Override
@@ -145,13 +135,34 @@ public class GroupFragment extends BaseFragment {
      *
      * @return Group List
      */
-    private RealmList<Group> getGroupData() {
-        RealmList<Group> serverGroups = getLoggedInUser().getGroups();
+    private ArrayList<Group> getGroupData() {
+        ArrayList<Group> serverGroups = getLoggedInUser().groups();
         if (serverGroups == null) {
-            return new RealmList<>();
+            return new ArrayList<>();
         } else {
             return serverGroups;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSubscriptions = new CompositeSubscription();
+        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof GroupAddedEvent) {
+                        groupAdded((GroupAddedEvent) event);
+                    }
+                }
+            }));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSubscriptions.unsubscribe();
     }
 
     /**
@@ -159,27 +170,16 @@ public class GroupFragment extends BaseFragment {
      *
      * @param event group
      */
-    @Subscribe
-    @DebugLog
-    @SuppressWarnings("unused")
     public void groupAdded(GroupAddedEvent event) {
         mAdapter.addGroupData(event.group);
         mAdapter.notifyItemInserted(mAdapter.getItemCount());
         mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount());
         //update groups in firebase
-        User loggedInUser = getLoggedInUser();
-        loggedInUser.setGroups(mAdapter.getDataArray());
-        RestClient.newInstance(getActivity()).getUserService().updateUser(loggedInUser.getUserId(),
+        User loggedInUser = UserFactory.updateUserGroups(getLoggedInUser(),
+            mAdapter.getDataArray());
+        setLoggedInUser(loggedInUser);
+        RestClient.newInstance(getActivity()).getUserService().updateUser(loggedInUser.userId(),
             loggedInUser, userCallBack);
-    }
-
-    /**
-     * Get the logged in user.
-     *
-     * @return Logged in user
-     */
-    private User getLoggedInUser() {
-        return ((BaseActivity) getActivity()).getCurrentUser();
     }
 
 }

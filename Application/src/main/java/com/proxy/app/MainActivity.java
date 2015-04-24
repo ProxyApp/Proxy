@@ -1,7 +1,5 @@
 package com.proxy.app;
 
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,19 +18,30 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.api.model.Contact;
+import com.proxy.api.RestClient;
+import com.proxy.api.domain.model.Contact;
+import com.proxy.api.domain.model.User;
+import com.proxy.api.service.UserService;
+import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
 import com.proxy.event.DrawerItemSelectedEvent;
-import com.proxy.event.OttoBusDriver;
-import com.squareup.otto.Subscribe;
+import com.proxy.event.RxBusDriver;
+
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import io.realm.Realm;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.proxy.util.ViewUtils.getMenuIconDimen;
-import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
+import static com.proxy.api.domain.factory.UserFactory.createRealmUser;
+import static com.proxy.util.ViewUtils.getMenuIcon;
+import static rx.android.app.AppObservable.bindActivity;
 
 
 /**
@@ -46,6 +55,10 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     @InjectView(R.id.activity_main_drawer_layout)
     DrawerLayout mDrawer;
     private GoogleApiClient mGoogleApiClient;
+    private RestClient mRestClient;
+    private Realm mRealm;
+    private RxBusDriver rxBus;
+    private CompositeSubscription mSubscriptions;
 
 
     @Override
@@ -55,26 +68,40 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        OttoBusDriver.register(this);
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
-        initializeDrawer();
+        mRealm = getDefaultRealm();
         mGoogleApiClient = buildGoogleApiClient();
+        mRestClient = RestClient.newInstance(this);
+        initializeDrawer();
+        initializeUserData();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new MainFragment())
                 .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
                 .commit();
         }
+
+    }
+
+    /**
+     * Get the {@link User} data.
+     */
+    private void initializeUserData() {
+        UserService userService = mRestClient.getUserService();
+        userService.listUsers().subscribeOn(Schedulers.io()).
+            observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Map<String, User>>() {
+            @Override
+            public void call(Map<String, User> userMap) {
+                for (Map.Entry<String, User> entry : userMap.entrySet()) {
+                    transactRealmObject(mRealm, createRealmUser(entry.getValue()));
+                }
+            }
+        });
     }
 
     /**
@@ -120,17 +147,17 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
      *
      * @param event data
      */
-    @Subscribe
-    @SuppressWarnings("unused")
     public void onDrawerItemSelected(DrawerItemSelectedEvent event) {
         //if the user presses logout
-        if (getString(R.string.settings_logout)
+        if (DrawerRecyclerAdapter.isHeader(event.position)) {
+            IntentLauncher.launchUserProfileActivity(this, getLoggedInUser());
+        } else if (getString(R.string.settings_logout)
             .equals(event.message)) {
             // and the google api is connected
             if (mGoogleApiClient.isConnected()) {
-                setCurrentUser(null);
+                setLoggedInUser(null);
                 Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                IntentLauncher.launchLoginActivity(MainActivity.this, true);
+                IntentLauncher.launchLoginActivity(this, true);
                 finish();
             } else {
                 Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
@@ -141,9 +168,24 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mSubscriptions = new CompositeSubscription();
+        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof DrawerItemSelectedEvent) {
+                        onDrawerItemSelected((DrawerItemSelectedEvent) event);
+                    }
+                }
+            }));
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-        OttoBusDriver.unregister(this);
+        mSubscriptions.unsubscribe();
     }
 
     @Override
@@ -158,37 +200,27 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_activity_contacts, menu);
+        inflater.inflate(R.menu.menu_activity_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem notification = menu.findItem(R.id.menu_notification);
-        MenuItem search = menu.findItem(R.id.menu_search);
+        MenuItem notification = menu.findItem(R.id.menu_main_notification);
+        MenuItem search = menu.findItem(R.id.menu_main_search);
         // Add Icons to the menu items before they are displayed
-        notification.setIcon(getMenuIcon(R.raw.notifications));
-        search.setIcon(getMenuIcon(R.raw.search));
+        notification.setIcon(getMenuIcon(this, R.raw.notifications));
+        search.setIcon(getMenuIcon(this, R.raw.search));
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    /**
-     * Return a new Drawable of the entered resource icon.
-     *
-     * @param resId icon resource id
-     * @return menu icon drawable
-     */
-    private Drawable getMenuIcon(int resId) {
-        return svgToBitmapDrawable(this, resId, getMenuIconDimen(this), Color.WHITE);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_notification:
+            case R.id.menu_main_notification:
                 break;
-            case R.id.menu_search:
-                IntentLauncher.launchSearch(MainActivity.this);
+            case R.id.menu_main_search:
+                IntentLauncher.launchSearchActivity(this);
                 break;
             default:
                 Timber.e("Menu Item ID unknown");

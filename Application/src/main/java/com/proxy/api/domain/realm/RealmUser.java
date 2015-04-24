@@ -1,4 +1,4 @@
-package com.proxy.api.model;
+package com.proxy.api.domain.realm;
 
 
 import android.support.annotation.Nullable;
@@ -8,22 +8,23 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Users have a basic profile that contains their specific {@link Channel}s, {@link Contact}s, and
- * {@link Group}s.
+ * Users have a basic profile that contains their specific {@link RealmChannel}s, {@link RealmContact}s, and
+ * {@link RealmGroup}s.
  */
-public class User extends RealmObject {
+public class RealmUser extends RealmObject {
     @PrimaryKey
     private String userId;
     private String firstName;
     private String lastName;
+    private String fullName;
     private String email;
     private String imageURL;
     @Nullable
-    private RealmList<Channel> channels;
+    private RealmList<RealmChannel> channels;
     @Nullable
-    private RealmList<Contact> contacts;
+    private RealmList<RealmContact> contacts;
     @Nullable
-    private RealmList<Group> groups;
+    private RealmList<RealmGroup> groups;
 
     /**
      * Getter.
@@ -81,6 +82,22 @@ public class User extends RealmObject {
 
     /**
      * Getter.
+     * @return fullName
+     */
+    public String getFullName() {
+        return fullName;
+    }
+
+    /**
+     * Setter.
+     * @param fullName string
+     */
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    /**
+     * Getter.
      *
      * @return users email
      */
@@ -121,7 +138,7 @@ public class User extends RealmObject {
      * @return users used channels list
      */
     @Nullable
-    public RealmList<Channel> getChannels() {
+    public RealmList<RealmChannel> getChannels() {
         return channels;
     }
 
@@ -130,7 +147,7 @@ public class User extends RealmObject {
      *
      * @param channels list
      */
-    public void setChannels(@Nullable RealmList<Channel> channels) {
+    public void setChannels(@Nullable RealmList<RealmChannel> channels) {
         this.channels = channels;
     }
 
@@ -140,7 +157,7 @@ public class User extends RealmObject {
      * @return users contacts
      */
     @Nullable
-    public RealmList<Contact> getContacts() {
+    public RealmList<RealmContact> getContacts() {
         return contacts;
     }
 
@@ -149,7 +166,7 @@ public class User extends RealmObject {
      *
      * @param contacts list
      */
-    public void setContacts(@Nullable RealmList<Contact> contacts) {
+    public void setContacts(@Nullable RealmList<RealmContact> contacts) {
         this.contacts = contacts;
     }
 
@@ -159,7 +176,7 @@ public class User extends RealmObject {
      * @return users groups
      */
     @Nullable
-    public RealmList<Group> getGroups() {
+    public RealmList<RealmGroup> getGroups() {
         return groups;
     }
 
@@ -168,7 +185,7 @@ public class User extends RealmObject {
      *
      * @param groups list
      */
-    public void setGroups(@Nullable RealmList<Group> groups) {
+    public void setGroups(@Nullable RealmList<RealmGroup> groups) {
         this.groups = groups;
     }
 
