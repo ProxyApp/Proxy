@@ -33,6 +33,7 @@ import butterknife.OnTextChanged;
 import rx.functions.Action1;
 
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
+import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.proxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -71,6 +72,7 @@ public class SearchFragment extends BaseFragment {
      */
     @OnClick(R.id.fragment_search_back_button)
     public void onClickBack() {
+        hideSoftwareKeyboard(mEditText);
         getActivity().onBackPressed();
     }
 
