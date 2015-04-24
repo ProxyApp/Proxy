@@ -30,6 +30,7 @@
     <string name="description_clear_search">clear search bar</string>
     <string name="login_error_update_play_service">Please update your play services</string>
     <string name="login_error_api_unavailable">API Unavailable</string>
+    <string name="search_contacts">Search contacts</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

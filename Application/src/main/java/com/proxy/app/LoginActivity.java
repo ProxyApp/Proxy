@@ -113,9 +113,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     protected void onStart() {
         super.onStart();
-        if (((ProxyApplication) getApplication()).getCurrentUser() != null) {
-            mGoogleApiClient.connect();
-        }
+        mGoogleApiClient.connect();
     }
 
     @Override
