@@ -149,12 +149,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 @Override
                 public void success(User user, Response response) {
                     Timber.i("HTTP response: " + response.getReason());
-                    // If we have at least an ID returned, continue. If not, create a new user.
-                    if (!user.getUserId().equals(null)) {
-                        ((ProxyApplication) getApplication()).setCurrentUser(user);
-                        getGoogleOAuthTokenAndLogin();
-                    } else {
+                    if (user == null) {
                         addUserToDatabase(createUserFromGoogle());
+                    } else {
+                        setUserAndLogIn(user);
                     }
                 }
 
@@ -210,8 +208,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 @Override
                 public void success(User user, Response response) {
                     Timber.i("rest client success");
-                    ((ProxyApplication) getApplication()).setCurrentUser(user);
-                    getGoogleOAuthTokenAndLogin();
+                    setUserAndLogIn(user);
                 }
 
                 @Override
@@ -220,6 +217,16 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     //TODO: Error handling for Get User retry
                 }
             });
+    }
+
+    /**
+     * Set the user in {@link ProxyApplication}.
+     *
+     * @param user to login
+     */
+    private void setUserAndLogIn(User user) {
+        setCurrentUser(user);
+        getGoogleOAuthTokenAndLogin();
     }
 
     /**

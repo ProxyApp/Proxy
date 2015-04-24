@@ -7,9 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.model.User;
+import com.proxy.app.BaseActivity;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.event.DrawerItemSelectedEvent;
 import com.proxy.event.OttoBusDriver;
@@ -59,7 +59,7 @@ public class DrawerFragment extends BaseFragment implements BaseRecyclerView
      * @return current {@link User}
      */
     private User getCurrentUser() {
-        return ((ProxyApplication) getActivity().getApplication()).getCurrentUser();
+        return ((BaseActivity) getActivity()).getCurrentUser();
     }
 
     @Override
