@@ -22,7 +22,6 @@ import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.proxy.R;
 import com.proxy.widget.ContentDescriptionDrawable;
-import com.proxy.widget.FloatingActionButton;
 
 import timber.log.Timber;
 
@@ -150,7 +149,7 @@ public class ViewUtils {
     }
 
     /**
-     * Get a common {@link FloatingActionButton} elevation resource.
+     * Get a common {@link com.melnykov.fab.FloatingActionButton} elevation resource.
      *
      * @param context activity context
      * @return elevation dimension

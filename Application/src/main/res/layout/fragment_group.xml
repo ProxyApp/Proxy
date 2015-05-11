@@ -11,24 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.proxy.widget.FloatingActionButton
+    <com.melnykov.fab.FloatingActionButton
         android:id="@+id/fragment_group_add_item"
         android:layout_width="@dimen/common_fab_radius"
         android:layout_height="@dimen/common_fab_radius"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/common_rect_tiny"
         android:layout_marginEnd="@dimen/common_rect_tiny"
-        android:background="@color/common_red"
-        app:colorNormal="@color/common_red"
-        app:colorPressed="@color/common_red_light">
-
-        <ImageView
-            android:id="@+id/fragment_group_add_item_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:contentDescription="@null"/>
-
-    </com.proxy.widget.FloatingActionButton>
+        app:fab_colorNormal="@color/common_red"
+        app:fab_colorPressed="@color/common_red_light"
+        app:fab_colorRipple="@color/common_red_light">
+    </com.melnykov.fab.FloatingActionButton>
 
 </FrameLayout>

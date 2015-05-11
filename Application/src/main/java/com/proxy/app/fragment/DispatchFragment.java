@@ -83,7 +83,7 @@ public class DispatchFragment extends BaseFragment {
     }
 
     /**
-     * Get the elevation resource for {@link com.proxy.widget.FloatingActionButton}.
+     * Get the elevation resource for {@link com.melnykov.fab.FloatingActionButton}.
      *
      * @return diemnsion of elevation
      */

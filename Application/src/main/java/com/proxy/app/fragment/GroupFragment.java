@@ -4,14 +4,12 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.proxy.R;
 import com.proxy.api.RestClient;
@@ -21,7 +19,6 @@ import com.proxy.api.domain.model.User;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
-import com.proxy.widget.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -36,7 +33,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.proxy.util.DebugUtils.getSimpleName;
-import static com.proxy.util.ViewUtils.floatingActionButtonElevation;
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 import static rx.android.app.AppObservable.bindFragment;
@@ -49,9 +45,7 @@ public class GroupFragment extends BaseFragment {
     @InjectView(R.id.fragment_group_recyclerview)
     protected RecyclerView mRecyclerView;
     @InjectView(R.id.fragment_group_add_item)
-    protected FloatingActionButton mActionButton;
-    @InjectView(R.id.fragment_group_add_item_image)
-    protected ImageView mActionButtonImage;
+    protected com.melnykov.fab.FloatingActionButton mFloatingActionButton;
     Callback<User> userCallBack = new Callback<User>() {
         @Override
         public void success(User user, Response response) {
@@ -107,16 +101,16 @@ public class GroupFragment extends BaseFragment {
     }
 
     /**
-     * Set the content image of this {@link GroupFragment#mActionButtonImage}
+     * Set the content image of this {@link GroupFragment#mFloatingActionButton}
      */
     @SuppressWarnings("NewApi")
     private void initializeSVG() {
-        ViewCompat.setLayerType(mActionButtonImage, ViewCompat.LAYER_TYPE_SOFTWARE, null);
-        ViewCompat.setElevation(mActionButton, floatingActionButtonElevation(getActivity()));
-
+//        ViewCompat.setLayerType(mFloatingActionButton, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+//        ViewCompat.setElevation(mFloatingActionButton, floatingActionButtonElevation(getActivity
+//            ()));
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.add,
             getLargeIconDimen(getActivity()), Color.WHITE);
-        mActionButtonImage.setImageDrawable(drawable);
+        mFloatingActionButton.setImageDrawable(drawable);
     }
 
     /**
