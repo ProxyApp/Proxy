@@ -17,13 +17,12 @@
 
 
         <Button
-            android:id="@+id/fragment_edit_group_delete"
+            android:id="@+id/fragment_group_edit_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/Delete"
             android:contentDescription="@null"/>
-
 
 </FrameLayout>
 

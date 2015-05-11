@@ -1,6 +1,5 @@
 package com.proxy.app.fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,7 +47,7 @@ public class EditGroupFragment extends BaseFragment implements BaseViewHolder.It
         return new EditGroupFragment();
     }
 
-    @OnClick(R.id.fragment_edit_group_delete)
+    @OnClick(R.id.fragment_group_edit_delete)
     public void onClick(){
         Timber.i("Deleted group");
         //do more here
