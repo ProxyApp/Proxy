@@ -11,10 +11,4 @@
         <attr name="floatLabelHint" format="reference|string"/>
     </declare-styleable>
 
-    <declare-styleable name="FloatingActionButton">
-        <attr name="colorPressed" format="color"/>
-        <attr name="colorNormal" format="color"/>
-    </declare-styleable>
-
-
 </resources>
