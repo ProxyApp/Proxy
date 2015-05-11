@@ -15,12 +15,17 @@ import android.widget.ImageView;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.api.domain.model.Contact;
+import com.proxy.api.domain.model.User;
+import com.proxy.api.rx.JustObserver;
+import com.proxy.api.rx.RxRealmQuery;
+import com.proxy.api.rx.event.UserSelectedEvent;
 import com.proxy.app.SearchActivity;
 import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.UserRecyclerAdapter;
-import com.proxy.event.UserSelectedEvent;
 import com.proxy.util.ViewUtils;
 import com.proxy.widget.BaseRecyclerView;
+
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -94,13 +99,28 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     @SuppressWarnings("unused")
     public void onSearchStringChanged(Editable editable) {
-        mAdapter.updateSearchText(editable.toString());
+        RxRealmQuery.searchUsersTable(getActivity(), editable.toString().trim())
+            .subscribe(getSearchObserver());
+    }
+
+    private JustObserver<ArrayList<User>> getSearchObserver() {
+        return new JustObserver<ArrayList<User>>() {
+            @Override
+            public void error() {
+
+            }
+
+            @Override
+            public void onNext(ArrayList<User> users) {
+                mAdapter.setUsers(users);
+            }
+        };
     }
 
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRealm = getDefaultRealm();
+        mRealm = Realm.getInstance(getActivity());
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.inject(this, rootView);
         initialize();
@@ -115,6 +135,21 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
         mClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
         showSoftwareKeyboard(mEditText);
+        RxRealmQuery.queryAllUsers(getActivity()).subscribe(getQueryObserver());
+    }
+
+    private JustObserver<ArrayList<User>> getQueryObserver() {
+        return new JustObserver<ArrayList<User>>() {
+            @Override
+            public void error() {
+
+            }
+
+            @Override
+            public void onNext(ArrayList<User> users) {
+                mAdapter.setUsers(users);
+            }
+        };
     }
 
 
@@ -123,7 +158,7 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = UserRecyclerAdapter.newInstance(mRealm, this);
+        mAdapter = UserRecyclerAdapter.newInstance(this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());

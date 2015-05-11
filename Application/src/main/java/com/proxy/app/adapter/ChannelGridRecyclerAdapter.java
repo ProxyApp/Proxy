@@ -19,23 +19,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.proxy.R;
-import com.proxy.api.domain.factory.ChannelFactory;
 import com.proxy.api.domain.model.Channel;
+import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.realm.RealmChannel;
-import com.proxy.api.domain.realm.RealmChannelType;
 import com.proxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
+
 import butterknife.InjectView;
-import io.realm.RealmList;
 import timber.log.Timber;
 
 import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannelType;
 import static com.proxy.api.domain.model.ChannelSection.General;
 import static com.proxy.api.domain.model.ChannelType.Custom;
-import static com.proxy.util.TextHelper.joinWithSpace;
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 import static com.proxy.util.ViewUtils.getActivityIcon;
 
 /**
@@ -51,8 +50,8 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
     private Target mTarget;
     private Palette.PaletteAsyncListener mPaletteListener;
     private User mUser;
-    private SortedList.Callback<RealmChannel> mSortedListCallback;
-    SortedList<RealmChannel> mChannels = new SortedList<>(RealmChannel.class,
+    private SortedList.Callback<Channel> mSortedListCallback;
+    SortedList<Channel> mChannels = new SortedList<>(Channel.class,
         getSortedCallback());
 
     /**
@@ -61,7 +60,8 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param currentUser currently logged in User
      * @param listener
      */
-    private ChannelGridRecyclerAdapter(User currentUser, BaseViewHolder.ItemClickListener listener) {
+    private ChannelGridRecyclerAdapter(
+        User currentUser, BaseViewHolder.ItemClickListener listener) {
         mUser = currentUser;
         mClickListener = listener;
         updateChannels(currentUser);
@@ -73,32 +73,36 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param currentUser currently Logged in {@link User}
      * @return an {@link ChannelGridRecyclerAdapter} with no data
      */
-    public static ChannelGridRecyclerAdapter newInstance(User currentUser, BaseViewHolder.ItemClickListener listener) {
+    public static ChannelGridRecyclerAdapter newInstance(
+        User currentUser, BaseViewHolder.ItemClickListener listener) {
         return new ChannelGridRecyclerAdapter(currentUser, listener);
     }
 
     private void updateChannels(User user) {
-        if (user != null) {
+        if (user != null && user.channels() != null) {
             mChannels.beginBatchedUpdates();
-            RealmList<RealmChannel> realmChannels = ChannelFactory.getRealmChannels(user.channels
-                ());
+            ArrayList<Channel> channels = user.channels();
 
-            for (RealmChannel realmChannel : realmChannels) {
-                mChannels.add(realmChannel);
+            for (Channel channel : channels) {
+                mChannels.add(channel);
             }
             mChannels.endBatchedUpdates();
         }
     }
 
-    public SortedList.Callback<RealmChannel> getSortedCallback() {
+    public void addChannel(Channel channel) {
+        mChannels.add(channel);
+    }
+
+    public SortedList.Callback<Channel> getSortedCallback() {
         if (mSortedListCallback == null) {
-            mSortedListCallback = new SortedList.Callback<RealmChannel>() {
+            mSortedListCallback = new SortedList.Callback<Channel>() {
 
 
                 @Override
-                public int compare(RealmChannel o1, RealmChannel o2) {
+                public int compare(Channel o1, Channel o2) {
                     //reverse order with the negative sign
-                    return -o1.getChannelId().compareTo(o2.getChannelId());
+                    return -o1.channelId().compareTo(o2.channelId());
                 }
 
                 @Override
@@ -122,20 +126,20 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 }
 
                 @Override
-                public boolean areContentsTheSame(RealmChannel oldItem, RealmChannel newItem) {
+                public boolean areContentsTheSame(Channel oldItem, Channel newItem) {
                     // we dont compare resId because its probably going to be removed
-                    return (oldItem.getChannelId().equals(newItem.getChannelId())
-                        && oldItem.getLabel().equals(newItem.getLabel())
-                        && oldItem.getPackageName().equals(newItem.getPackageName())
-                        && oldItem.getSection() == newItem.getSection()
-                        && oldItem.getChannelType().equals(newItem.getChannelType()));
+                    return (oldItem.channelId().equals(newItem.channelId())
+                        && oldItem.label().equals(newItem.label())
+                        && oldItem.packageName().equals(newItem.packageName())
+                        && oldItem.channelSection() == newItem.channelSection()
+                        && oldItem.channelType().equals(newItem.channelType()));
                 }
 
                 @Override
-                public boolean areItemsTheSame(RealmChannel item1, RealmChannel item2) {
+                public boolean areItemsTheSame(Channel item1, Channel item2) {
                     //Sections will have the same ID but different categories
-                    return (item1.getChannelId().equals(item2.getChannelId())
-                        && item1.getSection() == item2.getSection());
+                    return (item1.channelId().equals(item2.channelId())
+                        && item1.channelSection() == item2.channelSection());
                 }
             };
         }
@@ -231,18 +235,19 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param channel {@link Channel} data
      */
     @SuppressLint("NewApi")
-    private void bindContextItemViewData(ContentViewHolder holder, RealmChannel channel) {
+    private void bindContextItemViewData(ContentViewHolder holder, Channel channel) {
         Context context = holder.view.getContext();
-        RealmChannelType realmChannelType = channel.getChannelType();
+        ChannelType realmChannelType = channel.channelType();
         if (realmChannelType.equals(getRealmChannelType(Custom))) {
             holder.channelImage.setImageDrawable(getAndroidIconDrawable(
-                context, getActivityIcon(context, channel.getPackageName())));
+                context, getActivityIcon(context, channel.packageName())));
         } else {
             holder.channelImage.setImageDrawable(
-                getSVGIconDrawable(context, channel.getChannelType().getResId()));
+                getSVGIconDrawable(context, channel.channelType().getResId()));
         }
-        holder.channelName.setText(channel.getLabel().toLowerCase());
+        holder.channelName.setText(channel.label().toLowerCase());
     }
+
 
     /**
      * Set this {@link BaseViewHolder} underlying {@link User} data for the header.
@@ -315,7 +320,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param position the position in the list
      * @return the desired {@link User}
      */
-    public RealmChannel getItemData(int position) {
+    public Channel getItemData(int position) {
         return mChannels.get(position);
     }
 

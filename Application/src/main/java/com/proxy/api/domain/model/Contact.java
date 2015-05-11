@@ -19,13 +19,22 @@ public abstract class Contact {
      * Create a new Contact.
      *
      * @param id       unique identifier
-     * @param name     name of the contact
+     * @param label    name of the contact
      * @param channels list of contacts channels
      * @return Immutable contact
      */
     @SuppressWarnings("unused")
     public static Contact create(String id, String label, ArrayList<Channel> channels) {
-        return new AutoParcel_Contact(id, label, channels);
+        return builder().contactId(id).label(label).channels(channels).build();
+    }
+
+    /**
+     * Contact builder.
+     *
+     * @return this Contact.
+     */
+    public static Builder builder() {
+        return new AutoParcel_Contact.Builder();
     }
 
     /**
@@ -49,5 +58,44 @@ public abstract class Contact {
      */
     @Nullable
     public abstract ArrayList<Channel> channels();
+
+    /**
+     * Group Builder.
+     */
+    @AutoParcel.Builder
+    public interface Builder {
+
+        /**
+         * Set the contacts Id.
+         *
+         * @param id contact unique contactId
+         * @return contact contactId
+         */
+        Builder contactId(String id);
+
+        /**
+         * Set the contacts name.
+         *
+         * @param label contact name
+         * @return label
+         */
+        Builder label(String label);
+
+        /**
+         * Set contact channels.
+         *
+         * @param channels contact channels
+         * @return channels
+         */
+        @Nullable
+        Builder channels(ArrayList<Channel> channels);
+
+        /**
+         * BUILD.
+         *
+         * @return Contact
+         */
+        Contact build();
+    }
 
 }

@@ -9,6 +9,7 @@ import com.proxy.api.domain.realm.RealmChannelSection;
 import com.proxy.api.domain.realm.RealmChannelType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -36,6 +37,11 @@ public class ChannelFactory {
         return realmChannel;
     }
 
+    public static RealmChannel createRealmInstance(Channel channel) {
+        return createRealmInstance(channel.channelType(), channel.channelSection(),
+            channel.actionAddress());
+    }
+
     public static Channel createModelInstance(RealmChannel realmChannel) {
         return Channel.create(realmChannel.getChannelId(), realmChannel.getLabel(),
             realmChannel.getPackageName(), getModelChannelSection(realmChannel.getSection()),
@@ -51,7 +57,7 @@ public class ChannelFactory {
     public static RealmChannelSection getRealmSection(ChannelSection section) {
         RealmChannelSection realmSection = new RealmChannelSection();
         realmSection.setWeight(section.getWeight());
-        realmSection.setName(section.toString());
+        realmSection.setLabel(section.toString());
         realmSection.setResId(section.getResId());
         return realmSection;
     }
@@ -71,7 +77,7 @@ public class ChannelFactory {
      * @return RealmChannelCategory
      */
     public static ChannelSection getModelChannelSection(RealmChannelSection section) {
-        return ChannelSection.valueOf(section.getName());
+        return ChannelSection.valueOf(section.getLabel());
     }
 
     public static ChannelType getModelChannelType(RealmChannelType channelType) {
@@ -123,16 +129,17 @@ public class ChannelFactory {
         return realmChannel;
     }
 
-    public static RealmList<RealmChannel> getRealmChannels(ArrayList<Channel> channels) {
+    public static RealmList<RealmChannel> getRealmChannels(List<Channel> channels) {
+        RealmList<RealmChannel> realmChannelArray = null;
         if (channels != null) {
-            RealmList<RealmChannel> realmChannelArray = new RealmList<>();
-            RealmChannel realmChannel = new RealmChannel();
-            RealmChannelSection realmChannelSection = new RealmChannelSection();
-            RealmChannelType realmChannelType = new RealmChannelType();
+            realmChannelArray = new RealmList<>();
             for (Channel channel : channels) {
+                RealmChannel realmChannel = new RealmChannel();
+                RealmChannelSection realmChannelSection = new RealmChannelSection();
+                RealmChannelType realmChannelType = new RealmChannelType();
                 //construct the channel section
                 realmChannelSection.setWeight(channel.channelSection().getWeight());
-                realmChannelSection.setName(channel.channelSection().name());
+                realmChannelSection.setLabel(channel.channelSection().name());
                 realmChannelSection.setResId(channel.channelSection().getResId());
 
                 //construct the channel type
@@ -145,13 +152,13 @@ public class ChannelFactory {
                 realmChannel.setPackageName(channel.packageName());
                 realmChannel.setSection(realmChannelSection);
                 realmChannel.setChannelType(realmChannelType);
+                realmChannel.setActionAddress(channel.actionAddress());
 
                 //add to array
                 realmChannelArray.add(realmChannel);
             }
-            return realmChannelArray;
         }
-        return null;
+        return realmChannelArray;
     }
 
     /**

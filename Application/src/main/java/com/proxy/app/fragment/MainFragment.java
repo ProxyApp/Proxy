@@ -27,7 +27,7 @@ import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * {@link Fragment} to handle adding a {@link FavoriteUserFragment} and {@link GroupFragment} to
+ * {@link Fragment} to handle adding a {@link FavoriteUserFragment} and {@link DisplayGroupFragment} to
  * this {@link MainFragment#mSlidingTabLayout}.
  */
 public class MainFragment extends BaseFragment {
@@ -98,11 +98,11 @@ public class MainFragment extends BaseFragment {
     /**
      * Pair an Image to a Fragment to simplify our {@link ContactsFragmentPagerAdapter}.
      *
-     * @return {@link GroupFragment} and Drawable combo
+     * @return {@link DisplayGroupFragment} and Drawable combo
      */
     private Pair<ContentDescriptionDrawable, Fragment> getGroupsTab() {
         return new Pair<ContentDescriptionDrawable, Fragment>(
-            getGroupDrawable(), GroupFragment.newInstance());
+            getGroupDrawable(), DisplayGroupFragment.newInstance());
     }
 
     /**
