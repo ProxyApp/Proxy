@@ -26,3 +26,7 @@ crashlytics.properties
 
 # Gradle cache
 .gradle
+
+# Vim/kdiff files
+*.orig
+*.swp

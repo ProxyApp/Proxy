@@ -74,10 +74,7 @@ public class ChannelListActivity extends BaseActivity {
      * Initialize this view.
      */
     private void initialize() {
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Add Channel");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(getMenuIcon(this, R.raw.clear));
+        buildToolbar(mToolbar, getString(R.string.add_channel), getMenuIcon(this, R.raw.clear));
     }
 
     @Override
@@ -92,6 +89,7 @@ public class ChannelListActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();

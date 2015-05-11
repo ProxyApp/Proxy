@@ -11,11 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.domain.factory.UserFactory;
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
+import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 import com.proxy.event.GroupAddedEvent;
@@ -40,8 +42,10 @@ import static rx.android.app.AppObservable.bindFragment;
 /**
  * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
  */
-public class GroupFragment extends BaseFragment {
-    private static final String TAG = getSimpleName(GroupFragment.class);
+public class DisplayGroupFragment
+        extends BaseFragment
+        implements BaseViewHolder.ItemClickListener {
+    private static final String TAG = getSimpleName(DisplayGroupFragment.class);
     @InjectView(R.id.fragment_group_recyclerview)
     protected RecyclerView mRecyclerView;
     @InjectView(R.id.fragment_group_add_item)
@@ -63,16 +67,16 @@ public class GroupFragment extends BaseFragment {
     /**
      * {@link Fragment} Constructor.
      */
-    public GroupFragment() {
+    public DisplayGroupFragment() {
     }
 
     /**
-     * Get a new Instance of this {@link GroupFragment}.
+     * Get a new Instance of this {@link DisplayGroupFragment}.
      *
-     * @return {@link GroupFragment}
+     * @return {@link DisplayGroupFragment}
      */
-    public static GroupFragment newInstance() {
-        return new GroupFragment();
+    public static DisplayGroupFragment newInstance() {
+        return new DisplayGroupFragment();
     }
 
     /**
@@ -87,7 +91,7 @@ public class GroupFragment extends BaseFragment {
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_group, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
         ButterKnife.inject(this, rootView);
         initializeSVG();
         initializeRecyclerView();
@@ -176,4 +180,9 @@ public class GroupFragment extends BaseFragment {
             loggedInUser, userCallBack);
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+       Group group = mAdapter.getGroupData(position);
+       IntentLauncher.launchEditGroupActivity(this.getActivity(), group);
+    }
 }
