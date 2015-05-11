@@ -23,6 +23,7 @@ import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
 import com.proxy.api.domain.model.User;
 import com.proxy.event.RxBusDriver;
+import com.squareup.leakcanary.LeakCanary;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -44,6 +45,7 @@ public class ProxyApplication extends Application {
         }
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
+            LeakCanary.install(this);
         }
         Firebase.setAndroidContext(this);
         Realm.deleteRealmFile(this);

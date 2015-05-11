@@ -107,7 +107,7 @@ public class ChannelListActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {

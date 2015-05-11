@@ -38,17 +38,11 @@ public class ChannelListRecyclerAdapter extends BaseRecyclerViewAdapter {
     SortedList<RealmChannel> mChannels = new SortedList<>(RealmChannel.class,
         getSortedCallback());
 
-    /**
-     * Constructor for {@link ChannelListRecyclerAdapter}.
-     */
-    private ChannelListRecyclerAdapter() {
+    public ChannelListRecyclerAdapter(BaseViewHolder.ItemClickListener listener) {
+        mClickListener = listener;
         mChannels.add(DIALER);
         mChannels.add(HANGOUTS);
         mChannels.add(GMAIL);
-    }
-
-    public ChannelListRecyclerAdapter(BaseViewHolder.ItemClickListener listener) {
-        mClickListener = listener;
     }
 
     /**
