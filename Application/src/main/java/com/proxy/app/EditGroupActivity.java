@@ -7,8 +7,6 @@ import android.support.v7.widget.Toolbar;
 import com.proxy.R;
 import com.proxy.api.domain.model.Channel;
 import com.proxy.api.domain.model.Group;
-import com.proxy.api.domain.model.User;
-import com.proxy.app.BaseActivity;
 import com.proxy.app.fragment.ChannelListFragment;
 
 import butterknife.ButterKnife;

@@ -122,7 +122,7 @@ public class DisplayGroupFragment
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData());
+        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData(), this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
