@@ -125,7 +125,7 @@ public final class IntentLauncher {
      */
     public static void launchEmailIntent(Activity activity, String address) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:" + address));
+        intent.setData(Uri.parse("mailto:"));
         intent.putExtra(Intent.EXTRA_EMAIL, address);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);

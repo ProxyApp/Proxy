@@ -26,7 +26,6 @@ import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
 import com.proxy.event.DrawerItemSelectedEvent;
-import com.proxy.event.RxBusDriver;
 
 import java.util.Map;
 
@@ -57,7 +56,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     private GoogleApiClient mGoogleApiClient;
     private RestClient mRestClient;
     private Realm mRealm;
-    private RxBusDriver rxBus;
     private CompositeSubscription mSubscriptions;
 
 
