@@ -22,5 +22,6 @@
         app:fab_colorPressed="@color/common_red_light"
         app:fab_colorRipple="@color/common_red_light">
     </com.melnykov.fab.FloatingActionButton>
+            android:id="@+id/fragment_display_group_add_item_image"
 
 </FrameLayout>

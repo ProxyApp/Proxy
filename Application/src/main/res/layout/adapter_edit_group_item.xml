@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/adapter_edit_group_list_item_image"
+        android:layout_width="@dimen/common_circleimageview_item_radius"
+        android:layout_height="@dimen/common_circleimageview_item_radius"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/common_margin_xxtiny"
+        android:contentDescription="@string/user_image"
+        android:layout_marginStart="@dimen/common_margin_xxtiny"
+        android:layout_marginTop="@dimen/common_margin_xxtiny"/>
+
+    <TextView
+        android:id="@+id/adapter_edit_group_list_item_label"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_toEndOf="@id/adapter_add_channel_list_item_image"
+        android:textColor="@color/common_text"/>
+
+    <Switch
+        android:id="@+id/adapter_edit_group_list_item_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_margin_line"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_toEndOf="@id/adapter_add_channel_list_item_image"
+        android:background="@color/common_divider"/>
+
+</RelativeLayout>
