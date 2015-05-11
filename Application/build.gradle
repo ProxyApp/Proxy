@@ -76,7 +76,7 @@ dependencies {
     //Local
     compile fileTree(dir: 'libs', include: '*.jar')
     //Google
-    compile 'com.google.android.gms:play-services:+'
+    compile 'com.google.android.gms:play-services:7.0.0'
     //Android
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
