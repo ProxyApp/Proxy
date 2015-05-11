@@ -4,6 +4,7 @@ import com.proxy.api.domain.model.Contact;
 import com.proxy.api.domain.realm.RealmContact;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -21,7 +22,7 @@ public class ContactFactory {
      * @param contacts array to get contacts from
      * @return RealmList of Contacts
      */
-    public static RealmList<RealmContact> getRealmContacts(ArrayList<Contact> contacts) {
+    public static RealmList<RealmContact> getRealmContacts(List<Contact> contacts) {
         if (contacts != null) {
             RealmList<RealmContact> realmContactArray = new RealmList<>();
             RealmContact realmContact = new RealmContact();

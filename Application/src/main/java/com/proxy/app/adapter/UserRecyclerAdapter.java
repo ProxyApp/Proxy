@@ -10,30 +10,28 @@ import android.widget.TextView;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.realm.RealmUser;
+import com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.proxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 
-import butterknife.InjectView;
-import io.realm.Realm;
-import io.realm.RealmResults;
+import java.util.ArrayList;
 
-import static com.proxy.util.TextHelper.joinWithSpace;
+import butterknife.InjectView;
+
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 
 
 /**
  * An Adapter to handle displaying {@link User}s.
  */
 public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
-    private final BaseViewHolder.ItemClickListener mClickListener;
+    private final ItemClickListener mClickListener;
     //Persisted User Array Data
-    private Realm mRealm;
-    private RealmResults<RealmUser> mUsers;
+    private ArrayList<User> mUsers;
 
-    public UserRecyclerAdapter(Realm realm, BaseViewHolder.ItemClickListener listener) {
-        mRealm = realm;
-        mUsers = realm.where(RealmUser.class).findAllSorted("lastName");
+    public UserRecyclerAdapter(ItemClickListener listener) {
         mClickListener = listener;
+        mUsers = new ArrayList<>();
     }
 
     /**
@@ -41,9 +39,8 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      *
      * @return an {@link UserRecyclerAdapter} with no data
      */
-    public static UserRecyclerAdapter newInstance(Realm realm, BaseViewHolder.ItemClickListener
-        listener) {
-        return new UserRecyclerAdapter(realm, listener);
+    public static UserRecyclerAdapter newInstance(ItemClickListener listener) {
+        return new UserRecyclerAdapter(listener);
     }
 
     @Override
@@ -64,11 +61,11 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param holder {@link User} {@link BaseViewHolder}
      * @param user   the {@link User} data
      */
-    private void setItemViewData(UserViewHolder holder, RealmUser user) {
+    private void setItemViewData(UserViewHolder holder, User user) {
         Context context = holder.view.getContext();
-        holder.userName.setText(joinWithSpace(new String[]{ user.getFirstName(),
-            user.getLastName() }));
-        Picasso.with(context).load(user.getImageURL())
+        holder.userName.setText(joinWithSpace(new String[]{ user.firstName(),
+            user.lastName() }));
+        Picasso.with(context).load(user.imageURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(holder.userImage);
@@ -79,27 +76,19 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return mUsers.size();
     }
 
+    public void setUsers(ArrayList<User> users){
+        mUsers = users;
+        notifyDataSetChanged();
+    }
+
     /**
      * Get the desired {@link User} based off its position in a list.
      *
      * @param position the position in the list
      * @return the desired {@link User}
      */
-    public RealmUser getItemData(int position) {
+    public User getItemData(int position) {
         return mUsers.get(position);
-    }
-
-    public void updateSearchText(CharSequence constraint) {
-        if (constraint.equals("")) {
-            mUsers = mRealm.where(RealmUser.class).findAllSorted("lastName");
-        } else {
-            mUsers = mRealm.where(RealmUser.class)
-                .contains("firstName", constraint.toString(), false)
-                .or().contains("lastName", constraint.toString(), false)
-                .or().contains("fullName", constraint.toString(), false)
-                .findAllSorted("lastName");
-        }
-        notifyDataSetChanged();
     }
 
     /**

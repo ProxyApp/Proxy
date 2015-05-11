@@ -33,16 +33,15 @@ public interface UserService {
      * @return user
      */
     @GET("/users/{userId}.json")
-    void getUser(@Path("userId") String userId, Callback<User> callback);
+    Observable<User> getUser(@Path("userId") String userId);
 
     /**
      * Save a user.
      *
      * @param userId   unique userId for {@link User} table
      * @param user     {@link User} data
-     * @param callback registerUser callback
      */
     @PUT("/users/{userId}.json")
-    void updateUser(@Path("userId") String userId, @Body User user, Callback<User> callback);
+    Observable<User> updateUser(@Path("userId") String userId, @Body User user);
 
 }

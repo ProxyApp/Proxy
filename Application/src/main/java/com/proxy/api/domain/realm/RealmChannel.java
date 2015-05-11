@@ -1,6 +1,7 @@
 package com.proxy.api.domain.realm;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Channels are other apps and services that you will use to communicate with {@link
@@ -8,6 +9,7 @@ import io.realm.RealmObject;
  */
 public class RealmChannel extends RealmObject {
 
+    @PrimaryKey
     private String channelId;
     private String label;
     private String packageName;

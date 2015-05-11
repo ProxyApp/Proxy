@@ -14,6 +14,7 @@ public class LocalIntents {
     public static final String ACTION_ADD_CHANNEL_LIST_VIEW =
         "com.proxy.intent.action.ADD_CHANNEL_LIST";
     public static final String ACTION_USER_PROFILE = "com.proxy.intent.action.USER_PROFILE";
+    public static final String ACTION_EDIT_GROUP = "com.proxy.intent.action.EDIT_GROUP";
 
     /**
      * Private constructor.

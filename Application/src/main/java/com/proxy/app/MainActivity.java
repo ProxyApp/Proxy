@@ -18,27 +18,18 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.plus.Plus;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.Contact;
-import com.proxy.api.domain.model.User;
-import com.proxy.api.service.UserService;
+import com.proxy.api.rx.event.DrawerItemSelectedEvent;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.app.fragment.DrawerFragment;
 import com.proxy.app.fragment.MainFragment;
-import com.proxy.event.DrawerItemSelectedEvent;
-
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import io.realm.Realm;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.proxy.api.domain.factory.UserFactory.createRealmUser;
 import static com.proxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -54,8 +45,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     @InjectView(R.id.activity_main_drawer_layout)
     DrawerLayout mDrawer;
     private GoogleApiClient mGoogleApiClient;
-    private RestClient mRestClient;
-    private Realm mRealm;
     private CompositeSubscription mSubscriptions;
 
 
@@ -72,11 +61,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         ButterKnife.inject(this);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
-        mRealm = getDefaultRealm();
         mGoogleApiClient = buildGoogleApiClient();
-        mRestClient = RestClient.newInstance(this);
         initializeDrawer();
-        initializeUserData();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new MainFragment())
@@ -84,22 +70,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                 .commit();
         }
 
-    }
-
-    /**
-     * Get the {@link User} data.
-     */
-    private void initializeUserData() {
-        UserService userService = mRestClient.getUserService();
-        userService.listUsers().subscribeOn(Schedulers.io()).
-            observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Map<String, User>>() {
-            @Override
-            public void call(Map<String, User> userMap) {
-                for (Map.Entry<String, User> entry : userMap.entrySet()) {
-                    transactRealmObject(mRealm, createRealmUser(entry.getValue()));
-                }
-            }
-        });
     }
 
     /**

@@ -41,6 +41,9 @@
     <string name="Add">Add</string>
     <string name="Dial">Dial</string>
     <string name="dialog_addchannel_title">Add Channel</string>
+    <string name="edit_group">Edit Group</string>
+    <string name="add_channel">Add Channel</string>
+    <string name="Delete">Delete</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

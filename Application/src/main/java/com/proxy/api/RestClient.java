@@ -1,17 +1,19 @@
 package com.proxy.api;
 
 import android.app.Activity;
-import android.content.Context;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.proxy.R;
+import com.proxy.api.domain.model.User;
+import com.proxy.api.gson.AutoGson;
 import com.proxy.api.gson.AutoParcelAdapterFactory;
+import com.proxy.api.gson.UserTypeAdapter;
+import com.proxy.api.service.ChannelService;
+import com.proxy.api.service.GroupService;
 import com.proxy.api.service.UserService;
 
-import io.realm.RealmObject;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 
@@ -19,44 +21,11 @@ import retrofit.converter.GsonConverter;
  * Rest client for users.
  */
 public class RestClient {
-    private UserService userService;
-    private RestAdapter mRestAdapter;
 
     /**
      * Constructor.
-     *
-     * @param context app context
      */
-    public RestClient(Context context) {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new AutoParcelAdapterFactory())
-            .setExclusionStrategies(new ExclusionStrategy() {
-                @Override
-                public boolean shouldSkipField(FieldAttributes f) {
-                    return f.getDeclaringClass().equals(RealmObject.class);
-                }
-
-                @Override
-                public boolean shouldSkipClass(Class<?> clazz) {
-                    return false;
-                }
-            })
-            .create();
-
-        mRestAdapter = new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setEndpoint(context.getResources().getString(R.string.firebase_url))
-            .setConverter(new GsonConverter(gson))
-            .build();
-    }
-
-    /**
-     * Singleton.
-     *
-     * @param context app context
-     * @return RestClient
-     */
-    public static RestClient newInstance(Activity context) {
-        return new RestClient(context);
+    private RestClient() {
     }
 
     /**
@@ -64,10 +33,43 @@ public class RestClient {
      *
      * @return userService
      */
-    public UserService getUserService() {
-        if (userService == null) {
-            userService = mRestAdapter.create(UserService.class);
-        }
-        return userService;
+    public static UserService getUserService(final Activity context) {
+        return buildRestClient(context,
+            buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
+                UserTypeAdapter.newInstace()))
+            .create(UserService.class);
+    }
+
+    public static GroupService getGroupService(Activity context) {
+        return buildRestClient(context,
+            buildGsonConverter()).create(GroupService.class);
+    }
+
+    public static ChannelService getChannelService(Activity context) {
+        return buildRestClient(context,
+            buildGsonConverter()).create(ChannelService.class);
+    }
+
+    public static RestAdapter buildRestClient(Activity context, Gson gson) {
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setEndpoint(context.getResources().getString(R.string.firebase_url))
+            .setConverter(new GsonConverter(gson))
+            .build();
+        return restAdapter;
+    }
+
+    public static Gson buildGsonConverter(Class clazz, TypeAdapter typeAdapter) {
+        return new GsonBuilder()
+            .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
+            .registerTypeAdapter(clazz, typeAdapter)
+            .create();
+    }
+
+    public static Gson buildGsonConverter() {
+        return new GsonBuilder()
+            .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
+            .create();
     }
 }

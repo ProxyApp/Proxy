@@ -1,4 +1,4 @@
-package com.proxy.event;
+package com.proxy.api.rx.event;
 
 /**
  * Notification that a group adapter item has been dismissed.

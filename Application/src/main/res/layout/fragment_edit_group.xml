@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <com.proxy.widget.FloatLabelLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_rect_small"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_group_edit_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/fragment_group_edit_delete"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_rect_small"
+        android:layout_gravity="center"
+        android:contentDescription="@null"
+        android:text="@string/Delete" />
+
+</LinearLayout>
+
