@@ -50,7 +50,6 @@ public class DisplayGroupFragment
     protected RecyclerView mRecyclerView;
     @InjectView(R.id.fragment_group_add_item)
     protected com.melnykov.fab.FloatingActionButton mFloatingActionButton;
-    @InjectView(R.id.fragment_display_group_add_item_image)
     Callback<User> userCallBack = new Callback<User>() {
         @Override
         public void success(User user, Response response) {

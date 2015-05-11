@@ -7,7 +7,6 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_group_recyclerview"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
@@ -22,6 +21,5 @@
         app:fab_colorPressed="@color/common_red_light"
         app:fab_colorRipple="@color/common_red_light">
     </com.melnykov.fab.FloatingActionButton>
-            android:id="@+id/fragment_display_group_add_item_image"
 
 </FrameLayout>
