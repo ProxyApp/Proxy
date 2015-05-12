@@ -46,9 +46,9 @@ public class DisplayGroupFragment
         extends BaseFragment
         implements BaseViewHolder.ItemClickListener {
     private static final String TAG = getSimpleName(DisplayGroupFragment.class);
-    @InjectView(R.id.fragment_group_recyclerview)
+    @InjectView(R.id.fragment_group_display_recyclerview)
     protected RecyclerView mRecyclerView;
-    @InjectView(R.id.fragment_group_add_item)
+    @InjectView(R.id.fragment_group_display_add_item)
     protected com.melnykov.fab.FloatingActionButton mFloatingActionButton;
     Callback<User> userCallBack = new Callback<User>() {
         @Override
@@ -82,7 +82,7 @@ public class DisplayGroupFragment
     /**
      * Prompt user with a {@link AddGroupDialog} to add a new {@link Group}.
      */
-    @OnClick(R.id.fragment_group_add_item)
+    @OnClick(R.id.fragment_group_display_add_item)
     public void onClick() {
         AddGroupDialog.newInstance().show(getFragmentManager(), TAG);
     }

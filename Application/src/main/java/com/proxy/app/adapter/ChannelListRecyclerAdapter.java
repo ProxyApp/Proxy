@@ -18,6 +18,7 @@ import com.proxy.api.domain.realm.RealmChannel;
 import com.proxy.api.domain.realm.RealmChannelType;
 
 import butterknife.InjectView;
+import io.realm.RealmObject;
 
 import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannelType;
 import static com.proxy.api.domain.model.ChannelSection.General;
@@ -33,10 +34,10 @@ public class ChannelListRecyclerAdapter extends BaseRecyclerViewAdapter {
     public static final RealmChannel GMAIL = ChannelFactory.getEmailChannel();
     private static final int TYPE_SECTION_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
-    private BaseViewHolder.ItemClickListener mClickListener;
     SortedList.Callback<RealmChannel> mSortedListCallback;
     SortedList<RealmChannel> mChannels = new SortedList<>(RealmChannel.class,
         getSortedCallback());
+    private BaseViewHolder.ItemClickListener mClickListener;
 
     public ChannelListRecyclerAdapter(BaseViewHolder.ItemClickListener listener) {
         mClickListener = listener;
@@ -50,8 +51,9 @@ public class ChannelListRecyclerAdapter extends BaseRecyclerViewAdapter {
      *
      * @return an {@link ChannelListRecyclerAdapter} with no data
      */
-    public static ChannelListRecyclerAdapter newInstance(BaseViewHolder.ItemClickListener
-                                                             listener) {
+    public static ChannelListRecyclerAdapter newInstance(
+        BaseViewHolder.ItemClickListener
+            listener) {
         return new ChannelListRecyclerAdapter(listener);
     }
 
@@ -132,11 +134,12 @@ public class ChannelListRecyclerAdapter extends BaseRecyclerViewAdapter {
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
         if (holder instanceof SectionHeaderViewHolder) {
-            bindSectionContent((SectionHeaderViewHolder) holder);
+            bindSectionContent((SectionHeaderViewHolder) holder, (RealmChannel)
+                getItemData(position));
         } else if (holder instanceof ItemViewHolder) {
             //section offset
             position = position - 1;
-            bindItemViewData((ItemViewHolder) holder, getItemData(position));
+            bindItemViewData((ItemViewHolder) holder, (RealmChannel) getItemData(position));
         }
     }
 
@@ -146,11 +149,12 @@ public class ChannelListRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param position the position in the list
      * @return the desired {@link User}
      */
-    public RealmChannel getItemData(int position) {
+    public RealmObject getItemData(int position) {
         return mChannels.get(position);
     }
 
-    private void bindSectionContent(SectionHeaderViewHolder holder) {
+    private void bindSectionContent(
+        SectionHeaderViewHolder holder, RealmChannel channelData) {
         Context context = holder.view.getContext();
         int resourceId = General.getResId();
 

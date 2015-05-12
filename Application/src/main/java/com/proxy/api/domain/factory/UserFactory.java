@@ -13,7 +13,7 @@ import static com.proxy.api.domain.factory.ContactFactory.getModelContacts;
 import static com.proxy.api.domain.factory.ContactFactory.getRealmContacts;
 import static com.proxy.api.domain.factory.GroupFactory.getModelGroups;
 import static com.proxy.api.domain.factory.GroupFactory.getRealmGroups;
-import static com.proxy.util.TextHelper.joinWithSpace;
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 
 
 /**
