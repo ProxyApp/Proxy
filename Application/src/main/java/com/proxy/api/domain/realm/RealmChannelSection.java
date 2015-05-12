@@ -1,6 +1,6 @@
 package com.proxy.api.domain.realm;
 
-import com.proxy.R;
+import android.support.annotation.Nullable;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -12,7 +12,8 @@ public class RealmChannelSection extends RealmObject {
 
     @PrimaryKey
     private int weight;
-    private String name;
+    private String label;
+    @Nullable
     private int resId;
 
     public int getWeight() {
@@ -23,12 +24,12 @@ public class RealmChannelSection extends RealmObject {
         this.weight = weight;
     }
 
-    public String getName() {
-        return name;
+    public String getLabel() {
+        return label;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public int getResId() {

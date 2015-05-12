@@ -51,7 +51,7 @@ public class ChannelFactory {
     public static RealmChannelSection getRealmSection(ChannelSection section) {
         RealmChannelSection realmSection = new RealmChannelSection();
         realmSection.setWeight(section.getWeight());
-        realmSection.setName(section.toString());
+        realmSection.setLabel(section.toString());
         realmSection.setResId(section.getResId());
         return realmSection;
     }
@@ -71,7 +71,7 @@ public class ChannelFactory {
      * @return RealmChannelCategory
      */
     public static ChannelSection getModelChannelSection(RealmChannelSection section) {
-        return ChannelSection.valueOf(section.getName());
+        return ChannelSection.valueOf(section.getLabel());
     }
 
     public static ChannelType getModelChannelType(RealmChannelType channelType) {
@@ -132,7 +132,7 @@ public class ChannelFactory {
             for (Channel channel : channels) {
                 //construct the channel section
                 realmChannelSection.setWeight(channel.channelSection().getWeight());
-                realmChannelSection.setName(channel.channelSection().name());
+                realmChannelSection.setLabel(channel.channelSection().name());
                 realmChannelSection.setResId(channel.channelSection().getResId());
 
                 //construct the channel type
