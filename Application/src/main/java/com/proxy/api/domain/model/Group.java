@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.proxy.api.gson.AutoGson;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import auto.parcel.AutoParcel;
 
@@ -18,7 +19,6 @@ public abstract class Group implements Parcelable {
     /**
      * create a new Group.
      *
-     * @param groupId  ID of the group
      * @param label    name of the group
      * @param channels channel permissions for the group
      * @param contacts contacts in the group
@@ -26,7 +26,8 @@ public abstract class Group implements Parcelable {
      */
     @SuppressWarnings("unused")
     public static Group create(
-        String groupId, String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
+        String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
+        String groupId = UUID.randomUUID().toString();
         return new AutoParcel_Group(groupId, label, channels, contacts);
     }
 
@@ -35,7 +36,6 @@ public abstract class Group implements Parcelable {
      *
      * @return name
      */
-    @Nullable
     public abstract String groupId();
 
     /**

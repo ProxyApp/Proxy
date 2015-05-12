@@ -10,6 +10,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.proxy.R;
+import com.proxy.api.domain.factory.ChannelFactory;
+import com.proxy.api.domain.realm.RealmChannel;
 import com.proxy.api.domain.realm.RealmChannelSection;
 import com.proxy.api.domain.realm.RealmChannelType;
 import com.proxy.api.domain.realm.RealmGroupEditChannel;
@@ -25,6 +27,9 @@ import static com.proxy.util.ViewUtils.getActivityIcon;
 
 public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
     public static final int TYPE_LIST_ITEM = 1;
+    public static final RealmChannel DIALER = ChannelFactory.getPhoneChannel();
+    public static final RealmChannel HANGOUTS = ChannelFactory.getSMSChannel();
+    public static final RealmChannel GMAIL = ChannelFactory.getEmailChannel();
     private static final int TYPE_SECTION_HEADER = 0;
     private BaseViewHolder.ItemClickListener mClickListener;
     private SortedList.Callback<RealmObject> mSortedListCallback;
@@ -34,6 +39,9 @@ public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
 
     public EditGroupRecyclerAdapter(BaseViewHolder.ItemClickListener listener) {
         mClickListener = listener;
+        mRealmData.add(RealmGroupEditChannel.newInstance(DIALER, true));
+        mRealmData.add(RealmGroupEditChannel.newInstance(HANGOUTS, true));
+        mRealmData.add(RealmGroupEditChannel.newInstance(GMAIL, true));
     }
 
     public static EditGroupRecyclerAdapter newInstance(BaseViewHolder.ItemClickListener listener) {
@@ -153,7 +161,7 @@ public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public int getItemCount() {
-        return mRealmData.size() + 1;
+        return mRealmData.size();
     }
 
     @Override
@@ -174,7 +182,7 @@ public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
     public void onBindViewHolder(BaseViewHolder holder, int position) {
         if (holder instanceof SectionHeaderViewHolder) {
             bindSectionViewData(
-                (SectionHeaderViewHolder) holder, (RealmChannelSection) getItemData(position));
+                (SectionHeaderViewHolder) holder, (RealmGroupEditChannel) getItemData(position));
         } else if (holder instanceof ItemViewHolder) {
             bindItemViewData(
                 (ItemViewHolder) holder, (RealmGroupEditChannel) getItemData(position));
@@ -183,7 +191,7 @@ public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    private RealmObject getItemData(int position) {
+    public RealmObject getItemData(int position) {
         return mRealmData.get(position);
     }
 
@@ -201,14 +209,15 @@ public class EditGroupRecyclerAdapter extends BaseRecyclerViewAdapter {
         holder.itemSwitch.setChecked(channel.getInGroup());
     }
 
-    private void bindSectionViewData(
-        SectionHeaderViewHolder holder, RealmChannelSection sectionData) {
-        holder.sectionLabel.setText(sectionData.getLabel());
+    private void bindSectionViewData(SectionHeaderViewHolder holder,
+                                     RealmGroupEditChannel sectionData) {
+        String lbl = sectionData.getChannel().getSection().getLabel();
+        holder.sectionLabel.setText(lbl);
     }
 
 
     public static final class SectionHeaderViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_add_channel_list_section_label)
+        @InjectView(R.id.adapter_edit_group_list_section_label)
         protected TextView sectionLabel;
 
         private SectionHeaderViewHolder(View view, ItemClickListener itemClickListener) {

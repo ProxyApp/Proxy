@@ -48,7 +48,7 @@ public class GroupFactory {
         if (realmGroupArray != null) {
             ArrayList<Group> groups = new ArrayList<>();
             for (RealmGroup realmGroup : realmGroupArray) {
-                groups.add(Group.create(realmGroup.getGroupId(), realmGroup.getLabel(),
+                groups.add(Group.create(realmGroup.getLabel(),
                     ChannelFactory.getModelChannels(realmGroup.getChannels()),
                     ContactFactory.getModelContacts(realmGroup.getContacts())));
             }

@@ -10,6 +10,13 @@ public class RealmGroupEditChannel extends RealmObject{
     private RealmChannel channel;
     private boolean inGroup;
 
+    public static RealmGroupEditChannel newInstance(RealmChannel chan, Boolean inGrp) {
+        RealmGroupEditChannel rgec = new RealmGroupEditChannel();
+        rgec.setChannel(chan);
+        rgec.setInGroup(inGrp);
+        return rgec;
+    }
+
     public RealmChannel getChannel() {
         return channel;
     }

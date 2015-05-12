@@ -11,9 +11,8 @@ import io.realm.annotations.PrimaryKey;
  */
 public class RealmGroup extends RealmObject {
 
-    @Nullable
-    private String groupId;
     @PrimaryKey
+    private String groupId;
     private String label;
     private RealmList<RealmChannel> channels;
     private RealmList<RealmContact> contacts;

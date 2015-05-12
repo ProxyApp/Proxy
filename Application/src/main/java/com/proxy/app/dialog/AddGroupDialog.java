@@ -89,7 +89,7 @@ public class AddGroupDialog extends BaseDialogFragment {
     private void dispatchGroupEvent() {
         String groupLabel = mEditText.getText().toString();
         if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-            Group group = Group.create(null, groupLabel, null, null);
+            Group group = Group.create(groupLabel, null, null);
             getRxBus().post(new GroupAddedEvent(group));
         }
     }

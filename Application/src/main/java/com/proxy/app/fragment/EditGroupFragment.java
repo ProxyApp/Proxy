@@ -10,9 +10,14 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 
 import com.proxy.R;
+import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.domain.realm.RealmGroupEditChannel;
 import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.EditGroupRecyclerAdapter;
+import com.proxy.event.GroupChannelToggled;
+import com.proxy.event.GroupDeleted;
+import com.proxy.event.RxBusDriver;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -48,8 +53,8 @@ public class EditGroupFragment extends BaseFragment implements BaseViewHolder.It
 
     @OnClick(R.id.fragment_group_edit_delete)
     public void onClick() {
+        getRxBus().post(new GroupDeleted());
         Timber.i("Deleted group");
-        //do more here
     }
 
     @Override
@@ -76,6 +81,11 @@ public class EditGroupFragment extends BaseFragment implements BaseViewHolder.It
             Switch channelSwitch = ((EditGroupRecyclerAdapter.ItemViewHolder)
                 recyclerView.getChildViewHolder(view)).itemSwitch;
             channelSwitch.setChecked(!channelSwitch.isChecked());
+
+            RxBusDriver.getInstance().post(
+                new GroupChannelToggled(
+                            ((RealmGroupEditChannel) adapter
+                                    .getItemData(position)).getChannel().getChannelId()));
             //todo send a message to the bus indicating the channel was changed
             Timber.i("Toggle clicked!!");
         }
