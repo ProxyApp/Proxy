@@ -1,6 +1,9 @@
 package com.proxy.app;
 
+import android.graphics.drawable.Drawable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.proxy.ProxyApplication;
 import com.proxy.api.domain.model.User;
@@ -60,6 +63,15 @@ public class BaseActivity extends AppCompatActivity {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(objects);
         realm.commitTransaction();
+    }
+
+
+    protected void buildToolbar(Toolbar toolbar, String title, Drawable icon) {
+        setSupportActionBar(toolbar);
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle(title);
+        bar.setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(icon);
     }
 
 }

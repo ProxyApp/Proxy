@@ -5,11 +5,11 @@ import android.text.TextUtils;
 /**
  * Helper class for formatting text.
  */
-public class TextHelper {
+public class ObjectUtils {
     /**
      * Constructor
      */
-    private TextHelper() {
+    private ObjectUtils() {
         super();
     }
 
@@ -21,5 +21,16 @@ public class TextHelper {
      */
     public static String joinWithSpace(Object[] tokens) {
         return TextUtils.join(" ", tokens);
+    }
+
+    /**
+     * Compare two ints.
+     *
+     * @param lhs left item
+     * @param rhs right item
+     * @return left right or equal
+     */
+    public static int compare(int lhs, int rhs) {
+        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }
 }

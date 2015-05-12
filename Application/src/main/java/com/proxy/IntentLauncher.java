@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
 import com.proxy.app.BaseActivity;
 import com.proxy.app.ChannelListActivity;
@@ -14,6 +15,7 @@ import com.proxy.app.MainActivity;
 import com.proxy.app.SearchActivity;
 import com.proxy.app.UserProfileActivity;
 
+import static com.proxy.Constants.ARG_SELECTED_GROUP;
 import static com.proxy.Constants.ARG_USER_LOGGED_IN;
 import static com.proxy.Constants.ARG_USER_SELECTED_PROFILE;
 
@@ -99,6 +101,13 @@ public final class IntentLauncher {
      */
     public static void launchChannelListActivity(Activity activity) {
         Intent intent = new Intent(LocalIntents.ACTION_ADD_CHANNEL_LIST_VIEW);
+        activity.startActivityForResult(intent, 0);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+    }
+
+    public static void launchEditGroupActivity(Activity activity, Group group) {
+        Intent intent = new Intent(LocalIntents.ACTION_EDIT_GROUP);
+        intent.putExtra(ARG_SELECTED_GROUP, group);
         activity.startActivityForResult(intent, 0);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }

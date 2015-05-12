@@ -35,7 +35,7 @@ import timber.log.Timber;
 import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannelType;
 import static com.proxy.api.domain.model.ChannelSection.General;
 import static com.proxy.api.domain.model.ChannelType.Custom;
-import static com.proxy.util.TextHelper.joinWithSpace;
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 import static com.proxy.util.ViewUtils.getActivityIcon;
 
 /**

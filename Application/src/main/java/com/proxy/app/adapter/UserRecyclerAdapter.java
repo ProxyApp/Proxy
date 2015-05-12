@@ -18,7 +18,7 @@ import butterknife.InjectView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-import static com.proxy.util.TextHelper.joinWithSpace;
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 
 
 /**
