@@ -23,7 +23,7 @@ public class RxRealmQuery {
             @Override
             public ArrayList<User> call(Activity activity) {
                 RealmResults<RealmUser> realmUsers =
-                    Realm.getInstance(activity).where(RealmUser.class).findAllSorted("lastName");
+                    Realm.getInstance(activity).where(RealmUser.class).findAllSorted("last");
                 return UserFactory.createModelUsers(realmUsers);
             }
         }).compose(RxModelUpload.<ArrayList<User>>applySchedulers());
@@ -43,13 +43,13 @@ public class RxRealmQuery {
     public static ArrayList<User> updateSearchText(Realm realm, CharSequence constraint) {
         RealmResults<RealmUser> realmUsers;
         if (constraint.equals("")) {
-            realmUsers = realm.where(RealmUser.class).findAllSorted("lastName");
+            realmUsers = realm.where(RealmUser.class).findAllSorted("last");
         } else {
             realmUsers = realm.where(RealmUser.class)
-                .contains("firstName", constraint.toString(), false)
-                .or().contains("lastName", constraint.toString(), false)
+                .contains("first", constraint.toString(), false)
+                .or().contains("last", constraint.toString(), false)
                 .or().contains("fullName", constraint.toString(), false)
-                .findAllSorted("lastName");
+                .findAllSorted("last");
         }
         realm.close();
         return UserFactory.createModelUsers(realmUsers);

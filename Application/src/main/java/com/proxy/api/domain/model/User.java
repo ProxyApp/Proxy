@@ -20,7 +20,7 @@ public abstract class User implements Parcelable {
     /**
      * User Constructor.
      *
-     * @param id        user unique ID
+     * @param userId        user unique ID
      * @param firstName user first name
      * @param lastName  user last name
      * @param email     user email
@@ -31,9 +31,9 @@ public abstract class User implements Parcelable {
      * @return the entered user data
      */
     public static User create(
-        String id, String firstName, String lastName, String email, String imageURL,
+        UserId userId, String firstName, String lastName, String email, String imageURL,
         ArrayList<Channel> channels, ArrayList<Group> groups, ArrayList<Contact> contacts) {
-        return builder().userId(id).firstName(firstName).lastName(lastName).email(email)
+        return builder().id(userId).first(firstName).last(lastName).email(email)
             .imageURL(imageURL).channels(channels).groups(groups).contacts(contacts).build();
     }
 
@@ -56,21 +56,21 @@ public abstract class User implements Parcelable {
      *
      * @return first name
      */
-    public abstract String userId();
+    public abstract UserId id();
 
     /**
      * Get users first name.
      *
      * @return first name
      */
-    public abstract String firstName();
+    public abstract String first();
 
     /**
      * Get users last name.
      *
      * @return last name
      */
-    public abstract String lastName();
+    public abstract String last();
 
     /**
      * Get users email.
@@ -116,10 +116,10 @@ public abstract class User implements Parcelable {
      */
     @AutoParcel.Validate
     public void validate() {
-        if (firstName().length() == 0 || lastName() == null) {
+        if (first().length() == 0 || last() == null) {
             throw new IllegalStateException("Need a valid first name");
         }
-        if (lastName().length() == 0 || lastName() == null) {
+        if (last().length() == 0 || last() == null) {
             throw new IllegalStateException("Need a valid last name");
         }
     }
@@ -132,12 +132,12 @@ public abstract class User implements Parcelable {
     public interface Builder {
 
         /**
-         * Set user userId.
+         * Set user id.
          *
-         * @param id user unqiue userId
-         * @return user userId
+         * @param id user unqiue id
+         * @return user id
          */
-        Builder userId(String id);
+        Builder id(UserId id);
 
         /**
          * Set user first name.
@@ -145,7 +145,7 @@ public abstract class User implements Parcelable {
          * @param firstName user first name
          * @return first name string
          */
-        Builder firstName(String firstName);
+        Builder first(String firstName);
 
         /**
          * Set users last name.
@@ -153,7 +153,7 @@ public abstract class User implements Parcelable {
          * @param lastName user last name
          * @return last name string
          */
-        Builder lastName(String lastName);
+        Builder last(String lastName);
 
         /**
          * Set user email.

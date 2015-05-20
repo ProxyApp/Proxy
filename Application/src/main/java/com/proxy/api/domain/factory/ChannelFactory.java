@@ -147,7 +147,7 @@ public class ChannelFactory {
                 realmChannelType.setResId(channel.channelType().getResId());
 
                 //construct the channel
-                realmChannel.setChannelId(channel.channelId());
+                realmChannel.setChannelId(channel.id());
                 realmChannel.setLabel(channel.label());
                 realmChannel.setPackageName(channel.packageName());
                 realmChannel.setSection(realmChannelSection);
