@@ -1,7 +1,5 @@
 package com.proxy.api.domain.realm;
 
-import android.support.annotation.Nullable;
-
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -11,9 +9,8 @@ import io.realm.annotations.PrimaryKey;
  */
 public class RealmGroup extends RealmObject {
 
-    @Nullable
-    private String groupId;
     @PrimaryKey
+    private String groupId;
     private String label;
     private RealmList<RealmChannel> channels;
     private RealmList<RealmContact> contacts;

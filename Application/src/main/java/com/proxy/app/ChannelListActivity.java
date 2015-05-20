@@ -7,17 +7,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.proxy.R;
-import com.proxy.api.RestClient;
 import com.proxy.api.domain.factory.UserFactory;
+import com.proxy.api.domain.model.Channel;
 import com.proxy.api.domain.model.ChannelSection;
 import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.model.User;
 import com.proxy.api.domain.realm.RealmChannelSection;
 import com.proxy.api.domain.realm.RealmChannelType;
+import com.proxy.api.rx.event.ChannelAddedEvent;
+import com.proxy.api.rx.event.ChannelDialogRequestEvent;
 import com.proxy.app.dialog.AddChannelDialog;
 import com.proxy.app.fragment.ChannelListFragment;
-import com.proxy.event.ChannelAddedEvent;
-import com.proxy.event.ChannelDialogRequestEvent;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -28,6 +28,7 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static com.proxy.Constants.ARG_USER_CREATED_CHANNEL;
 import static com.proxy.Constants.ARG_USER_LOGGED_IN;
 import static com.proxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.proxy.api.domain.factory.ChannelFactory.createModelInstance;
@@ -74,10 +75,7 @@ public class ChannelListActivity extends BaseActivity {
      * Initialize this view.
      */
     private void initialize() {
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Add Channel");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(getMenuIcon(this, R.raw.clear));
+        buildToolbar(mToolbar, getString(R.string.add_channel), getMenuIcon(this, R.raw.clear));
     }
 
     @Override
@@ -92,12 +90,18 @@ public class ChannelListActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
+        finishActivity(Activity.RESULT_CANCELED, null);
+    }
+
+    private void finishActivity(int activityResult, Channel channel) {
         Intent intent = new Intent();
+        intent.putExtra(ARG_USER_CREATED_CHANNEL, channel);
         intent.putExtra(ARG_USER_SELECTED_PROFILE, getLoggedInUser());
         intent.putExtra(ARG_USER_LOGGED_IN, true);
-        setResult(Activity.RESULT_OK, intent);
+        setResult(activityResult, intent);
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
@@ -135,13 +139,10 @@ public class ChannelListActivity extends BaseActivity {
     }
 
     public void addChannelEvent(ChannelAddedEvent event) {
-        User loggedInUser = UserFactory.addUserChannel(getLoggedInUser(),
-            createModelInstance(event.channel));
-
+        Channel channel = createModelInstance(event.channel);
+        User loggedInUser = UserFactory.updateUserChannel(getLoggedInUser(),
+            channel);
         setLoggedInUser(loggedInUser);
-        RestClient.newInstance(this).getUserService().updateUser(loggedInUser.userId(),
-            loggedInUser, userCallBack);
-
-        onBackPressed();
+        finishActivity(Activity.RESULT_OK, channel);
     }
 }

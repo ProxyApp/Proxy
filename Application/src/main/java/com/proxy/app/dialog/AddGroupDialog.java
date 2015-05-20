@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.Group;
-import com.proxy.event.GroupAddedEvent;
+import com.proxy.api.rx.event.GroupAddedEvent;
 import com.proxy.widget.FloatLabelLayout;
 
 import butterknife.ButterKnife;
@@ -89,7 +89,7 @@ public class AddGroupDialog extends BaseDialogFragment {
     private void dispatchGroupEvent() {
         String groupLabel = mEditText.getText().toString();
         if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-            Group group = Group.create(null, groupLabel, null, null);
+            Group group = Group.create(groupLabel, null, null);
             getRxBus().post(new GroupAddedEvent(group));
         }
     }

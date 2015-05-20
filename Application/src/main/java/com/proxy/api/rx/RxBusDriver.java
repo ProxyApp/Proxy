@@ -1,8 +1,7 @@
-package com.proxy.event;
+package com.proxy.api.rx;
 
 import com.proxy.ProxyApplication;
 
-import hugo.weaving.DebugLog;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.SerializedSubject;
@@ -38,7 +37,6 @@ public class RxBusDriver {
      *
      * @param event event object.
      */
-    @DebugLog
     public void post(Object event) {
         Timber.v("Event Posted: " + event.toString());
         rxBus.onNext(event);

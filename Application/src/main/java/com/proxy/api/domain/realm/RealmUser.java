@@ -3,6 +3,8 @@ package com.proxy.api.domain.realm;
 
 import android.support.annotation.Nullable;
 
+import com.google.gson.annotations.SerializedName;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -13,6 +15,7 @@ import io.realm.annotations.PrimaryKey;
  */
 public class RealmUser extends RealmObject {
     @PrimaryKey
+    @SerializedName("userId")
     private String userId;
     private String firstName;
     private String lastName;

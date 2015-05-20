@@ -3,9 +3,13 @@ package com.proxy.api.domain.factory;
 import com.proxy.api.domain.model.Channel;
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.domain.realm.RealmChannel;
 import com.proxy.api.domain.realm.RealmUser;
 
 import java.util.ArrayList;
+
+import io.realm.RealmResults;
+import timber.log.Timber;
 
 import static com.proxy.api.domain.factory.ChannelFactory.getModelChannels;
 import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannels;
@@ -13,7 +17,7 @@ import static com.proxy.api.domain.factory.ContactFactory.getModelContacts;
 import static com.proxy.api.domain.factory.ContactFactory.getRealmContacts;
 import static com.proxy.api.domain.factory.GroupFactory.getModelGroups;
 import static com.proxy.api.domain.factory.GroupFactory.getRealmGroups;
-import static com.proxy.util.TextHelper.joinWithSpace;
+import static com.proxy.util.ObjectUtils.joinWithSpace;
 
 
 /**
@@ -42,15 +46,14 @@ public class UserFactory {
     /**
      * Create the same {@link User} with the updated email value.
      *
-     * @param user  to copy
+     * @param user to copy
      * @return updated user
      */
-    public static User addUserChannel(User user, Channel channel) {
+    public static User updateUserChannel(User user, Channel channel) {
         ArrayList<Channel> channelArrayList;
-        if(user.channels() != null){
+        if (user.channels() != null) {
             channelArrayList = user.channels();
-        }
-        else{
+        } else {
             channelArrayList = new ArrayList<>();
         }
 
@@ -79,8 +82,8 @@ public class UserFactory {
      * @return RealmUser
      */
     public static RealmUser createRealmUser(User user) {
+        RealmUser realmUser = new RealmUser();
         if (user != null) {
-            RealmUser realmUser = new RealmUser();
             realmUser.setUserId(user.userId());
             realmUser.setFirstName(user.firstName());
             realmUser.setLastName(user.lastName());
@@ -90,9 +93,33 @@ public class UserFactory {
             realmUser.setChannels(getRealmChannels(user.channels()));
             realmUser.setContacts(getRealmContacts(user.contacts()));
             realmUser.setGroups(getRealmGroups(user.groups()));
-            return realmUser;
         }
-        return null;
+        Timber.i("User Conversion: " + user.toString());
+        Timber.i(printRealmUser(realmUser));
+        return realmUser;
+    }
+
+    public static String printRealmUsers(RealmResults<RealmUser> realmUsers) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (RealmUser user : realmUsers) {
+            stringBuilder.append(printRealmUser(user)).append(" ");
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String printRealmUser(RealmUser realmUser) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder
+            .append("FirstName: ")
+            .append(realmUser.getFirstName());
+
+        for (RealmChannel realmChannel : realmUser.getChannels()) {
+            stringBuilder.append(" Channel: ")
+                .append(realmChannel.getLabel())
+                .append(" ActionAddress: ")
+                .append(realmChannel.getActionAddress());
+        }
+        return stringBuilder.toString();
     }
 
     public static User createModelUser(RealmUser realmUser) {
@@ -105,4 +132,11 @@ public class UserFactory {
         return null;
     }
 
+    public static ArrayList<User> createModelUsers(RealmResults<RealmUser> realmUsers) {
+        ArrayList<User> users = new ArrayList<>();
+        for (RealmUser realmUser : realmUsers) {
+            users.add(createModelUser(realmUser));
+        }
+        return users;
+    }
 }

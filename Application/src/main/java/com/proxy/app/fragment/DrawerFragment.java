@@ -12,7 +12,7 @@ import com.proxy.api.domain.model.User;
 import com.proxy.app.BaseActivity;
 import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.DrawerRecyclerAdapter;
-import com.proxy.event.DrawerItemSelectedEvent;
+import com.proxy.api.rx.event.DrawerItemSelectedEvent;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;

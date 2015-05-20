@@ -22,7 +22,7 @@ import com.proxy.api.domain.factory.ChannelFactory;
 import com.proxy.api.domain.model.ChannelSection;
 import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.realm.RealmChannel;
-import com.proxy.event.ChannelAddedEvent;
+import com.proxy.api.rx.event.ChannelAddedEvent;
 import com.proxy.util.DebugUtils;
 
 import butterknife.ButterKnife;

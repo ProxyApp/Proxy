@@ -11,23 +11,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.melnykov.fab.FloatingActionButton;
+import com.proxy.IntentLauncher;
 import com.proxy.R;
-import com.proxy.api.RestClient;
 import com.proxy.api.domain.factory.UserFactory;
 import com.proxy.api.domain.model.Group;
+import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.rx.JustObserver;
+import com.proxy.api.rx.event.GroupAddedEvent;
+import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
-import com.proxy.event.GroupAddedEvent;
 
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -40,45 +41,36 @@ import static rx.android.app.AppObservable.bindFragment;
 /**
  * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
  */
-public class GroupFragment extends BaseFragment {
-    private static final String TAG = getSimpleName(GroupFragment.class);
-    @InjectView(R.id.fragment_group_recyclerview)
+public class DisplayGroupFragment
+    extends BaseFragment
+    implements BaseViewHolder.ItemClickListener {
+    private static final String TAG = getSimpleName(DisplayGroupFragment.class);
+    @InjectView(R.id.fragment_group_display_recyclerview)
     protected RecyclerView mRecyclerView;
-    @InjectView(R.id.fragment_group_add_item)
-    protected com.melnykov.fab.FloatingActionButton mFloatingActionButton;
-    Callback<User> userCallBack = new Callback<User>() {
-        @Override
-        public void success(User user, Response response) {
-            Timber.i("Group updated Successfully");
-        }
-
-        @Override
-        public void failure(RetrofitError error) {
-            Timber.i("Group failed to update");
-        }
-    };
+    @InjectView(R.id.fragment_group_display_add_item)
+    protected FloatingActionButton mFloatingActionButton;
     private GroupRecyclerAdapter mAdapter;
     private CompositeSubscription mSubscriptions;
 
     /**
      * {@link Fragment} Constructor.
      */
-    public GroupFragment() {
+    public DisplayGroupFragment() {
     }
 
     /**
-     * Get a new Instance of this {@link GroupFragment}.
+     * Get a new Instance of this {@link DisplayGroupFragment}.
      *
-     * @return {@link GroupFragment}
+     * @return {@link DisplayGroupFragment}
      */
-    public static GroupFragment newInstance() {
-        return new GroupFragment();
+    public static DisplayGroupFragment newInstance() {
+        return new DisplayGroupFragment();
     }
 
     /**
      * Prompt user with a {@link AddGroupDialog} to add a new {@link Group}.
      */
-    @OnClick(R.id.fragment_group_add_item)
+    @OnClick(R.id.fragment_group_display_add_item)
     public void onClick() {
         AddGroupDialog.newInstance().show(getFragmentManager(), TAG);
     }
@@ -87,7 +79,7 @@ public class GroupFragment extends BaseFragment {
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_group, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
         ButterKnife.inject(this, rootView);
         initializeSVG();
         initializeRecyclerView();
@@ -101,7 +93,7 @@ public class GroupFragment extends BaseFragment {
     }
 
     /**
-     * Set the content image of this {@link GroupFragment#mFloatingActionButton}
+     * Set the content image of this {@link FloatingActionButton}
      */
     @SuppressWarnings("NewApi")
     private void initializeSVG() {
@@ -118,7 +110,7 @@ public class GroupFragment extends BaseFragment {
      */
     private void initializeRecyclerView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData());
+        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData(), this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -172,8 +164,25 @@ public class GroupFragment extends BaseFragment {
         User loggedInUser = UserFactory.updateUserGroups(getLoggedInUser(),
             mAdapter.getDataArray());
         setLoggedInUser(loggedInUser);
-        RestClient.newInstance(getActivity()).getUserService().updateUser(loggedInUser.userId(),
-            loggedInUser, userCallBack);
+        RestClient.getGroupService(getActivity())
+            .addUserGroup(loggedInUser.userId(), event.group.groupId(), event.group)
+            .subscribe(new JustObserver<Group>() {
+                @Override
+                public void error() {
+
+                }
+
+                @Override
+                public void onNext(Group group) {
+                    Timber.i("added group: " + group.toString());
+
+                }
+            });
     }
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Group group = mAdapter.getGroupData(position);
+        IntentLauncher.launchEditGroupActivity(this.getActivity(), group);
+    }
 }
