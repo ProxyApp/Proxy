@@ -43,12 +43,12 @@ public class RealmUserTypeAdapter extends com.google.gson.TypeAdapter<RealmUser>
 
             switch (reader.nextName()) {
                 case "userId":
-                    user.setUserId(reader.nextString());
+                    user.setUserId(readUserId(reader));
                     break;
-                case "firstName":
+                case "first":
                     user.setFirstName(reader.nextString());
                     break;
-                case "lastName":
+                case "last":
                     user.setLastName(reader.nextString());
                     break;
                 case "email":
@@ -105,6 +105,27 @@ public class RealmUserTypeAdapter extends com.google.gson.TypeAdapter<RealmUser>
         }
         reader.endObject();
         return channel;
+    }
+
+    public String readUserId(JsonReader r) throws IOException {
+        String res = null;
+        r.beginObject();
+        while(r.hasNext()){
+            switch(r.nextName()) {
+                case "value":
+                   res = r.nextString();
+                    break;
+                default:
+                    r.skipValue();
+                    break;
+            }
+        }
+
+        if(res == null){
+            throw new IOException("Invalid Json");
+        } else {
+            return res;
+        }
     }
 
     /**
