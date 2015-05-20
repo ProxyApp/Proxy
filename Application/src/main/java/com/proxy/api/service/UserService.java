@@ -32,16 +32,16 @@ public interface UserService {
      * @param callback async callback
      * @return user
      */
-    @GET("/users/{userId}.json")
-    Observable<User> getUser(@Path("userId") String userId);
+    @GET("/users/{id}.json")
+    Observable<User> getUser(@Path("id") String userId);
 
     /**
      * Save a user.
      *
-     * @param userId   unique userId for {@link User} table
+     * @param userId   unique id for {@link User} table
      * @param user     {@link User} data
      */
-    @PUT("/users/{userId}.json")
-    Observable<User> updateUser(@Path("userId") String userId, @Body User user);
+    @PUT("/users/{id}.json")
+    Observable<User> updateUser(@Path("id") String userId, @Body User user);
 
 }

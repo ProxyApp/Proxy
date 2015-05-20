@@ -3,7 +3,7 @@ package com.proxy.api.domain.factory;
 import com.proxy.api.domain.model.Channel;
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.realm.RealmChannel;
+import com.proxy.api.domain.model.UserId;
 import com.proxy.api.domain.realm.RealmUser;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class UserFactory {
      * @return updated user
      */
     public static User updateUserEmail(User user, String email) {
-        return User.create(user.userId(), user.firstName(), user.lastName(), email,
+        return User.create(user.id(), user.first(), user.last(), email,
             user.imageURL(), user.channels(), user.groups(), user.contacts());
     }
 
@@ -59,7 +59,7 @@ public class UserFactory {
 
         channelArrayList.add(channel);
 
-        return User.create(user.userId(), user.firstName(), user.lastName(), user.email(),
+        return User.create(user.id(), user.first(), user.last(), user.email(),
             user.imageURL(), channelArrayList, user.groups(), user.contacts());
     }
 
@@ -71,7 +71,7 @@ public class UserFactory {
      * @return updated user
      */
     public static User updateUserGroups(User user, ArrayList<Group> groups) {
-        return User.create(user.userId(), user.firstName(), user.lastName(), user.email(),
+        return User.create(user.id(), user.first(), user.last(), user.email(),
             user.imageURL(), user.channels(), groups, user.contacts());
     }
 
@@ -84,10 +84,10 @@ public class UserFactory {
     public static RealmUser createRealmUser(User user) {
         RealmUser realmUser = new RealmUser();
         if (user != null) {
-            realmUser.setUserId(user.userId());
-            realmUser.setFirstName(user.firstName());
-            realmUser.setLastName(user.lastName());
-            realmUser.setFullName(joinWithSpace(new String[]{ user.firstName(), user.lastName() }));
+            realmUser.setUserId(user.id().value());
+            realmUser.setFirstName(user.first());
+            realmUser.setLastName(user.last());
+            realmUser.setFullName(joinWithSpace(new String[]{ user.first(), user.last() }));
             realmUser.setEmail(user.email());
             realmUser.setImageURL(user.imageURL());
             realmUser.setChannels(getRealmChannels(user.channels()));
@@ -95,36 +95,16 @@ public class UserFactory {
             realmUser.setGroups(getRealmGroups(user.groups()));
         }
         Timber.i("User Conversion: " + user.toString());
-        Timber.i(printRealmUser(realmUser));
         return realmUser;
     }
 
-    public static String printRealmUsers(RealmResults<RealmUser> realmUsers) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (RealmUser user : realmUsers) {
-            stringBuilder.append(printRealmUser(user)).append(" ");
-        }
-        return stringBuilder.toString();
-    }
-
-    public static String printRealmUser(RealmUser realmUser) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder
-            .append("FirstName: ")
-            .append(realmUser.getFirstName());
-
-        for (RealmChannel realmChannel : realmUser.getChannels()) {
-            stringBuilder.append(" Channel: ")
-                .append(realmChannel.getLabel())
-                .append(" ActionAddress: ")
-                .append(realmChannel.getActionAddress());
-        }
-        return stringBuilder.toString();
+    private static UserId getUserId(String userId) {
+        return UserId.builder().value(userId).build();
     }
 
     public static User createModelUser(RealmUser realmUser) {
         if (realmUser != null) {
-            return User.create(realmUser.getUserId(), realmUser.getFirstName(),
+            return User.create(getUserId(realmUser.getUserId()), realmUser.getFirstName(),
                 realmUser.getLastName(), realmUser.getEmail(), realmUser.getImageURL(),
                 getModelChannels(realmUser.getChannels()), getModelGroups(realmUser
                     .getGroups()), getModelContacts(realmUser.getContacts()));

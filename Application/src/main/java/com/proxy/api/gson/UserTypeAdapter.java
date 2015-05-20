@@ -10,6 +10,7 @@ import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.model.Contact;
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.domain.model.UserId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,14 +53,14 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 reader.beginObject();
                 while (reader.hasNext()) {
                     switch (reader.nextName()) {
-                        case "userId":
-                            user.userId(reader.nextString());
+                        case "id":
+                            user.id(readUserId(reader));
                             break;
-                        case "firstName":
-                            user.firstName(reader.nextString());
+                        case "first":
+                            user.first(reader.nextString());
                             break;
-                        case "lastName":
-                            user.lastName(reader.nextString());
+                        case "last":
+                            user.last(reader.nextString());
                             break;
                         case "email":
                             user.email(reader.nextString());
@@ -92,6 +93,28 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         return null;
     }
 
+    public UserId readUserId(JsonReader reader) throws IOException {
+        String res = null;
+        reader.beginObject();
+        while (reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "value":
+                    res = reader.nextString();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+        reader.endObject();
+
+        if (res == null) {
+            throw new IOException("Invalid Json");
+        } else {
+            return UserId.builder().value(res).build();
+        }
+    }
+
     /**
      * Parse a Channel.
      *
@@ -105,8 +128,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "channelId":
-                    channel.channelId(reader.nextString());
+                case "id":
+                    channel.id(reader.nextString());
                     break;
                 case "label":
                     channel.label(reader.nextString());
@@ -147,8 +170,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "contactId":
-                    contact.contactId(reader.nextString());
+                case "id":
+                    contact.id(reader.nextString());
                     break;
                 case "label":
                     contact.label(reader.nextString());

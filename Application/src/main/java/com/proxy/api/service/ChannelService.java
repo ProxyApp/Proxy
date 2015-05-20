@@ -20,21 +20,21 @@ public interface ChannelService {
     /**
      * Get a {@link User}'s {@link Group}s.
      *
-     * @param userId unique userId for {@link User} table
+     * @param userId unique id for {@link User} table
      */
-    @GET("/users/{userId}/channels.json")
-    Observable<Map<String, Channel>> getUserChannels(@Path("userId") String userId);
+    @GET("/users/{id}/channels.json")
+    Observable<Map<String, Channel>> getUserChannels(@Path("id") String userId);
 
     /**
      * add a {@link Channel}.
      *
-     * @param userId unique userId for {@link User} table
+     * @param userId unique id for {@link User} table
      */
-    @PUT("/users/{userId}/channels/{channelId}.json")
+    @PUT("/users/{id}/channels/{id}.json")
     Observable<Channel> addUserChannel(
-        @Path("userId") String userId, @Path("channelId") String channelId, @Body Channel channel);
+        @Path("id") String userId, @Path("id") String channelId, @Body Channel channel);
 
-    @DELETE("/users/{userId}/channels/{channelId}.json")
+    @DELETE("/users/{id}/channels/{id}.json")
     Observable<Group> deleteUserChannel(
-        @Path("userId") String userId, @Path("groupId") String channelId);
+        @Path("id") String userId, @Path("groupId") String channelId);
 }
