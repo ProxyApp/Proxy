@@ -92,8 +92,8 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder;
             Context context = viewHolder.view.getContext();
-            viewHolder.userName.setText(mCurrentUser.firstName() + " "
-                + mCurrentUser.lastName());
+            viewHolder.userName.setText(mCurrentUser.first() + " "
+                + mCurrentUser.last());
 
             Picasso.with(context).load(mCurrentUser.imageURL())
                 .transform(CircleTransform.create())

@@ -28,7 +28,7 @@ public class ContactFactory {
             RealmContact realmContact = new RealmContact();
 
             for (Contact contact : contacts) {
-                realmContact.setContactId(contact.contactId());
+                realmContact.setContactId(contact.id());
                 realmContact.setLabel(contact.label());
                 realmContact.setChannels(getRealmChannels(contact.channels()));
                 realmContactArray.add(realmContact);

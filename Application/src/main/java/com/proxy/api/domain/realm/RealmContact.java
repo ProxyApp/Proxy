@@ -17,7 +17,7 @@ public class RealmContact extends RealmObject {
     /**
      * Getter.
      *
-     * @return unique contactId
+     * @return unique id
      */
     public String getContactId() {
         return contactId;

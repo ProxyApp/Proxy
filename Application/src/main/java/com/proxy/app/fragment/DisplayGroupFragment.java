@@ -165,7 +165,7 @@ public class DisplayGroupFragment
             mAdapter.getDataArray());
         setLoggedInUser(loggedInUser);
         RestClient.getGroupService(getActivity())
-            .addUserGroup(loggedInUser.userId(), event.group.groupId(), event.group)
+            .addUserGroup(loggedInUser.id().value(), event.group.groupId(), event.group)
             .subscribe(new JustObserver<Group>() {
                 @Override
                 public void error() {

@@ -67,7 +67,7 @@ public class RxModelUpload {
         Activity activity, final User user, final Channel channel) {
         return rx.Observable.zip(
             saveRealmChannel(activity, channel, user),
-            saveChannelToFirebase(activity, user.userId(), channel),
+            saveChannelToFirebase(activity, user.id().value(), channel),
             zipSyncChannel())
             .compose(RxModelUpload.<Pair<User, Channel>>applySchedulers());
     }
@@ -91,7 +91,7 @@ public class RxModelUpload {
     private static rx.Observable<Channel> saveChannelToFirebase(
         final Activity activity, final String userId, Channel channel) {
         return RestClient.getChannelService(activity)
-            .addUserChannel(userId, channel.channelId(), channel)
+            .addUserChannel(userId, channel.id(), channel)
             .compose(RxModelUpload.<Channel>applySchedulers());
     }
 

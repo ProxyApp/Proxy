@@ -75,7 +75,7 @@ public class EditGroupActivity extends BaseActivity {
                     else if(o instanceof GroupChannelToggled){
                         Channel c = null;
                         for (Channel chan: getLoggedInUser().channels()){
-                            if(chan.channelId().equals(((GroupChannelToggled) o).channelid)) {
+                            if(chan.id().equals(((GroupChannelToggled) o).channelid)) {
                                 c = chan;
                             }
                         }
@@ -112,7 +112,7 @@ public class EditGroupActivity extends BaseActivity {
 
     private void toggleChannelInGroup(Channel channel) {
         for(Channel c: selectedGroup().channels()) {
-            if(channel.channelId().equals(c.channelId())) {
+            if(channel.id().equals(c.id())) {
                 selectedGroup().channels().remove(c);
                 return;
             }

@@ -102,7 +102,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 @Override
                 public int compare(Channel o1, Channel o2) {
                     //reverse order with the negative sign
-                    return -o1.channelId().compareTo(o2.channelId());
+                    return -o1.id().compareTo(o2.id());
                 }
 
                 @Override
@@ -128,7 +128,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 @Override
                 public boolean areContentsTheSame(Channel oldItem, Channel newItem) {
                     // we dont compare resId because its probably going to be removed
-                    return (oldItem.channelId().equals(newItem.channelId())
+                    return (oldItem.id().equals(newItem.id())
                         && oldItem.label().equals(newItem.label())
                         && oldItem.packageName().equals(newItem.packageName())
                         && oldItem.channelSection() == newItem.channelSection()
@@ -138,7 +138,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 @Override
                 public boolean areItemsTheSame(Channel item1, Channel item2) {
                     //Sections will have the same ID but different categories
-                    return (item1.channelId().equals(item2.channelId())
+                    return (item1.id().equals(item2.id())
                         && item1.channelSection() == item2.channelSection());
                 }
             };
@@ -260,7 +260,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(getBitmapTargetView(holder));
-        holder.userName.setText(joinWithSpace(new String[]{ mUser.firstName(), mUser.lastName() }));
+        holder.userName.setText(joinWithSpace(new String[]{ mUser.first(), mUser.last() }));
     }
 
     /**

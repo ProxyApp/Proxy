@@ -28,6 +28,7 @@ import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.domain.model.UserId;
 import com.proxy.api.rx.JustObserver;
 import com.proxy.api.rx.RxModelUpload;
 import com.proxy.app.dialog.LoginErrorDialog;
@@ -189,13 +190,14 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     private User createUserFromGoogle() {
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-        String userId = GOOGLE_UID_PREFIX + currentUser.getId();
+        String userUID = GOOGLE_UID_PREFIX + currentUser.getId();
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
         String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
         String imageURL = getLargeImageURL(currentUser);
 
         //Create a new {@link User} with empty groups, contacts, and channels
+        UserId userId = UserId.builder().value(userUID).build();
         return User.create(userId, firstName, lastName, email, imageURL, null, null, null);
     }
 
@@ -205,7 +207,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param loggedInUser the {@link User} to log in
      */
     private void addUserToDatabase(User loggedInUser) {
-        RestClient.getUserService(this).updateUser(loggedInUser.userId(),
+        RestClient.getUserService(this).updateUser(loggedInUser.id().value(),
             loggedInUser).compose(RxModelUpload.applySchedulers())
             .subscribe(new JustObserver<Object>() {
                 @Override

@@ -329,7 +329,7 @@ public class ViewUtils {
     /**
      * Return a new Drawable of the entered resource icon.
      *
-     * @param resId icon resource userId
+     * @param resId icon resource id
      * @return menu icon drawable
      */
     public static Drawable getMenuIcon(Context context, int resId) {

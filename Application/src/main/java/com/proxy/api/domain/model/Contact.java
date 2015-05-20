@@ -25,7 +25,7 @@ public abstract class Contact {
      */
     @SuppressWarnings("unused")
     public static Contact create(String id, String label, ArrayList<Channel> channels) {
-        return builder().contactId(id).label(label).channels(channels).build();
+        return builder().id(id).label(label).channels(channels).build();
     }
 
     /**
@@ -42,7 +42,7 @@ public abstract class Contact {
      *
      * @return name
      */
-    public abstract String contactId();
+    public abstract String id();
 
     /**
      * Get the name of the Contact.
@@ -68,10 +68,10 @@ public abstract class Contact {
         /**
          * Set the contacts Id.
          *
-         * @param id contact unique contactId
-         * @return contact contactId
+         * @param id contact unique id
+         * @return contact id
          */
-        Builder contactId(String id);
+        Builder id(String id);
 
         /**
          * Set the contacts name.
