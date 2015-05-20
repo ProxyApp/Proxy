@@ -33,7 +33,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public boolean isLoggedInUser(User user){
-        return user.userId().equals(getLoggedInUser().userId());
+        return user.id().equals(getLoggedInUser().id());
     }
 
     public RxBusDriver getRxBus(){

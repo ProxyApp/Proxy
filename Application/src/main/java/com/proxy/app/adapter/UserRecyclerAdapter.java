@@ -63,8 +63,8 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     private void setItemViewData(UserViewHolder holder, User user) {
         Context context = holder.view.getContext();
-        holder.userName.setText(joinWithSpace(new String[]{ user.firstName(),
-            user.lastName() }));
+        holder.userName.setText(joinWithSpace(new String[]{ user.first(),
+            user.last() }));
         Picasso.with(context).load(user.imageURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())

@@ -20,7 +20,7 @@ public class RealmChannel extends RealmObject {
     /**
      * Getter
      *
-     * @return userId of the channel
+     * @return id of the channel
      */
     public String getChannelId() {
         return channelId;

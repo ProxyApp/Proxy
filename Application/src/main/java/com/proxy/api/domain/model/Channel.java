@@ -18,7 +18,7 @@ public abstract class Channel implements Parcelable {
     /**
      * Create a new {@link Channel}.
      *
-     * @param id             unique userId
+     * @param id             unique id
      * @param label          name of the channel
      * @param packageName    Name of the channels package
      * @param channelSection section divider category
@@ -26,10 +26,9 @@ public abstract class Channel implements Parcelable {
      * @return Immutable channel
      */
     @SuppressWarnings("unused")
-    public static Channel create(
-        String id, String label, String packageName,
+    public static Channel create(String id, String label, String packageName,
         ChannelSection channelSection, ChannelType channelType, String actionAddress) {
-        return builder().channelId(id).label(label).packageName(packageName)
+        return builder().id(id).label(label).packageName(packageName)
             .channelSection(channelSection).channelType(channelType)
             .actionAddress(actionAddress).build();
     }
@@ -48,7 +47,7 @@ public abstract class Channel implements Parcelable {
      *
      * @return name
      */
-    public abstract String channelId();
+    public abstract String id();
 
     /**
      * Get the name of the {@link Channel}.
@@ -94,10 +93,10 @@ public abstract class Channel implements Parcelable {
         /**
          * Set the channel Id.
          *
-         * @param id channel unique channelId
-         * @return channel channelId
+         * @param id channel unique id
+         * @return channel id
          */
-        Builder channelId(String id);
+        Builder id(String id);
 
         /**
          * Set the channels name.
