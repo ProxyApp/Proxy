@@ -9,9 +9,9 @@ import android.support.v4.app.FragmentManager;
 import android.view.ContextThemeWrapper;
 
 import com.proxy.R;
-import com.proxy.event.LoginErrorDialogEvent;
+import com.proxy.api.rx.event.LoginErrorDialogEvent;
 
-import static com.proxy.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
+import static com.proxy.api.rx.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
 import static com.proxy.util.DebugUtils.getSimpleName;
 
 /**

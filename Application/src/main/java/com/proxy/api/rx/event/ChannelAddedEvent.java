@@ -1,13 +1,13 @@
-package com.proxy.event;
+package com.proxy.api.rx.event;
 
 import com.proxy.api.domain.realm.RealmChannel;
 
 /**
  * Created by Evan on 5/5/15.
  */
-public class ChannelDialogRequestEvent {
+public class ChannelAddedEvent {
     public final RealmChannel channel;
-    public ChannelDialogRequestEvent(RealmChannel channel) {
+    public ChannelAddedEvent(RealmChannel channel) {
         this.channel = channel;
     }
 }

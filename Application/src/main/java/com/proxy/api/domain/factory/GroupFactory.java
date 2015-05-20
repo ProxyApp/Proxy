@@ -4,6 +4,7 @@ import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.realm.RealmGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -21,7 +22,7 @@ public class GroupFactory {
      * @param groupArrayList to get contacts from
      * @return RealmList of Contacts
      */
-    public static RealmList<RealmGroup> getRealmGroups(ArrayList<Group> groupArrayList) {
+    public static RealmList<RealmGroup> getRealmGroups(List<Group> groupArrayList) {
         if (groupArrayList != null) {
             RealmList<RealmGroup> realmGroupArray = new RealmList<>();
             RealmGroup realmGroup = new RealmGroup();
@@ -48,7 +49,7 @@ public class GroupFactory {
         if (realmGroupArray != null) {
             ArrayList<Group> groups = new ArrayList<>();
             for (RealmGroup realmGroup : realmGroupArray) {
-                groups.add(Group.create(realmGroup.getGroupId(), realmGroup.getLabel(),
+                groups.add(Group.create(realmGroup.getLabel(),
                     ChannelFactory.getModelChannels(realmGroup.getChannels()),
                     ContactFactory.getModelContacts(realmGroup.getContacts())));
             }

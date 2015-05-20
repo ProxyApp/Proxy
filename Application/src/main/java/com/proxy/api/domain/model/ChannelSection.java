@@ -11,9 +11,12 @@ import static com.proxy.app.adapter.ChannelGridRecyclerAdapter.SectionViewHolder
  * the {@link ChannelSection#weight} value.
  */
 public enum ChannelSection {
-    General(0, "General", R.raw.apps), Chat(1, "Chat", R.raw.sms),
-    Follow(2, "Follow", R.raw.directions), Locate(3, "Locate", R.raw.location),
-    Meet(4, "Meet", R.raw.event), Transact(5, "Transact", R.raw.money),
+    General(0, "General", R.raw.apps),
+    Chat(1, "Chat", R.raw.sms),
+    Follow(2, "Follow", R.raw.directions),
+    Locate(3, "Locate", R.raw.location),
+    Meet(4, "Meet", R.raw.event),
+    Transact(5, "Transact", R.raw.money),
     Play(6, "Play", R.raw.emoticon);
 
     private final int weight;

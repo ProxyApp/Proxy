@@ -2,6 +2,7 @@ package com.proxy.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,8 +12,8 @@ import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.rx.event.ChannelSelectedEvent;
 import com.proxy.app.fragment.UserProfileFragment;
-import com.proxy.event.ChannelSelectedEvent;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -21,7 +22,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.proxy.Constants.ARG_USER_LOGGED_IN;
-import static com.proxy.api.domain.factory.ChannelFactory.getModelChannelType;
 import static com.proxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -142,16 +142,16 @@ public class UserProfileActivity extends BaseActivity {
 
     @SuppressWarnings("unused")
     public void onChannelSelected(ChannelSelectedEvent event) {
-        ChannelType channelType = getModelChannelType(event.channel.getChannelType());
+        ChannelType channelType = event.channel.channelType();
         switch (channelType) {
             case Phone:
-                IntentLauncher.launchPhoneIntent(this, event.channel.getActionAddress());
+                IntentLauncher.launchPhoneIntent(this, event.channel.actionAddress());
                 break;
             case SMS:
-                IntentLauncher.launchSMSIntent(this, event.channel.getActionAddress());
+                IntentLauncher.launchSMSIntent(this, event.channel.actionAddress());
                 break;
             case Email:
-                IntentLauncher.launchEmailIntent(this, event.channel.getActionAddress());
+                IntentLauncher.launchEmailIntent(this, event.channel.actionAddress());
                 break;
             case Web:
                 break;
@@ -164,6 +164,9 @@ public class UserProfileActivity extends BaseActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         getIntent().replaceExtras(data);
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
 }

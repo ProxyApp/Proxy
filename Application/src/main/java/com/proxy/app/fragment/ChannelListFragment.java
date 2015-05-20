@@ -7,9 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proxy.R;
+import com.proxy.api.domain.realm.RealmChannel;
 import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.ChannelListRecyclerAdapter;
-import com.proxy.event.ChannelDialogRequestEvent;
+import com.proxy.api.rx.event.ChannelDialogRequestEvent;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
@@ -71,7 +72,7 @@ public class ChannelListFragment extends BaseFragment implements BaseViewHolder.
         if (!mAdapter.isSectionHeader(position)) {
             //section offset
             position = position - 1;
-            getRxBus().post(new ChannelDialogRequestEvent(mAdapter.getItemData(position)));
+            getRxBus().post(new ChannelDialogRequestEvent((RealmChannel)mAdapter.getItemData(position)));
         }
     }
 

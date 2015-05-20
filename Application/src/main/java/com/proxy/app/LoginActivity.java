@@ -28,6 +28,8 @@ import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
+import com.proxy.api.rx.JustObserver;
+import com.proxy.api.rx.RxModelUpload;
 import com.proxy.app.dialog.LoginErrorDialog;
 
 import java.io.IOException;
@@ -36,13 +38,7 @@ import java.lang.ref.WeakReference;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import io.realm.Realm;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import timber.log.Timber;
-
-import static com.proxy.api.domain.factory.UserFactory.createRealmUser;
 
 /**
  * Activity to log in with google account.
@@ -71,8 +67,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // Used to store the error code most recently returned by Google Play services
     // until the user clicks 'sign in'.
     private int mSignInError;
-    private RestClient mRestClient;
-    private Realm mRealm;
 
     /**
      * Return log in error dialog based on the type of error.
@@ -99,13 +93,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRealm = getDefaultRealm();
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
         // Button listeners
         mSignInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
         mSignInButton.setEnabled(true);
-        mRestClient = RestClient.newInstance(LoginActivity.this);
         mGoogleApiClient = buildGoogleApiClient();
                 /* Create the Firebase ref that is used for all authentication with Firebase */
         mFirebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
@@ -163,24 +155,23 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
         if (currentUser != null) {
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-            mRestClient.getUserService().getUser(userId, new Callback<User>() {
-                @Override
-                public void success(User user, Response response) {
-                    Timber.i("HTTP response: " + response.getReason());
-                    if (user == null) {
-                        addUserToDatabase(createUserFromGoogle());
-                    } else {
-                        setUserAndAuth(user);
+            RestClient.getUserService(this).getUser(userId).compose(RxModelUpload.applySchedulers())
+                .subscribe(new JustObserver<Object>() {
+                    @Override
+                    public void error() {
+                        showErrorDialog(LoginActivity.this, "Retrofit general error getting User");
+                        mSignInButton.setEnabled(true);
                     }
-                }
 
-                @Override
-                public void failure(RetrofitError error) {
-                    Timber.e(error.toString());
-                    showErrorDialog(LoginActivity.this, error.getMessage());
-                    mSignInButton.setEnabled(true);
-                }
-            });
+                    @Override
+                    public void onNext(Object user) {
+                        if (user == null) {
+                            addUserToDatabase(createUserFromGoogle());
+                        } else {
+                            setUserAndAuth((User) user);
+                        }
+                    }
+                });
         } else {
             showErrorDialog(this, getString(R.string.login_error_retrieving_user));
             mSignInButton.setEnabled(true);
@@ -214,18 +205,19 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param loggedInUser the {@link User} to log in
      */
     private void addUserToDatabase(User loggedInUser) {
-        mRestClient.getUserService().updateUser(loggedInUser.userId(),
-            loggedInUser, new Callback<User>() {
+        RestClient.getUserService(this).updateUser(loggedInUser.userId(),
+            loggedInUser).compose(RxModelUpload.applySchedulers())
+            .subscribe(new JustObserver<Object>() {
                 @Override
-                public void success(User user, Response response) {
+                public void onNext(Object user) {
                     Timber.i("rest client success");
-                    setUserAndAuth(user);
+                    setUserAndAuth((User) user);
                 }
 
                 @Override
-                public void failure(RetrofitError error) {
-                    Timber.e(error.toString());
-                    //TODO: Error handling for Get User retry
+                public void error() {
+                    mSignInButton.setEnabled(true);
+                    showErrorDialog(LoginActivity.this, "Retrofit general error saving User");
                 }
             });
     }
@@ -237,7 +229,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private void setUserAndAuth(final User user) {
         setLoggedInUser(user);
-        transactRealmObject(mRealm, createRealmUser(user));
         getGoogleOAuthTokenAndLogin();
     }
 

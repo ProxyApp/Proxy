@@ -17,12 +17,11 @@ package com.proxy;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
 
 import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
 import com.proxy.api.domain.model.User;
-import com.proxy.event.RxBusDriver;
+import com.proxy.api.rx.RxBusDriver;
 import com.squareup.leakcanary.LeakCanary;
 
 import io.fabric.sdk.android.Fabric;
@@ -35,7 +34,6 @@ import timber.log.Timber;
 public class ProxyApplication extends Application {
 
     private User mCurrentUser;
-    private Realm mRealm;
 
     @Override
     public void onCreate() {
@@ -49,7 +47,6 @@ public class ProxyApplication extends Application {
         }
         Firebase.setAndroidContext(this);
         Realm.deleteRealmFile(this);
-        mRealm = Realm.getInstance(this);
     }
 
     /**
@@ -73,11 +70,6 @@ public class ProxyApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
-    }
-
-    public Realm getDefaultRealm() {
-        return mRealm;
     }
 
     public RxBusDriver getRxBus() {

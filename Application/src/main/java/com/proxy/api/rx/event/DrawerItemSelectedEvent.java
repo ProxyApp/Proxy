@@ -1,4 +1,4 @@
-package com.proxy.event;
+package com.proxy.api.rx.event;
 
 import android.support.annotation.NonNull;
 import android.view.View;

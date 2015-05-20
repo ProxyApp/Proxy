@@ -3,7 +3,6 @@ package com.proxy.api.domain.model;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 
 import com.proxy.api.gson.AutoGson;
 
@@ -20,18 +19,28 @@ public abstract class Channel implements Parcelable {
      * Create a new {@link Channel}.
      *
      * @param id             unique userId
-     * @param label          name of the group
+     * @param label          name of the channel
      * @param packageName    Name of the channels package
      * @param channelSection section divider category
      * @param channelType    channel intent type
-     * @return Immutable group
+     * @return Immutable channel
      */
     @SuppressWarnings("unused")
     public static Channel create(
         String id, String label, String packageName,
         ChannelSection channelSection, ChannelType channelType, String actionAddress) {
-        return new AutoParcel_Channel(id, label, packageName, channelSection, channelType,
-            actionAddress);
+        return builder().channelId(id).label(label).packageName(packageName)
+            .channelSection(channelSection).channelType(channelType)
+            .actionAddress(actionAddress).build();
+    }
+
+    /**
+     * User builder.
+     *
+     * @return this User.
+     */
+    public static Builder builder() {
+        return new AutoParcel_Channel.Builder();
     }
 
     /**
@@ -39,7 +48,6 @@ public abstract class Channel implements Parcelable {
      *
      * @return name
      */
-    @Nullable
     public abstract String channelId();
 
     /**
@@ -76,5 +84,43 @@ public abstract class Channel implements Parcelable {
      * @return image resource
      */
     public abstract String actionAddress();
+
+    /**
+     * Channel Builder.
+     */
+    @AutoParcel.Builder
+    public interface Builder {
+
+        /**
+         * Set the channel Id.
+         *
+         * @param id channel unique channelId
+         * @return channel channelId
+         */
+        Builder channelId(String id);
+
+        /**
+         * Set the channels name.
+         *
+         * @param label channel name
+         * @return label
+         */
+        Builder label(String label);
+
+        Builder packageName(String packageName);
+
+        Builder channelSection(ChannelSection channelSection);
+
+        Builder channelType(ChannelType channelType);
+
+        Builder actionAddress(String actionAddress);
+
+        /**
+         * BUILD.
+         *
+         * @return channel
+         */
+        Channel build();
+    }
 
 }
