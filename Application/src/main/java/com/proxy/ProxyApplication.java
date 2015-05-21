@@ -33,7 +33,7 @@ import timber.log.Timber;
  */
 public class ProxyApplication extends Application {
 
-    private User mCurrentUser;
+    private User _currentUser;
 
     @Override
     public void onCreate() {
@@ -55,7 +55,7 @@ public class ProxyApplication extends Application {
      * @return currerntly logged in user
      */
     public User getCurrentUser() {
-        return mCurrentUser;
+        return _currentUser;
     }
 
     /**
@@ -64,7 +64,7 @@ public class ProxyApplication extends Application {
      * @param currentUser currently logged in user
      */
     public void setCurrentUser(User currentUser) {
-        mCurrentUser = currentUser;
+        _currentUser = currentUser;
     }
 
     @Override

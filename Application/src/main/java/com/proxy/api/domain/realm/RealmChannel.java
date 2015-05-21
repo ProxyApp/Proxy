@@ -10,11 +10,11 @@ import io.realm.annotations.PrimaryKey;
 public class RealmChannel extends RealmObject {
 
     @PrimaryKey
-    private String channelId;
+    private String id;
     private String label;
     private String packageName;
     private String actionAddress;
-    private RealmChannelSection section;
+    private RealmChannelSection channelSection;
     private RealmChannelType channelType;
 
     /**
@@ -22,17 +22,17 @@ public class RealmChannel extends RealmObject {
      *
      * @return id of the channel
      */
-    public String getChannelId() {
-        return channelId;
+    public String getId() {
+        return id;
     }
 
     /**
      * Setter.
      *
-     * @param channelId ID of the channel
+     * @param id ID of the channel
      */
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -74,19 +74,19 @@ public class RealmChannel extends RealmObject {
     /**
      * Getter.
      *
-     * @return section of the application
+     * @return channelSection of the application
      */
-    public RealmChannelSection getSection() {
-        return section;
+    public RealmChannelSection getChannelSection() {
+        return channelSection;
     }
 
     /**
      * Setter.
      *
-     * @param section of intent
+     * @param channelSection of intent
      */
-    public void setSection(RealmChannelSection section) {
-        this.section = section;
+    public void setChannelSection(RealmChannelSection channelSection) {
+        this.channelSection = channelSection;
     }
 
     public RealmChannelType getChannelType() {

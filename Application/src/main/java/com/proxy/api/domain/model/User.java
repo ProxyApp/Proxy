@@ -20,7 +20,7 @@ public abstract class User implements Parcelable {
     /**
      * User Constructor.
      *
-     * @param userId        user unique ID
+     * @param id        user unique ID
      * @param firstName user first name
      * @param lastName  user last name
      * @param email     user email
@@ -31,9 +31,9 @@ public abstract class User implements Parcelable {
      * @return the entered user data
      */
     public static User create(
-        UserId userId, String firstName, String lastName, String email, String imageURL,
+        Id id, String firstName, String lastName, String email, String imageURL,
         ArrayList<Channel> channels, ArrayList<Group> groups, ArrayList<Contact> contacts) {
-        return builder().id(userId).first(firstName).last(lastName).email(email)
+        return builder().id(id).first(firstName).last(lastName).email(email)
             .imageURL(imageURL).channels(channels).groups(groups).contacts(contacts).build();
     }
 
@@ -56,7 +56,7 @@ public abstract class User implements Parcelable {
      *
      * @return first name
      */
-    public abstract UserId id();
+    public abstract Id id();
 
     /**
      * Get users first name.
@@ -137,7 +137,7 @@ public abstract class User implements Parcelable {
          * @param id user unqiue id
          * @return user id
          */
-        Builder id(UserId id);
+        Builder id(Id id);
 
         /**
          * Set user first name.

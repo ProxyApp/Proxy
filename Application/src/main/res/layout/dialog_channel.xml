@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_gravity="center"
+    android:layout_marginLeft="@dimen/common_margin_large"
+    android:layout_marginRight="@dimen/common_margin_large"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/common_margin_xxtiny">
+
+    <com.proxy.widget.FloatLabelLayout
+        android:id="@+id/dialog_channel_label_floatlabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_small"
+        app:floatLabelTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
+
+        <EditText
+            android:id="@+id/dialog_channel_label_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:paddingBottom="@dimen/common_margin_xxtiny"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/common_text"
+            android:textColorHint="@color/common_text_disabled"/>
+    </com.proxy.widget.FloatLabelLayout>
+
+    <com.proxy.widget.FloatLabelLayout
+        android:id="@+id/dialog_channel_action_address_floatlabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginTop="@dimen/common_margin_large"
+        app:floatLabelTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
+
+        <EditText
+            android:id="@+id/dialog_channel_action_address_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:paddingBottom="@dimen/common_margin_xxtiny"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/common_text"
+            android:textColorHint="@color/common_text_disabled"/>
+    </com.proxy.widget.FloatLabelLayout>
+</LinearLayout>

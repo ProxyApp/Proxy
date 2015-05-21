@@ -12,17 +12,14 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.api.domain.model.Contact;
 import com.proxy.api.domain.model.User;
 import com.proxy.api.rx.JustObserver;
-import com.proxy.api.rx.RxRealmQuery;
+import com.proxy.api.rx.RxTextWatcherSubject;
 import com.proxy.api.rx.event.UserSelectedEvent;
 import com.proxy.app.SearchActivity;
-import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.UserRecyclerAdapter;
-import com.proxy.util.ViewUtils;
 import com.proxy.widget.BaseRecyclerView;
 
 import java.util.ArrayList;
@@ -31,10 +28,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
-import io.realm.Realm;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
+import static com.proxy.IntentLauncher.launchUserProfileActivity;
+import static com.proxy.api.rx.RxRealmQuery.queryAllUsers;
+import static com.proxy.api.rx.RxRealmQuery.searchUserString;
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
+import static com.proxy.util.DebugUtils.showBroToast;
 import static com.proxy.util.ViewUtils.getLargeIconDimen;
 import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.proxy.util.ViewUtils.showSoftwareKeyboard;
@@ -44,19 +45,19 @@ import static rx.android.app.AppObservable.bindFragment;
 /**
  * Fragment to handle searching for {@link Contact}s.
  */
-public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
+public class SearchFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_search_back_button)
-    protected ImageView mBackButton;
+    protected ImageView imageViewBackButton;
     @InjectView(R.id.fragment_search_edittext)
-    protected EditText mEditText;
+    protected EditText editText;
     @InjectView(R.id.fragment_search_clear_button)
-    protected ImageView mClearButton;
+    protected ImageView imageViewClearButton;
     @InjectView(R.id.fragment_search_recyclerview)
-    protected BaseRecyclerView mRecyclerView;
-    private UserRecyclerAdapter mAdapter;
-    private Realm mRealm;
-    private CompositeSubscription mSubscriptions;
+    protected BaseRecyclerView recyclerView;
+    private UserRecyclerAdapter _adapter;
+    private CompositeSubscription _subscriptions;
+    private RxTextWatcherSubject _textWatcherSubject;
 
     /**
      * Constructor.
@@ -78,7 +79,7 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
      */
     @OnClick(R.id.fragment_search_back_button)
     public void onClickBack() {
-        hideSoftwareKeyboard(mEditText);
+        hideSoftwareKeyboard(editText);
         getActivity().onBackPressed();
     }
 
@@ -87,7 +88,7 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
      */
     @OnClick(R.id.fragment_search_clear_button)
     public void onClickClear() {
-        mEditText.setText("");
+        editText.setText("");
     }
 
     /**
@@ -97,22 +98,20 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
      */
     @OnTextChanged(value = R.id.fragment_search_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    @SuppressWarnings("unused")
     public void onSearchStringChanged(Editable editable) {
-        RxRealmQuery.searchUsersTable(getActivity(), editable.toString().trim())
-            .subscribe(getSearchObserver());
+        _textWatcherSubject.post(editable.toString().trim());
     }
 
     private JustObserver<ArrayList<User>> getSearchObserver() {
         return new JustObserver<ArrayList<User>>() {
             @Override
-            public void error() {
+            public void onError() {
 
             }
 
             @Override
             public void onNext(ArrayList<User> users) {
-                mAdapter.setUsers(users);
+                _adapter.setUsers(users);
             }
         };
     }
@@ -120,7 +119,6 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRealm = Realm.getInstance(getActivity());
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.inject(this, rootView);
         initialize();
@@ -131,37 +129,22 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
      * Initialize this view.
      */
     private void initialize() {
-        mBackButton.setImageDrawable(getBackArrowDrawable());
-        mClearButton.setImageDrawable(getClearSearchDrawable());
+        _textWatcherSubject = RxTextWatcherSubject.getInstance();
+        imageViewBackButton.setImageDrawable(getBackArrowDrawable());
+        imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
-        showSoftwareKeyboard(mEditText);
-        RxRealmQuery.queryAllUsers(getActivity()).subscribe(getQueryObserver());
+        showSoftwareKeyboard(editText);
     }
-
-    private JustObserver<ArrayList<User>> getQueryObserver() {
-        return new JustObserver<ArrayList<User>>() {
-            @Override
-            public void error() {
-
-            }
-
-            @Override
-            public void onNext(ArrayList<User> users) {
-                mAdapter.setUsers(users);
-            }
-        };
-    }
-
 
     /**
-     * Initialize a RecyclerView with User data.
+     * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = UserRecyclerAdapter.newInstance(this);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _adapter = UserRecyclerAdapter.newInstance(this);
+        recyclerView.setAdapter(_adapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
@@ -172,7 +155,12 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(mAdapter.getItemData(position)));
+        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        showBroToast(getActivity(), _adapter.getItemData(position).last());
     }
 
     /**
@@ -198,32 +186,41 @@ public class SearchFragment extends BaseFragment implements BaseViewHolder.ItemC
     @Override
     public void onResume() {
         super.onResume();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof UserSelectedEvent) {
-                        onUserSelected((UserSelectedEvent) event);
-                    }
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
+            .subscribe(onNextEvent()));
+        _subscriptions.add(bindFragment(this, queryAllUsers(getActivity())).subscribe
+            (getSearchObserver()));
+        _subscriptions.add(bindFragment(this,
+            _textWatcherSubject.toObserverable().map(searchUserString(getActivity())))
+            .subscribe(getSearchObserver()));
+    }
+
+    private Action1<Object> onNextEvent() {
+        return new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+                if (event instanceof UserSelectedEvent) {
+                    onUserSelected((UserSelectedEvent) event);
                 }
-            }));
+            }
+        };
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ViewUtils.hideSoftwareKeyboard(getView());
-        mSubscriptions.unsubscribe();
+        hideSoftwareKeyboard(getView());
+        _subscriptions.unsubscribe();
     }
 
     /**
-     * User selected is this Fragments underlying RecyclerView.Adapter.
+     * User selected is this Fragments underlying recyclerView.Adapter.
      *
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        IntentLauncher.launchUserProfileActivity(getActivity(), event.user);
+        launchUserProfileActivity(getActivity(), event.user);
     }
 
 }

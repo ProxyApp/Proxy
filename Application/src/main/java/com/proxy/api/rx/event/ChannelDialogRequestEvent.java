@@ -1,10 +1,10 @@
 package com.proxy.api.rx.event;
 
-import com.proxy.api.domain.realm.RealmChannel;
+import com.proxy.api.domain.model.Channel;
 
 public class ChannelDialogRequestEvent {
-    public final RealmChannel channel;
-    public ChannelDialogRequestEvent(RealmChannel channel) {
+    public final Channel channel;
+    public ChannelDialogRequestEvent(Channel channel) {
         this.channel = channel;
     }
 }

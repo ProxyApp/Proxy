@@ -21,7 +21,7 @@ public class DrawerItemSelectedEvent {
      */
     public DrawerItemSelectedEvent(@NonNull View view, int position, String message) {
         this.view = view;
-        this.position = position;
         this.message = message;
+        this.position = position;
     }
 }

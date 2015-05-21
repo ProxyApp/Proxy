@@ -21,6 +21,7 @@
 
     <style name="Widget.Proxy.EditText.FloatLabel" parent="android:TextAppearance.Small">
         <item name="android:textColor">@color/common_text_disabled</item>
+        <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="android:textStyle">bold</item>
     </style>
 </resources>

@@ -25,13 +25,13 @@ import static com.proxy.util.ObjectUtils.joinWithSpace;
  * An Adapter to handle displaying {@link User}s.
  */
 public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
-    private final ItemClickListener mClickListener;
+    private final ItemClickListener _clickListener;
     //Persisted User Array Data
-    private ArrayList<User> mUsers;
+    private ArrayList<User> _users;
 
     public UserRecyclerAdapter(ItemClickListener listener) {
-        mClickListener = listener;
-        mUsers = new ArrayList<>();
+        _clickListener = listener;
+        _users = new ArrayList<>();
     }
 
     /**
@@ -47,7 +47,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_user_item, parent, false);
-        return UserViewHolder.newInstance(view, mClickListener);
+        return UserViewHolder.newInstance(view, _clickListener);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param user   the {@link User} data
      */
     private void setItemViewData(UserViewHolder holder, User user) {
-        Context context = holder.view.getContext();
+        Context context = holder._view.getContext();
         holder.userName.setText(joinWithSpace(new String[]{ user.first(),
             user.last() }));
         Picasso.with(context).load(user.imageURL())
@@ -73,11 +73,11 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mUsers.size();
+        return _users.size();
     }
 
     public void setUsers(ArrayList<User> users){
-        mUsers = users;
+        _users = users;
         notifyDataSetChanged();
     }
 
@@ -88,7 +88,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return the desired {@link User}
      */
     public User getItemData(int position) {
-        return mUsers.get(position);
+        return _users.get(position);
     }
 
     /**

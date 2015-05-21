@@ -6,27 +6,29 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.User;
-import com.proxy.app.BaseActivity;
-import com.proxy.app.adapter.BaseViewHolder;
-import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.api.rx.event.DrawerItemSelectedEvent;
+import com.proxy.app.BaseActivity;
+import com.proxy.app.adapter.DrawerRecyclerAdapter;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
+
 
 /**
  * Drawer Fragment to handle displaying a user profile with options.
  */
-public class DrawerFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
+public class DrawerFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_drawer_recyclerview)
-    BaseRecyclerView mDrawerRecyclerView;
-    private DrawerRecyclerAdapter mAdapter;
+    BaseRecyclerView drawerRecyclerView;
+    private DrawerRecyclerAdapter _adapter;
 
     @Override
     public View onCreateView(
@@ -39,21 +41,26 @@ public class DrawerFragment extends BaseFragment implements BaseViewHolder.ItemC
     }
 
     /**
-     * Initialize a RecyclerView with User data.
+     * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
-        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = DrawerRecyclerAdapter.newInstance(
+        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _adapter = DrawerRecyclerAdapter.newInstance(
             getCurrentUser(), getResources().getStringArray(R.array.drawer_settings), this);
-        mDrawerRecyclerView.setAdapter(mAdapter);
-        mDrawerRecyclerView.setHasFixedSize(true);
-        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        drawerRecyclerView.setAdapter(_adapter);
+        drawerRecyclerView.setHasFixedSize(true);
+        drawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new DrawerItemSelectedEvent(view, position, mAdapter.getSettingValue
+        getRxBus().post(new DrawerItemSelectedEvent(view, position, _adapter.getSettingValue
             (position)));
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        Toast.makeText(getActivity(), _adapter.getSettingValue(position), Toast.LENGTH_SHORT).show();
     }
 
     /**

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,30 +23,27 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.Channel;
-import com.proxy.api.domain.model.ChannelSection;
-import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.rx.event.ChannelAddedEvent;
+import com.proxy.api.rx.event.DeleteChannelEvent;
+import com.proxy.util.DebugUtils;
 import com.proxy.widget.FloatLabelLayout;
-
-import java.util.UUID;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnTextChanged;
 
-import static android.content.DialogInterface.OnClickListener;
 import static com.proxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.proxy.util.DebugUtils.getSimpleName;
 import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Created by Evan on 5/5/15.
+ * Created by Evan on 5/21/15.
  */
-public class AddChannelDialog extends BaseDialogFragment {
-    private static final String ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType";
-    private static final String ARG_CHANNEL_SECTION = "AddChannelDialog.ChannelSection";
-    private static final String TAG = getSimpleName(AddChannelDialog.class);
-    private final OnClickListener _negativeClicked =
+public class EditChannelDialog extends BaseDialogFragment {
+    private static final String ARG_CHANNEL = "EditChannelDialog.Channel";
+    private static final String TAG = DebugUtils.getSimpleName(AddChannelDialog.class);
+    @InjectView(R.id.dialog_channel_action_address_edittext)
+    protected EditText editTextActionAddress;
+    private final OnClickListener negativeClicked =
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -53,8 +51,6 @@ public class AddChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    @InjectView(R.id.dialog_channel_action_address_edittext)
-    protected EditText editTextActionAddress;
     @InjectView(R.id.dialog_channel_label_edittext)
     protected EditText editTextLabel;
     @InjectView(R.id.dialog_channel_label_floatlabel)
@@ -63,8 +59,7 @@ public class AddChannelDialog extends BaseDialogFragment {
     protected FloatLabelLayout floatLabelAddress;
     private int _gray;
     private int _green;
-    private ChannelType _channelType;
-    private ChannelSection _channelSection;
+    private Channel _channel;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
      * pressed.
@@ -77,50 +72,62 @@ public class AddChannelDialog extends BaseDialogFragment {
                 // FixedDecimalEditText's inputType is Decimal
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
-                    dispatchChannelEvent();
+                    dispatchAddChannel();
                     getDialog().dismiss();
                     return true;
                 }
                 return false;
             }
         };
-
     private final OnClickListener _positiveClicked =
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dispatchChannelEvent();
+                dispatchAddChannel();
                 dialogInterface.dismiss();
             }
         };
+
+    private final OnClickListener _deleteClicked =
+        new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dispatchDeleteChannel();
+                dialogInterface.dismiss();
+            }
+        };
+
 
     /**
      * Create a new instance of a {@link AddGroupDialog}.
      *
      * @return A {@link AddGroupDialog}
      */
-    public static AddChannelDialog newInstance(
-        ChannelType channelType, ChannelSection channelSection) {
+    public static EditChannelDialog newInstance(
+        Channel channel) {
         //Bundle arguments
         Bundle bundle = new Bundle();
-        bundle.putString(ARG_CHANNEL_TYPE, channelType.getLabel());
-        bundle.putString(ARG_CHANNEL_SECTION, channelSection.getLabel());
+        bundle.putParcelable(ARG_CHANNEL, channel);
         //create dialog instance
-        AddChannelDialog dialog = new AddChannelDialog();
+        EditChannelDialog dialog = new EditChannelDialog();
         dialog.setArguments(bundle);
         return dialog;
+    }
+
+    private void dispatchDeleteChannel() {
+        getRxBus().post(new DeleteChannelEvent(_channel));
     }
 
     /**
      * Dispatch a Channel Added Event
      */
-    private void dispatchChannelEvent() {
-        String actionContent = editTextActionAddress.getText().toString();
+    private void dispatchAddChannel() {
+        String actionContent = editTextActionAddress.getText().toString().trim();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
-            String id = UUID.randomUUID().toString();
             Channel channel =
-                createModelInstance(id, labelContent, _channelType, _channelSection,
+                createModelInstance(_channel.id().value(), labelContent,
+                    _channel.channelType(), _channel.channelSection(),
                     actionContent);
             getRxBus().post(new ChannelAddedEvent(channel));
         }
@@ -134,17 +141,22 @@ public class AddChannelDialog extends BaseDialogFragment {
      */
     @OnTextChanged(value = R.id.dialog_channel_action_address_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    @SuppressWarnings("unused")
-    public void afterTextChanged(Editable editable) {
+    public void afterActionAddressChanged(Editable editable) {
         editTextActionAddress.getBackground().setColorFilter(
+            !TextUtils.isEmpty(editable) ? _green : _gray, PorterDuff.Mode.SRC_IN);
+    }
+
+    @OnTextChanged(value = R.id.dialog_channel_label_edittext,
+        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    public void afterLabelChanged(Editable editable) {
+        editTextLabel.getBackground().setColorFilter(
             !TextUtils.isEmpty(editable) ? _green : _gray, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _channelType = ChannelType.valueOf(getArguments().getString(ARG_CHANNEL_TYPE));
-        _channelSection = ChannelSection.valueOf(getArguments().getString(ARG_CHANNEL_SECTION));
+        _channel = getArguments().getParcelable(ARG_CHANNEL);
     }
 
     @NonNull
@@ -158,28 +170,29 @@ public class AddChannelDialog extends BaseDialogFragment {
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.dialog_addchannel_title)
+            .setTitle(R.string.dialog_editchannel_title)
             .setView(view)
-            .setPositiveButton(getString(R.string.common_save), _positiveClicked)
-            .setNegativeButton(android.R.string.cancel, _negativeClicked)
+            .setPositiveButton(R.string.common_save, _positiveClicked)
+            .setNegativeButton(android.R.string.cancel, negativeClicked)
+            .setNeutralButton(R.string.common_delete, _deleteClicked)
             .create();
-
+        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
         return dialog;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Setup Button Colors
         AlertDialog dialog = (AlertDialog) getDialog();
         setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_green);
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), android.R.color.black);
+        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
+        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEUTRAL), R.color.common_text);
         initializeEditTextColors();
+
     }
 
     /**
@@ -191,10 +204,10 @@ public class AddChannelDialog extends BaseDialogFragment {
         _green = context.getResources().getColor(R.color.common_green);
 
         editTextActionAddress.getBackground().setColorFilter(_green, PorterDuff.Mode.SRC_IN);
-        editTextActionAddress.setHint(context.getString(R.string.edit_channel_address));
+        editTextActionAddress.setText(_channel.actionAddress());
 
         editTextLabel.getBackground().setColorFilter(_green, PorterDuff.Mode.SRC_IN);
-        editTextLabel.setHint(context.getString(R.string.edit_channel_description));
+        editTextLabel.setText(_channel.label());
 
         floatLabelAddress.setHint(context.getString(R.string.edit_channel_address));
         floatLabelChannelLabel.setHint(context.getString(R.string.edit_channel_description));
@@ -212,7 +225,7 @@ public class AddChannelDialog extends BaseDialogFragment {
      * @param fragmentManager manager of fragments
      * @return this dialog
      */
-    public AddChannelDialog show(FragmentManager fragmentManager) {
+    public EditChannelDialog show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);
         return this;
     }

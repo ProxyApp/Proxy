@@ -57,11 +57,11 @@ public class FloatLabelLayout extends LinearLayout {
     private static final float DEFAULT_LABEL_PADDING_RIGHT = 3f;
     private static final float DEFAULT_LABEL_PADDING_BOTTOM = 4f;
 
-    private EditText mEditText;
-    private TextView mLabel;
+    private EditText _editText;
+    private TextView _label;
 
-    private CharSequence mHint;
-    private Interpolator mInterpolator;
+    private CharSequence _hint;
+    private Interpolator _interpolator;
 
     /**
      * Constructor.
@@ -108,24 +108,24 @@ public class FloatLabelLayout extends LinearLayout {
         int bottomPadding = a.getDimensionPixelSize(
             R.styleable.FloatLabelLayout_floatLabelPaddingBottom,
             dipsToPix(DEFAULT_LABEL_PADDING_BOTTOM));
-        mHint = a.getText(R.styleable.FloatLabelLayout_floatLabelHint);
+        _hint = a.getText(R.styleable.FloatLabelLayout_floatLabelHint);
 
-        mLabel = new TextView(context);
-        mLabel.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-        mLabel.setVisibility(INVISIBLE);
-        mLabel.setText(mHint);
-        ViewCompat.setPivotX(mLabel, 0f);
-        ViewCompat.setPivotY(mLabel, 0f);
+        _label = new TextView(context);
+        _label.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+        _label.setVisibility(INVISIBLE);
+        _label.setText(_hint);
+        ViewCompat.setPivotX(_label, 0f);
+        ViewCompat.setPivotY(_label, 0f);
 
-        mLabel.setTextAppearance(context,
+        _label.setTextAppearance(context,
             a.getResourceId(R.styleable.FloatLabelLayout_floatLabelTextAppearance,
                 android.R.style.TextAppearance_Small));
         a.recycle();
 
-        addView(mLabel, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        addView(_label, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 
-        mInterpolator = getInterpolator(context);
+        _interpolator = getInterpolator(context);
     }
 
     /**
@@ -158,19 +158,19 @@ public class FloatLabelLayout extends LinearLayout {
      * @param animate should animate
      */
     private void updateLabelVisibility(boolean animate) {
-        boolean hasText = !TextUtils.isEmpty(mEditText.getText());
-        boolean isFocused = mEditText.isFocused();
+        boolean hasText = !TextUtils.isEmpty(_editText.getText());
+        boolean isFocused = _editText.isFocused();
 
-        mLabel.setActivated(isFocused);
+        _label.setActivated(isFocused);
 
         if (hasText || isFocused) {
             // We should be showing the label so do so if it isn't already
-            if (mLabel.getVisibility() != VISIBLE) {
+            if (_label.getVisibility() != VISIBLE) {
                 showLabel(animate);
             }
         } else {
             // We should not be showing the label so hide it
-            if (mLabel.getVisibility() == VISIBLE) {
+            if (_label.getVisibility() == VISIBLE) {
                 hideLabel(animate);
             }
         }
@@ -180,7 +180,7 @@ public class FloatLabelLayout extends LinearLayout {
      * @return the {@link android.widget.EditText} text input
      */
     public EditText getEditText() {
-        return mEditText;
+        return _editText;
     }
 
     /**
@@ -190,16 +190,16 @@ public class FloatLabelLayout extends LinearLayout {
      */
     private void setEditText(EditText editText) {
         // If we already have an EditText, throw an exception
-        if (mEditText != null) {
+        if (_editText != null) {
             throw new IllegalArgumentException("We already have an EditText, can only have one");
         }
-        mEditText = editText;
+        _editText = editText;
 
         // Update the label visibility with no animation
         updateLabelVisibility(false);
 
         // Add a TextWatcher so that we know when the text input has changed
-        mEditText.addTextChangedListener(new TextWatcher() {
+        _editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 updateLabelVisibility(true);
@@ -216,7 +216,7 @@ public class FloatLabelLayout extends LinearLayout {
 
         // Add focus listener to the EditText so that we can notify the label that it is activated.
         // Allows the use of a ColorStateList for the text color on the label
-        mEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+        _editText.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean focused) {
                 updateLabelVisibility(true);
@@ -224,8 +224,8 @@ public class FloatLabelLayout extends LinearLayout {
         });
 
         // If we do not have a valid hint, try and retrieve it from the EditText
-        if (TextUtils.isEmpty(mHint)) {
-            setHint(mEditText.getHint());
+        if (TextUtils.isEmpty(_hint)) {
+            setHint(_editText.getHint());
         }
     }
 
@@ -233,7 +233,7 @@ public class FloatLabelLayout extends LinearLayout {
      * @return the {@link android.widget.TextView} label
      */
     public TextView getLabel() {
-        return mLabel;
+        return _label;
     }
 
     /**
@@ -242,8 +242,8 @@ public class FloatLabelLayout extends LinearLayout {
      * @param hint this labels hint
      */
     public void setHint(CharSequence hint) {
-        mHint = hint;
-        mLabel.setText(hint);
+        _hint = hint;
+        _label.setText(hint);
     }
 
     /**
@@ -253,25 +253,25 @@ public class FloatLabelLayout extends LinearLayout {
      */
     private void showLabel(boolean animate) {
         if (animate) {
-            mLabel.setVisibility(View.VISIBLE);
-            ViewCompat.setTranslationY(mLabel, mLabel.getHeight());
+            _label.setVisibility(View.VISIBLE);
+            ViewCompat.setTranslationY(_label, _label.getHeight());
 
-            float scale = mEditText.getTextSize() / mLabel.getTextSize();
-            ViewCompat.setScaleX(mLabel, scale);
-            ViewCompat.setScaleY(mLabel, scale);
+            float scale = _editText.getTextSize() / _label.getTextSize();
+            ViewCompat.setScaleX(_label, scale);
+            ViewCompat.setScaleY(_label, scale);
 
-            ViewCompat.animate(mLabel)
+            ViewCompat.animate(_label)
                 .translationY(0f)
                 .scaleY(1f)
                 .scaleX(1f)
                 .setDuration(ANIMATION_DURATION)
                 .setListener(null)
-                .setInterpolator(mInterpolator).start();
+                .setInterpolator(_interpolator).start();
         } else {
-            mLabel.setVisibility(VISIBLE);
+            _label.setVisibility(VISIBLE);
         }
 
-        mEditText.setHint(null);
+        _editText.setHint(null);
     }
 
     /**
@@ -281,27 +281,27 @@ public class FloatLabelLayout extends LinearLayout {
      */
     private void hideLabel(boolean animate) {
         if (animate) {
-            float scale = mEditText.getTextSize() / mLabel.getTextSize();
-            ViewCompat.setScaleX(mLabel, 1f);
-            ViewCompat.setScaleY(mLabel, 1f);
-            ViewCompat.setTranslationY(mLabel, 0f);
+            float scale = _editText.getTextSize() / _label.getTextSize();
+            ViewCompat.setScaleX(_label, 1f);
+            ViewCompat.setScaleY(_label, 1f);
+            ViewCompat.setTranslationY(_label, 0f);
 
-            ViewCompat.animate(mLabel)
-                .translationY(mLabel.getHeight())
+            ViewCompat.animate(_label)
+                .translationY(_label.getHeight())
                 .setDuration(ANIMATION_DURATION)
                 .scaleX(scale)
                 .scaleY(scale)
                 .setListener(new ViewPropertyAnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(View view) {
-                        mLabel.setVisibility(INVISIBLE);
-                        mEditText.setHint(mHint);
+                        _label.setVisibility(INVISIBLE);
+                        _editText.setHint(_hint);
                     }
                 })
-                .setInterpolator(mInterpolator).start();
+                .setInterpolator(_interpolator).start();
         } else {
-            mLabel.setVisibility(INVISIBLE);
-            mEditText.setHint(mHint);
+            _label.setVisibility(INVISIBLE);
+            _editText.setHint(_hint);
         }
     }
 

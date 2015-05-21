@@ -7,23 +7,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.proxy.R;
-import com.proxy.api.domain.factory.UserFactory;
 import com.proxy.api.domain.model.Channel;
-import com.proxy.api.domain.model.ChannelSection;
-import com.proxy.api.domain.model.ChannelType;
-import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.realm.RealmChannelSection;
-import com.proxy.api.domain.realm.RealmChannelType;
 import com.proxy.api.rx.event.ChannelAddedEvent;
 import com.proxy.api.rx.event.ChannelDialogRequestEvent;
-import com.proxy.app.dialog.AddChannelDialog;
 import com.proxy.app.fragment.ChannelListFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -31,9 +21,7 @@ import timber.log.Timber;
 import static com.proxy.Constants.ARG_USER_CREATED_CHANNEL;
 import static com.proxy.Constants.ARG_USER_LOGGED_IN;
 import static com.proxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.proxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.proxy.api.domain.factory.ChannelFactory.getModelChannelSection;
-import static com.proxy.api.domain.factory.ChannelFactory.getModelChannelType;
+import static com.proxy.app.dialog.AddChannelDialog.newInstance;
 import static com.proxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -43,30 +31,18 @@ import static rx.android.app.AppObservable.bindActivity;
 public class ChannelListActivity extends BaseActivity {
 
     @InjectView(R.id.common_toolbar)
-    Toolbar mToolbar;
-
-    Callback<User> userCallBack = new Callback<User>() {
-        @Override
-        public void success(User user, Response response) {
-            Timber.i("Channel updated Successfully");
-        }
-
-        @Override
-        public void failure(RetrofitError error) {
-            Timber.i("Channel failed to update");
-        }
-    };
-    private CompositeSubscription mSubscriptions;
+    Toolbar toolbar;
+    private CompositeSubscription _subscriptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_channel_list);
+        setContentView(R.layout.common_activity_fragment_container);
         ButterKnife.inject(this);
         initialize();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_channel_list_container,
+                .replace(R.id.activity_fragment_container,
                     ChannelListFragment.newInstance()).commit();
         }
     }
@@ -75,7 +51,7 @@ public class ChannelListActivity extends BaseActivity {
      * Initialize this view.
      */
     private void initialize() {
-        buildToolbar(mToolbar, getString(R.string.add_channel), getMenuIcon(this, R.raw.clear));
+        buildToolbar(toolbar, getString(R.string.add_channel), getMenuIcon(this, R.raw.clear));
     }
 
     @Override
@@ -110,8 +86,8 @@ public class ChannelListActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -127,22 +103,15 @@ public class ChannelListActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mSubscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
     }
 
     public void dialogRequestEvent(ChannelDialogRequestEvent event) {
-        RealmChannelType realmChannelType = event.channel.getChannelType();
-        RealmChannelSection realmChannelSection = event.channel.getSection();
-        ChannelType channelType = getModelChannelType(realmChannelType);
-        ChannelSection channelSection = getModelChannelSection(realmChannelSection);
-        AddChannelDialog.newInstance(channelType, channelSection).show(getSupportFragmentManager());
+        newInstance(event.channel.channelType(), event.channel.channelSection())
+            .show(getSupportFragmentManager());
     }
 
     public void addChannelEvent(ChannelAddedEvent event) {
-        Channel channel = createModelInstance(event.channel);
-        User loggedInUser = UserFactory.updateUserChannel(getLoggedInUser(),
-            channel);
-        setLoggedInUser(loggedInUser);
-        finishActivity(Activity.RESULT_OK, channel);
+        finishActivity(Activity.RESULT_OK, event.channel);
     }
 }
