@@ -15,10 +15,10 @@ import static com.proxy.api.rx.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
 import static com.proxy.util.DebugUtils.getSimpleName;
 
 /**
- * Dialog to handle error messaging during login.
+ * Dialog to handle onError messaging during login.
  */
-public class LoginErrorDialog extends BaseDialogFragment {
-    private static final String TAG = getSimpleName(LoginErrorDialog.class);
+public class ErrorDialog extends BaseDialogFragment {
+    private static final String TAG = getSimpleName(ErrorDialog.class);
     private static final String ARG_TITLE = "title";
     private static final String ARG_MESSAGE = "message";
 
@@ -29,7 +29,7 @@ public class LoginErrorDialog extends BaseDialogFragment {
      * @param message body of dialog
      * @return this dialog
      */
-    public static LoginErrorDialog newInstance(String title, String message) {
+    public static ErrorDialog newInstance(String title, String message) {
         if (message == null || message.isEmpty()) {
             throw new IllegalArgumentException("message cannot be blank.");
         }
@@ -38,13 +38,13 @@ public class LoginErrorDialog extends BaseDialogFragment {
         args.putString(ARG_TITLE, title);
         args.putString(ARG_MESSAGE, message);
 
-        LoginErrorDialog dialog = new LoginErrorDialog();
+        ErrorDialog dialog = new ErrorDialog();
         dialog.setArguments(args);
 
         return dialog;
     }
 
-    private DialogInterface.OnClickListener mOnOkClicked = new DialogInterface.OnClickListener() {
+    private DialogInterface.OnClickListener _onOkClicked = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             getRxBus().post(new LoginErrorDialogEvent(DISMISS));
@@ -60,7 +60,7 @@ public class LoginErrorDialog extends BaseDialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Widget_Proxy_App_Dialog)).setTitle(title).setMessage(message)
-            .setPositiveButton(R.string.ok, mOnOkClicked);
+            .setPositiveButton(R.string.common_ok, _onOkClicked);
 
         Dialog dialog = builder.create();
 
@@ -73,7 +73,7 @@ public class LoginErrorDialog extends BaseDialogFragment {
      * @param fragmentManager manager of fragments
      * @return this dialog
      */
-    public LoginErrorDialog show(FragmentManager fragmentManager) {
+    public ErrorDialog show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);
         return this;
     }

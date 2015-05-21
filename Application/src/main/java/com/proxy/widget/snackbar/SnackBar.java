@@ -371,7 +371,7 @@ public final class SnackBar extends SnackBarLayout {
         bringToFront();
 
         // Prior to KITKAT child.bringToFront() should be followed by calls to requestLayout() and 
-        // invalidate() on the view's parent to force the parent to redraw newInstance the new 
+        // invalidate() on the view's parent to force the parent to redraw newInstance the new
         // child 
         // ordering.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {

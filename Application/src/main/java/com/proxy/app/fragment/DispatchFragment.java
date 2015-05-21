@@ -25,7 +25,7 @@ import static com.proxy.util.ViewUtils.dpToPx;
 public class DispatchFragment extends BaseFragment {
     public static final int HOLD_ON_A_SECOND = 1000;
     @InjectView(R.id.fragment_dispatch_image)
-    ImageView mImageView;
+    ImageView imageView;
 
     Runnable loginRunnable = new Runnable() {
         @Override
@@ -65,10 +65,10 @@ public class DispatchFragment extends BaseFragment {
      * Set the Logo drawable on this activities {@link ImageView}.
      */
     private void drawLogo() {
-        ViewCompat.setLayerType(mImageView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
-        ViewCompat.setElevation(mImageView, getElevation());
+        ViewCompat.setLayerType(imageView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+        ViewCompat.setElevation(imageView, getElevation());
 
-        mImageView.setImageDrawable(ViewUtils.svgToBitmapDrawable(getActivity(),
+        imageView.setImageDrawable(ViewUtils.svgToBitmapDrawable(getActivity(),
             R.raw.proxy_logo, (int) getResourceDimension(getActivity())));
     }
 

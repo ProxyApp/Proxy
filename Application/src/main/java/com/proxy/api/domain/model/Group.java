@@ -11,7 +11,7 @@ import java.util.UUID;
 import auto.parcel.AutoParcel;
 
 /**
- * Groups only have names for now.
+ * Groups are collections of {@link User}s.
  */
 @AutoParcel
 @AutoGson(autoValueClass = AutoParcel_Group.class)
@@ -28,7 +28,8 @@ public abstract class Group implements Parcelable {
     public static Group create(
         String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
         String groupId = UUID.randomUUID().toString();
-        return builder().groupId(groupId).label(label).channels(channels)
+        Id id = Id.builder().value(groupId).build();
+        return builder().id(id).label(label).channels(channels)
             .contacts(contacts).build();
     }
 
@@ -46,7 +47,7 @@ public abstract class Group implements Parcelable {
      *
      * @return name
      */
-    public abstract String groupId();
+    public abstract Id id();
 
     /**
      * Get the name of the {@link Group}.
@@ -83,7 +84,7 @@ public abstract class Group implements Parcelable {
          * @param id group unique groupId
          * @return group groupId
          */
-        Builder groupId(String id);
+        Builder id(Id id);
 
         /**
          * Set the groups name.

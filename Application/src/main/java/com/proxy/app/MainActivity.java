@@ -41,17 +41,17 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
     //Views
     @InjectView(R.id.common_toolbar)
-    Toolbar mToolbar;
+    Toolbar toolbar;
     @InjectView(R.id.activity_main_drawer_layout)
-    DrawerLayout mDrawer;
-    private GoogleApiClient mGoogleApiClient;
-    private CompositeSubscription mSubscriptions;
+    DrawerLayout drawerLayout;
+    private GoogleApiClient _googleApiClient;
+    private CompositeSubscription _subscriptions;
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        _googleApiClient.connect();
     }
 
     @Override
@@ -59,9 +59,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
-        mGoogleApiClient = buildGoogleApiClient();
+        _googleApiClient = buildGoogleApiClient();
         initializeDrawer();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -91,8 +91,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
      * Initialize this activity's drawer view.
      */
     private void initializeDrawer() {
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawer,
-            mToolbar, R.string.common_open, R.string.common_closed) {
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+            toolbar, R.string.common_open, R.string.common_closed) {
 
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -104,9 +104,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                 super.onDrawerClosed(drawerView);
             }
         };
-        mDrawer.setDrawerListener(actionBarDrawerToggle);
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        ViewCompat.setElevation(mDrawer, getResources().getDimension(R.dimen
+        ViewCompat.setElevation(drawerLayout, getResources().getDimension(R.dimen
             .common_drawer_elevation));
     }
 
@@ -122,15 +122,15 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         } else if (getString(R.string.settings_logout)
             .equals(event.message)) {
             // and the google api is connected
-            if (mGoogleApiClient.isConnected()) {
+            if (_googleApiClient.isConnected()) {
                 setLoggedInUser(null);
-                Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                Plus.AccountApi.clearDefaultAccount(_googleApiClient);
                 IntentLauncher.launchLoginActivity(this, true);
                 finish();
             } else {
                 Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
                     , Toast.LENGTH_SHORT).show();
-                mGoogleApiClient.connect();
+                _googleApiClient.connect();
             }
         }
     }
@@ -138,8 +138,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     public void onResume() {
         super.onResume();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -153,14 +153,14 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     protected void onPause() {
         super.onPause();
-        mSubscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
+        if (_googleApiClient.isConnected()) {
+            _googleApiClient.disconnect();
         }
     }
 
@@ -207,12 +207,12 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         // The connection to Google Play services was lost for some reason.
         // We call connect() to attempt to re-establish the connection or get a
         // ConnectionResult that we can attempt to resolve.
-        mGoogleApiClient.connect();
+        _googleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        mGoogleApiClient.connect();
+        _googleApiClient.connect();
     }
 }
 

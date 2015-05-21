@@ -9,8 +9,8 @@ import com.proxy.api.domain.model.ChannelSection;
 import com.proxy.api.domain.model.ChannelType;
 import com.proxy.api.domain.model.Contact;
 import com.proxy.api.domain.model.Group;
+import com.proxy.api.domain.model.Id;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.model.UserId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,11 +25,9 @@ import timber.log.Timber;
 public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
 
     private Gson gson;
-
     private UserTypeAdapter(Gson gson) {
         this.gson = gson;
     }
-
     public static UserTypeAdapter newInstace() {
         return new UserTypeAdapter(new Gson());
     }
@@ -54,7 +52,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 while (reader.hasNext()) {
                     switch (reader.nextName()) {
                         case "id":
-                            user.id(readUserId(reader));
+                            user.id(readId(reader));
                             break;
                         case "first":
                             user.first(reader.nextString());
@@ -93,7 +91,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         return null;
     }
 
-    public UserId readUserId(JsonReader reader) throws IOException {
+    public Id readId(JsonReader reader) throws IOException {
         String res = null;
         reader.beginObject();
         while (reader.hasNext()) {
@@ -111,7 +109,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         if (res == null) {
             throw new IOException("Invalid Json");
         } else {
-            return UserId.builder().value(res).build();
+            return Id.builder().value(res).build();
         }
     }
 
@@ -129,7 +127,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "id":
-                    channel.id(reader.nextString());
+                    channel.id(readId(reader));
                     break;
                 case "label":
                     channel.label(reader.nextString());
@@ -171,7 +169,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "id":
-                    contact.id(reader.nextString());
+                    contact.id(readId(reader));
                     break;
                 case "label":
                     contact.label(reader.nextString());
@@ -204,8 +202,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "groupId":
-                    group.groupId(reader.nextString());
+                case "id":
+                    group.id(readId(reader));
                     break;
                 case "label":
                     group.label(reader.nextString());
@@ -237,7 +235,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
             }
             reader.endObject();
         } else {
-            Timber.e("checkChannelArray error");
+            Timber.e("checkChannelArray onError");
+            throw new IOException("Invalid Json");
         }
     }
 
@@ -251,7 +250,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
             }
             reader.endObject();
         } else {
-            Timber.e("checkContactArray error");
+            Timber.e("checkContactArray onError");
+            throw new IOException("Invalid Json");
         }
         return;
     }
@@ -265,7 +265,8 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
             }
             reader.endObject();
         } else {
-
+            Timber.e("checkContactArray onError");
+            throw new IOException("Invalid Json");
         }
     }
 }

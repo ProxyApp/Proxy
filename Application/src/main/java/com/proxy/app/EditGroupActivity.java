@@ -4,31 +4,33 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.Channel;
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
-import com.proxy.app.fragment.EditGroupFragment;
 import com.proxy.api.rx.event.GroupChannelToggled;
 import com.proxy.api.rx.event.GroupDeleted;
+import com.proxy.app.fragment.EditGroupFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
-import static rx.android.app.AppObservable.bindActivity;
 import static com.proxy.Constants.ARG_SELECTED_GROUP;
 import static com.proxy.Constants.ARG_USER_LOGGED_IN;
 import static com.proxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.proxy.util.ViewUtils.getMenuIcon;
+import static rx.android.app.AppObservable.bindActivity;
 
 public class EditGroupActivity extends BaseActivity {
 
-    private CompositeSubscription subscriptions;
     @InjectView(R.id.common_toolbar)
     protected Toolbar toolbar;
+    private CompositeSubscription _subscriptions;
 
     //note this may make sense to factor out into the base activity
     @Override
@@ -44,13 +46,13 @@ public class EditGroupActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_list);
+        setContentView(R.layout.common_activity_fragment_container);
         ButterKnife.inject(this);
         initialize();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_group_list,
-                            EditGroupFragment.newInstance()).commit();
+                .replace(R.id.activity_fragment_container,
+                    EditGroupFragment.newInstance()).commit();
         }
     }
 
@@ -61,49 +63,64 @@ public class EditGroupActivity extends BaseActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        subscriptions = new CompositeSubscription();
-        subscriptions.add(bindActivity(this, getRxBus().toObserverable())
-            .subscribe( new Action1<Object>() {
-                @Override
-                public void call(Object o) {
-                    if(o instanceof GroupDeleted) {
-                        removeGroupFromUser(getLoggedInUser(), selectedGroup());
-                       // todo do something with the new user
-                    }
-                    else if(o instanceof GroupChannelToggled){
-                        Channel c = null;
-                        for (Channel chan: getLoggedInUser().channels()){
-                            if(chan.id().equals(((GroupChannelToggled) o).channelid)) {
-                                c = chan;
-                            }
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
+            .subscribe(onNextEvent()));
+    }
+
+    private Action1<Object> onNextEvent() {
+        return new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+                if (event instanceof GroupDeleted) {
+                    removeGroupFromUser(getLoggedInUser(), selectedGroup());
+                    // todo do something with the new user
+                } else if (event instanceof GroupChannelToggled) {
+                    Channel channel = null;
+                    for (Channel userChannel : getLoggedInUser().channels()) {
+                        if (userChannel.id().equals(((GroupChannelToggled) event)
+                            .channelid)) {
+                            channel = userChannel;
                         }
-                        if(c == null) {
-                            return;
-                        }
-                        toggleChannelInGroup(c);
                     }
+                    if (channel == null) {
+                        return;
+                    }
+                    toggleChannelInGroup(channel);
                 }
             }
-        ));
+        };
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        subscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
     }
 
-    private void removeGroupFromUser(User user, Group group) {
-       if(user.groups() != null) {
-           for (Group g : user.groups()) {
-               if (group.groupId().equals(g.groupId())) {
-                   user.groups().remove(g);
-                   break;
-               }
-           }
-       }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            default:
+                Timber.e("Option item selected is unknown");
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void removeGroupFromUser(User user, Group dirtyGroup) {
+        if (user.groups() != null) {
+            for (Group group : user.groups()) {
+                if (group.id().equals(dirtyGroup.id())) {
+                    user.groups().remove(dirtyGroup);
+                    break;
+                }
+            }
+        }
     }
 
     private Group selectedGroup() {
@@ -111,8 +128,8 @@ public class EditGroupActivity extends BaseActivity {
     }
 
     private void toggleChannelInGroup(Channel channel) {
-        for(Channel c: selectedGroup().channels()) {
-            if(channel.id().equals(c.id())) {
+        for (Channel c : selectedGroup().channels()) {
+            if (channel.id().equals(c.id())) {
                 selectedGroup().channels().remove(c);
                 return;
             }

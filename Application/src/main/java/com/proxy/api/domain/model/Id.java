@@ -7,11 +7,11 @@ import com.proxy.api.gson.AutoGson;
 import auto.parcel.AutoParcel;
 
 /**
- * Created by Evan on 5/20/15.
+ * Complex object to hold unique id data.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_UserId.class)
-public abstract class UserId implements Parcelable {
+@AutoGson(autoValueClass = AutoParcel_Id.class)
+public abstract class Id implements Parcelable {
 
     /**
      * User Constructor.
@@ -19,7 +19,7 @@ public abstract class UserId implements Parcelable {
      * @param id        user unique ID
      * @return the entered user data
      */
-    public static UserId create(String id) {
+    public static Id create(String id) {
         return builder().value(id).build();
     }
 
@@ -34,7 +34,7 @@ public abstract class UserId implements Parcelable {
         // for each of the abstract getter methods here, in order. The constructor stashes the
         // values here in private final fields, and each method is implemented to return the
         // value of the corresponding field.
-        return new AutoParcel_UserId.Builder();
+        return new AutoParcel_Id.Builder();
     }
 
     /**
@@ -63,6 +63,6 @@ public abstract class UserId implements Parcelable {
          *
          * @return User
          */
-        UserId build();
+        Id build();
     }
 }

@@ -10,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
 public class RealmContact extends RealmObject {
 
     @PrimaryKey
-    private String contactId;
+    private String id;
     private String label;
     private RealmList<RealmChannel> channels;
 
@@ -19,17 +19,17 @@ public class RealmContact extends RealmObject {
      *
      * @return unique id
      */
-    public String getContactId() {
-        return contactId;
+    public String getId() {
+        return id;
     }
 
     /**
      * Setter.
      *
-     * @param contactId string
+     * @param id string
      */
-    public void setContactId(String contactId) {
-        this.contactId = contactId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
