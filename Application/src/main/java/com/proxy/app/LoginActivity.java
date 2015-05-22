@@ -28,10 +28,10 @@ import com.proxy.ProxyApplication;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.model.UserId;
+import com.proxy.api.domain.model.Id;
 import com.proxy.api.rx.JustObserver;
-import com.proxy.api.rx.RxModelUpload;
-import com.proxy.app.dialog.LoginErrorDialog;
+import com.proxy.api.rx.RxHelper;
+import com.proxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -54,28 +54,28 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     private static final String SCOPE_PROFILE = "https://www.googleapis.com/auth/userinfo.profile";
     // Views
     @InjectView(R.id.activity_login_sign_in_button)
-    protected SignInButton mSignInButton;
-    private AuthResultHandler mAuthResultHandler = new AuthResultHandler(
+    protected SignInButton signInButton;
+    private AuthResultHandler _authResultHandler = new AuthResultHandler(
         new WeakReference<>(this), PROVIDER_GOOGLE);
-    private Firebase mFirebaseRef;
-    private boolean mGoogleIntentInProgress = false;
+    private Firebase _firebaseRef;
+    private boolean _googleIntentInProgress = false;
     // GoogleApiClient wraps our service connection to Google Play services and
     // provides access to the users sign in state and Google's APIs.
-    private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient _googleApiClient;
     // Used to store the PendingIntent most recently returned by Google Play
     // services until the user clicks 'sign in'.
-    private PendingIntent mSignInIntent;
-    // Used to store the error code most recently returned by Google Play services
+    private PendingIntent _signInIntent;
+    // Used to store the onError code most recently returned by Google Play services
     // until the user clicks 'sign in'.
-    private int mSignInError;
+    private int _signInError;
 
     /**
-     * Return log in error dialog based on the type of error.
+     * Return log in onError dialog based on the type of onError.
      *
-     * @param message error message
+     * @param message onError message
      */
     private static void showErrorDialog(BaseActivity activity, String message) {
-        LoginErrorDialog.newInstance(activity.getString(R.string.login_error), message)
+        ErrorDialog.newInstance(activity.getString(R.string.login_error), message)
             .show(activity.getSupportFragmentManager());
     }
 
@@ -84,10 +84,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     @OnClick(R.id.activity_login_sign_in_button)
     protected void onClickSignIn() {
-        if (mGoogleApiClient.isConnected()) {
+        if (_googleApiClient.isConnected()) {
             getUserFromDatabase();
-        } else if (!mGoogleApiClient.isConnecting()) {
-            mGoogleApiClient.connect();
+        } else if (!_googleApiClient.isConnecting()) {
+            _googleApiClient.connect();
         }
     }
 
@@ -97,11 +97,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
         // Button listeners
-        mSignInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
-        mSignInButton.setEnabled(true);
-        mGoogleApiClient = buildGoogleApiClient();
+        signInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
+        signInButton.setEnabled(true);
+        _googleApiClient = buildGoogleApiClient();
                 /* Create the Firebase ref that is used for all authentication with Firebase */
-        mFirebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
+        _firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
     }
 
     /**
@@ -124,14 +124,14 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        _googleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
+        if (_googleApiClient.isConnected()) {
+            _googleApiClient.disconnect();
         }
     }
 
@@ -152,16 +152,16 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private void getUserFromDatabase() {
         // Retrieve some profile information to personalize our app for the user.
-        mSignInButton.setEnabled(false);
-        Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+        signInButton.setEnabled(false);
+        Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         if (currentUser != null) {
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-            RestClient.getUserService(this).getUser(userId).compose(RxModelUpload.applySchedulers())
+            RestClient.getUserService(this).getUser(userId).compose(RxHelper.applySchedulers())
                 .subscribe(new JustObserver<Object>() {
                     @Override
-                    public void error() {
-                        showErrorDialog(LoginActivity.this, "Retrofit general error getting User");
-                        mSignInButton.setEnabled(true);
+                    public void onError() {
+                        showErrorDialog(LoginActivity.this, "Retrofit general onError getting User");
+                        signInButton.setEnabled(true);
                     }
 
                     @Override
@@ -175,9 +175,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 });
         } else {
             showErrorDialog(this, getString(R.string.login_error_retrieving_user));
-            mSignInButton.setEnabled(true);
-            if (mGoogleApiClient.isConnected()) {
-                mGoogleApiClient.disconnect();
+            signInButton.setEnabled(true);
+            if (_googleApiClient.isConnected()) {
+                _googleApiClient.disconnect();
             }
         }
     }
@@ -189,16 +189,16 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private User createUserFromGoogle() {
         // Retrieve some profile information to personalize our app for the user.
-        Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+        Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         String userUID = GOOGLE_UID_PREFIX + currentUser.getId();
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
-        String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+        String email = Plus.AccountApi.getAccountName(_googleApiClient);
         String imageURL = getLargeImageURL(currentUser);
 
         //Create a new {@link User} with empty groups, contacts, and channels
-        UserId userId = UserId.builder().value(userUID).build();
-        return User.create(userId, firstName, lastName, email, imageURL, null, null, null);
+        Id id = Id.builder().value(userUID).build();
+        return User.create(id, firstName, lastName, email, imageURL, null, null, null);
     }
 
     /**
@@ -208,7 +208,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private void addUserToDatabase(User loggedInUser) {
         RestClient.getUserService(this).updateUser(loggedInUser.id().value(),
-            loggedInUser).compose(RxModelUpload.applySchedulers())
+            loggedInUser).compose(RxHelper.applySchedulers())
             .subscribe(new JustObserver<Object>() {
                 @Override
                 public void onNext(Object user) {
@@ -217,9 +217,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 }
 
                 @Override
-                public void error() {
-                    mSignInButton.setEnabled(true);
-                    showErrorDialog(LoginActivity.this, "Retrofit general error saving User");
+                public void onError() {
+                    signInButton.setEnabled(true);
+                    showErrorDialog(LoginActivity.this, "Retrofit general onError saving User");
                 }
             });
     }
@@ -258,17 +258,17 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
                     token = GoogleAuthUtil.getToken(LoginActivity.this, Plus.AccountApi
-                        .getAccountName(mGoogleApiClient), scope);
+                        .getAccountName(_googleApiClient), scope);
                 } catch (IOException transientEx) {
-                    /* Network or server error */
+                    /* Network or server onError */
                     Timber.e(GOOGLE_ERROR_AUTH + transientEx);
-                    errorMessage = "Network error: " + transientEx.getMessage();
+                    errorMessage = "Network onError: " + transientEx.getMessage();
                 } catch (UserRecoverableAuthException e) {
-                    Timber.w("Recoverable Google OAuth error: " + e.toString());
+                    Timber.w("Recoverable Google OAuth onError: " + e.toString());
                     /* We probably need to ask for permissions, so start the intent if there is
                     none pending */
-                    if (!mGoogleIntentInProgress) {
-                        mGoogleIntentInProgress = true;
+                    if (!_googleIntentInProgress) {
+                        _googleIntentInProgress = true;
                         Intent recover = e.getIntent();
                         startActivityForResult(recover, REQUESTCODE_SIGN_IN);
                     }
@@ -286,7 +286,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             protected void onPostExecute(String token) {
                 if (token != null) {
                     /* Successfully got OAuth token, now login with Google */
-                    mFirebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, mAuthResultHandler);
+                    _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
                 } else if (errorMessage != null) {
                     showErrorDialog(LoginActivity.this, errorMessage);
                 }
@@ -297,11 +297,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
 
     /* onConnectionFailed is called when our Activity could not connect to Google
      * Play services.  onConnectionFailed indicates that the user needs to select
-     * an account, grant permissions or resolve an error in order to sign in.
+     * an account, grant permissions or resolve an onError in order to sign in.
      */
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might
+        // Refer to the javadoc for ConnectionResult to see what onError codes might
         // be returned in onConnectionFailed.
         Timber.i("onConnectionFailed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
 
@@ -317,10 +317,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             showErrorDialog(this, getString(R.string.login_error_update_play_service));
         } else {
             // We do not have an intent in progress so we should store the latest
-            // error resolution intent for use when the sign in button is clicked.
-            mSignInIntent = result.getResolution();
-            mSignInError = result.getErrorCode();
-            Timber.i(String.valueOf(mSignInError));
+            // onError resolution intent for use when the sign in button is clicked.
+            _signInIntent = result.getResolution();
+            _signInError = result.getErrorCode();
+            Timber.i(String.valueOf(_signInError));
             // STATE_SIGN_IN indicates the user already clicked the sign in button
             // so we should continue processing errors until the user is signed in
             // or they click cancel.
@@ -329,38 +329,38 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     /**
-     * Starts an appropriate intent or dialog for user interaction to resolve the current error
+     * Starts an appropriate intent or dialog for user interaction to resolve the current onError
      * preventing the user from being signed in.  This could be a dialog allowing the user to select
      * an account, an activity allowing the user to consent to the permissions being requested by
      * your app, a setting to enable device networking, etc.
      */
     private void resolveSignInError() {
-        if (mSignInIntent != null) {
+        if (_signInIntent != null) {
             // We have an intent which will allow our user to sign in or
-            // resolve an error.  For example if the user needs to
+            // resolve an onError.  For example if the user needs to
             // select an account to sign in with, or if they need to consent
             // to the permissions your app is requesting.
 
             try {
                 // Send the pending intent that we stored on the most recent
                 // OnConnectionFailed callback.  This will allow the user to
-                // resolve the error currently preventing our connection to
+                // resolve the onError currently preventing our connection to
                 // Google Play services.
-                startIntentSenderForResult(mSignInIntent.getIntentSender(),
+                startIntentSenderForResult(_signInIntent.getIntentSender(),
                     REQUESTCODE_SIGN_IN, null, 0, 0, 0);
             } catch (IntentSender.SendIntentException e) {
                 Timber.i("Sign in intent could not be sent: " + e.getLocalizedMessage());
                 // The intent was canceled before it was sent.  Attempt to connect to
                 // get an updated ConnectionResult.
-                mGoogleApiClient.connect();
+                _googleApiClient.connect();
             }
         } else {
             // Google Play services wasn't able to provide an intent for some
-            // error types, so we show the default Google Play services error
+            // onError types, so we show the default Google Play services onError
             // dialog which may still start an intent on our behalf if the
             // user can resolve the issue.
-            if (GooglePlayServicesUtil.isUserRecoverableError(mSignInError)) {
-                GooglePlayServicesUtil.getErrorDialog(mSignInError, this, REQUESTCODE_SIGN_IN,
+            if (GooglePlayServicesUtil.isUserRecoverableError(_signInError)) {
+                GooglePlayServicesUtil.getErrorDialog(_signInError, this, REQUESTCODE_SIGN_IN,
                     new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
@@ -369,8 +369,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     });
             } else {
                 showErrorDialog(this, getString(R.string.login_error_failed_connection));
-                if (mGoogleApiClient.isConnected()) {
-                    mGoogleApiClient.disconnect();
+                if (_googleApiClient.isConnected()) {
+                    _googleApiClient.disconnect();
                 }
             }
         }
@@ -379,20 +379,20 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Override
     protected void onActivityResult(
         int requestCode, int resultCode, Intent data) {
-        mGoogleIntentInProgress = false;
+        _googleIntentInProgress = false;
         switch (requestCode) {
             case REQUESTCODE_SIGN_IN:
-                if (!mGoogleApiClient.isConnecting()) {
+                if (!_googleApiClient.isConnecting()) {
                     // If Google Play services resolved the issue with a dialog then
                     // onStart is not called so we need to re-attempt connection here.
-                    mGoogleApiClient.connect();
+                    _googleApiClient.connect();
                 }
                 break;
             default:
-                if (!mGoogleApiClient.isConnecting()) {
+                if (!_googleApiClient.isConnecting()) {
                     // If Google Play services resolved the issue with a dialog then
                     // onStart is not called so we need to re-attempt connection here.
-                    mGoogleApiClient.connect();
+                    _googleApiClient.connect();
                 }
                 break;
         }
@@ -403,7 +403,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         // The connection to Google Play services was lost for some reason.
         // We call connect() to attempt to re-establish the connection or get a
         // ConnectionResult that we can attempt to resolve.
-        mGoogleApiClient.connect();
+        _googleApiClient.connect();
     }
 
     /**

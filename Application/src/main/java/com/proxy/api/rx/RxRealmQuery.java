@@ -7,7 +7,6 @@ import com.proxy.api.domain.model.User;
 import com.proxy.api.domain.realm.RealmUser;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -18,6 +17,7 @@ import rx.functions.Func1;
  * Created by Evan on 5/20/15.
  */
 public class RxRealmQuery {
+
     public static rx.Observable<ArrayList<User>> queryAllUsers(Activity activity) {
         return Observable.just(activity).map(new Func1<Activity, ArrayList<User>>() {
             @Override
@@ -26,21 +26,19 @@ public class RxRealmQuery {
                     Realm.getInstance(activity).where(RealmUser.class).findAllSorted("last");
                 return UserFactory.createModelUsers(realmUsers);
             }
-        }).compose(RxModelUpload.<ArrayList<User>>applySchedulers());
+        }).compose(RxHelper.<ArrayList<User>>applySchedulers());
     }
 
-    public static rx.Observable<ArrayList<User>> searchUsersTable(
-        Activity activity, final String username) {
-        return Observable.just(activity).map(new Func1<Activity, ArrayList<User>>() {
+    public static Func1<String, ArrayList<User>> searchUserString(final Activity activity) {
+        return new Func1<String, ArrayList<User>>() {
             @Override
-            public ArrayList<User> call(Activity activity) {
+            public ArrayList<User> call(String username) {
                 return updateSearchText(Realm.getInstance(activity), username);
             }
-        }).debounce(1, TimeUnit.SECONDS)
-            .compose(RxModelUpload.<ArrayList<User>>applySchedulers());
+        };
     }
 
-    public static ArrayList<User> updateSearchText(Realm realm, CharSequence constraint) {
+    private static ArrayList<User> updateSearchText(Realm realm, CharSequence constraint) {
         RealmResults<RealmUser> realmUsers;
         if (constraint.equals("")) {
             realmUsers = realm.where(RealmUser.class).findAllSorted("last");

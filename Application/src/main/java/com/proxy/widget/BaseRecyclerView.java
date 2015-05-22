@@ -11,12 +11,12 @@ import android.view.View;
 @SuppressWarnings("unused")
 public class BaseRecyclerView extends RecyclerView {
 
-    private View mEmptyView;
+    private View _emptyView;
 
     /**
      * Observer to monitor if we have an empty dataset.
      */
-    private AdapterDataObserver mDataObserver = new AdapterDataObserver() {
+    private AdapterDataObserver _dataObserver = new AdapterDataObserver() {
         @Override
         public void onChanged() {
             super.onChanged();
@@ -61,16 +61,16 @@ public class BaseRecyclerView extends RecyclerView {
      * @param emptyView the view to display when this array has no data
      */
     public void setEmptyView(View emptyView) {
-        mEmptyView = emptyView;
+        _emptyView = emptyView;
     }
 
     @Override
     public void setAdapter(RecyclerView.Adapter adapter) {
         if (getAdapter() != null) {
-            getAdapter().unregisterAdapterDataObserver(mDataObserver);
+            getAdapter().unregisterAdapterDataObserver(_dataObserver);
         }
         if (adapter != null) {
-            adapter.registerAdapterDataObserver(mDataObserver);
+            adapter.registerAdapterDataObserver(_dataObserver);
         }
         super.setAdapter(adapter);
         updateEmptyView();
@@ -80,9 +80,9 @@ public class BaseRecyclerView extends RecyclerView {
      * Show or hide the empty view.
      */
     private void updateEmptyView() {
-        if (mEmptyView != null && getAdapter() != null) {
+        if (_emptyView != null && getAdapter() != null) {
             boolean showEmptyView = getAdapter().getItemCount() == 0;
-            mEmptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
+            _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
             setVisibility(showEmptyView ? GONE : VISIBLE);
         }
     }

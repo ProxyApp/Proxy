@@ -5,20 +5,20 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.proxy.IntentLauncher;
 import com.proxy.R;
 import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
-import com.proxy.api.rx.RxModelUpload;
+import com.proxy.api.rx.EndObserver;
+import com.proxy.api.rx.RxHelper;
 import com.proxy.api.rx.event.UserSelectedEvent;
 import com.proxy.api.service.UserService;
-import com.proxy.app.adapter.BaseViewHolder;
 import com.proxy.app.adapter.UserRecyclerAdapter;
 import com.proxy.widget.BaseRecyclerView;
 
@@ -28,32 +28,40 @@ import java.util.Map;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import io.realm.Realm;
+import rx.Observable;
+import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.proxy.api.domain.factory.UserFactory.createRealmUser;
+import static com.proxy.IntentLauncher.launchUserProfileActivity;
+import static com.proxy.api.domain.factory.RealmUserFactory.createRealmUser;
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
+import static com.proxy.util.DebugUtils.showBroToast;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
- * A RecyclerView of Favorite {@link User}s.
+ * A recyclerView of Favorite {@link User}s.
  */
-public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
+public class FavoriteUserFragment extends BaseFragment implements ItemClickListener {
     @InjectView(R.id.common_recyclerview)
-    BaseRecyclerView mRecyclerView;
+    protected BaseRecyclerView recyclerView;
     @InjectView(R.id.common_recyclerview_swipe_refresh)
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    private UserRecyclerAdapter mAdapter;
-    private CompositeSubscription mSubscriptions;
-    private Realm mRealm;
-    SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout
-        .OnRefreshListener() {
+    protected SwipeRefreshLayout swipeRefreshLayout;
+    private UserRecyclerAdapter _adapter;
+    private CompositeSubscription _subscriptions;
+    private Realm _realm;
+    private UserService _userService;
+    private Subscription _downloadUsersSubscription;
+    OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override
         public void onRefresh() {
-            mRecyclerView.post(new Runnable() {
+            recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    initializeUserData(getActivity());
-                    mSwipeRefreshLayout.setRefreshing(false);
+                    _downloadUsersSubscription = bindFragment(FavoriteUserFragment.this,
+                        initializeUserData(getActivity())).subscribe(getEndObserver());
+                    _subscriptions.add(_downloadUsersSubscription);
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
@@ -79,9 +87,8 @@ public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.common_recyclerview, container, false);
         ButterKnife.inject(this, rootView);
-        mRealm = Realm.getInstance(getActivity());
+        _realm = Realm.getInstance(getActivity());
         initializeRecyclerView();
-        initializeUserData(getActivity());
         initializeSwipeRefresh();
         return rootView;
     }
@@ -89,26 +96,46 @@ public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder
     /**
      * Get the {@link User} data.
      */
-    private void initializeUserData(Activity activity) {
-        UserService userService = RestClient.getUserService(activity);
-        userService.listUsers().compose(RxModelUpload.<Map<String, User>>applySchedulers())
-            .subscribe(new Action1<Map<String, User>>() {
-                @Override
-                public void call(Map<String, User> userMap) {
-                    mAdapter.setUsers(new ArrayList<>(userMap.values()));
-                    for (Map.Entry<String, User> entry : userMap.entrySet()) {
-                        transactRealmObject(mRealm, createRealmUser(entry.getValue()));
-                    }
+    private Observable<Map<String, User>> initializeUserData(Activity activity) {
+        return getUserService(activity).listUsers().compose(RxHelper.<Map<String,
+            User>>applySchedulers());
+    }
+
+    private EndObserver<Map<String, User>> getEndObserver() {
+        return new EndObserver<Map<String, User>>() {
+            @Override
+            public void onError() {
+                _subscriptions.remove(_downloadUsersSubscription);
+            }
+
+            @Override
+            public void onCompleted() {
+                _subscriptions.remove(_downloadUsersSubscription);
+            }
+
+            @Override
+            public void onNext(Map<String, User> userMap) {
+                _adapter.setUsers(new ArrayList<>(userMap.values()));
+                for (Map.Entry<String, User> entry : userMap.entrySet()) {
+                    transactRealmObject(_realm, createRealmUser(entry.getValue()));
                 }
-            });
+            }
+        };
+    }
+
+    private UserService getUserService(Activity activity) {
+        if (_userService == null) {
+            _userService = RestClient.getUserService(activity);
+        }
+        return _userService;
     }
 
     /**
      * Initialize the color sequence of the swipe refresh view.
      */
     private void initializeSwipeRefresh() {
-        mSwipeRefreshLayout.setOnRefreshListener(refreshListener);
-        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.black, android.R.color
+        swipeRefreshLayout.setOnRefreshListener(_refreshListener);
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.black, android.R.color
             .holo_orange_dark, R.color.common_green);
     }
 
@@ -119,21 +146,23 @@ public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder
     }
 
     /**
-     * Initialize a RecyclerView with User data.
+     * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = UserRecyclerAdapter.newInstance(this);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _adapter = UserRecyclerAdapter.newInstance(this);
+        recyclerView.setAdapter(_adapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+        if (_subscriptions == null) {
+            _subscriptions = new CompositeSubscription();
+        }
+        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -142,33 +171,47 @@ public class FavoriteUserFragment extends BaseFragment implements BaseViewHolder
                     }
                 }
             }));
+        _downloadUsersSubscription = bindFragment(this, initializeUserData(getActivity()))
+            .subscribe(getEndObserver());
+        _subscriptions.add(_downloadUsersSubscription);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(mAdapter.getItemData(position)));
+        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        showBroToast(getActivity(), _adapter.getItemData(position).last());
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mSubscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
+        _subscriptions = null;
     }
 
     /**
-     * User selected is this Fragments underlying RecyclerView.Adapter.
+     * User selected is this Fragments underlying recyclerView.Adapter.
      *
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        IntentLauncher.launchUserProfileActivity(getActivity(), event.user);
+        launchUserProfileActivity(getActivity(), event.user);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Activity.RESULT_OK) {
-            //TODO: update users
+            if (_subscriptions == null) {
+                _subscriptions = new CompositeSubscription();
+            }
+            _downloadUsersSubscription = bindFragment(this,
+                initializeUserData(getActivity())).subscribe(getEndObserver());
+            _subscriptions.add(_downloadUsersSubscription);
         }
     }
 }

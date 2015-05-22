@@ -10,37 +10,22 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 
 import com.proxy.R;
-import com.proxy.api.domain.model.User;
-import com.proxy.api.domain.realm.RealmGroupEditChannel;
 import com.proxy.api.rx.RxBusDriver;
-import com.proxy.app.adapter.BaseViewHolder;
-import com.proxy.app.adapter.EditGroupRecyclerAdapter;
 import com.proxy.api.rx.event.GroupChannelToggled;
 import com.proxy.api.rx.event.GroupDeleted;
+import com.proxy.app.adapter.EditGroupRecyclerAdapter;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import timber.log.Timber;
 
-public class EditGroupFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
+
+public class EditGroupFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_group_edit_recyclerview)
     protected RecyclerView recyclerView;
-    Callback<User> userCallback = new Callback<User>() {
-        @Override
-        public void success(User user, Response response) {
-            Timber.i("Changed the group permissions");
-        }
-
-        @Override
-        public void failure(RetrofitError e) {
-            Timber.i("Failed to update group permissions");
-        }
-    };
     private EditGroupRecyclerAdapter adapter;
 
     public EditGroupFragment() {
@@ -82,12 +67,14 @@ public class EditGroupFragment extends BaseFragment implements BaseViewHolder.It
             channelSwitch.setChecked(!channelSwitch.isChecked());
 
             RxBusDriver.getInstance().post(
-                new GroupChannelToggled(
-                            ((RealmGroupEditChannel) adapter
-                                    .getItemData(position)).getChannel().getChannelId()));
+                new GroupChannelToggled(adapter.getItemData(position).channel().id().value()));
             //todo send a message to the bus indicating the channel was changed
             Timber.i("Toggle clicked!!");
         }
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
     }
 
     @Override

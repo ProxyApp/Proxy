@@ -10,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
 public class RealmGroup extends RealmObject {
 
     @PrimaryKey
-    private String groupId;
+    private String id;
     private String label;
     private RealmList<RealmChannel> channels;
     private RealmList<RealmContact> contacts;
@@ -21,17 +21,17 @@ public class RealmGroup extends RealmObject {
      *
      * @return unique group identifier
      */
-    public String getGroupId() {
-        return groupId;
+    public String getId() {
+        return id;
     }
 
     /**
      * Setter.
      *
-     * @param groupId unique identifier
+     * @param id unique identifier
      */
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**

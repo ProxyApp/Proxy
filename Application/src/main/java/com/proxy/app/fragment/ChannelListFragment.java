@@ -7,23 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proxy.R;
-import com.proxy.api.domain.realm.RealmChannel;
-import com.proxy.app.adapter.BaseViewHolder;
-import com.proxy.app.adapter.ChannelListRecyclerAdapter;
 import com.proxy.api.rx.event.ChannelDialogRequestEvent;
+import com.proxy.app.adapter.ChannelListRecyclerAdapter;
 import com.proxy.widget.BaseRecyclerView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
+
 /**
  * Created by Evan on 5/5/15.
  */
-public class ChannelListFragment extends BaseFragment implements BaseViewHolder.ItemClickListener {
+public class ChannelListFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.common_recyclerview)
-    protected BaseRecyclerView mRecyclerView;
-    private ChannelListRecyclerAdapter mAdapter;
+    protected BaseRecyclerView recyclerView;
+    private ChannelListRecyclerAdapter _adapter;
 
     /**
      * Constructor.
@@ -58,22 +58,27 @@ public class ChannelListFragment extends BaseFragment implements BaseViewHolder.
     }
 
     /**
-     * Initialize a RecyclerView with User data.
+     * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = ChannelListRecyclerAdapter.newInstance(this);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _adapter = ChannelListRecyclerAdapter.newInstance(this);
+        recyclerView.setAdapter(_adapter);
+        recyclerView.setHasFixedSize(true);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        if (!mAdapter.isSectionHeader(position)) {
+        if (!_adapter.isSectionHeader(position)) {
             //section offset
             position = position - 1;
-            getRxBus().post(new ChannelDialogRequestEvent((RealmChannel)mAdapter.getItemData(position)));
+            getRxBus().post(new ChannelDialogRequestEvent(_adapter.getItemData(position)));
         }
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.proxy.R;
 import com.proxy.api.domain.model.Group;
+import com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.ArrayList;
 
@@ -20,8 +21,8 @@ import butterknife.InjectView;
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     //Persisted Group Array Data
-    private ArrayList<Group> mGroups;
-    private BaseViewHolder.ItemClickListener mListener;
+    private ArrayList<Group> _groups;
+    private ItemClickListener _listener;
 
     /**
      * Constructor for {@link GroupRecyclerAdapter}.
@@ -29,9 +30,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param groups a list of {@link Group}s
      */
     private GroupRecyclerAdapter(
-        @NonNull ArrayList<Group> groups, BaseViewHolder.ItemClickListener listener) {
-        mGroups = groups;
-        mListener = listener;
+        @NonNull ArrayList<Group> groups, ItemClickListener listener) {
+        _groups = groups;
+        _listener = listener;
     }
 
     /**
@@ -42,7 +43,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return an {@link GroupRecyclerAdapter} with no data
      */
     public static GroupRecyclerAdapter newInstance(
-        ArrayList<Group> groups, BaseViewHolder.ItemClickListener listner) {
+        ArrayList<Group> groups, ItemClickListener listner) {
         return new GroupRecyclerAdapter(groups, listner);
     }
 
@@ -50,7 +51,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.common_adapter_text_item, parent, false);
-        return GroupViewHolder.newInstance(view, mListener);
+        return GroupViewHolder.newInstance(view, _listener);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mGroups.size();
+        return _groups.size();
     }
 
     /**
@@ -81,7 +82,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return the desired ArrayList<{@link Group}>
      */
     public ArrayList<Group> getDataArray() {
-        return mGroups;
+        return _groups;
     }
 
     /**
@@ -90,7 +91,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param groups {@link Group} array
      */
     public void setDataArray(ArrayList<Group> groups) {
-        mGroups = groups;
+        _groups = groups;
     }
 
     /**
@@ -100,7 +101,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return the desired {@link Group}
      */
     public Group getItemData(int position) {
-        return mGroups.get(position);
+        return _groups.get(position);
     }
 
     /**
@@ -110,19 +111,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     public void addGroupData(@NonNull Group group) {
         synchronized (GroupRecyclerAdapter.class) {
-            mGroups.add(mGroups.size(), group);
-        }
-    }
-
-    /**
-     * Add {@link Group} to this Adapter's array data at the specified position.
-     *
-     * @param position position in the array
-     * @param group    the {@link Group} to add
-     */
-    public void addGroupData(int position, @NonNull Group group) {
-        synchronized (GroupRecyclerAdapter.class) {
-            mGroups.add(position, group);
+            _groups.add(_groups.size(), group);
         }
     }
 
@@ -133,7 +122,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return the desired {@link Group}
      */
     public Group getGroupData(int position) {
-        return mGroups.get(position);
+        return _groups.get(position);
     }
 
     /**
@@ -143,12 +132,11 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     public void removeGroupData(int position) {
         synchronized (GroupRecyclerAdapter.class) {
-            if (mGroups.size() > 0) {
-                mGroups.remove(position);
+            if (_groups.size() > 0) {
+                _groups.remove(position);
             }
         }
     }
-
 
     /**
      * ViewHolder for the entered {@link Group} data.

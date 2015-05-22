@@ -13,9 +13,9 @@ import io.realm.annotations.PrimaryKey;
  */
 public class RealmUser extends RealmObject {
     @PrimaryKey
-    private String userId;
-    private String firstName;
-    private String lastName;
+    private String id;
+    private String first;
+    private String last;
     private String fullName;
     private String email;
     private String imageURL;
@@ -31,17 +31,17 @@ public class RealmUser extends RealmObject {
      *
      * @return unique user identifier
      */
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
     /**
      * Setter.
      *
-     * @param userId unique identifier
+     * @param id unique identifier
      */
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -49,17 +49,17 @@ public class RealmUser extends RealmObject {
      *
      * @return Users First Name/Nickname
      */
-    public String getFirstName() {
-        return firstName;
+    public String getFirst() {
+        return first;
     }
 
     /**
      * Setter.
      *
-     * @param firstName string
+     * @param first string
      */
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFirst(String first) {
+        this.first = first;
     }
 
     /**
@@ -67,17 +67,17 @@ public class RealmUser extends RealmObject {
      *
      * @return family name
      */
-    public String getLastName() {
-        return lastName;
+    public String getLast() {
+        return last;
     }
 
     /**
      * Setter.
      *
-     * @param lastName string
+     * @param last string
      */
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLast(String last) {
+        this.last = last;
     }
 
     /**

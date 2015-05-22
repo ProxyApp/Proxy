@@ -2,21 +2,24 @@ package com.proxy.api.domain.factory;
 
 
 import com.proxy.api.domain.model.Channel;
+import com.proxy.api.domain.model.Channel.Builder;
 import com.proxy.api.domain.model.ChannelSection;
 import com.proxy.api.domain.model.ChannelType;
+import com.proxy.api.domain.model.Id;
 import com.proxy.api.domain.realm.RealmChannel;
 import com.proxy.api.domain.realm.RealmChannelSection;
 import com.proxy.api.domain.realm.RealmChannelType;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.RealmList;
 
+import static com.proxy.api.domain.model.Channel.builder;
 import static com.proxy.api.domain.model.ChannelSection.General;
 import static com.proxy.api.domain.model.ChannelType.Email;
 import static com.proxy.api.domain.model.ChannelType.Phone;
 import static com.proxy.api.domain.model.ChannelType.SMS;
+import static com.proxy.api.domain.model.ChannelType.Web;
 import static com.proxy.api.domain.model.ChannelType.valueOf;
 
 
@@ -25,49 +28,23 @@ import static com.proxy.api.domain.model.ChannelType.valueOf;
  */
 public class ChannelFactory {
 
-    public static RealmChannel createRealmInstance(
+    public static Channel createModelInstance(String id,String label,
         ChannelType channelType, ChannelSection channelSection, String actionAddress) {
-        RealmChannel realmChannel = new RealmChannel();
-        realmChannel.setChannelId(channelType.toString());
-        realmChannel.setLabel(channelType.toString());
-        realmChannel.setPackageName(channelType.toString());
-        realmChannel.setActionAddress(actionAddress);
-        realmChannel.setSection(getRealmSection(channelSection));
-        realmChannel.setChannelType(getRealmChannelType(channelType));
-        return realmChannel;
-    }
-
-    public static RealmChannel createRealmInstance(Channel channel) {
-        return createRealmInstance(channel.channelType(), channel.channelSection(),
-            channel.actionAddress());
+        Channel.Builder channel = Channel.builder();
+        channel.id(Id.builder().value(id).build());
+        channel.label(label);
+        channel.packageName(channelType.toString());
+        channel.actionAddress(actionAddress);
+        channel.channelSection(channelSection);
+        channel.channelType(channelType);
+        return channel.build();
     }
 
     public static Channel createModelInstance(RealmChannel realmChannel) {
-        return Channel.create(realmChannel.getChannelId(), realmChannel.getLabel(),
-            realmChannel.getPackageName(), getModelChannelSection(realmChannel.getSection()),
+        return Channel.create(Id.builder().value(realmChannel.getId()).build(), realmChannel
+                .getLabel(),
+            realmChannel.getPackageName(), getModelChannelSection(realmChannel.getChannelSection()),
             getModelChannelType(realmChannel.getChannelType()), realmChannel.getActionAddress());
-    }
-
-    /**
-     * Convert {@link ChannelSection) Enum into a {@link RealmChannelSection}.
-     *
-     * @param section
-     * @return RealmChannelCategory
-     */
-    public static RealmChannelSection getRealmSection(ChannelSection section) {
-        RealmChannelSection realmSection = new RealmChannelSection();
-        realmSection.setWeight(section.getWeight());
-        realmSection.setLabel(section.toString());
-        realmSection.setResId(section.getResId());
-        return realmSection;
-    }
-
-    public static RealmChannelType getRealmChannelType(ChannelType channelType) {
-
-        RealmChannelType realmChannelType = new RealmChannelType();
-        realmChannelType.setLabel(channelType.getLabel());
-        realmChannelType.setResId(channelType.getResId());
-        return realmChannelType;
     }
 
     /**
@@ -85,18 +62,35 @@ public class ChannelFactory {
     }
 
     /**
+     * Get a web channel.
+     *
+     * @return web button
+     */
+    public static Channel getWebChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Web.toString()).build());
+        channel.label(Web.toString());
+        channel.packageName(Web.toString());
+        channel.channelSection(General);
+        channel.channelType(Web);
+        channel.actionAddress(Web.toString());
+        return channel.build();
+    }
+
+    /**
      * Get a gmail channel.
      *
      * @return gmail button
      */
-    public static RealmChannel getEmailChannel() {
-        RealmChannel realmChannel = new RealmChannel();
-        realmChannel.setChannelId(Email.toString());
-        realmChannel.setLabel(Email.toString());
-        realmChannel.setPackageName(Email.toString());
-        realmChannel.setSection(getRealmSection(General));
-        realmChannel.setChannelType(getRealmChannelType(Email));
-        return realmChannel;
+    public static Channel getEmailChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Email.toString()).build());
+        channel.label(Email.toString());
+        channel.packageName(Email.toString());
+        channel.channelSection(General);
+        channel.channelType(Email);
+        channel.actionAddress(Email.toString());
+        return channel.build();
     }
 
     /**
@@ -104,14 +98,15 @@ public class ChannelFactory {
      *
      * @return hangouts button
      */
-    public static RealmChannel getSMSChannel() {
-        RealmChannel realmChannel = new RealmChannel();
-        realmChannel.setChannelId(SMS.toString());
-        realmChannel.setLabel(SMS.toString());
-        realmChannel.setPackageName(SMS.toString());
-        realmChannel.setSection(getRealmSection(General));
-        realmChannel.setChannelType(getRealmChannelType(SMS));
-        return realmChannel;
+    public static Channel getSMSChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(SMS.toString()).build());
+        channel.label(SMS.toString());
+        channel.packageName(SMS.toString());
+        channel.channelSection(General);
+        channel.channelType(SMS);
+        channel.actionAddress(SMS.toString());
+        return channel.build();
     }
 
     /**
@@ -119,46 +114,15 @@ public class ChannelFactory {
      *
      * @return dialer button
      */
-    public static RealmChannel getPhoneChannel() {
-        RealmChannel realmChannel = new RealmChannel();
-        realmChannel.setChannelId(Phone.toString());
-        realmChannel.setLabel(Phone.toString());
-        realmChannel.setPackageName(Phone.toString());
-        realmChannel.setSection(getRealmSection(General));
-        realmChannel.setChannelType(getRealmChannelType(Phone));
-        return realmChannel;
-    }
-
-    public static RealmList<RealmChannel> getRealmChannels(List<Channel> channels) {
-        RealmList<RealmChannel> realmChannelArray = null;
-        if (channels != null) {
-            realmChannelArray = new RealmList<>();
-            for (Channel channel : channels) {
-                RealmChannel realmChannel = new RealmChannel();
-                RealmChannelSection realmChannelSection = new RealmChannelSection();
-                RealmChannelType realmChannelType = new RealmChannelType();
-                //construct the channel section
-                realmChannelSection.setWeight(channel.channelSection().getWeight());
-                realmChannelSection.setLabel(channel.channelSection().name());
-                realmChannelSection.setResId(channel.channelSection().getResId());
-
-                //construct the channel type
-                realmChannelType.setLabel(channel.channelType().getLabel());
-                realmChannelType.setResId(channel.channelType().getResId());
-
-                //construct the channel
-                realmChannel.setChannelId(channel.id());
-                realmChannel.setLabel(channel.label());
-                realmChannel.setPackageName(channel.packageName());
-                realmChannel.setSection(realmChannelSection);
-                realmChannel.setChannelType(realmChannelType);
-                realmChannel.setActionAddress(channel.actionAddress());
-
-                //add to array
-                realmChannelArray.add(realmChannel);
-            }
-        }
-        return realmChannelArray;
+    public static Channel getPhoneChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Phone.toString()).build());
+        channel.label(Phone.toString());
+        channel.packageName(Phone.toString());
+        channel.channelSection(General);
+        channel.channelType(Phone);
+        channel.actionAddress(Phone.toString());
+        return channel.build();
     }
 
     /**
@@ -172,9 +136,9 @@ public class ChannelFactory {
         if (realmChannels != null) {
             ArrayList<Channel> channels = new ArrayList<>();
             for (RealmChannel realmChannel : realmChannels) {
-                channels.add(Channel.create(realmChannel.getChannelId(),
+                channels.add(Channel.create(Id.builder().value(realmChannel.getId()).build(),
                     realmChannel.getLabel(), realmChannel.getPackageName(),
-                    getModelChannelSection(realmChannel.getSection()),
+                    getModelChannelSection(realmChannel.getChannelSection()),
                     getModelChannelType(realmChannel.getChannelType()),
                     realmChannel.getActionAddress()));
             }

@@ -1,5 +1,6 @@
 package com.proxy.api.domain.model;
 
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import com.proxy.api.gson.AutoGson;
@@ -13,7 +14,7 @@ import auto.parcel.AutoParcel;
  */
 @AutoParcel
 @AutoGson(autoValueClass = AutoParcel_Contact.class)
-public abstract class Contact {
+public abstract class Contact implements Parcelable {
 
     /**
      * Create a new Contact.
@@ -24,7 +25,7 @@ public abstract class Contact {
      * @return Immutable contact
      */
     @SuppressWarnings("unused")
-    public static Contact create(String id, String label, ArrayList<Channel> channels) {
+    public static Contact create(Id id, String label, ArrayList<Channel> channels) {
         return builder().id(id).label(label).channels(channels).build();
     }
 
@@ -42,7 +43,7 @@ public abstract class Contact {
      *
      * @return name
      */
-    public abstract String id();
+    public abstract Id id();
 
     /**
      * Get the name of the Contact.
@@ -71,7 +72,7 @@ public abstract class Contact {
          * @param id contact unique id
          * @return contact id
          */
-        Builder id(String id);
+        Builder id(Id id);
 
         /**
          * Set the contacts name.

@@ -15,7 +15,7 @@ import timber.log.Timber;
 @SuppressWarnings("unused")
 public class RxBusDriver {
     private static final RxBusDriver DEFAULT_INSTANCE = new RxBusDriver();
-    private final Subject<Object, Object> rxBus =
+    private final Subject<Object, Object> _rxBus =
         new SerializedSubject<>(PublishSubject.create());
 
     /**
@@ -29,7 +29,7 @@ public class RxBusDriver {
     }
 
     public Observable<Object> toObserverable() {
-        return rxBus;
+        return _rxBus;
     }
 
     /**
@@ -39,7 +39,7 @@ public class RxBusDriver {
      */
     public void post(Object event) {
         Timber.v("Event Posted: " + event.toString());
-        rxBus.onNext(event);
+        _rxBus.onNext(event);
     }
 
 }
