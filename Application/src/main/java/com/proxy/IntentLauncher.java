@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.model.User;
@@ -25,6 +26,8 @@ import static com.proxy.Constants.ARG_USER_SELECTED_PROFILE;
  */
 @SuppressWarnings("unused")
 public final class IntentLauncher {
+
+    public static final String HTTPS = "https://";
 
     /**
      * Private constructor.
@@ -138,6 +141,22 @@ public final class IntentLauncher {
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{ address });
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
+        }
+    }
+
+    public static void launchWebIntent(Activity activity, String address) {
+        String uri;
+        if (address.startsWith(HTTPS)) {
+            uri = address;
+        } else {
+            uri = HTTPS + address;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG);
         }
     }
 

@@ -14,13 +14,13 @@ import android.view.ViewGroup;
 import com.melnykov.fab.FloatingActionButton;
 import com.proxy.IntentLauncher;
 import com.proxy.R;
+import com.proxy.api.RestClient;
 import com.proxy.api.domain.factory.UserFactory;
 import com.proxy.api.domain.model.Group;
-import com.proxy.api.RestClient;
 import com.proxy.api.domain.model.User;
 import com.proxy.api.rx.JustObserver;
 import com.proxy.api.rx.event.GroupAddedEvent;
-import com.proxy.app.adapter.BaseViewHolder;
+import com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.proxy.app.adapter.GroupRecyclerAdapter;
 import com.proxy.app.dialog.AddGroupDialog;
 
@@ -42,15 +42,14 @@ import static rx.android.app.AppObservable.bindFragment;
  * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
  */
 public class DisplayGroupFragment
-    extends BaseFragment
-    implements BaseViewHolder.ItemClickListener {
+    extends BaseFragment implements ItemClickListener {
     private static final String TAG = getSimpleName(DisplayGroupFragment.class);
     @InjectView(R.id.fragment_group_display_recyclerview)
-    protected RecyclerView mRecyclerView;
+    protected RecyclerView recyclerView;
     @InjectView(R.id.fragment_group_display_add_item)
-    protected FloatingActionButton mFloatingActionButton;
-    private GroupRecyclerAdapter mAdapter;
-    private CompositeSubscription mSubscriptions;
+    protected FloatingActionButton floatingActionButton;
+    private GroupRecyclerAdapter _adapter;
+    private CompositeSubscription _subscriptions;
 
     /**
      * {@link Fragment} Constructor.
@@ -97,23 +96,20 @@ public class DisplayGroupFragment
      */
     @SuppressWarnings("NewApi")
     private void initializeSVG() {
-//        ViewCompat.setLayerType(mFloatingActionButton, ViewCompat.LAYER_TYPE_SOFTWARE, null);
-//        ViewCompat.setElevation(mFloatingActionButton, floatingActionButtonElevation(getActivity
-//            ()));
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.add,
             getLargeIconDimen(getActivity()), Color.WHITE);
-        mFloatingActionButton.setImageDrawable(drawable);
+        floatingActionButton.setImageDrawable(drawable);
     }
 
     /**
      * Initialize this fragments {@link Group} data and {@link RecyclerView}.
      */
     private void initializeRecyclerView() {
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = GroupRecyclerAdapter.newInstance(getGroupData(), this);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _adapter = GroupRecyclerAdapter.newInstance(getGroupData(), this);
+        recyclerView.setAdapter(_adapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     /**
@@ -122,8 +118,11 @@ public class DisplayGroupFragment
      * @return Group List
      */
     private ArrayList<Group> getGroupData() {
+        if (getLoggedInUser() == null) {
+            return new ArrayList<>();
+        }
         ArrayList<Group> serverGroups = getLoggedInUser().groups();
-        if (serverGroups == null) {
+        if (serverGroups == null || serverGroups.size() == 0) {
             return new ArrayList<>();
         } else {
             return serverGroups;
@@ -133,8 +132,8 @@ public class DisplayGroupFragment
     @Override
     public void onResume() {
         super.onResume();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -148,7 +147,7 @@ public class DisplayGroupFragment
     @Override
     public void onPause() {
         super.onPause();
-        mSubscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
     }
 
     /**
@@ -157,18 +156,18 @@ public class DisplayGroupFragment
      * @param event group
      */
     public void groupAdded(GroupAddedEvent event) {
-        mAdapter.addGroupData(event.group);
-        mAdapter.notifyItemInserted(mAdapter.getItemCount());
-        mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount());
+        _adapter.addGroupData(event.group);
+        _adapter.notifyItemInserted(_adapter.getItemCount());
+        recyclerView.smoothScrollToPosition(_adapter.getItemCount());
         //update groups in firebase
-        User loggedInUser = UserFactory.updateUserGroups(getLoggedInUser(),
-            mAdapter.getDataArray());
+        User loggedInUser = UserFactory.addUserGroups(getLoggedInUser(),
+            _adapter.getDataArray());
         setLoggedInUser(loggedInUser);
         RestClient.getGroupService(getActivity())
-            .addUserGroup(loggedInUser.id().value(), event.group.groupId(), event.group)
+            .addUserGroup(loggedInUser.id().value(), event.group.id().value(), event.group)
             .subscribe(new JustObserver<Group>() {
                 @Override
-                public void error() {
+                public void onError() {
 
                 }
 
@@ -182,7 +181,12 @@ public class DisplayGroupFragment
 
     @Override
     public void onItemClick(View view, int position) {
-        Group group = mAdapter.getGroupData(position);
+        Group group = _adapter.getGroupData(position);
         IntentLauncher.launchEditGroupActivity(this.getActivity(), group);
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
     }
 }

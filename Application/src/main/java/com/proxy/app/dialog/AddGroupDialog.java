@@ -1,12 +1,12 @@
 package com.proxy.app.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -33,14 +33,14 @@ import static com.proxy.util.ViewUtils.hideSoftwareKeyboard;
 public class AddGroupDialog extends BaseDialogFragment {
 
     @InjectView(R.id.dialog_addgroup_floatlabel)
-    FloatLabelLayout mFloatLabel;
+    FloatLabelLayout floatLabelLayout;
     @InjectView(R.id.dialog_addgroup_edittext)
-    EditText mEditText;
-    private final DialogInterface.OnClickListener mNegativeClicked =
+    EditText editText;
+    private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                hideSoftwareKeyboard(mEditText);
+                hideSoftwareKeyboard(editText);
                 dialogInterface.dismiss();
             }
         };
@@ -48,7 +48,7 @@ public class AddGroupDialog extends BaseDialogFragment {
      * EditorActionListener that detects when the software keyboard's done or enter button is
      * pressed.
      */
-    private final TextView.OnEditorActionListener onEditorActionListener =
+    private final TextView.OnEditorActionListener _onEditorActionListener =
         new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -63,7 +63,7 @@ public class AddGroupDialog extends BaseDialogFragment {
                 return false;
             }
         };
-    private final DialogInterface.OnClickListener mPositiveClicked =
+    private final DialogInterface.OnClickListener _positiveClicked =
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -71,8 +71,9 @@ public class AddGroupDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    private int mGray;
-    private int mGreen;
+    private int _gray;
+    private int _green;
+
 
     /**
      * Create a new instance of a {@link AddGroupDialog}.
@@ -87,7 +88,7 @@ public class AddGroupDialog extends BaseDialogFragment {
      * Dispatch a Group Added Event
      */
     private void dispatchGroupEvent() {
-        String groupLabel = mEditText.getText().toString();
+        String groupLabel = editText.getText().toString();
         if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
             Group group = Group.create(groupLabel, null, null);
             getRxBus().post(new GroupAddedEvent(group));
@@ -103,8 +104,8 @@ public class AddGroupDialog extends BaseDialogFragment {
     @OnTextChanged(value = R.id.dialog_addgroup_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void afterTextChanged(Editable editable) {
-        mEditText.getBackground().setColorFilter(!TextUtils.isEmpty(editable)
-            ? mGreen : mGray, PorterDuff.Mode.SRC_IN);
+        editText.getBackground().setColorFilter(!TextUtils.isEmpty(editable)
+            ? _green : _gray, PorterDuff.Mode.SRC_IN);
     }
 
     @NonNull
@@ -115,13 +116,13 @@ public class AddGroupDialog extends BaseDialogFragment {
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_addgroup, null, false);
         ButterKnife.inject(this, view);
-        mEditText.setOnEditorActionListener(onEditorActionListener);
+        editText.setOnEditorActionListener(_onEditorActionListener);
         return new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog))
             .setTitle(R.string.dialog_addgroup_title)
             .setView(view)
-            .setPositiveButton(getString(R.string.save), mPositiveClicked)
-            .setNegativeButton(android.R.string.cancel, mNegativeClicked)
+            .setPositiveButton(getString(R.string.common_save), _positiveClicked)
+            .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
     }
 
@@ -138,15 +139,15 @@ public class AddGroupDialog extends BaseDialogFragment {
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
         initializeEditTextColors();
-        mEditText.getBackground().setColorFilter(mGray, PorterDuff.Mode.SRC_IN);
+        editText.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
     }
 
     /**
      * Initialize values for EditText to switch color on in {@link AddGroupDialog#afterTextChanged}
      */
     private void initializeEditTextColors() {
-        mGray = mEditText.getContext().getResources().getColor(R.color.common_divider);
-        mGreen = mEditText.getContext().getResources().getColor(R.color.common_green);
+        _gray = editText.getContext().getResources().getColor(R.color.common_divider);
+        _green = editText.getContext().getResources().getColor(R.color.common_green);
     }
 
     @Override

@@ -27,10 +27,10 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final String HEADER = "HEADER";
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
-    private final User mCurrentUser;
-    private String[] mValues;
-    private Target mTarget;
-    private BaseViewHolder.ItemClickListener mClickListener;
+    private final User _currentUser;
+    private String[] _values;
+    private Target _target;
+    private BaseViewHolder.ItemClickListener _clickListener;
 
     /**
      * Constructor for {@link DrawerRecyclerAdapter}.
@@ -40,9 +40,9 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
      */
     private DrawerRecyclerAdapter(User currentUser, String[] settingsArray, BaseViewHolder
         .ItemClickListener listener) {
-        mValues = settingsArray;
-        mCurrentUser = currentUser;
-        mClickListener = listener;
+        _values = settingsArray;
+        _currentUser = currentUser;
+        _clickListener = listener;
     }
 
     /**
@@ -66,7 +66,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         final HeaderViewHolder viewHolder) {
         return new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
-                Context context = viewHolder.view.getContext();
+                Context context = viewHolder._view.getContext();
                 viewHolder.backgroundContainer.setBackgroundColor(
                     palette.getVibrantColor(
                         context.getResources().getColor(R.color.common_deep_purple)));
@@ -79,11 +79,11 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (viewType == TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_drawer_header, parent, false);
-            return HeaderViewHolder.newInstance(view, mClickListener);
+            return HeaderViewHolder.newInstance(view, _clickListener);
         } else {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.common_adapter_text_item, parent, false);
-            return ItemViewHolder.newInstance(view, mClickListener);
+            return ItemViewHolder.newInstance(view, _clickListener);
         }
     }
 
@@ -91,19 +91,23 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder;
-            Context context = viewHolder.view.getContext();
-            viewHolder.userName.setText(mCurrentUser.first() + " "
-                + mCurrentUser.last());
+            Context context = viewHolder._view.getContext();
+            viewHolder.userName.setText(_currentUser.first() + " "
+                + _currentUser.last());
 
-            Picasso.with(context).load(mCurrentUser.imageURL())
+            Picasso.with(context).load(_currentUser.imageURL())
                 .transform(CircleTransform.create())
                 .placeholder(R.mipmap.ic_proxy)
                 .into(getBitmapTargetView(viewHolder));
 
         } else {
             ItemViewHolder viewHolder = (ItemViewHolder) holder;
-            viewHolder.name.setText(mValues[position - 1]);
+            viewHolder.name.setText(getItemValue(position));
         }
+    }
+
+    public String getItemValue(int position){
+        return _values[position-1];
     }
 
     /**
@@ -113,8 +117,8 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
      * @return target
      */
     private Target getBitmapTargetView(final HeaderViewHolder viewHolder) {
-        if (mTarget == null) {
-            mTarget = new Target() {
+        if (_target == null) {
+            _target = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
@@ -138,7 +142,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 }
             };
         }
-        return mTarget;
+        return _target;
     }
 
     @Override
@@ -149,21 +153,21 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public int getItemCount() {
         // +1 for the header
-        return mValues.length + 1;
+        return _values.length + 1;
     }
 
     /**
      * Get Settings name.
      *
      * @param position position of item
-     * @return mValues string
+     * @return _values string
      */
 
     public String getSettingValue(int position) {
         if (position == 0) {
             return HEADER;
         } else {
-            return mValues[position - 1];
+            return getItemValue(position);
         }
     }
 

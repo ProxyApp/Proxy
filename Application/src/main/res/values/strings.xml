@@ -1,17 +1,23 @@
 <resources>
+    <!--common-->
     <string name="app_name">Proxy</string>
-    <string name="action_settings">Settings</string>
+    <string name="common_settings">Settings</string>
     <string name="common_open">open</string>
     <string name="common_closed">closed</string>
-    <string name="save">save</string>
+    <string name="common_undo">undo</string>
+    <string name="common_ok">ok</string>
+    <string name="common_save">save</string>
+    <string name="common_close">close</string>
+    <!--dialog-->
     <string name="dialog_addgroup_title">Add Group</string>
+    <string name="dialog_addchannel_title">Add Channel</string>
+    <string name="dialog_editchannel_title">Edit Channel</string>
     <string name="status_signed_out">Signed Out</string>
     <string name="status_signed_in">Signed In</string>
     <string name="status_signing_in">Signing In</string>
     <string name="signed_in_as">Signed in as:</string>
-    <string name="close">close</string>
     <string name="play_services_error">Play Services Error</string>
-    <string name="configuration_error">Configuration error</string>
+    <string name="configuration_error">Configuration onError</string>
     <string name="settings_about">About</string>
     <string name="settings_logout">Logout</string>
     <string name="activity_login_title">Proxy</string>
@@ -20,9 +26,7 @@
     <string name="Favorites">Favorites</string>
     <string name="Groups">Groups</string>
     <string name="Search">Search</string>
-    <string name="ok">OK</string>
     <string name="snackbar_group_removed">Group Removed</string>
-    <string name="common_undo">undo</string>
     <string name="action_menu_back_from_search">back from search</string>
     <string name="login_error_failed_connection">Failed to create a connection.</string>
     <string name="login_error_retrieving_user">Error retrieving user from Google</string>
@@ -34,16 +38,18 @@
 
     <string name="channel_image">channel image</string>
     <string name="channel_header_image">channel header image</string>
-    <string name="channel_section_image">channel section image</string>
+    <string name="channel_section_image">channel channelSection image</string>
     <string name="drawer_header_image">drawer header image</string>
     <string name="user_image">user image</string>
     <string name="proxy_logo">Proxy logo</string>
     <string name="Add">Add</string>
     <string name="Dial">Dial</string>
-    <string name="dialog_addchannel_title">Add Channel</string>
     <string name="edit_group">Edit Group</string>
     <string name="add_channel">Add Channel</string>
     <string name="Delete">Delete</string>
+    <string name="edit_channel_description">Edit channel description</string>
+    <string name="edit_channel_address">Edit channel address</string>
+    <string name="common_delete">Delete</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

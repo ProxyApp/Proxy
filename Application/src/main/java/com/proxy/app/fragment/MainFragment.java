@@ -28,15 +28,15 @@ import static com.proxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * {@link Fragment} to handle adding a {@link FavoriteUserFragment} and {@link DisplayGroupFragment} to
- * this {@link MainFragment#mSlidingTabLayout}.
+ * this {@link MainFragment#slidingTabLayout}.
  */
 public class MainFragment extends BaseFragment {
 
     @InjectView(R.id.fragment_main_viewpager)
-    ViewPager mViewPager;
+    protected ViewPager viewPager;
     @InjectView(R.id.fragment_main_sliding_tabs)
-    SlidingTabLayout mSlidingTabLayout;
-    private List<Pair<ContentDescriptionDrawable, Fragment>> mFragmentArray;
+    protected SlidingTabLayout slidingTabLayout;
+    private List<Pair<ContentDescriptionDrawable, Fragment>> _fragmentArray;
 
     @Override
     public View onCreateView(
@@ -52,14 +52,14 @@ public class MainFragment extends BaseFragment {
      */
     private void initialize() {
         addTabFragments();
-        mViewPager.setAdapter(new ContactsFragmentPagerAdapter(getChildFragmentManager()));
+        viewPager.setAdapter(new ContactsFragmentPagerAdapter(getChildFragmentManager()));
         // Give the SlidingTabLayout the ViewPager, this must be done AFTER the ViewPager has had
         // it's PagerAdapter set.
-        mSlidingTabLayout.setViewPager(mViewPager);
+        slidingTabLayout.setViewPager(viewPager);
 
         // Set a TabColorizer to customize the indicator and divider colors. Here we just retrieve
         // the tab at the position, and return it's set color
-        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+        slidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
 
             @Override
             public int getIndicatorColor(int position) {
@@ -75,13 +75,13 @@ public class MainFragment extends BaseFragment {
     }
 
     /**
-     * Add fragments to the List backing the {@link MainFragment#mSlidingTabLayout}.
+     * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
      */
     private void addTabFragments() {
-        if (mFragmentArray == null) {
-            mFragmentArray = new ArrayList<>();
-            mFragmentArray.add(getFavoritesTab());
-            mFragmentArray.add(getGroupsTab());
+        if (_fragmentArray == null) {
+            _fragmentArray = new ArrayList<>();
+            _fragmentArray.add(getFavoritesTab());
+            _fragmentArray.add(getGroupsTab());
         }
     }
 
@@ -149,22 +149,22 @@ public class MainFragment extends BaseFragment {
 
         @Override
         public Fragment getItem(int i) {
-            return mFragmentArray.get(i).second;
+            return _fragmentArray.get(i).second;
         }
 
         @Override
         public int getCount() {
-            return mFragmentArray.size();
+            return _fragmentArray.size();
         }
 
         @Override
         public Drawable getPageImage(int position) {
-            return mFragmentArray.get(position).first;
+            return _fragmentArray.get(position).first;
         }
 
         @Override
         public String getImageDescription(int position) {
-            return mFragmentArray.get(position).first.getContentDescription();
+            return _fragmentArray.get(position).first.getContentDescription();
         }
 
     }

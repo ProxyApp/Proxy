@@ -1,5 +1,6 @@
 package com.proxy.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,9 +32,8 @@ import static rx.android.app.AppObservable.bindActivity;
 public class UserProfileActivity extends BaseActivity {
 
     @InjectView(R.id.common_toolbar)
-    Toolbar mToolbar;
-    private boolean mIsLoggedInUser;
-    private CompositeSubscription mSubscriptions;
+    Toolbar toolbar;
+    private CompositeSubscription _subscriptions;
 
     @Override
     public void onBackPressed() {
@@ -45,7 +45,6 @@ public class UserProfileActivity extends BaseActivity {
     private boolean isLoggedInUser() {
         return getIntent().getExtras().getBoolean(ARG_USER_LOGGED_IN);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +63,7 @@ public class UserProfileActivity extends BaseActivity {
      * Initialize this view.
      */
     private void initialize() {
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -73,7 +72,7 @@ public class UserProfileActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        if (mIsLoggedInUser) {
+        if (isLoggedInUser()) {
             inflater.inflate(R.menu.menu_activity_current_user, menu);
         } else {
             inflater.inflate(R.menu.menu_activity_user_profile, menu);
@@ -83,8 +82,7 @@ public class UserProfileActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        if (mIsLoggedInUser) {
+        if (isLoggedInUser()) {
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.add));
         } else {
@@ -121,9 +119,8 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        mIsLoggedInUser = isLoggedInUser();
-        mSubscriptions = new CompositeSubscription();
-        mSubscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -137,7 +134,7 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mSubscriptions.unsubscribe();
+        _subscriptions.unsubscribe();
     }
 
     @SuppressWarnings("unused")
@@ -154,6 +151,7 @@ public class UserProfileActivity extends BaseActivity {
                 IntentLauncher.launchEmailIntent(this, event.channel.actionAddress());
                 break;
             case Web:
+                IntentLauncher.launchWebIntent(this, event.channel.actionAddress());
                 break;
             case Custom:
                 break;
@@ -163,10 +161,11 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        getIntent().replaceExtras(data);
-        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-            fragment.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            getIntent().replaceExtras(data);
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            }
         }
     }
-
 }

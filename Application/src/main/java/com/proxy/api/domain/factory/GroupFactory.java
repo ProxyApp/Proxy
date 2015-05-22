@@ -4,40 +4,13 @@ import com.proxy.api.domain.model.Group;
 import com.proxy.api.domain.realm.RealmGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.RealmList;
 
-import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannels;
-import static com.proxy.api.domain.factory.ContactFactory.getRealmContacts;
-
 /**
- * Factory for creating Groups.
+ * Factory for creating domain model {@link Group}s.
  */
 public class GroupFactory {
-
-    /**
-     * Return a RealmList of Contacts from a user
-     *
-     * @param groupArrayList to get contacts from
-     * @return RealmList of Contacts
-     */
-    public static RealmList<RealmGroup> getRealmGroups(List<Group> groupArrayList) {
-        if (groupArrayList != null) {
-            RealmList<RealmGroup> realmGroupArray = new RealmList<>();
-            RealmGroup realmGroup = new RealmGroup();
-
-            for (Group group : groupArrayList) {
-                realmGroup.setGroupId(group.groupId());
-                realmGroup.setLabel(group.label());
-                realmGroup.setChannels(getRealmChannels(group.channels()));
-                realmGroup.setContacts(getRealmContacts(group.contacts()));
-                realmGroupArray.add(realmGroup);
-            }
-            return realmGroupArray;
-        }
-        return null;
-    }
 
     /**
      * Return a RealmList of Contacts from a user

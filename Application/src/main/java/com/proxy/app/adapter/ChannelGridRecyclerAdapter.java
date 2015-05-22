@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import butterknife.InjectView;
 import timber.log.Timber;
 
-import static com.proxy.api.domain.factory.ChannelFactory.getRealmChannelType;
 import static com.proxy.api.domain.model.ChannelSection.General;
 import static com.proxy.api.domain.model.ChannelType.Custom;
+import static com.proxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.proxy.util.ObjectUtils.joinWithSpace;
 import static com.proxy.util.ViewUtils.getActivityIcon;
 
@@ -46,12 +46,12 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_SECTION = 1;
     private static final int VIEW_TYPE_CONTENT = 2;
-    private final BaseViewHolder.ItemClickListener mClickListener;
-    private Target mTarget;
-    private Palette.PaletteAsyncListener mPaletteListener;
-    private User mUser;
-    private SortedList.Callback<Channel> mSortedListCallback;
-    SortedList<Channel> mChannels = new SortedList<>(Channel.class,
+    private final ItemClickListener _clickListener;
+    private Target _Target;
+    private Palette.PaletteAsyncListener _paletteListener;
+    private User _user;
+    private SortedList.Callback<Channel> _sortedListCallback;
+    SortedList<Channel> _channels = new SortedList<>(Channel.class,
         getSortedCallback());
 
     /**
@@ -61,9 +61,9 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param listener
      */
     private ChannelGridRecyclerAdapter(
-        User currentUser, BaseViewHolder.ItemClickListener listener) {
-        mUser = currentUser;
-        mClickListener = listener;
+        User currentUser, ItemClickListener listener) {
+        _user = currentUser;
+        _clickListener = listener;
         updateChannels(currentUser);
     }
 
@@ -74,35 +74,32 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @return an {@link ChannelGridRecyclerAdapter} with no data
      */
     public static ChannelGridRecyclerAdapter newInstance(
-        User currentUser, BaseViewHolder.ItemClickListener listener) {
+        User currentUser, ItemClickListener listener) {
         return new ChannelGridRecyclerAdapter(currentUser, listener);
     }
 
     private void updateChannels(User user) {
         if (user != null && user.channels() != null) {
-            mChannels.beginBatchedUpdates();
+            _channels.beginBatchedUpdates();
             ArrayList<Channel> channels = user.channels();
 
             for (Channel channel : channels) {
-                mChannels.add(channel);
+                _channels.add(channel);
             }
-            mChannels.endBatchedUpdates();
+            _channels.endBatchedUpdates();
         }
     }
 
     public void addChannel(Channel channel) {
-        mChannels.add(channel);
+        _channels.add(channel);
     }
 
     public SortedList.Callback<Channel> getSortedCallback() {
-        if (mSortedListCallback == null) {
-            mSortedListCallback = new SortedList.Callback<Channel>() {
-
-
+        if (_sortedListCallback == null) {
+            _sortedListCallback = new SortedList.Callback<Channel>() {
                 @Override
-                public int compare(Channel o1, Channel o2) {
-                    //reverse order with the negative sign
-                    return -o1.id().compareTo(o2.id());
+                public int compare(Channel channel1, Channel channel2) {
+                    return channel1.id().value().compareTo(channel2.id().value());
                 }
 
                 @Override
@@ -128,7 +125,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 @Override
                 public boolean areContentsTheSame(Channel oldItem, Channel newItem) {
                     // we dont compare resId because its probably going to be removed
-                    return (oldItem.id().equals(newItem.id())
+                    return (oldItem.id().value().equals(newItem.id().value())
                         && oldItem.label().equals(newItem.label())
                         && oldItem.packageName().equals(newItem.packageName())
                         && oldItem.channelSection() == newItem.channelSection()
@@ -143,7 +140,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 }
             };
         }
-        return mSortedListCallback;
+        return _sortedListCallback;
     }
 
     /**
@@ -154,10 +151,10 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      */
     private Palette.PaletteAsyncListener getPaletteAsyncListener(
         final HeaderViewHolder viewHolder) {
-        if (mPaletteListener == null) {
-            mPaletteListener = new Palette.PaletteAsyncListener() {
+        if (_paletteListener == null) {
+            _paletteListener = new Palette.PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
-                    Resources res = viewHolder.view.getContext().getResources();
+                    Resources res = viewHolder._view.getContext().getResources();
 
                     Integer colorFrom = Color.TRANSPARENT;
                     Integer colorTo = palette.getVibrantColor(
@@ -180,7 +177,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 }
             };
         }
-        return mPaletteListener;
+        return _paletteListener;
     }
 
     @Override
@@ -201,15 +198,15 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
         if (viewType == VIEW_TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_channel_grid_header, parent, false);
-            return HeaderViewHolder.newInstance(view, mClickListener);
+            return HeaderViewHolder.newInstance(view, _clickListener);
         } else if (viewType == VIEW_TYPE_SECTION) {
             view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_channel_grid_section, parent, false);
-            return SectionViewHolder.newInstance(view, mClickListener);
+            return SectionViewHolder.newInstance(view, _clickListener);
         } else if (viewType == VIEW_TYPE_CONTENT) {
             view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_channel_grid_content, parent, false);
-            return ContentViewHolder.newInstance(view, mClickListener);
+            return ContentViewHolder.newInstance(view, _clickListener);
         } else {
             Timber.e("Error, Unknown ViewType");
             return null;
@@ -223,7 +220,6 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
         } else if (holder instanceof SectionViewHolder) {
             bindSectionItemViewData((SectionViewHolder) holder);
         } else if (holder instanceof ContentViewHolder) {
-            position = position - 2;
             bindContextItemViewData((ContentViewHolder) holder, getItemData(position));
         }
     }
@@ -236,9 +232,9 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      */
     @SuppressLint("NewApi")
     private void bindContextItemViewData(ContentViewHolder holder, Channel channel) {
-        Context context = holder.view.getContext();
-        ChannelType realmChannelType = channel.channelType();
-        if (realmChannelType.equals(getRealmChannelType(Custom))) {
+        Context context = holder._view.getContext();
+        ChannelType channelType = channel.channelType();
+        if (channelType.equals(Custom)) {
             holder.channelImage.setImageDrawable(getAndroidIconDrawable(
                 context, getActivityIcon(context, channel.packageName())));
         } else {
@@ -255,12 +251,12 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param holder {@link Channel} {@link BaseViewHolder}
      */
     private void bindHeaderItemViewData(HeaderViewHolder holder) {
-        Context context = holder.view.getContext();
-        Picasso.with(context).load(mUser.imageURL())
+        Context context = holder._view.getContext();
+        Picasso.with(context).load(_user.imageURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(getBitmapTargetView(holder));
-        holder.userName.setText(joinWithSpace(new String[]{ mUser.first(), mUser.last() }));
+        holder.userName.setText(joinWithSpace(new String[]{ _user.first(), _user.last() }));
     }
 
     /**
@@ -269,7 +265,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @param holder {@link Channel} {@link BaseViewHolder}
      */
     private void bindSectionItemViewData(SectionViewHolder holder) {
-        Context context = holder.view.getContext();
+        Context context = holder._view.getContext();
         holder.sectionName.setText(General.toString());
         int resourceId = General.getResId();
         holder.sectionImage.setImageDrawable(getSectionResourceDrawable(context, resourceId));
@@ -282,8 +278,8 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @return target
      */
     private Target getBitmapTargetView(final HeaderViewHolder viewHolder) {
-        if (mTarget == null) {
-            mTarget = new Target() {
+        if (_Target == null) {
+            _Target = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
@@ -305,13 +301,13 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
                 }
             };
         }
-        return mTarget;
+        return _Target;
     }
 
 
     @Override
     public int getItemCount() {
-        return mChannels.size() + 2;
+        return _channels.size() + 2;
     }
 
     /**
@@ -321,7 +317,7 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      * @return the desired {@link User}
      */
     public Channel getItemData(int position) {
-        return mChannels.get(position);
+        return _channels.get(position-2);
     }
 
     /**
@@ -332,6 +328,10 @@ public class ChannelGridRecyclerAdapter extends BaseRecyclerViewAdapter {
      */
     public boolean isHeaderOrSection(int position) {
         return position == 0 || position == 1;
+    }
+
+    public void removeChannel(Channel channel) {
+        _channels.remove(channel);
     }
 
     /**

@@ -26,7 +26,7 @@ public abstract class Channel implements Parcelable {
      * @return Immutable channel
      */
     @SuppressWarnings("unused")
-    public static Channel create(String id, String label, String packageName,
+    public static Channel create(Id id, String label, String packageName,
         ChannelSection channelSection, ChannelType channelType, String actionAddress) {
         return builder().id(id).label(label).packageName(packageName)
             .channelSection(channelSection).channelType(channelType)
@@ -47,7 +47,7 @@ public abstract class Channel implements Parcelable {
      *
      * @return name
      */
-    public abstract String id();
+    public abstract Id id();
 
     /**
      * Get the name of the {@link Channel}.
@@ -96,7 +96,7 @@ public abstract class Channel implements Parcelable {
          * @param id channel unique id
          * @return channel id
          */
-        Builder id(String id);
+        Builder id(Id id);
 
         /**
          * Set the channels name.
