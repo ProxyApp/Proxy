@@ -5,5 +5,6 @@
     <!-- Your Twitter consumer key and secret from your app settings on https://apps.twitter.com/ -->
     <!-- More details here: https://www.firebase.com/docs/android/guide/login/twitter.html -->
     <string name="twitter_consumer_key">bptlvsrBm21OvtPIufZBoPBo5</string>
-    <string name="twitter_consumer_secret">0hYuPkczXY6VFJefEzygyIah2Jc00832ae9WToUO8ubGguTJs6</string>
+    <string name="twitter_consumer_secret">0hYuPkczXY6VFJefEzygyIah2Jc00832ae9WToUO8ubGguTJs6
+    </string>
 </resources>

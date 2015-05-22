@@ -20,10 +20,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/common_margin_xxtiny"
+        android:ellipsize="end"
         android:gravity="center"
         android:lines="2"
-        android:ellipsize="end"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"
         android:textColor="@color/common_text"/>
 
 </LinearLayout>
