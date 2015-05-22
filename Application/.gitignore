@@ -1,6 +1,7 @@
 
 # generated files
 build/
+*.apk
 
 # IDEA/Android Studio project files, because
 # the project can be imported from settings.gradle
@@ -9,6 +10,7 @@ build/
 
 # Local configuration file (sdk path, etc)
 local.properties
+crashlytics.properties
 
 # Eclipse project files
 .classpath
@@ -16,11 +18,6 @@ local.properties
 
 # Windows thumbnail db
 .DS_Store
-
-# IDEA/Android Studio project files, because
-# the project can be imported from settings.gradle
-.idea
-*.iml
 
 # No Api Keys for Github
 /keys.xml

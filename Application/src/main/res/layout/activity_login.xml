@@ -23,13 +23,13 @@
         android:id="@+id/activity_login_title"
         style="@style/TextAppearance.AppCompat.Display3"
         android:layout_width="wrap_content"
-        android:textStyle="bold"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/common_rect_small"
-        android:textColor="@color/common_red"
         android:text="@string/activity_login_title"
-        android:textAllCaps="true"/>
+        android:textAllCaps="true"
+        android:textColor="@color/common_red"
+        android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/activity_login_sub_title"

@@ -4,7 +4,9 @@
     <style name="Theme.Proxy.Base" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/common_blue</item>
         <item name="colorPrimaryDark">@color/common_blue_dark</item>
+        <item name="colorAccent">@color/common_text_inverse</item>
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
+        <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -24,4 +26,6 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+
 </resources>

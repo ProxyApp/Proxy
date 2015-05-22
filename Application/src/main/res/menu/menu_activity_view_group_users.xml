@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".ViewGroupUsersActivity">
+    <item
+        android:id="@+id/menu_view_group_users_edit_group"
+        android:orderInCategory="0"
+        android:title="@string/edit_group"
+        app:showAsAction="ifRoom"/>
+</menu>
