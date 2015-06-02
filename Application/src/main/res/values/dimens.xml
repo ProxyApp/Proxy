@@ -23,7 +23,7 @@
     <dimen name="common_fab_elevation">@dimen/common_margin_xxtiny</dimen>
     <dimen name="common_drawer_elevation">@dimen/common_margin_xxtiny</dimen>
     <dimen name="common_drawer_width">312dp</dimen>
-    <dimen name="common_circleimageview_settings_radius">@dimen/common_rect_medium</dimen>
+    <dimen name="common_circleimageview_settings_radius">@dimen/common_rect_large</dimen>
     <dimen name="common_svg_small">@dimen/common_margin_medium</dimen>
     <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>

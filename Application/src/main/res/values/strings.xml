@@ -24,6 +24,7 @@
     <string name="activity_login_sub_title">Reclaim your persona</string>
     <string name="Notifications">Notifications</string>
     <string name="Favorites">Favorites</string>
+    <string name="Contacts">Contacts</string>
     <string name="Groups">Groups</string>
     <string name="Search">Search</string>
     <string name="snackbar_group_removed">Group Removed</string>
