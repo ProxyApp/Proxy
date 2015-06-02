@@ -27,8 +27,8 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.model.Id;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.app.dialog.ErrorDialog;
@@ -46,15 +46,12 @@ import timber.log.Timber;
  */
 public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
-    public static final String PROVIDER_GOOGLE = "google";
-    public static final String GOOGLE_UID_PREFIX = "google:";
-    public static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
+
     private static final int REQUESTCODE_SIGN_IN = 0;
+    private static final String PROVIDER_GOOGLE = "google";
+    private static final String GOOGLE_UID_PREFIX = "google:";
+    private static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
     private static final String SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
-    private static final String SCOPE_PROFILE = "https://www.googleapis.com/auth/userinfo.profile";
-    // Views
-    @InjectView(R.id.activity_login_sign_in_button)
-    protected SignInButton signInButton;
     private AuthResultHandler _authResultHandler = new AuthResultHandler(
         new WeakReference<>(this), PROVIDER_GOOGLE);
     private Firebase _firebaseRef;
@@ -68,6 +65,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // Used to store the onError code most recently returned by Google Play services
     // until the user clicks 'sign in'.
     private int _signInError;
+    // Views
+    @InjectView(R.id.activity_login_sign_in_button)
+    protected SignInButton signInButton;
 
     /**
      * Return log in onError dialog based on the type of onError.
@@ -118,7 +118,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .addApi(Plus.API, Plus.PlusOptions.builder().build())
             .addScope(Plus.SCOPE_PLUS_LOGIN)
             .addScope(new Scope(SCOPE_EMAIL))
-            .addScope(new Scope(SCOPE_PROFILE)).build();
+            .addScope(Plus.SCOPE_PLUS_PROFILE).build();
     }
 
     @Override
