@@ -3,6 +3,9 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 
+import java.util.List;
+
+import io.realm.RealmList;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.RealmChannelFactory.getRealmChannels;
@@ -35,5 +38,13 @@ public class RealmUserFactory {
         }
         Timber.i("User Conversion: " + user.toString());
         return realmUser;
+    }
+
+    public static List<RealmUser> createRealmUsers(List<User> users) {
+        RealmList<RealmUser> realmUsers = new RealmList<>();
+        for (User user : users) {
+            realmUsers.add(createRealmUser(user));
+        }
+        return realmUsers;
     }
 }

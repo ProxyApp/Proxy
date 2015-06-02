@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +20,8 @@ import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxTextWatcherSubject;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.SearchActivity;
-import com.shareyourproxy.app.adapter.UserRecyclerAdapter;
-import com.shareyourproxy.widget.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.UserAdapter;
 
 import java.util.ArrayList;
 
@@ -32,7 +33,7 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxRealmQuery.queryAllUsers;
+import static com.shareyourproxy.api.rx.RxRealmQuery.queryFilteredUsers;
 import static com.shareyourproxy.api.rx.RxRealmQuery.searchUserString;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.DebugUtils.showBroToast;
@@ -55,7 +56,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     protected ImageView imageViewClearButton;
     @InjectView(R.id.fragment_search_recyclerview)
     protected BaseRecyclerView recyclerView;
-    private UserRecyclerAdapter _adapter;
+    private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
 
@@ -111,7 +112,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
             @Override
             public void onNext(ArrayList<User> users) {
-                _adapter.setUsers(users);
+                _adapter.refreshUserList(users);
             }
         };
     }
@@ -141,10 +142,27 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = UserRecyclerAdapter.newInstance(this);
+        _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addOnScrollListener(getScrollListener());
+    }
+
+    private RecyclerView.OnScrollListener getScrollListener() {
+        return new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                hideSoftwareKeyboard(getView());
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+            }
+        };
     }
 
     @Override
@@ -189,10 +207,11 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
             .subscribe(onNextEvent()));
-        _subscriptions.add(bindFragment(this, queryAllUsers(getActivity())).subscribe
-            (getSearchObserver()));
+        _subscriptions.add(bindFragment(this, queryFilteredUsers(
+            getActivity(), getLoggedInUser().id().value())).subscribe(getSearchObserver()));
         _subscriptions.add(bindFragment(this,
-            _textWatcherSubject.toObserverable().map(searchUserString(getActivity())))
+            _textWatcherSubject.toObserverable().map(
+                searchUserString(getActivity(), getLoggedInUser().id().value())))
             .subscribe(getSearchObserver()));
     }
 

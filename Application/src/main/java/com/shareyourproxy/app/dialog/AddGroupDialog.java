@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.event.GroupAddedEvent;
+import com.shareyourproxy.api.rx.command.AddUserGroupCommand;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -90,8 +90,8 @@ public class AddGroupDialog extends BaseDialogFragment {
     private void dispatchGroupEvent() {
         String groupLabel = editText.getText().toString();
         if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-            Group group = Group.create(groupLabel, null, null);
-            getRxBus().post(new GroupAddedEvent(group));
+            Group group = Group.copy(groupLabel, null, null);
+            getRxBus().post(new AddUserGroupCommand(getLoggedInUser(),group));
         }
     }
 

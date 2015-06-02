@@ -17,7 +17,7 @@ import auto.parcel.AutoParcel;
 @AutoGson(autoValueClass = AutoParcel_Group.class)
 public abstract class Group implements Parcelable {
     /**
-     * create a new Group.
+     * copy a new Group.
      *
      * @param label    name of the group
      * @param channels channel permissions for the group
@@ -25,10 +25,16 @@ public abstract class Group implements Parcelable {
      * @return Immutable group
      */
     @SuppressWarnings("unused")
-    public static Group create(
+    public static Group copy(
         String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
         String groupId = UUID.randomUUID().toString();
         Id id = Id.builder().value(groupId).build();
+        return builder().id(id).label(label).channels(channels)
+            .contacts(contacts).build();
+    }
+
+    public static Group copy(
+        Id id, String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
         return builder().id(id).label(label).channels(channels)
             .contacts(contacts).build();
     }

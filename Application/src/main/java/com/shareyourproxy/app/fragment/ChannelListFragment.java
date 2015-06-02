@@ -7,9 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.rx.event.ChannelDialogRequestEvent;
-import com.shareyourproxy.app.adapter.ChannelListRecyclerAdapter;
-import com.shareyourproxy.widget.BaseRecyclerView;
+import com.shareyourproxy.api.domain.model.Channel;
+import com.shareyourproxy.app.adapter.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.ChannelAdapter;
+import com.shareyourproxy.app.dialog.AddChannelDialog;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -23,7 +24,7 @@ public class ChannelListFragment extends BaseFragment implements ItemClickListen
 
     @InjectView(R.id.fragment_channel_list_recyclerview)
     protected BaseRecyclerView recyclerView;
-    private ChannelListRecyclerAdapter _adapter;
+    private ChannelAdapter _adapter;
 
     /**
      * Constructor.
@@ -62,18 +63,16 @@ public class ChannelListFragment extends BaseFragment implements ItemClickListen
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ChannelListRecyclerAdapter.newInstance(this);
+        _adapter = ChannelAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        if (!_adapter.isSectionHeader(position)) {
-            //section offset
-            position = position - 1;
-            getRxBus().post(new ChannelDialogRequestEvent(_adapter.getItemData(position)));
-        }
+        Channel channel = _adapter.getItemData(position);
+        AddChannelDialog.newInstance(channel.channelType(), channel.channelSection())
+            .show(getActivity().getSupportFragmentManager());
     }
 
     @Override

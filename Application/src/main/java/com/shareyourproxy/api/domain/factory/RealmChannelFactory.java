@@ -5,7 +5,7 @@ import com.shareyourproxy.api.domain.realm.RealmChannel;
 import com.shareyourproxy.api.domain.realm.RealmChannelSection;
 import com.shareyourproxy.api.domain.realm.RealmChannelType;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import io.realm.RealmList;
 
@@ -14,7 +14,7 @@ import io.realm.RealmList;
  */
 public class RealmChannelFactory {
 
-    public static RealmList<RealmChannel> getRealmChannels(List<Channel> channels) {
+    public static RealmList<RealmChannel> getRealmChannels(ArrayList<Channel> channels) {
         RealmList<RealmChannel> realmChannelArray = null;
         if (channels != null) {
             realmChannelArray = new RealmList<>();
@@ -28,6 +28,7 @@ public class RealmChannelFactory {
                 realmChannelSection.setResId(channel.channelSection().getResId());
 
                 //construct the channel type
+                realmChannelType.setWeight(channel.channelType().getWeight());
                 realmChannelType.setLabel(channel.channelType().getLabel());
                 realmChannelType.setResId(channel.channelType().getResId());
 

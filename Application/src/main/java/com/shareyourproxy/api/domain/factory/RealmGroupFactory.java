@@ -3,7 +3,7 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.realm.RealmGroup;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import io.realm.RealmList;
 
@@ -21,7 +21,7 @@ public class RealmGroupFactory {
      * @param groupArrayList to get contacts from
      * @return RealmList of Contacts
      */
-    public static RealmList<RealmGroup> getRealmGroups(List<Group> groupArrayList) {
+    public static RealmList<RealmGroup> getRealmGroups(ArrayList<Group> groupArrayList) {
         if (groupArrayList != null) {
             RealmList<RealmGroup> realmGroupArray = new RealmList<>();
             RealmGroup realmGroup = new RealmGroup();

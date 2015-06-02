@@ -219,6 +219,12 @@ public class ViewUtils {
         return svgToBitmapDrawable(context, resourceId, size, NO_COLOR);
     }
 
+    public static Drawable tintDrawableCompat(Drawable source, int color) {
+        Drawable drawable = DrawableCompat.wrap(source);
+        DrawableCompat.setTint(drawable, color);
+        DrawableCompat.setTintMode(drawable, SRC_IN);
+        return DrawableCompat.unwrap(drawable);
+    }
 
     /**
      * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.

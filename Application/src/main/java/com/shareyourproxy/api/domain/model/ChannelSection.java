@@ -3,8 +3,8 @@ package com.shareyourproxy.api.domain.model;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.realm.RealmChannel;
 
-import static com.shareyourproxy.app.adapter.ChannelGridRecyclerAdapter.SectionViewHolder;
-import static com.shareyourproxy.app.adapter.ChannelListRecyclerAdapter.SectionHeaderViewHolder;
+import static com.shareyourproxy.app.adapter.ChannelGridAdapter.SectionViewHolder;
+import static com.shareyourproxy.app.adapter.ChannelAdapter.SectionHeaderViewHolder;
 
 /**
  * {@link ChannelSection}'s are used to bind data for {@link SectionViewHolder} and
