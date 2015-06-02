@@ -22,8 +22,25 @@ android {
         targetSdkVersion 22
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        multiDexEnabled true
     }
+
+    signingConfigs {
+        release {
+            if (project.rootProject.file('local.properties').exists()) {
+                Properties properties = new Properties()
+                properties.load(project.rootProject.file('local.properties').newDataInputStream())
+                def keystore_password = properties.getProperty('KEYSTORE_PASSWORD', null)
+                def key_alias = properties.getProperty('KEY_ALIAS', null)
+                def key_password = properties.getProperty('KEY_PASSWORD', null)
+
+                storeFile file("proxy.jks")
+                storePassword keystore_password
+                keyAlias key_alias
+                keyPassword key_password
+            }
+        }
+    }
+
     buildTypes {
         debug {
             // disable crashlytics
@@ -31,11 +48,12 @@ android {
             ext.enableCrashlytics = false
         }
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             // enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
+            signingConfig signingConfigs.release
         }
     }
     lintOptions {
@@ -104,12 +122,12 @@ dependencies {
     compile 'com.github.frankiesardo:auto-parcel:0.3'
     apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
     compile 'io.realm:realm-android:0.80.3'
-    compile 'com.firebase:firebase-client-android:2.2.3'
-    compile 'io.reactivex:rxjava:1.0.8'
+    compile 'com.firebase:firebase-client-android:2.3.0'
+    compile 'io.reactivex:rxjava:1.0.11'
     compile 'io.reactivex:rxandroid:0.24.0'
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Bug Tracking
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.3.2@aar') {
         transitive = true;
     }
 }

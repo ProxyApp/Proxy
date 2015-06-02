@@ -30,3 +30,6 @@ crashlytics.properties
 # Vim/kdiff files
 *.orig
 *.swp
+
+#Keystore
+*.jks
