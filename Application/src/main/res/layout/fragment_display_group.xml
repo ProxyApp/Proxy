@@ -10,16 +10,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.melnykov.fab.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/fragment_group_display_add_item"
         android:layout_width="@dimen/common_fab_radius"
         android:layout_height="@dimen/common_fab_radius"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/common_rect_tiny"
-        android:layout_marginEnd="@dimen/common_rect_tiny"
-        app:fab_colorNormal="@color/common_red"
-        app:fab_colorPressed="@color/common_red_light"
-        app:fab_colorRipple="@color/common_red_light">
-    </com.melnykov.fab.FloatingActionButton>
+        android:layout_marginBottom="@dimen/common_margin_tiny"
+        android:scaleType="center"
+        android:layout_marginEnd="@dimen/common_margin_tiny"
+        app:fabSize="normal"
+        app:borderWidth="0dp"
+        app:backgroundTint="@color/common_red"
+        app:rippleColor="@color/common_red_light" />
 
 </FrameLayout>

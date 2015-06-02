@@ -49,7 +49,7 @@
         android:layout_height="@dimen/common_margin_line"
         android:background="@color/common_divider"/>
 
-    <com.proxy.widget.BaseRecyclerView
+    <com.shareyourproxy.widget.BaseRecyclerView
         android:id="@+id/fragment_search_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"

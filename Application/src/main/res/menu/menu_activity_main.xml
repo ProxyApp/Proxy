@@ -7,9 +7,4 @@
         android:orderInCategory="0"
         android:title="@string/Search"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/menu_main_notification"
-        android:orderInCategory="1"
-        android:title="@string/Notifications"
-        app:showAsAction="ifRoom"/>
 </menu>
