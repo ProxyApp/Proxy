@@ -23,8 +23,11 @@
 -dontwarn com.caverock.**
 -keepnames public class * extends io.realm.RealmObject
 -keep class io.realm.** { *; }
+-keep class com.firebase.** { *; }
 -dontwarn javax.**
 -dontwarn io.realm.**
 -dontwarn com.fasterxml.jackson.databind.**
+-keepnames class com.shaded.fasterxml.jackson.** { *; }
 -dontwarn rx.internal.**
+-keepattributes Signature
 
