@@ -21,3 +21,5 @@ crashlytics.properties
 
 # No Api Keys for Github
 /keys.xml
+# No Keystore
+*.jks

@@ -16,7 +16,7 @@ before_script:
     - chmod +x gradlew
 
 script:
-    - ./gradlew clean assemble --stacktrace
+    - ./gradlew clean assembleRelease --stacktrace
 
 branches:
   only:
