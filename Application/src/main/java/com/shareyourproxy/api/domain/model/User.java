@@ -77,6 +77,7 @@ public abstract class User implements Parcelable {
      *
      * @return email
      */
+    @Nullable
     public abstract String email();
 
 

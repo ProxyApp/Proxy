@@ -14,8 +14,9 @@ import com.google.android.gms.plus.Plus;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.rx.event.DrawerItemSelectedEvent;
-import com.shareyourproxy.app.adapter.DrawerRecyclerAdapter;
+import com.shareyourproxy.api.rx.command.GetAllUsersCommand;
+import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
+import com.shareyourproxy.app.adapter.DrawerAdapter;
 import com.shareyourproxy.app.fragment.DrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -35,13 +36,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
     private GoogleApiClient _googleApiClient;
     private CompositeSubscription _subscriptions;
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        _googleApiClient.connect();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +69,13 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
 
 
     /**
-     * {@link DrawerItemSelectedEvent}.
+     * {@link SelectDrawerItemEvent}.
      *
      * @param event data
      */
-    public void onDrawerItemSelected(DrawerItemSelectedEvent event) {
+    public void onDrawerItemSelected(SelectDrawerItemEvent event) {
         //if the user presses logout
-        if (DrawerRecyclerAdapter.isHeader(event.position)) {
+        if (DrawerAdapter.isHeader(event.position)) {
             IntentLauncher.launchUserProfileActivity(this, getLoggedInUser());
         } else if (getString(R.string.settings_logout)
             .equals(event.message)) {
@@ -100,6 +94,13 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        _googleApiClient.connect();
+        getRxBus().post(new GetAllUsersCommand());
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
@@ -107,8 +108,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
-                    if (event instanceof DrawerItemSelectedEvent) {
-                        onDrawerItemSelected((DrawerItemSelectedEvent) event);
+                    if (event instanceof SelectDrawerItemEvent) {
+                        onDrawerItemSelected((SelectDrawerItemEvent) event);
                     }
                 }
             }));

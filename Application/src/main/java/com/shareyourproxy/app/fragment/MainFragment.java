@@ -1,10 +1,10 @@
 package com.shareyourproxy.app.fragment;
 
-import android.graphics.Color;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.design.widget.TabLayout.OnTabSelectedListener;
 import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
-import android.support.design.widget.TabLayout.ViewPagerOnTabSelectedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.util.ViewUtils;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * {@link Fragment} to handle adding a {@link MainUsersFragment} and {@link MainGroupFragment} to
+ * {@link Fragment} to handle adding a {@link MainContactsFragment} and {@link MainGroupFragment} to
  * this {@link MainFragment#slidingTabLayout}.
  */
 public class MainFragment extends BaseFragment {
@@ -44,6 +45,9 @@ public class MainFragment extends BaseFragment {
     @InjectView(R.id.fragment_main_sliding_tabs)
     protected TabLayout slidingTabLayout;
     private List<Fragment> _fragmentArray;
+    private int _offWhite;
+    private int _white;
+    private OnTabSelectedListener _tabSelectedListener;
 
     @Override
     public View onCreateView(
@@ -58,11 +62,22 @@ public class MainFragment extends BaseFragment {
      * Initialize this fragments data and {@link TabLayout}.
      */
     private void initialize() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
+        initializeResources();
+        initializeToolbar();
         initializeFragments();
         initializeTabs();
         initializeDrawer();
+    }
+
+    private void initializeResources() {
+        Resources res = getResources();
+        _white = res.getColor(android.R.color.white);
+        _offWhite = res.getColor(R.color.common_text_secondary_inverse);
+    }
+
+    private void initializeToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
     }
 
     private void initializeTabs() {
@@ -79,10 +94,31 @@ public class MainFragment extends BaseFragment {
             slidingTabLayout.newTab()
                 .setIcon(getGroupDrawable())
                 .setContentDescription(groupDescription));
-        
+
         slidingTabLayout.setTabMode(TabLayout.MODE_FIXED);
-        slidingTabLayout.setOnTabSelectedListener(new ViewPagerOnTabSelectedListener(viewPager));
+        slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
+    }
+
+    private OnTabSelectedListener getOnTabSelectedListener() {
+
+        return _tabSelectedListener = new OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+                ViewUtils.tintDrawableCompat(tab.getIcon(), _white);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                ViewUtils.tintDrawableCompat(tab.getIcon(), _offWhite);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        };
     }
 
     /**
@@ -122,10 +158,10 @@ public class MainFragment extends BaseFragment {
     /**
      * Pair an Image to a Fragment to simplify our {@link ContactsFragmentPagerAdapter}.
      *
-     * @return {@link MainUsersFragment} and Drawable combo
+     * @return {@link MainContactsFragment} and Drawable combo
      */
     private Fragment getFavoritesTab() {
-        return MainUsersFragment.newInstance();
+        return MainContactsFragment.newInstance();
     }
 
     /**
@@ -144,7 +180,7 @@ public class MainFragment extends BaseFragment {
      */
     private ContentDescriptionDrawable getUserDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_group,
-            getLargeIconDimen(getActivity()), Color.WHITE)
+            getLargeIconDimen(getActivity()), _white)
             .setContentDescription(getString(R.string.Contacts));
     }
 
@@ -155,7 +191,7 @@ public class MainFragment extends BaseFragment {
      */
     private ContentDescriptionDrawable getGroupDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_groups,
-            getLargeIconDimen(getActivity()), Color.WHITE)
+            getLargeIconDimen(getActivity()), _offWhite)
             .setContentDescription(getString(R.string.Groups));
     }
 

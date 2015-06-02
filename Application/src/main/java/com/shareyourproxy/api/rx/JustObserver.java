@@ -22,4 +22,6 @@ public abstract class JustObserver<T> implements Observer<T> {
     }
 
     public abstract void onError();
+
+    public abstract void onNext(T event);
 }

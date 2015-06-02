@@ -20,8 +20,7 @@
     <string name="configuration_error">Configuration onError</string>
     <string name="settings_about">About</string>
     <string name="settings_logout">Logout</string>
-    <string name="activity_login_title">Proxy</string>
-    <string name="activity_login_sub_title">Reclaim your persona</string>
+    <string name="activity_login_title">proxy</string>
     <string name="Notifications">Notifications</string>
     <string name="Favorites">Favorites</string>
     <string name="Contacts">Contacts</string>
@@ -51,6 +50,7 @@
     <string name="edit_channel_description">Edit channel description</string>
     <string name="edit_channel_address">Edit channel address</string>
     <string name="common_delete">Delete</string>
+    <string name="dialog_edit_user_groups">Select groups for</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

@@ -4,14 +4,18 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:orientation="vertical">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/fragment_group_display_recyclerview"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/fragment_group_main_swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <com.shareyourproxy.app.adapter.BaseRecyclerView
+        android:id="@+id/fragment_group_main_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fragment_group_display_add_item"
+        android:id="@+id/fragment_group_main_fab_group"
         android:layout_width="@dimen/common_fab_radius"
         android:layout_height="@dimen/common_fab_radius"
         android:layout_gravity="bottom|end"

@@ -41,6 +41,16 @@
     <color name="accent_blue_primary">#2979FF</color>
     <color name="accent_blue_primary_dark">#2962FF</color>
 
+    <!--Common primary color light-blue (100,500,700)-->
+    <color name="common_light_blue_light">#B3E5FC</color>
+    <color name="common_light_blue">#03A9F4</color>
+    <color name="common_light_blue_dark">#0288D1</color>
+    <!--Accent blue (A100,A2200,A400,A700)-->
+    <color name="accent_light_blue_disabled">#80D8FF</color>
+    <color name="accent_light_blue_background">#40C4FF</color>
+    <color name="accent_light_blue_primary">#00B0FF</color>
+    <color name="accent_light_blue_primary_dark">#0091EA</color>
+
     <!--Common primary color red (100,500,700)-->
     <color name="common_red_light">#FFCDD2</color>
     <color name="common_red">#F44336</color>

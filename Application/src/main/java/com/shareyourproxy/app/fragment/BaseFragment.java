@@ -24,14 +24,14 @@ public class BaseFragment extends android.support.v4.app.Fragment {
         return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
-    /**
-     * Set the logged in user.
-     *
-     * @param user update user
-     */
-    public void setLoggedInUser(User user) {
-        ((BaseActivity) getActivity()).setLoggedInUser(user);
-    }
+//    /**
+//     * Set the logged in user.
+//     *
+//     * @param user update user
+//     */
+//    public void setLoggedInUser(User user) {
+//        ((BaseActivity) getActivity()).setLoggedInUser(user);
+//    }
 
     public RxBusDriver getRxBus() {
         return ((BaseActivity) getActivity()).getRxBus();
