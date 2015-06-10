@@ -45,12 +45,14 @@
     <string name="Add">Add</string>
     <string name="Dial">Dial</string>
     <string name="edit_group">Edit Group</string>
+    <string name="edit_groups">Edit groups</string>
     <string name="add_channel">Add Channel</string>
     <string name="Delete">Delete</string>
     <string name="edit_channel_description">Edit channel description</string>
     <string name="edit_channel_address">Edit channel address</string>
     <string name="common_delete">Delete</string>
     <string name="dialog_edit_user_groups">Select groups for</string>
+    <string name="add_to_group">Add to group</string>
 
     <string-array name="drawer_settings">
         <item>@string/settings_about</item>

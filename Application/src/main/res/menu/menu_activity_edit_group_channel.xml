@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".ViewGroupUsersActivity">
+      tools:context=".EditGroupChannelActivity">
     <item
-        android:id="@+id/menu_view_group_users_edit_group"
+        android:id="@+id/menu_edit_group_channel_save"
         android:orderInCategory="0"
-        android:title="@string/edit_group"
+        android:title="@string/common_save"
         app:showAsAction="ifRoom"/>
 </menu>

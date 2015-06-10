@@ -228,7 +228,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         String email = Plus.AccountApi.getAccountName(_googleApiClient);
         String imageURL = getLargeImageURL(currentUser);
 
-        //Create a new {@link User} with empty groups, contacts, and channels
+        //Create a new {@link User} with empty contactGroups, contacts, and channels
         Id id = Id.builder().value(userUID).build();
         return User.create(id, firstName, lastName, email, imageURL, null, null, null);
     }

@@ -29,12 +29,13 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import rx.Observable;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxRealmQuery.queryFilteredUsers;
-import static com.shareyourproxy.api.rx.RxRealmQuery.searchUserString;
+import static com.shareyourproxy.api.rx.RxQuery.queryFilteredUsers;
+import static com.shareyourproxy.api.rx.RxQuery.searchUserString;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.DebugUtils.showBroToast;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
@@ -59,6 +60,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
+    private Observable<ArrayList<User>> _queryUsers;
 
     /**
      * Constructor.
@@ -207,8 +209,9 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
             .subscribe(onNextEvent()));
-        _subscriptions.add(bindFragment(this, queryFilteredUsers(
-            getActivity(), getLoggedInUser().id().value())).subscribe(getSearchObserver()));
+        _queryUsers = bindFragment(this, queryFilteredUsers(
+            getActivity(), getLoggedInUser().id().value()));
+        _subscriptions.add(_queryUsers.subscribe(getSearchObserver()));
         _subscriptions.add(bindFragment(this,
             _textWatcherSubject.toObserverable().map(
                 searchUserString(getActivity(), getLoggedInUser().id().value())))

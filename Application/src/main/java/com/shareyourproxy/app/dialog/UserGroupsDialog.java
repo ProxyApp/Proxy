@@ -19,6 +19,8 @@ import com.shareyourproxy.api.domain.factory.ContactFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.command.AddUserContactCommand;
+import com.shareyourproxy.api.rx.command.DeleteUserContactCommand;
 import com.shareyourproxy.api.rx.command.UpdateGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
@@ -81,9 +83,13 @@ public class UserGroupsDialog extends BaseDialogFragment {
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
         Contact contact = ContactFactory.createModelContact(user);
+        if (_adapter.contactInGroup()) {
+            getRxBus().post(new AddUserContactCommand(getLoggedInUser(), contact));
+        } else {
+            getRxBus().post(new DeleteUserContactCommand(getLoggedInUser(), contact));
+        }
         getRxBus().post(new UpdateGroupContactsCommand(
-            getLoggedInUser(), _adapter.getDataArray(), contact,
-            _adapter.contactInGroup()));
+            getLoggedInUser(), _adapter.getDataArray(), contact));
     }
 
     private User getUserArg() {

@@ -37,7 +37,7 @@ import io.realm.Realm;
 import rx.functions.Action1;
 import timber.log.Timber;
 
-import static com.shareyourproxy.api.rx.RxRealmQuery.queryUser;
+import static com.shareyourproxy.api.rx.RxQuery.queryUser;
 
 /**
  * Plant a logging tree.
@@ -67,7 +67,7 @@ public class ProxyApplication extends Application {
             @Override
             public void call(Object event) {
                 if (event instanceof BaseCommand) {
-                    Timber.w("BaseCommand:" + event);
+                    Timber.i("BaseCommand:" + event);
                     Intent intent = new Intent(ProxyApplication.this, CommandIntentService.class);
                     intent.putExtra(CommandIntentService.ARG_COMMAND_CLASS, (BaseCommand) event);
                     intent.putExtra(
@@ -82,7 +82,7 @@ public class ProxyApplication extends Application {
                                             CommandIntentService.ARG_RESULT_BASE_EVENTS);
 
                                     for (CommandEvent event : events) {
-                                        Timber.w("Posting:" + event);
+                                        Timber.i("CommandEvent:" + event);
                                         getRxBus().post(event);
                                     }
                                 } else {
