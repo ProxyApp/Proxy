@@ -12,13 +12,13 @@ def env = System.getenv()
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.0 rc2'
 
     // Version Info
     def versionMajor = 0
     def versionMinor = 1
     def versionPatch = 0
-    def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+    def versionBuild = 1 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
         minSdkVersion 17

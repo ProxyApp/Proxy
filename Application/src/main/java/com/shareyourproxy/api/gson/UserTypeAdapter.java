@@ -75,7 +75,7 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                         case "contacts":
                             checkContactsArray(reader, contacts);
                             break;
-                        case "contactGroups":
+                        case "groups":
                             checkGroupsArray(reader, groups);
                             break;
                         default:
@@ -267,8 +267,13 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
             reader.beginArray();
             while (reader.hasNext()) {
-                reader.nextName();
-                contacts.add(readContact(reader));
+                if(reader.peek() == JsonToken.BEGIN_OBJECT){
+                    contacts.add(readContact(reader));
+                }
+                else {
+                    reader.nextName();
+                    contacts.add(readContact(reader));
+                }
             }
             reader.endArray();
         } else {

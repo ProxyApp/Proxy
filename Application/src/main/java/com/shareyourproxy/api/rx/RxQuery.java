@@ -4,14 +4,16 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
-import com.shareyourproxy.api.rx.command.event.GroupContactsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import io.realm.Realm;
@@ -43,8 +45,39 @@ public class RxQuery {
         }).compose(RxHelper.<ArrayList<User>>applySchedulers());
     }
 
+    public static rx.Observable<ArrayList<Channel>> queryPermissionedChannels(
+        Context context, final String loggedInUserId, final String contactId) {
+        return Observable.just(context).map(getRealmUser(contactId))
+            .map(getPermissionedChannels(loggedInUserId))
+            .compose(RxHelper.<ArrayList<Channel>>applySchedulers());
+    }
+
+    private static Func1<User, ArrayList<Channel>> getPermissionedChannels(
+        final String loggedInUserId) {
+        return new Func1<User, ArrayList<Channel>>() {
+            @Override
+            public ArrayList<Channel> call(User contact) {
+                HashSet<Channel> setChannels = new HashSet<>();
+                for (Group group : contact.groups()) {
+                    for (Contact user : group.contacts()) {
+                        if (user.id().value().equals(loggedInUserId)) {
+                            setChannels.addAll(group.channels());
+                        }
+                    }
+
+                }
+                return new ArrayList<>(setChannels);
+            }
+        };
+    }
+
     public static BlockingObservable<User> queryUser(Context context, final String userId) {
-        return Observable.just(context).map(new Func1<Context, User>() {
+        return Observable.just(context).map(getRealmUser(userId)).compose(RxHelper
+            .<User>applySchedulers()).toBlocking();
+    }
+
+    private static Func1<Context, User> getRealmUser(final String userId) {
+        return new Func1<Context, User>() {
             @Override
             public User call(Context context) {
                 Realm realm = Realm.getInstance(context);
@@ -54,7 +87,7 @@ public class RxQuery {
                 realm.close();
                 return user;
             }
-        }).compose(RxHelper.<User>applySchedulers()).toBlocking();
+        };
     }
 
     public static Func1<String, ArrayList<User>> searchUserString(
@@ -128,17 +161,18 @@ public class RxQuery {
             @Override
             public Group call(GroupEditContact editContact) {
 
-                if(editContact.hasContact()){
+                if (editContact.hasContact()) {
                     return editContact.getGroup();
-                }
-                else{
+                } else {
                     return null;
                 }
             }
         };
     }
 
-    private static Func1<List<Group>, GroupContactsUpdatedEvent> packageGroupContacts(final Contact selectedContact) {
+    private static Func1<List<Group>, GroupContactsUpdatedEvent> packageGroupContacts(final
+                                                                                      Contact
+                                                                                          selectedContact) {
         return new Func1<List<Group>, GroupContactsUpdatedEvent>() {
             @Override
             public GroupContactsUpdatedEvent call(List<Group> groups) {

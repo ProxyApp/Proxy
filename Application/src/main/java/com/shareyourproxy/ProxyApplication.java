@@ -27,7 +27,7 @@ import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.BaseCommand;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 import com.squareup.leakcanary.LeakCanary;
 
 import java.util.ArrayList;

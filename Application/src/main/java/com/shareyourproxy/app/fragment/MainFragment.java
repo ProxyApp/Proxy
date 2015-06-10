@@ -45,9 +45,8 @@ public class MainFragment extends BaseFragment {
     @InjectView(R.id.fragment_main_sliding_tabs)
     protected TabLayout slidingTabLayout;
     private List<Fragment> _fragmentArray;
-    private int _offWhite;
-    private int _white;
-    private OnTabSelectedListener _tabSelectedListener;
+    private int _selectedColor;
+    private int _unselectedColor;
 
     @Override
     public View onCreateView(
@@ -71,8 +70,8 @@ public class MainFragment extends BaseFragment {
 
     private void initializeResources() {
         Resources res = getResources();
-        _white = res.getColor(android.R.color.white);
-        _offWhite = res.getColor(R.color.common_text_secondary_inverse);
+        _unselectedColor = res.getColor(R.color.common_proxy_dark_disabled);
+        _selectedColor = res.getColor(R.color.common_proxy_dark_selected);
     }
 
     private void initializeToolbar() {
@@ -101,17 +100,16 @@ public class MainFragment extends BaseFragment {
     }
 
     private OnTabSelectedListener getOnTabSelectedListener() {
-
-        return _tabSelectedListener = new OnTabSelectedListener() {
+        return new OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                ViewUtils.tintDrawableCompat(tab.getIcon(), _white);
+                ViewUtils.tintDrawableCompat(tab.getIcon(), _selectedColor);
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                ViewUtils.tintDrawableCompat(tab.getIcon(), _offWhite);
+                ViewUtils.tintDrawableCompat(tab.getIcon(), _unselectedColor);
             }
 
             @Override
@@ -180,7 +178,7 @@ public class MainFragment extends BaseFragment {
      */
     private ContentDescriptionDrawable getUserDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_group,
-            getLargeIconDimen(getActivity()), _white)
+            getLargeIconDimen(getActivity()), _selectedColor)
             .setContentDescription(getString(R.string.Contacts));
     }
 
@@ -191,7 +189,7 @@ public class MainFragment extends BaseFragment {
      */
     private ContentDescriptionDrawable getGroupDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_groups,
-            getLargeIconDimen(getActivity()), _offWhite)
+            getLargeIconDimen(getActivity()), _unselectedColor)
             .setContentDescription(getString(R.string.Groups));
     }
 

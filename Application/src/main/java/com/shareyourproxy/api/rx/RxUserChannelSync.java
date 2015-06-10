@@ -6,9 +6,9 @@ import android.content.Context;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
-import com.shareyourproxy.api.rx.command.event.UserChannelAddedEvent;
-import com.shareyourproxy.api.rx.command.event.UserChannelDeletedEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.UserChannelAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserChannelDeletedEvent;
 
 import java.util.List;
 

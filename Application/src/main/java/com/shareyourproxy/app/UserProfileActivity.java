@@ -59,9 +59,6 @@ public class UserProfileActivity extends BaseActivity {
         if (isLoggedInUser()) {
             inflater.inflate(R.menu.menu_activity_current_user, menu);
         }
-//        else {
-//            inflater.inflate(R.menu.menu_activity_user_profile, menu);
-//        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -71,12 +68,6 @@ public class UserProfileActivity extends BaseActivity {
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
         }
-//        else {
-//            MenuItem favorite = menu.findItem(R.id.menu_user_profile_favorite);
-//            // Add Icons to the menu items before they are displayed
-//            favorite.setIcon(getMenuIcon(this, R.raw.ic_star));
-//        }
-
         return super.onPrepareOptionsMenu(menu);
     }
 

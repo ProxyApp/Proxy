@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.rx.command.event;
+package com.shareyourproxy.api.rx.command.callback;
 
 import android.os.Parcel;
 

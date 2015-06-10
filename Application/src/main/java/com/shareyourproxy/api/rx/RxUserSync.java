@@ -4,9 +4,9 @@ import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
-import com.shareyourproxy.api.rx.command.event.UserSavedEvent;
-import com.shareyourproxy.api.rx.command.event.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.UserSavedEvent;
+import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
 
 import java.util.ArrayList;
 import java.util.List;

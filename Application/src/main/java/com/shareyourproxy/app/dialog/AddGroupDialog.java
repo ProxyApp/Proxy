@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
 import android.text.Editable;
@@ -18,8 +17,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.command.AddUserGroupCommand;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -32,8 +29,6 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  */
 public class AddGroupDialog extends BaseDialogFragment {
 
-    @InjectView(R.id.dialog_addgroup_floatlabel)
-    protected TextInputLayout floatLabelLayout;
     @InjectView(R.id.dialog_addgroup_edittext)
     protected EditText editText;
     private final DialogInterface.OnClickListener _negativeClicked =
@@ -72,7 +67,7 @@ public class AddGroupDialog extends BaseDialogFragment {
             }
         };
     private int _gray;
-    private int _green;
+    private int _blue;
 
 
     /**
@@ -88,11 +83,11 @@ public class AddGroupDialog extends BaseDialogFragment {
      * Dispatch a Group Added Event
      */
     private void dispatchGroupEvent() {
-        String groupLabel = editText.getText().toString();
-        if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-            Group group = Group.copy(groupLabel, null, null);
-            getRxBus().post(new AddUserGroupCommand(getLoggedInUser(),group));
-        }
+//        String groupLabel = editText.getText().toString();
+//        if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
+//            Group group = Group.copy(groupLabel, null, null);
+//            getRxBus().post(new AddUserGroupCommand(getLoggedInUser(),group));
+//        }
     }
 
     /**
@@ -105,7 +100,7 @@ public class AddGroupDialog extends BaseDialogFragment {
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void afterTextChanged(Editable editable) {
         editText.getBackground().setColorFilter(!TextUtils.isEmpty(editable)
-            ? _green : _gray, PorterDuff.Mode.SRC_IN);
+            ? _blue : _gray, PorterDuff.Mode.SRC_IN);
     }
 
     @NonNull
@@ -139,7 +134,7 @@ public class AddGroupDialog extends BaseDialogFragment {
         super.onStart();
         // Setup Button Colors
         AlertDialog dialog = (AlertDialog) getDialog();
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_green);
+        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
         setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), android.R.color.black);
         dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
@@ -147,7 +142,6 @@ public class AddGroupDialog extends BaseDialogFragment {
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
         initializeEditTextColors();
-        editText.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
     }
 
     /**
@@ -155,7 +149,8 @@ public class AddGroupDialog extends BaseDialogFragment {
      */
     private void initializeEditTextColors() {
         _gray = editText.getContext().getResources().getColor(R.color.common_divider);
-        _green = editText.getContext().getResources().getColor(R.color.common_green);
+        _blue = editText.getContext().getResources().getColor(R.color.common_blue);
+        editText.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
     }
 
     @Override

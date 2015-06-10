@@ -39,27 +39,28 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     /**
      * Constructor for {@link ChannelGridAdapter}.
      *
-     * @param currentUser currently logged in User
-     * @param listener    click listener
+     * @param listener click listener
      */
-    private ChannelGridAdapter(
-        User currentUser, ItemClickListener listener) {
-        ArrayList<Channel> channels = currentUser.channels();
+    private ChannelGridAdapter(ArrayList<Channel> channels, ItemClickListener listener) {
         _clickListener = listener;
-        _channels = new SortedList<>(
-            Channel.class, getSortedCallback(), channels.size());
+        if (channels != null) {
+            _channels = new SortedList<>(
+                Channel.class, getSortedCallback(), channels.size());
+        } else {
+            _channels = new SortedList<>(
+                Channel.class, getSortedCallback());
+        }
         updateChannels(channels);
     }
 
     /**
      * Create a newInstance of a {@link ChannelGridAdapter} with blank data.
      *
-     * @param currentUser currently Logged in {@link User}
      * @return an {@link ChannelGridAdapter} with no data
      */
     public static ChannelGridAdapter newInstance(
-        User currentUser, ItemClickListener listener) {
-        return new ChannelGridAdapter(currentUser, listener);
+        ArrayList<Channel> channels, ItemClickListener listener) {
+        return new ChannelGridAdapter(channels, listener);
     }
 
     private void updateChannels(ArrayList<Channel> channels) {
@@ -70,6 +71,11 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
             }
             _channels.endBatchedUpdates();
         }
+    }
+
+    public void refreshChannels(ArrayList<Channel> channels) {
+        _channels.clear();
+        updateChannels(channels);
     }
 
     public void addChannel(Channel channel) {

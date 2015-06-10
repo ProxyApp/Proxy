@@ -73,4 +73,5 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
         }
 
     }
+
 }

@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserSync;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 
 import java.util.List;
 

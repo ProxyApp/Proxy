@@ -1,14 +1,10 @@
 package com.shareyourproxy.api.service;
 
 import com.shareyourproxy.api.domain.model.Channel;
-import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-
-import java.util.Map;
 
 import retrofit.http.Body;
 import retrofit.http.DELETE;
-import retrofit.http.GET;
 import retrofit.http.PUT;
 import retrofit.http.Path;
 import rx.Observable;
@@ -17,14 +13,6 @@ import rx.Observable;
  * Created by Evan on 5/15/15.
  */
 public interface UserChannelService {
-    /**
-     * Get a {@link User}'s {@link Group}s.
-     *
-     * @param userId unique id for {@link User} table
-     */
-    @GET("/users/{userId}/channels.json")
-    Observable<Map<String, Channel>> listUserChannels(@Path("userId") String userId);
-
     /**
      * add a {@link Channel}.
      *

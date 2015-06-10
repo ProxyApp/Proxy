@@ -8,10 +8,10 @@ import android.view.MenuItem;
 
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.command.event.UserGroupDeletedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserGroupDeletedEvent;
 import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
-import com.shareyourproxy.app.fragment.EditGroupChannelFragment;
+import com.shareyourproxy.api.rx.event.SaveChannelsClicked;
+import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -19,19 +19,20 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
-import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
+import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static rx.android.app.AppObservable.bindActivity;
 
-public class EditGroupChannelActivity extends BaseActivity {
+public class GroupEditChannelActivity extends BaseActivity {
 
-    @InjectView(R.id.include_toolbar)
+    @InjectView(R.id.activity_toolbar)
     protected Toolbar toolbar;
     private CompositeSubscription _subscriptions;
 
     //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
+        hideSoftwareKeyboard(toolbar);
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
@@ -45,14 +46,15 @@ public class EditGroupChannelActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_fragment_container,
-                    EditGroupChannelFragment.newInstance()).commit();
+                    GroupEditChannelFragment.newInstance()).commit();
         }
     }
 
     private void initialize() {
         //we'll need a set of user channels
         //and a group
-        buildToolbar(toolbar, getString(R.string.edit_group), getMenuIcon(this, R.raw.ic_clear));
+        buildToolbar(toolbar, getString(R.string.edit_group),
+            getMenuIconSecondary(this, R.raw.ic_clear));
     }
 
     @Override
@@ -94,7 +96,7 @@ public class EditGroupChannelActivity extends BaseActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem search = menu.findItem(R.id.menu_edit_group_channel_save);
         // Add Icons to the menu items before they are displayed
-        search.setIcon(getMenuIcon(this, R.raw.ic_done));
+        search.setIcon(getMenuIconSecondary(this, R.raw.ic_done));
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -105,7 +107,7 @@ public class EditGroupChannelActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.menu_edit_group_channel_save:
-                saveGroupData();
+                getRxBus().post(new SaveChannelsClicked());
                 break;
             default:
                 Timber.e("Option item selected is unknown");
@@ -113,18 +115,9 @@ public class EditGroupChannelActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveGroupData() {
-        IntentLauncher.launchMainActivity(this);
-        onBackPressed();
-    }
-
     private void userGroupDeleted(UserGroupDeletedEvent event) {
         IntentLauncher.launchMainActivity(this);
         onBackPressed();
-    }
-
-    private Group getSelectedGroup() {
-        return getIntent().getExtras().getParcelable(ARG_SELECTED_GROUP);
     }
 
     private void toggleChannelInGroup(GroupChannelToggledEvent toggleChannel) {
