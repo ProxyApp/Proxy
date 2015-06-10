@@ -21,7 +21,7 @@ public abstract class Contact implements Parcelable {
      *
      * @param id       unique identifier
      * @param channels list of contacts channels
-     * @return Immutable contact
+     * @return Immutable group
      */
     @SuppressWarnings("unused")
     public static Contact create(Id id, String first, String last,String imageURL, ArrayList<Channel> channels) {
@@ -59,16 +59,16 @@ public abstract class Contact implements Parcelable {
     public abstract String last();
 
     /**
-     * Get contact profile image.
+     * Get group profile image.
      *
      * @return profile image
      */
     public abstract String imageURL();
 
     /**
-     * Get the list of channels a contact has.
+     * Get the list of channels a group has.
      *
-     * @return list of contact's channels
+     * @return list of group's channels
      */
     @Nullable
     public abstract ArrayList<Channel> channels();
@@ -82,15 +82,15 @@ public abstract class Contact implements Parcelable {
         /**
          * Set the contacts Id.
          *
-         * @param id contact unique id
-         * @return contact id
+         * @param id group unique id
+         * @return group id
          */
         Builder id(Id id);
 
         /**
          * Set the contacts first name.
          *
-         * @param first contact's first name
+         * @param first group's first name
          * @return label
          */
         Builder first(String first);
@@ -98,7 +98,7 @@ public abstract class Contact implements Parcelable {
         /**
          * Set the contacts last name.
          *
-         * @param last contact's last name
+         * @param last group's last name
          * @return label
          */
         Builder last(String last);
@@ -106,15 +106,15 @@ public abstract class Contact implements Parcelable {
         /**
          * Set the contacts name.
          *
-         * @param label contact name
+         * @param label group name
          * @return label
          */
         Builder imageURL(String imageURL);
 
         /**
-         * Set contact channels.
+         * Set group channels.
          *
-         * @param channels contact channels
+         * @param channels group channels
          * @return channels
          */
         @Nullable

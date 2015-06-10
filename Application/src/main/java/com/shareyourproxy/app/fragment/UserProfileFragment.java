@@ -21,9 +21,10 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.GroupContactsUpdatedEvent;
-import com.shareyourproxy.api.rx.command.event.UserChannelAddedEvent;
-import com.shareyourproxy.api.rx.command.event.UserChannelDeletedEvent;
+import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserChannelAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserChannelDeletedEvent;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ChannelGridAdapter;
@@ -45,6 +46,7 @@ import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
+import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.app.adapter.ChannelGridAdapter.VIEW_TYPE_SECTION;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
@@ -69,7 +71,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private ChannelGridAdapter _adapter;
     private Target _target;
     private PaletteAsyncListener _paletteListener;
-    private User _user;
+    private User _userContact;
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ArrayList<GroupEditContact> _contactGroups = new ArrayList<>();
@@ -91,13 +93,13 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     @OnClick(R.id.fragment_user_profile_header_button)
     protected void onClickGroup() {
-        UserGroupsDialog.newInstance(_contactGroups, _user).show(getFragmentManager());
+        UserGroupsDialog.newInstance(_contactGroups, _userContact).show(getFragmentManager());
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _user = activity.getIntent().getExtras().getParcelable(ARG_USER_SELECTED_PROFILE);
+        _userContact = activity.getIntent().getExtras().getParcelable(ARG_USER_SELECTED_PROFILE);
         _isLoggedInUser = activity.getIntent().getExtras().getBoolean(ARG_USER_LOGGED_IN);
     }
 
@@ -116,18 +118,21 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private void initialize() {
         initializeActionBar();
         initializeHeader();
-        initializeRecyclerView();
         if (!_isLoggedInUser) {
             getGroupEditContacts();
+            initializeRecyclerView(null);
+            getPermissionedChannels();
+        } else {
+            initializeRecyclerView(getLoggedInUser().channels());
         }
     }
 
     private void getGroupEditContacts() {
         _contactGroups.clear();
         _contactGroups.addAll(queryContactGroups(
-            getLoggedInUser(), createModelContact(_user)));
+            getLoggedInUser(), createModelContact(_userContact)));
         updateGroupButtonText(queryContactGroups(
-            _contactGroups, createModelContact(_user)));
+            _contactGroups, createModelContact(_userContact)));
     }
 
     /**
@@ -138,11 +143,11 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         collapsingToolbarLayout.setTitle(
-            joinWithSpace(new String[]{ _user.first(), _user.last() }));
+            joinWithSpace(new String[]{ _userContact.first(), _userContact.last() }));
     }
 
     private void initializeHeader() {
-        Picasso.with(getActivity()).load(_user.imageURL())
+        Picasso.with(getActivity()).load(_userContact.imageURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(getBitmapTargetView());
@@ -209,7 +214,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     /**
      * Initialize a recyclerView with User data.
      */
-    private void initializeRecyclerView() {
+    private void initializeRecyclerView(ArrayList<Channel> channels) {
         final GridLayoutManager manager = new GridLayoutManager(getActivity(), SPAN_COUNT);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -219,7 +224,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             }
         });
         recyclerView.setLayoutManager(manager);
-        _adapter = ChannelGridAdapter.newInstance(_user, this);
+        _adapter = ChannelGridAdapter.newInstance(channels, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -257,11 +262,15 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public void onResume() {
         super.onResume();
+        checkCompositButton();
+        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
+            .subscribe(onNextEvent()));
+    }
+
+    private void checkCompositButton() {
         if (_subscriptions == null) {
             _subscriptions = new CompositeSubscription();
         }
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
-            .subscribe(onNextEvent()));
     }
 
     private Action1<Object> onNextEvent() {
@@ -317,5 +326,28 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     private void deleteUserChannel(UserChannelDeletedEvent event) {
         _adapter.removeChannel(event.channel);
+    }
+
+    public void getPermissionedChannels() {
+        checkCompositButton();
+        _subscriptions.add(bindFragment(this, queryPermissionedChannels(
+            getActivity(), getLoggedInUser().id().value(), _userContact.id().value()))
+            .subscribe(permissionedObserver()));
+    }
+
+    private JustObserver<ArrayList<Channel>> permissionedObserver() {
+        return new JustObserver<ArrayList<Channel>>() {
+
+
+            @Override
+            public void onError() {
+
+            }
+
+            @Override
+            public void onNext(ArrayList<Channel> channels) {
+                _adapter.refreshChannels(channels);
+            }
+        };
     }
 }

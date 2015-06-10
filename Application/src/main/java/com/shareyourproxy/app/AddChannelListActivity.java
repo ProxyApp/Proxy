@@ -6,7 +6,7 @@ import android.view.MenuItem;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
-import com.shareyourproxy.app.fragment.ChannelListFragment;
+import com.shareyourproxy.app.fragment.AddChannelListFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -20,9 +20,9 @@ import static rx.android.app.AppObservable.bindActivity;
 /**
  * Created by Evan on 5/5/15.
  */
-public class ChannelListActivity extends BaseActivity {
+public class AddChannelListActivity extends BaseActivity {
 
-    @InjectView(R.id.include_toolbar)
+    @InjectView(R.id.activity_toolbar)
     Toolbar toolbar;
     private CompositeSubscription _subscriptions;
 
@@ -35,7 +35,7 @@ public class ChannelListActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_fragment_container,
-                    ChannelListFragment.newInstance()).commit();
+                    AddChannelListFragment.newInstance()).commit();
         }
     }
 

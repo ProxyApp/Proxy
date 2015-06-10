@@ -17,8 +17,9 @@ import android.view.ViewGroup;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.command.event.UserGroupAddedEvent;
-import com.shareyourproxy.api.rx.command.event.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.command.callback.GroupChannelsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserGroupAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.GroupAdapter;
@@ -85,7 +86,7 @@ public class MainGroupFragment
      */
     @OnClick(R.id.fragment_group_main_fab_group)
     public void onClick() {
-        AddGroupDialog.newInstance().show(getFragmentManager(), TAG);
+        IntentLauncher.launchGroupEditChannelActivity(getActivity(), Group.createBlank());
     }
 
     @Override
@@ -128,11 +129,18 @@ public class MainGroupFragment
                     if (event instanceof UserGroupAddedEvent) {
                         groupAdded((UserGroupAddedEvent) event);
                     }
-                    if (event instanceof UsersDownloadedEvent) {
+                    else if (event instanceof UsersDownloadedEvent) {
                         usersDownloaded((UsersDownloadedEvent) event);
+                    }
+                    else if (event instanceof GroupChannelsUpdatedEvent) {
+                        groupAdded((GroupChannelsUpdatedEvent) event);
                     }
                 }
             }));
+    }
+
+    private void groupAdded(GroupChannelsUpdatedEvent event) {
+        _adapter.addGroupData(event.group);
     }
 
     @Override

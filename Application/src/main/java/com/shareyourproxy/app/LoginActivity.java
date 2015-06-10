@@ -32,7 +32,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserCommand;
-import com.shareyourproxy.api.rx.command.event.UserSavedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserSavedEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;

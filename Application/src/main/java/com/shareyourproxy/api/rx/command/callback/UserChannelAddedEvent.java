@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.rx.command.event;
+package com.shareyourproxy.api.rx.command.callback;
 
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -7,13 +7,13 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
 
 /**
- * Created by Evan on 5/21/15.
+ * Created by Evan on 5/5/15.
  */
-public class UserChannelDeletedEvent extends CommandEvent {
-    public final Channel channel;
+public class UserChannelAddedEvent extends CommandEvent {
     public final User user;
+    public final Channel channel;
 
-    public UserChannelDeletedEvent(@NonNull User user, @NonNull Channel channel) {
+    public UserChannelAddedEvent(@NonNull User user, @NonNull Channel channel) {
         this.user = user;
         this.channel = channel;
     }

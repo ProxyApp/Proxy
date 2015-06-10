@@ -8,7 +8,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.shareyourproxy.api.rx.command.BaseCommand;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

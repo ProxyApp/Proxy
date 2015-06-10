@@ -11,11 +11,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.factory.ChannelFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.GroupEditChannel;
+import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.util.ObjectUtils;
+
+import java.util.ArrayList;
 
 import butterknife.InjectView;
 
@@ -23,29 +25,53 @@ import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.getActivityIcon;
 
-public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
+public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     //    private static final int TYPE_SECTION_HEADER = 0;
     public static final int TYPE_LIST_ITEM = 1;
-    public static final Channel DIALER = ChannelFactory.getPhoneChannel();
-    public static final Channel HANGOUTS = ChannelFactory.getSMSChannel();
-    public static final Channel GMAIL = ChannelFactory.getEmailChannel();
-    public static final Channel WEB = ChannelFactory.getWebChannel();
     private ItemClickListener _clickListener;
     private Callback<GroupEditChannel> _sortedListCallback;
-    private SortedList<GroupEditChannel> _channels = new SortedList<>(GroupEditChannel.class,
-        getSortedCallback());
+    private SortedList<GroupEditChannel> _channels;
 
 
-    public EditGroupChannelAdapter(ItemClickListener listener) {
+    public GroupEditChannelAdapter(
+        ItemClickListener listener, ArrayList<Channel> userChannels,
+        ArrayList<Channel> groupChannels) {
         _clickListener = listener;
-        _channels.add(GroupEditChannel.create(DIALER, true));
-        _channels.add(GroupEditChannel.create(HANGOUTS, true));
-        _channels.add(GroupEditChannel.create(GMAIL, true));
-        _channels.add(GroupEditChannel.create(WEB, true));
+        _channels = new SortedList<>(
+            GroupEditChannel.class, getSortedCallback(), userChannels.size());
+        updateChannels(userChannels, groupChannels);
     }
 
-    public static EditGroupChannelAdapter newInstance(ItemClickListener listener) {
-        return new EditGroupChannelAdapter(listener);
+    public static GroupEditChannelAdapter newInstance(
+        ItemClickListener listener, ArrayList<Channel> userChannels,
+        ArrayList<Channel> groupChannels) {
+        return new GroupEditChannelAdapter(listener, userChannels, groupChannels);
+    }
+
+    private void updateChannels(ArrayList<Channel> userChannels, ArrayList<Channel> groupChannels) {
+        if (userChannels != null) {
+            ArrayList<GroupEditChannel> groupEditChannels = new ArrayList<>();
+            for (Channel userChannel : userChannels) {
+                groupEditChannels.add(
+                    new GroupEditChannel(userChannel, channelInGroup(userChannel, groupChannels)));
+            }
+            _channels.beginBatchedUpdates();
+            for (GroupEditChannel channel : groupEditChannels) {
+                _channels.add(channel);
+            }
+            _channels.endBatchedUpdates();
+        }
+    }
+
+    private boolean channelInGroup(Channel userChannel, ArrayList<Channel> groupChannels) {
+        if (groupChannels != null) {
+            for (Channel groupChannel : groupChannels) {
+                if (groupChannel.id().value().equals(userChannel.id().value())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public Callback<GroupEditChannel> getSortedCallback() {
@@ -157,6 +183,21 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
         }
         holder.itemLabel.setText(editChannel.getChannel().label().toLowerCase());
         holder.itemSwitch.setChecked(editChannel.inGroup());
+        holder.itemSwitch.setOnClickListener(switchListener(holder));
+    }
+
+    private View.OnClickListener switchListener(final ItemViewHolder viewHolder) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                _channels.get(viewHolder.getAdapterPosition())
+                    .setInGroup(((Switch) view).isChecked());
+            }
+        };
+    }
+
+    public ArrayList<Channel> getSelectedChannels() {
+        return RxGroupChannelSync.getSelectedChannels(_channels);
     }
 
 //    private void bindSectionViewData(

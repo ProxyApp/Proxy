@@ -5,9 +5,9 @@ import android.content.Context;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
-import com.shareyourproxy.api.rx.command.event.UserContactAddedEvent;
-import com.shareyourproxy.api.rx.command.event.UserContactDeletedEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.UserContactAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserContactDeletedEvent;
 
 import java.util.List;
 
@@ -134,12 +134,12 @@ public class RxUserContactSync {
         deleteObserver.subscribe(new JustObserver<Contact>() {
             @Override
             public void onError() {
-                Timber.e("error deleting user contact");
+                Timber.e("error deleting user group");
             }
 
             @Override
             public void onNext(Contact event) {
-                Timber.i("delete user contact successful");
+                Timber.i("delete user group successful");
             }
         });
         ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();

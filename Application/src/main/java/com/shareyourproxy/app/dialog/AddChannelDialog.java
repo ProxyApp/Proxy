@@ -194,7 +194,7 @@ public class AddChannelDialog extends BaseDialogFragment {
     private void initializeEditTextColors() {
         Context context = editTextActionAddress.getContext();
         _gray = context.getResources().getColor(R.color.common_divider);
-        _green = context.getResources().getColor(R.color.common_green);
+        _green = context.getResources().getColor(R.color.common_blue);
 
         editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
         editTextLabel.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);

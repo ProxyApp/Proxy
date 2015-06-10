@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Proxy.Base" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/common_blue</item>
+    <!--Base Theme-->
+    <style name="Theme.Proxy.Base" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/common_proxy_dark_primary</item>
         <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="colorAccent">@color/common_text_inverse</item>
+        <item name="colorAccent">@color/common_blue</item>
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
         <item name="android:textColorSecondary">@color/common_text_inverse</item>
         <item name="android:textColorHint">@color/common_text_disabled</item>
@@ -12,17 +13,43 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Proxy.Accent" parent="Theme.Proxy.Base">
+
+    <!--Used for the MainActivities custom style toolbar, Dark text, light background toolbar-->
+    <style name="Theme.Proxy.Base.DarkActionBar" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/common_proxy_dark_primary</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
         <item name="colorAccent">@color/common_blue</item>
         <item name="android:textColorPrimary">@color/common_text</item>
-        <item name="android:textColorSecondary">@color/common_text_disabled</item>
+        <item name="android:textColorSecondary">@color/common_proxy_dark_selected</item>
+        <item name="android:textColorHint">@color/common_text_disabled</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!--Used for activities that edit user info. Light text, dark background toolbar-->
+    <style name="Theme.Proxy.Base.Light" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/common_proxy_light_primary</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="colorAccent">@color/common_blue</item>
+        <item name="android:textColorPrimary">@color/common_text_inverse</item>
+        <item name="android:textColorSecondary">@color/common_text_secondary_inverse</item>
+        <item name="android:textColorHint">@color/common_text_disabled</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!--Used for the MainActivities custom style sliding tab view-->
+    <style name="Widget.Proxy.SlidingTabView.Tab" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorPrimary">@color/common_proxy_dark_selected</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="colorAccent">@color/common_proxy_dark_selected</item>
     </style>
 
     <style name="Widget.Proxy.CheckedTextView.CheckedBox" parent="ThemeOverlay.AppCompat.Light">
-        <item name="colorPrimary">@color/common_blue</item>
-        <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="colorAccent">@color/common_text</item>
-        <item name="android:tint">@color/common_text</item>
+        <item name="android:textColorSecondary">@color/common_proxy_dark_selected</item>
+        <item name="colorPrimary">@color/common_proxy_dark_selected</item>
+        <item name="colorAccent">@color/common_blue</item>
+
     </style>
 
     <style name="Widget.Proxy.App.Popup" parent="Theme.AppCompat.Light">

@@ -6,7 +6,7 @@ import android.os.Parcel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserContactSync;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 
 import java.util.List;
 

@@ -24,7 +24,7 @@
         android:layout_marginEnd="@dimen/common_margin_tiny"
         app:fabSize="normal"
         app:borderWidth="0dp"
-        app:backgroundTint="@color/common_red"
+        app:backgroundTint="@color/common_proxy_zoidberg"
         app:rippleColor="@color/common_red_light" />
 
 </FrameLayout>
