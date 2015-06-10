@@ -27,7 +27,7 @@ import static com.shareyourproxy.util.ObjectUtils.capitalize;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
- * Fragment to display a groups contacts.
+ * Fragment to display a contactGroups contacts.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
     @InjectView(R.id.fragment_view_group_users_toolbar)

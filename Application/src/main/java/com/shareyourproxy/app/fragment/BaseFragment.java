@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
@@ -7,13 +8,10 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
 
-import io.realm.Realm;
-import io.realm.RealmObject;
-
 /**
  * Base Fragment abstraction.
  */
-public class BaseFragment extends android.support.v4.app.Fragment {
+public class BaseFragment extends Fragment {
 
     /**
      * Get the logged in user.
@@ -35,13 +33,6 @@ public class BaseFragment extends android.support.v4.app.Fragment {
 
     public RxBusDriver getRxBus() {
         return ((BaseActivity) getActivity()).getRxBus();
-    }
-
-    public void transactRealmObject(Realm realm, RealmObject object) {
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(object);
-        realm.commitTransaction();
-        realm.refresh();
     }
 
     public void setSupportActionBar(Toolbar toolbar) {

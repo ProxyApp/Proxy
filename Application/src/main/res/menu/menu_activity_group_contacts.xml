@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".MainActivity">
+      tools:context=".ViewGroupUsersActivity">
     <item
-        android:id="@+id/menu_main_search"
+        android:id="@+id/menu_group_contacts_edit_group"
         android:orderInCategory="0"
-        android:title="@string/Search"
+        android:title="@string/edit_group"
         app:showAsAction="ifRoom"/>
 </menu>

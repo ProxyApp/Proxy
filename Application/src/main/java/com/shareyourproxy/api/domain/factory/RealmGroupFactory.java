@@ -22,11 +22,9 @@ public class RealmGroupFactory {
      * @return RealmList of Contacts
      */
     public static RealmList<RealmGroup> getRealmGroups(ArrayList<Group> groupArrayList) {
-        if (groupArrayList != null) {
             RealmList<RealmGroup> realmGroupArray = new RealmList<>();
-            RealmGroup realmGroup = new RealmGroup();
-
             for (Group group : groupArrayList) {
+                RealmGroup realmGroup = new RealmGroup();
                 realmGroup.setId(group.id().value());
                 realmGroup.setLabel(group.label());
                 realmGroup.setChannels(getRealmChannels(group.channels()));
@@ -34,7 +32,5 @@ public class RealmGroupFactory {
                 realmGroupArray.add(realmGroup);
             }
             return realmGroupArray;
-        }
-        return null;
     }
 }

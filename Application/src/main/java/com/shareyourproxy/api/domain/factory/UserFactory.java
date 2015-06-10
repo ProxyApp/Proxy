@@ -8,6 +8,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.realm.RealmResults;
 
@@ -55,11 +56,13 @@ public class UserFactory {
     }
 
     public static User addUserContact(User user, Contact contact) {
-        if (user.contacts() != null) {
-            user.contacts().add(contact);
+        ArrayList<Contact> contactArrayList = user.contacts();
+        if (contactArrayList == null) {
+            contactArrayList = new ArrayList<>(1);
         }
+        contactArrayList.add(contact);
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), user.groups(), user.contacts());
+            user.imageURL(), user.channels(), user.groups(), contactArrayList);
     }
 
     /**
@@ -69,10 +72,8 @@ public class UserFactory {
      * @return updated user
      */
     public static User addUserChannel(User user, Channel channel) {
-        ArrayList<Channel> channelArrayList;
-        if (user.channels() != null) {
-            channelArrayList = user.channels();
-        } else {
+        ArrayList<Channel> channelArrayList = user.channels();
+        if (channelArrayList == null) {
             channelArrayList = new ArrayList<>(1);
         }
         channelArrayList.add(channel);
@@ -87,19 +88,21 @@ public class UserFactory {
      * @return updated user
      */
     public static User addUserGroup(User user, Group newGroup) {
-        //TODO: MAYBE THIS SHOULD BE A HASHSET SOMEHOW
-        for(Group group : user.groups()){
-            if(group.id().value().equals(newGroup.id().value())){
-                user.groups().remove(group);
+        ArrayList<Group> groups = user.groups();
+        for (Iterator<Group> iterator = groups.iterator(); iterator.hasNext(); ) {
+            Group group = iterator.next();
+            if (group.id().value().equals(newGroup.id().value())) {
+                iterator.remove();
             }
         }
-        user.groups().add(newGroup);
-        return addUserGroups(user, user.groups());
+        groups.add(newGroup);
+        return addUserGroups(user, groups);
     }
 
     public static User deleteUserGroup(User user, Group group) {
-        user.groups().remove(group);
-        return addUserGroups(user, user.groups());
+        ArrayList<Group> groups = user.groups();
+        groups.remove(group);
+        return addUserGroups(user, groups);
     }
 
     /**
@@ -115,20 +118,20 @@ public class UserFactory {
     }
 
     public static User deleteUserContact(User user, Contact contact) {
-        if (user.contacts() != null) {
-            user.contacts().remove(contact);
+        ArrayList<Contact> contacts = user.contacts();
+        if (contacts != null) {
+            contacts.remove(contact);
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), user.groups(), user.contacts());
+            user.imageURL(), user.channels(), user.groups(), contacts);
     }
 
     public static User deleteUserChannel(User user, Channel channel) {
-        if (user.channels() != null) {
-            user.channels().remove(channel);
+        ArrayList<Channel> channels = user.channels();
+        if (channels != null) {
+            channels.remove(channel);
         }
-
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), user.groups(), user.contacts());
+            user.imageURL(), channels, user.groups(), user.contacts());
     }
-
 }

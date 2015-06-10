@@ -1,60 +1,66 @@
 package com.shareyourproxy.api.domain.model;
 
+import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.shareyourproxy.api.gson.AutoGson;
-
-
-import auto.parcel.AutoParcel;
 
 /**
  * Used to signify if a {@link Channel} is in a {@link Group} or not.
  */
-@AutoParcel
-@AutoGson(autoValueClass = AutoParcel_GroupEditChannel.class)
-public abstract class GroupEditChannel implements Parcelable{
+public class GroupEditChannel implements Parcelable {
+    public static final Creator<GroupEditChannel> CREATOR =
+        new Creator<GroupEditChannel>() {
+            @Override
+            public GroupEditChannel createFromParcel(Parcel in) {
+                return new GroupEditChannel(in);
+            }
+
+            @Override
+            public GroupEditChannel[] newArray(int size) {
+                return new GroupEditChannel[size];
+            }
+        };
+    private final static java.lang.ClassLoader CL = GroupEditChannel.class.getClassLoader();
+
+    private Channel _channel;
+    private boolean _inGroup;
+
+    public GroupEditChannel(Channel channel, boolean inGroup) {
+        _channel = channel;
+        _inGroup = inGroup;
+    }
+
+    private GroupEditChannel(Parcel in) {
+        this((Channel) in.readValue(CL), (boolean) in.readValue(CL));
+    }
 
     public static GroupEditChannel create(Channel channel, boolean inGroup) {
-        return builder().channel(channel).inGroup(inGroup).build();
+        return new GroupEditChannel(channel, inGroup);
     }
 
-    /**
-     * EditGroupChannel builder.
-     *
-     * @return this EditGroupChannel.
-     */
-    public static Builder builder() {
-        return new AutoParcel_GroupEditChannel.Builder();
+    public Channel getChannel() {
+        return _channel;
     }
 
+    public void setChannel(Channel channel) {
+        _channel = channel;
+    }
 
-    public abstract Channel channel();
-    public abstract boolean inGroup();
+    public boolean inGroup() {
+        return _inGroup;
+    }
 
-    @AutoParcel.Builder
-    public interface Builder {
+    public void setInGroup(boolean inGroup) {
+        _inGroup = inGroup;
+    }
 
-        /**
-         * Set the channel.
-         *
-         * @param channel data
-         * @return channel
-         */
-        Builder channel(Channel channel);
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-        /**
-         * Set if the channel is in the group or not.
-         *
-         * @param inGroup boolean
-         * @return in or out of group
-         */
-        Builder inGroup(boolean inGroup);
-
-        /**
-         * BUILD.
-         *
-         * @return Contact
-         */
-        GroupEditChannel build();
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(_channel);
+        dest.writeValue(_inGroup);
     }
 }

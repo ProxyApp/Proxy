@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
-import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
@@ -17,8 +16,10 @@ import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
+import static com.shareyourproxy.api.RestClient.getUserChannelService;
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
 
 
@@ -121,15 +122,28 @@ public class RxUserChannelSync {
 
     private static rx.Observable<Channel> saveChannelToFirebase(
         Context context, String userId, Channel channel) {
-        return RestClient.getUserChannelService(context)
+        return getUserChannelService(context)
             .addUserChannel(userId, channel.id().value(), channel);
     }
 
     private static rx.Observable<Channel> deleteChannelFromFirebase(
         Context context, String userId, Channel channel) {
-        return rx.Observable.merge(Observable.just(channel), RestClient.getUserChannelService
-            (context)
-            .deleteUserChannel(userId, channel.id().value())).filter(filterNullChannel());
+        Observable<Channel> deleteObserver = getUserChannelService(context)
+            .deleteUserChannel(userId, channel.id().value());
+        deleteObserver.subscribe(new JustObserver<Channel>() {
+            @Override
+            public void onError() {
+                Timber.e("error deleting channel");
+            }
+
+            @Override
+            public void onNext(Channel event) {
+                Timber.i("delete channel successful");
+            }
+        });
+        ConnectableObservable<Channel> connectableObservable = deleteObserver.publish();
+        return rx.Observable.merge(Observable.just(channel), connectableObservable)
+            .filter(filterNullChannel());
     }
 
     private static Func1<Channel, Boolean> filterNullChannel() {
