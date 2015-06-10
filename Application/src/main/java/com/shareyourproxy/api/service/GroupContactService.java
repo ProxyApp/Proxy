@@ -23,7 +23,7 @@ public interface GroupContactService {
      *
      * @param userId unique id for {@link User} table
      */
-    @GET("/users/{userId}/groups/{groupId}/contacts.json")
+    @GET("/users/{userId}/contactGroups/{groupId}/contacts.json")
     Observable<Map<String, Contact>> listGroupContacts(
         @Path("userId") String userId, @Path("groupId") String groupId);
     /**
@@ -31,12 +31,12 @@ public interface GroupContactService {
      *
      * @param userId unique id for {@link User} table
      */
-    @PUT("/users/{userId}/groups/{groupId}/contacts/{contactId}.json")
+    @PUT("/users/{userId}/contactGroups/{groupId}/contacts/{contactId}.json")
     Observable<Contact> addGroupContact(
         @Path("userId") String userId, @Path("groupId") String groupId,
         @Path("contactId") String contactId, @Body Contact contact);
 
-    @DELETE("/users/{userId}/groups/{groupId}/contacts/{contactId}.json")
+    @DELETE("/users/{userId}/contactGroups/{groupId}/contacts/{contactId}.json")
     Observable<Contact> deleteGroupContact(
         @Path("userId") String userId, @Path("groupId") String groupId,
         @Path("contactId") String contactId);

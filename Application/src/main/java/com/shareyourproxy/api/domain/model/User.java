@@ -27,7 +27,7 @@ public abstract class User implements Parcelable {
      * @param imageURL  user profile picture
      * @param channels  user channels
      * @param contacts  user contacts
-     * @param groups    user groups
+     * @param groups    user contactGroups
      * @return the entered user data
      */
     public static User create(
@@ -105,9 +105,9 @@ public abstract class User implements Parcelable {
     public abstract ArrayList<Contact> contacts();
 
     /**
-     * Get users groups.
+     * Get users contactGroups.
      *
-     * @return groups
+     * @return contactGroups
      */
     @Nullable
     public abstract ArrayList<Group> groups();
@@ -184,7 +184,7 @@ public abstract class User implements Parcelable {
         /**
          * Set this {@link User}s {@link Group}s
          *
-         * @param groups user groups
+         * @param groups user contactGroups
          * @return List {@link Group}
          */
         @Nullable

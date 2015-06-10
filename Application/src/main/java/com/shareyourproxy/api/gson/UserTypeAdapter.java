@@ -75,7 +75,7 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                         case "contacts":
                             checkContactsArray(reader, contacts);
                             break;
-                        case "groups":
+                        case "contactGroups":
                             checkGroupsArray(reader, groups);
                             break;
                         default:

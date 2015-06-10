@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
- * Adapts the groups that a user belongs to in a dialog.
+ * Adapts the contactGroups that a user belongs to in a dialog.
  */
 public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
     private ArrayList<GroupEditContact> _groups;

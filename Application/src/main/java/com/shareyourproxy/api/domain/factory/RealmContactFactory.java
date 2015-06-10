@@ -22,9 +22,8 @@ public class RealmContactFactory {
     public static RealmList<RealmContact> getRealmContacts(ArrayList<Contact> contacts) {
         if (contacts != null) {
             RealmList<RealmContact> realmContactArray = new RealmList<>();
-            RealmContact realmContact = new RealmContact();
-
             for (Contact contact : contacts) {
+                RealmContact realmContact = new RealmContact();
                 realmContact.setId(contact.id().value());
                 realmContact.setFirst(contact.first());
                 realmContact.setLast(contact.last());

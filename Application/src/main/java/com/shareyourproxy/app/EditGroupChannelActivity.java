@@ -2,15 +2,16 @@ package com.shareyourproxy.app;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
 import com.shareyourproxy.api.rx.command.event.UserGroupDeletedEvent;
-import com.shareyourproxy.app.fragment.EditGroupFragment;
+import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
+import com.shareyourproxy.app.fragment.EditGroupChannelFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -22,7 +23,7 @@ import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
-public class EditGroupActivity extends BaseActivity {
+public class EditGroupChannelActivity extends BaseActivity {
 
     @InjectView(R.id.include_toolbar)
     protected Toolbar toolbar;
@@ -44,7 +45,7 @@ public class EditGroupActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_fragment_container,
-                    EditGroupFragment.newInstance()).commit();
+                    EditGroupChannelFragment.newInstance()).commit();
         }
     }
 
@@ -67,20 +68,9 @@ public class EditGroupActivity extends BaseActivity {
             @Override
             public void call(Object event) {
                 if (event instanceof UserGroupDeletedEvent) {
-                    removeGroupFromUser(getLoggedInUser(), getSelectedGroup());
-                    // todo do something with the new user
+                    userGroupDeleted((UserGroupDeletedEvent) event);
                 } else if (event instanceof GroupChannelToggledEvent) {
-                    Channel channel = null;
-                    for (Channel userChannel : getLoggedInUser().channels()) {
-                        if (userChannel.id().equals(((GroupChannelToggledEvent) event)
-                            .channelId)) {
-                            channel = userChannel;
-                        }
-                    }
-                    if (channel == null) {
-                        return;
-                    }
-                    toggleChannelInGroup(channel);
+                    toggleChannelInGroup(((GroupChannelToggledEvent) event));
                 }
             }
         };
@@ -93,10 +83,29 @@ public class EditGroupActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_activity_edit_group_channel, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem search = menu.findItem(R.id.menu_edit_group_channel_save);
+        // Add Icons to the menu items before they are displayed
+        search.setIcon(getMenuIcon(this, R.raw.ic_done));
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
+                break;
+            case R.id.menu_edit_group_channel_save:
+                saveGroupData();
                 break;
             default:
                 Timber.e("Option item selected is unknown");
@@ -104,32 +113,21 @@ public class EditGroupActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void removeGroupFromUser(User user, Group dirtyGroup) {
-        if (user.groups() != null) {
-            for (Group group : user.groups()) {
-                if (group.id().equals(dirtyGroup.id())) {
-                    user.groups().remove(dirtyGroup);
-                    break;
-                }
-            }
-        }
+    private void saveGroupData() {
+        IntentLauncher.launchMainActivity(this);
+        onBackPressed();
+    }
+
+    private void userGroupDeleted(UserGroupDeletedEvent event) {
+        IntentLauncher.launchMainActivity(this);
+        onBackPressed();
     }
 
     private Group getSelectedGroup() {
         return getIntent().getExtras().getParcelable(ARG_SELECTED_GROUP);
     }
 
-    private void toggleChannelInGroup(Channel toggleChannel) {
-        for (Channel channel : getSelectedGroup().channels()) {
-            if (toggleChannel.id().equals(channel.id())) {
-                getSelectedGroup().channels().remove(channel);
-                return;
-            }
-        }
-        addChannelToGroup(getSelectedGroup(), toggleChannel);
+    private void toggleChannelInGroup(GroupChannelToggledEvent toggleChannel) {
     }
 
-    private void addChannelToGroup(Group group, Channel channel) {
-        group.channels().add(channel);
-    }
 }

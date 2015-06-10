@@ -174,7 +174,7 @@ public class RealmUser extends RealmObject {
     /**
      * Getter.
      *
-     * @return users groups
+     * @return users contactGroups
      */
     @Nullable
     public RealmList<RealmGroup> getGroups() {
