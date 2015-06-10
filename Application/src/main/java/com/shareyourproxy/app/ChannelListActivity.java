@@ -1,15 +1,11 @@
 package com.shareyourproxy.app;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Channel;
-import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
-import com.shareyourproxy.api.rx.event.ChannelDialogRequestEvent;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.app.fragment.ChannelListFragment;
 
 import butterknife.ButterKnife;
@@ -18,10 +14,6 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.ARG_USER_CREATED_CHANNEL;
-import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
-import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.shareyourproxy.app.dialog.AddChannelDialog.newInstance;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -66,22 +58,10 @@ public class ChannelListActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
-        finishActivity(Activity.RESULT_CANCELED, null);
+        finishActivity();
     }
-
-    private void finishActivity(int activityResult, Channel channel) {
-        Intent intent = new Intent();
-        intent.putExtra(ARG_USER_CREATED_CHANNEL, channel);
-        intent.putExtra(ARG_USER_SELECTED_PROFILE, getLoggedInUser());
-        intent.putExtra(ARG_USER_LOGGED_IN, true);
-        setResult(activityResult, intent);
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
-    }
-
 
     @Override
     public void onResume() {
@@ -91,10 +71,8 @@ public class ChannelListActivity extends BaseActivity {
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
-                    if (event instanceof ChannelDialogRequestEvent) {
-                        dialogRequestEvent((ChannelDialogRequestEvent) event);
-                    } else if (event instanceof ChannelAddedEvent) {
-                        addChannelEvent((ChannelAddedEvent) event);
+                    if (event instanceof AddUserChannelCommand) {
+                        finishActivity();
                     }
                 }
             }));
@@ -106,12 +84,8 @@ public class ChannelListActivity extends BaseActivity {
         _subscriptions.unsubscribe();
     }
 
-    public void dialogRequestEvent(ChannelDialogRequestEvent event) {
-        newInstance(event.channel.channelType(), event.channel.channelSection())
-            .show(getSupportFragmentManager());
-    }
-
-    public void addChannelEvent(ChannelAddedEvent event) {
-        finishActivity(Activity.RESULT_OK, event.channel);
+    private void finishActivity() {
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
 }

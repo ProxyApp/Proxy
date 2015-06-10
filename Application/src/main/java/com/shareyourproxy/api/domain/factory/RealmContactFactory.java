@@ -3,7 +3,7 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.realm.RealmContact;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import io.realm.RealmList;
 
@@ -19,14 +19,16 @@ public class RealmContactFactory {
      * @param contacts array to get contacts from
      * @return RealmList of Contacts
      */
-    public static RealmList<RealmContact> getRealmContacts(List<Contact> contacts) {
+    public static RealmList<RealmContact> getRealmContacts(ArrayList<Contact> contacts) {
         if (contacts != null) {
             RealmList<RealmContact> realmContactArray = new RealmList<>();
             RealmContact realmContact = new RealmContact();
 
             for (Contact contact : contacts) {
                 realmContact.setId(contact.id().value());
-                realmContact.setLabel(contact.label());
+                realmContact.setFirst(contact.first());
+                realmContact.setLast(contact.last());
+                realmContact.setImageURL(contact.imageURL());
                 realmContact.setChannels(getRealmChannels(contact.channels()));
                 realmContactArray.add(realmContact);
             }

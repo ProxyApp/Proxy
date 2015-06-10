@@ -1,9 +1,6 @@
 package com.shareyourproxy.app;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,7 +10,7 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.ChannelSelectedEvent;
+import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
 import butterknife.ButterKnife;
@@ -61,9 +58,10 @@ public class UserProfileActivity extends BaseActivity {
         MenuInflater inflater = getMenuInflater();
         if (isLoggedInUser()) {
             inflater.inflate(R.menu.menu_activity_current_user, menu);
-        } else {
-            inflater.inflate(R.menu.menu_activity_user_profile, menu);
         }
+//        else {
+//            inflater.inflate(R.menu.menu_activity_user_profile, menu);
+//        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -72,11 +70,12 @@ public class UserProfileActivity extends BaseActivity {
         if (isLoggedInUser()) {
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
-        } else {
-            MenuItem favorite = menu.findItem(R.id.menu_user_profile_favorite);
-            // Add Icons to the menu items before they are displayed
-            favorite.setIcon(getMenuIcon(this, R.raw.ic_star));
         }
+//        else {
+//            MenuItem favorite = menu.findItem(R.id.menu_user_profile_favorite);
+//            // Add Icons to the menu items before they are displayed
+//            favorite.setIcon(getMenuIcon(this, R.raw.ic_star));
+//        }
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -111,8 +110,8 @@ public class UserProfileActivity extends BaseActivity {
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
-                    if (event instanceof ChannelSelectedEvent) {
-                        onChannelSelected((ChannelSelectedEvent) event);
+                    if (event instanceof SelectUserChannelEvent) {
+                        onChannelSelected((SelectUserChannelEvent) event);
                     }
                 }
             }));
@@ -125,7 +124,7 @@ public class UserProfileActivity extends BaseActivity {
     }
 
     @SuppressWarnings("unused")
-    public void onChannelSelected(ChannelSelectedEvent event) {
+    public void onChannelSelected(SelectUserChannelEvent event) {
         ChannelType channelType = event.channel.channelType();
         switch (channelType) {
             case Phone:
@@ -145,17 +144,4 @@ public class UserProfileActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Timber.i("onActivityResult");
-        if (resultCode == Activity.RESULT_OK) {
-            getIntent().replaceExtras(data);
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                if (fragment != null) {
-                    fragment.onActivityResult(requestCode, resultCode, data);
-                }
-            }
-        }
-    }
 }

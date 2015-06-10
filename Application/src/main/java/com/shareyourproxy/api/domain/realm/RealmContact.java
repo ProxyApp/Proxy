@@ -11,7 +11,9 @@ public class RealmContact extends RealmObject {
 
     @PrimaryKey
     private String id;
-    private String label;
+    private String first;
+    private String last;
+    private String imageURL;
     private RealmList<RealmChannel> channels;
 
     /**
@@ -32,22 +34,28 @@ public class RealmContact extends RealmObject {
         this.id = id;
     }
 
-    /**
-     * Getter.
-     *
-     * @return contact's name
-     */
-    public String getLabel() {
-        return label;
+    public String getFirst() {
+        return first;
     }
 
-    /**
-     * Setter.
-     *
-     * @param label string
-     */
-    public void setLabel(String label) {
-        this.label = label;
+    public void setFirst(String first) {
+        this.first = first;
+    }
+
+    public String getLast() {
+        return last;
+    }
+
+    public void setLast(String last) {
+        this.last = last;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.shareyourproxy.api.gson;
 
 import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -19,20 +20,22 @@ import timber.log.Timber;
 
 
 /**
- * {@link User} TypeAdapter that deserializes JSON to create a user.
+ * {@link User} TypeAdapter that deserializes JSON to copy a user.
  */
-@SuppressWarnings("all")
-public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
+public class UserTypeAdapter extends TypeAdapter<User> {
 
     private Gson gson;
+
     private UserTypeAdapter(Gson gson) {
         this.gson = gson;
     }
+
     public static UserTypeAdapter newInstace() {
         return new UserTypeAdapter(new Gson());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void write(JsonWriter out, User value) throws IOException {
         AutoGson annotation = User.class.getAnnotation(AutoGson.class);
         gson.getAdapter(annotation.autoValueClass()).write(out, value);
@@ -71,6 +74,7 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                             break;
                         case "contacts":
                             checkContactsArray(reader, contacts);
+                            break;
                         case "groups":
                             checkGroupsArray(reader, groups);
                             break;
@@ -122,7 +126,6 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
      */
     public Channel readChannel(JsonReader reader) throws IOException {
         Channel.Builder channel = Channel.builder();
-
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
@@ -171,8 +174,14 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 case "id":
                     contact.id(readId(reader));
                     break;
-                case "label":
-                    contact.label(reader.nextString());
+                case "first":
+                    contact.first(reader.nextString());
+                    break;
+                case "last":
+                    contact.last(reader.nextString());
+                    break;
+                case "imageURL":
+                    contact.imageURL(reader.nextString());
                     break;
                 case "channels":
                     checkChannelArray(reader, channels);
@@ -234,6 +243,12 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 channels.add(readChannel(reader));
             }
             reader.endObject();
+        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                channels.add(readChannel(reader));
+            }
+            reader.endArray();
         } else {
             Timber.e("checkChannelArray onError");
             throw new IOException("Invalid Json");
@@ -249,11 +264,17 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 contacts.add(readContact(reader));
             }
             reader.endObject();
+        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                reader.nextName();
+                contacts.add(readContact(reader));
+            }
+            reader.endArray();
         } else {
             Timber.e("checkContactArray onError");
             throw new IOException("Invalid Json");
         }
-        return;
     }
 
     private void checkGroupsArray(JsonReader reader, ArrayList<Group> groups) throws IOException {
@@ -264,8 +285,16 @@ public class UserTypeAdapter extends com.google.gson.TypeAdapter<User> {
                 groups.add(readGroup(reader));
             }
             reader.endObject();
+        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                reader.nextName();
+                groups.add(readGroup(reader));
+            }
+            reader.endArray();
         } else {
-            Timber.e("checkContactArray onError");
+            Timber.i("Reader Error: " + reader.peek().toString());
+            Timber.e("checkGroupsArray onError");
             throw new IOException("Invalid Json");
         }
     }

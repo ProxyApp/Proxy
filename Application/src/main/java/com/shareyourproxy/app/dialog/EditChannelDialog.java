@@ -24,8 +24,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
-import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
-import com.shareyourproxy.api.rx.event.DeleteChannelEvent;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
+import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
 import com.shareyourproxy.util.DebugUtils;
 
 import butterknife.ButterKnife;
@@ -43,7 +43,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     private static final String TAG = DebugUtils.getSimpleName(AddChannelDialog.class);
     @InjectView(R.id.dialog_channel_action_address_edittext)
     protected EditText editTextActionAddress;
-    private final OnClickListener negativeClicked =
+    private final OnClickListener _negativeClicked =
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -97,6 +97,8 @@ public class EditChannelDialog extends BaseDialogFragment {
             }
         };
 
+    public EditChannelDialog() {
+    }
 
     /**
      * Create a new instance of a {@link AddGroupDialog}.
@@ -108,14 +110,14 @@ public class EditChannelDialog extends BaseDialogFragment {
         //Bundle arguments
         Bundle bundle = new Bundle();
         bundle.putParcelable(ARG_CHANNEL, channel);
-        //create dialog instance
+        //copy dialog instance
         EditChannelDialog dialog = new EditChannelDialog();
         dialog.setArguments(bundle);
         return dialog;
     }
 
     private void dispatchDeleteChannel() {
-        getRxBus().post(new DeleteChannelEvent(_channel));
+        getRxBus().post(new DeleteUserChannelCommand(getLoggedInUser(), _channel));
     }
 
     /**
@@ -129,7 +131,7 @@ public class EditChannelDialog extends BaseDialogFragment {
                 createModelInstance(_channel.id().value(), labelContent,
                     _channel.channelType(), _channel.channelSection(),
                     actionContent);
-            getRxBus().post(new ChannelAddedEvent(channel));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
     }
 
@@ -173,7 +175,7 @@ public class EditChannelDialog extends BaseDialogFragment {
             .setTitle(R.string.dialog_editchannel_title)
             .setView(view)
             .setPositiveButton(R.string.common_save, _positiveClicked)
-            .setNegativeButton(android.R.string.cancel, negativeClicked)
+            .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .setNeutralButton(R.string.common_delete, _deleteClicked)
             .create();
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;

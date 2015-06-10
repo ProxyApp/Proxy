@@ -1,6 +1,8 @@
 package com.shareyourproxy.api.domain.factory;
 
+import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.realm.RealmGroup;
 
 import java.util.ArrayList;
@@ -19,15 +21,22 @@ public class GroupFactory {
      * @return RealmList of Contacts
      */
     public static ArrayList<Group> getModelGroups(RealmList<RealmGroup> realmGroupArray) {
-        if (realmGroupArray != null) {
-            ArrayList<Group> groups = new ArrayList<>();
+            ArrayList<Group> groups = new ArrayList<>(realmGroupArray.size());
             for (RealmGroup realmGroup : realmGroupArray) {
-                groups.add(Group.create(realmGroup.getLabel(),
+                groups.add(Group.copy(Id.create(realmGroup.getId()), realmGroup.getLabel(),
                     ChannelFactory.getModelChannels(realmGroup.getChannels()),
                     ContactFactory.getModelContacts(realmGroup.getContacts())));
             }
             return groups;
-        }
-        return null;
+    }
+
+    public static Group addGroupContact(Group group, Contact contact) {
+        group.contacts().add(contact);
+        return Group.copy(group.id(), group.label(), group.channels(), group.contacts());
+    }
+
+    public static Group deleteGroupContact(Group group, Contact contact) {
+        group.contacts().remove(contact);
+        return Group.copy(group.id(), group.label(), group.channels(), group.contacts());
     }
 }

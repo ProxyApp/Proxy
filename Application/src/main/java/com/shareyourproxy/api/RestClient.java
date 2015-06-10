@@ -1,6 +1,6 @@
 package com.shareyourproxy.api;
 
-import android.app.Activity;
+import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,11 +10,18 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.AutoGson;
 import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
-import com.shareyourproxy.api.service.ChannelService;
-import com.shareyourproxy.api.service.GroupService;
+import com.shareyourproxy.api.service.GroupChannelService;
+import com.shareyourproxy.api.service.GroupContactService;
+import com.shareyourproxy.api.service.UserChannelService;
+import com.shareyourproxy.api.service.UserContactService;
+import com.shareyourproxy.api.service.UserGroupService;
 import com.shareyourproxy.api.service.UserService;
+import com.squareup.okhttp.OkHttpClient;
+
+import java.util.concurrent.TimeUnit;
 
 import retrofit.RestAdapter;
+import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
 /**
@@ -33,31 +40,46 @@ public class RestClient {
      *
      * @return userService
      */
-    public static UserService getUserService(final Activity context) {
+    public static UserService getUserService(final Context context) {
         return buildRestClient(context,
             buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
                 UserTypeAdapter.newInstace()))
             .create(UserService.class);
     }
 
-    public static GroupService getGroupService(Activity context) {
+    public static UserGroupService getUserGroupService(Context context) {
         return buildRestClient(context,
-            buildGsonConverter()).create(GroupService.class);
+            buildGsonConverter()).create(UserGroupService.class);
     }
 
-    public static ChannelService getChannelService(Activity context) {
+    public static UserChannelService getUserChannelService(Context context) {
         return buildRestClient(context,
-            buildGsonConverter()).create(ChannelService.class);
+            buildGsonConverter()).create(UserChannelService.class);
     }
 
-    public static RestAdapter buildRestClient(Activity context, Gson gson) {
+    public static UserContactService getUserContactService(Context context) {
+        return buildRestClient(context,
+            buildGsonConverter()).create(UserContactService.class);
+    }
 
-        RestAdapter restAdapter = new RestAdapter.Builder()
+    public static GroupContactService getGroupContactService(Context context) {
+        return buildRestClient(context,
+            buildGsonConverter()).create(GroupContactService.class);
+    }
+
+    public static GroupChannelService getGroupChannelService(Context context) {
+        return buildRestClient(context,
+            buildGsonConverter()).create(GroupChannelService.class);
+    }
+
+    public static RestAdapter buildRestClient(Context context, Gson gson) {
+
+        return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setClient(new OkClient(getClient()))
             .setEndpoint(context.getResources().getString(R.string.firebase_url))
             .setConverter(new GsonConverter(gson))
             .build();
-        return restAdapter;
     }
 
     public static Gson buildGsonConverter(Class clazz, TypeAdapter typeAdapter) {
@@ -71,5 +93,12 @@ public class RestClient {
         return new GsonBuilder()
             .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
             .create();
+    }
+
+    public static OkHttpClient getClient() {
+        OkHttpClient client = new OkHttpClient();
+        client.setConnectTimeout(30, TimeUnit.SECONDS);
+        client.setReadTimeout(30, TimeUnit.SECONDS);
+        return client;
     }
 }

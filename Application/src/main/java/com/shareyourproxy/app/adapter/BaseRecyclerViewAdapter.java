@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.ChannelType;
 
 import static com.shareyourproxy.util.ViewUtils.getCircularDrawableImage;
 import static com.shareyourproxy.util.ViewUtils.getSectionIconDimen;
@@ -21,7 +22,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * Parse a svg and return a Large sized {@link Drawable}.
      *
      * @param context    activity context
-     * @param resourceId resource to create drawable
+     * @param resourceId resource to copy drawable
      * @return Drawable
      */
     public static Drawable getSectionResourceDrawable(Context context, int resourceId) {
@@ -33,14 +34,14 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
     /**
      * Get a Circular SVG Drawable.
      *
-     * @param context    activity context
-     * @param resourceId resource to decode
+     * @param context                activity context
+     * @param resourceId             resource to decode
+     * @param channelBackgroundColor background color value
      * @return circular drawable
      */
-    public static Drawable getSVGIconDrawable(Context context, int resourceId) {
-        Resources res = context.getResources();
-        return getCircularDrawableImage(context, resourceId,
-            res.getColor(R.color.common_text_secondary));
+    public static Drawable getSVGIconDrawable(
+        Context context, int resourceId, int channelBackgroundColor) {
+        return getCircularDrawableImage(context, resourceId, channelBackgroundColor);
     }
 
     /**
@@ -52,5 +53,24 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      */
     public static Drawable getAndroidIconDrawable(Context context, Drawable drawable) {
         return getCircularDrawableImage(context, drawable, Color.LTGRAY);
+    }
+
+    public static int getChannelBackgroundColor(Context context, ChannelType channelType) {
+        Resources res = context.getResources();
+        switch (channelType) {
+            case Phone:
+                return res.getColor(R.color.common_indigo);
+            case SMS:
+                return res.getColor(R.color.common_light_blue);
+            case Email:
+                return res.getColor(R.color.common_red);
+            case Web:
+                return res.getColor(R.color.common_text_secondary);
+            case Custom:
+                return res.getColor(R.color.common_text_secondary);
+            default:
+                return res.getColor(R.color.common_text_secondary);
+        }
+
     }
 }

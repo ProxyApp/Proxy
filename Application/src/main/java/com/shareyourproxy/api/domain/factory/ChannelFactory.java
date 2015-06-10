@@ -24,7 +24,7 @@ import static com.shareyourproxy.api.domain.model.ChannelType.valueOf;
 
 
 /**
- * Factory to create realm channels.
+ * Factory to copy realm channels.
  */
 public class ChannelFactory {
 
@@ -134,7 +134,7 @@ public class ChannelFactory {
     public static ArrayList<Channel> getModelChannels(
         RealmList<RealmChannel> realmChannels) {
         if (realmChannels != null) {
-            ArrayList<Channel> channels = new ArrayList<>();
+            ArrayList<Channel> channels = new ArrayList<>(realmChannels.size());
             for (RealmChannel realmChannel : realmChannels) {
                 channels.add(Channel.create(Id.builder().value(realmChannel.getId()).build(),
                     realmChannel.getLabel(), realmChannel.getPackageName(),
