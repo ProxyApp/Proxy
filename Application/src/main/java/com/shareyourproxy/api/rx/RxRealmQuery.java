@@ -1,6 +1,7 @@
 package com.shareyourproxy.api.rx;
 
-import android.app.Activity;
+
+import android.content.Context;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.User;
@@ -12,34 +13,57 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.functions.Func1;
+import rx.observables.BlockingObservable;
 
 /**
- * Created by Evan on 5/20/15.
+ * Query the realm DB.
  */
 public class RxRealmQuery {
 
-    public static rx.Observable<ArrayList<User>> queryAllUsers(Activity activity) {
-        return Observable.just(activity).map(new Func1<Activity, ArrayList<User>>() {
+    public static rx.Observable<ArrayList<User>> queryFilteredUsers(
+        Context context, final String userId) {
+        return Observable.just(context).map(new Func1<Context, ArrayList<User>>() {
             @Override
-            public ArrayList<User> call(Activity activity) {
+            public ArrayList<User> call(Context context) {
+                Realm realm = Realm.getInstance(context);
                 RealmResults<RealmUser> realmUsers =
-                    Realm.getInstance(activity).where(RealmUser.class).findAllSorted("last");
-                return UserFactory.createModelUsers(realmUsers);
+                    realm.where(RealmUser.class)
+                        .notEqualTo("id", userId).findAll();
+                ArrayList<User> users = UserFactory.createModelUsers(realmUsers);
+                realm.close();
+                return users;
             }
         }).compose(RxHelper.<ArrayList<User>>applySchedulers());
     }
 
-    public static Func1<String, ArrayList<User>> searchUserString(final Activity activity) {
+    public static BlockingObservable<User> queryUser(Context context, final String userId) {
+        return Observable.just(context).map(new Func1<Context, User>() {
+            @Override
+            public User call(Context context) {
+                Realm realm = Realm.getInstance(context);
+                RealmUser realmUser =
+                    realm.where(RealmUser.class).contains("id", userId).findFirst();
+                User user = UserFactory.createModelUser(realmUser);
+                realm.close();
+                return user;
+            }
+        }).compose(RxHelper.<User>applySchedulers()).toBlocking();
+    }
+
+    public static Func1<String, ArrayList<User>> searchUserString(
+        final Context context, final String userId) {
         return new Func1<String, ArrayList<User>>() {
             @Override
             public ArrayList<User> call(String username) {
-                return updateSearchText(Realm.getInstance(activity), username);
+                return updateSearchText(context, userId, username);
             }
         };
     }
 
-    private static ArrayList<User> updateSearchText(Realm realm, CharSequence constraint) {
+    private static ArrayList<User> updateSearchText(
+        Context context, final String userId, CharSequence constraint) {
         RealmResults<RealmUser> realmUsers;
+        Realm realm = Realm.getInstance(context);
         if (constraint.equals("")) {
             realmUsers = realm.where(RealmUser.class).findAllSorted("last");
         } else {
@@ -47,9 +71,11 @@ public class RxRealmQuery {
                 .contains("first", constraint.toString(), false)
                 .or().contains("last", constraint.toString(), false)
                 .or().contains("fullName", constraint.toString(), false)
+                .notEqualTo("id", userId)
                 .findAllSorted("last");
         }
+        ArrayList<User> users = UserFactory.createModelUsers(realmUsers);
         realm.close();
-        return UserFactory.createModelUsers(realmUsers);
+        return users;
     }
 }

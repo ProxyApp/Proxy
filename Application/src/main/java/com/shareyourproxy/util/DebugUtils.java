@@ -18,7 +18,7 @@ public class DebugUtils {
     /**
      * Get a formatted TAG string.
      *
-     * @param klass the class to create a TAG for
+     * @param klass the class to copy a TAG for
      * @return return the TAG String
      */
     public static String getSimpleName(Class klass) {

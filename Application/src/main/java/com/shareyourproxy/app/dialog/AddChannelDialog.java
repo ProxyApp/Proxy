@@ -25,7 +25,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelSection;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 
 import java.util.UUID;
 
@@ -77,7 +77,7 @@ public class AddChannelDialog extends BaseDialogFragment {
                 // FixedDecimalEditText's inputType is Decimal
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
-                    dispatchChannelEvent();
+                    addUserChannel();
                     getDialog().dismiss();
                     return true;
                 }
@@ -89,7 +89,7 @@ public class AddChannelDialog extends BaseDialogFragment {
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dispatchChannelEvent();
+                addUserChannel();
                 dialogInterface.dismiss();
             }
         };
@@ -105,7 +105,7 @@ public class AddChannelDialog extends BaseDialogFragment {
         Bundle bundle = new Bundle();
         bundle.putString(ARG_CHANNEL_TYPE, channelType.getLabel());
         bundle.putString(ARG_CHANNEL_SECTION, channelSection.getLabel());
-        //create dialog instance
+        //copy dialog instance
         AddChannelDialog dialog = new AddChannelDialog();
         dialog.setArguments(bundle);
         return dialog;
@@ -114,7 +114,7 @@ public class AddChannelDialog extends BaseDialogFragment {
     /**
      * Dispatch a Channel Added Event
      */
-    private void dispatchChannelEvent() {
+    private void addUserChannel() {
         String actionContent = editTextActionAddress.getText().toString();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
@@ -122,7 +122,7 @@ public class AddChannelDialog extends BaseDialogFragment {
             Channel channel =
                 createModelInstance(id, labelContent, _channelType, _channelSection,
                     actionContent);
-            getRxBus().post(new ChannelAddedEvent(channel));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
     }
 

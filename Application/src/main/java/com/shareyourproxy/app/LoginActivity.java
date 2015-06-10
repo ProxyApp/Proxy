@@ -31,6 +31,8 @@ import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.command.AddUserCommand;
+import com.shareyourproxy.api.rx.command.event.UserSavedEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;
@@ -39,7 +41,11 @@ import java.lang.ref.WeakReference;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
+
+import static rx.android.app.AppObservable.bindActivity;
 
 /**
  * Activity to log in with google account.
@@ -52,6 +58,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     private static final String GOOGLE_UID_PREFIX = "google:";
     private static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
     private static final String SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
+    // Views
+    @InjectView(R.id.activity_login_sign_in_button)
+    protected SignInButton signInButton;
     private AuthResultHandler _authResultHandler = new AuthResultHandler(
         new WeakReference<>(this), PROVIDER_GOOGLE);
     private Firebase _firebaseRef;
@@ -65,9 +74,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // Used to store the onError code most recently returned by Google Play services
     // until the user clicks 'sign in'.
     private int _signInError;
-    // Views
-    @InjectView(R.id.activity_login_sign_in_button)
-    protected SignInButton signInButton;
+    private CompositeSubscription _subscriptions;
 
     /**
      * Return log in onError dialog based on the type of onError.
@@ -128,6 +135,28 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof UserSavedEvent) {
+                        userAddedToFirebase((UserSavedEvent) event);
+                    }
+                }
+            }));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        _subscriptions.unsubscribe();
+        _subscriptions = null;
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         if (_googleApiClient.isConnected()) {
@@ -156,8 +185,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         if (currentUser != null) {
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-            RestClient.getUserService(this).getUser(userId).compose(RxHelper.applySchedulers())
-                .subscribe(new JustObserver<Object>() {
+            RestClient.getUserService(this).getUser(userId)
+                .compose(RxHelper.<User>applySchedulers())
+                .subscribe(new JustObserver<User>() {
                     @Override
                     public void onError() {
                         showErrorDialog(LoginActivity.this, "Retrofit general onError getting " +
@@ -166,11 +196,12 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     }
 
                     @Override
-                    public void onNext(Object user) {
+                    public void onNext(User user) {
                         if (user == null) {
                             addUserToDatabase(createUserFromGoogle());
                         } else {
-                            setUserAndAuth((User) user);
+                            setLoggedInUser(user);
+                            authUser(user);
                         }
                     }
                 });
@@ -205,24 +236,18 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     /**
      * Add a {@link User} to FireBase.
      *
-     * @param loggedInUser the {@link User} to log in
+     * @param newUser the {@link User} to log in
      */
-    private void addUserToDatabase(User loggedInUser) {
-        RestClient.getUserService(this).updateUser(loggedInUser.id().value(),
-            loggedInUser).compose(RxHelper.applySchedulers())
-            .subscribe(new JustObserver<Object>() {
-                @Override
-                public void onNext(Object user) {
-                    Timber.i("rest client success");
-                    setUserAndAuth((User) user);
-                }
+    private void addUserToDatabase(User newUser) {
+        setLoggedInUser(newUser);
+        getRxBus().post(new AddUserCommand(newUser));
+    }
 
-                @Override
-                public void onError() {
-                    signInButton.setEnabled(true);
-                    showErrorDialog(LoginActivity.this, "Retrofit general onError saving User");
-                }
-            });
+    private void userAddedToFirebase(UserSavedEvent event) {
+        authUser(event.user);
+//TODO: ERROR HANDLING FOR SAVING A USER
+//                signInButton.setEnabled(true);
+//                showErrorDialog(LoginActivity.this, "Retrofit general onError saving User");
     }
 
     /**
@@ -230,8 +255,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      *
      * @param user to login
      */
-    private void setUserAndAuth(final User user) {
-        setLoggedInUser(user);
+    private void authUser(final User user) {
         getGoogleOAuthTokenAndLogin();
     }
 

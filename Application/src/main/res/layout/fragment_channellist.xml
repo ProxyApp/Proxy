@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.shareyourproxy.widget.BaseRecyclerView
+<com.shareyourproxy.app.adapter.BaseRecyclerView
     android:id="@+id/fragment_channel_list_recyclerview"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

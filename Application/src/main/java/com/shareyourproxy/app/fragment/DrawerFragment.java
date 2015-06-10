@@ -10,10 +10,10 @@ import android.widget.Toast;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.DrawerItemSelectedEvent;
+import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.BaseActivity;
-import com.shareyourproxy.app.adapter.DrawerRecyclerAdapter;
-import com.shareyourproxy.widget.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.DrawerAdapter;
+import com.shareyourproxy.app.adapter.BaseRecyclerView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -28,7 +28,7 @@ public class DrawerFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_drawer_recyclerview)
     BaseRecyclerView drawerRecyclerView;
-    private DrawerRecyclerAdapter _adapter;
+    private DrawerAdapter _adapter;
 
     @Override
     public View onCreateView(
@@ -45,7 +45,7 @@ public class DrawerFragment extends BaseFragment implements ItemClickListener {
      */
     private void initializeRecyclerView() {
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = DrawerRecyclerAdapter.newInstance(
+        _adapter = DrawerAdapter.newInstance(
             getCurrentUser(), getResources().getStringArray(R.array.drawer_settings), this);
         drawerRecyclerView.setAdapter(_adapter);
         drawerRecyclerView.setHasFixedSize(true);
@@ -54,7 +54,7 @@ public class DrawerFragment extends BaseFragment implements ItemClickListener {
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new DrawerItemSelectedEvent(view, position, _adapter.getSettingValue
+        getRxBus().post(new SelectDrawerItemEvent(view, position, _adapter.getSettingValue
             (position)));
     }
 

@@ -80,7 +80,7 @@ public final class IntentLauncher {
         Intent intent = new Intent(Intents.ACTION_USER_PROFILE);
         intent.putExtra(ARG_USER_SELECTED_PROFILE, user);
         intent.putExtra(ARG_USER_LOGGED_IN, isLoggedInUser);
-        activity.startActivityForResult(intent, 0);
+        activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
@@ -115,14 +115,14 @@ public final class IntentLauncher {
      */
     public static void launchChannelListActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_ADD_CHANNEL_LIST_VIEW);
-        activity.startActivityForResult(intent, 0);
+        activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
     public static void launchEditGroupActivity(Activity activity, Group group) {
         Intent intent = new Intent(Intents.ACTION_EDIT_GROUP);
         intent.putExtra(ARG_SELECTED_GROUP, group);
-        activity.startActivityForResult(intent, 0);
+        activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 

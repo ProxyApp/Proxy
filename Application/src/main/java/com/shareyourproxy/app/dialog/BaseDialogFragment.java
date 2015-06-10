@@ -4,8 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.widget.Button;
 
-import com.shareyourproxy.app.BaseActivity;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.app.BaseActivity;
 
 /**
  * Base Dialog Abstraction.
@@ -19,6 +20,10 @@ public class BaseDialogFragment extends DialogFragment {
      */
     public void setTextColorResource(@NonNull Button button, int colorResource) {
         button.setTextColor(getResources().getColor(colorResource));
+    }
+
+    public User getLoggedInUser() {
+        return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
     public RxBusDriver getRxBus() {

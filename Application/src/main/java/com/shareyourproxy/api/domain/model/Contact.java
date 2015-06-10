@@ -20,13 +20,12 @@ public abstract class Contact implements Parcelable {
      * Create a new Contact.
      *
      * @param id       unique identifier
-     * @param label    name of the contact
      * @param channels list of contacts channels
      * @return Immutable contact
      */
     @SuppressWarnings("unused")
-    public static Contact create(Id id, String label, ArrayList<Channel> channels) {
-        return builder().id(id).label(label).channels(channels).build();
+    public static Contact create(Id id, String first, String last,String imageURL, ArrayList<Channel> channels) {
+        return builder().id(id).first(first).last(last).imageURL(imageURL).channels(channels).build();
     }
 
     /**
@@ -50,7 +49,21 @@ public abstract class Contact implements Parcelable {
      *
      * @return name
      */
-    public abstract String label();
+    public abstract String first();
+
+    /**
+     * Get the name of the Contact.
+     *
+     * @return name
+     */
+    public abstract String last();
+
+    /**
+     * Get contact profile image.
+     *
+     * @return profile image
+     */
+    public abstract String imageURL();
 
     /**
      * Get the list of channels a contact has.
@@ -75,12 +88,28 @@ public abstract class Contact implements Parcelable {
         Builder id(Id id);
 
         /**
+         * Set the contacts first name.
+         *
+         * @param first contact's first name
+         * @return label
+         */
+        Builder first(String first);
+
+        /**
+         * Set the contacts last name.
+         *
+         * @param last contact's last name
+         * @return label
+         */
+        Builder last(String last);
+
+        /**
          * Set the contacts name.
          *
          * @param label contact name
          * @return label
          */
-        Builder label(String label);
+        Builder imageURL(String imageURL);
 
         /**
          * Set contact channels.

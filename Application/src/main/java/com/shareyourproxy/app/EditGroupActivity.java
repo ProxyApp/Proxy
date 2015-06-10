@@ -1,7 +1,5 @@
 package com.shareyourproxy.app;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -10,8 +8,8 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.GroupChannelToggled;
-import com.shareyourproxy.api.rx.event.GroupDeleted;
+import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
+import com.shareyourproxy.api.rx.command.event.UserGroupDeletedEvent;
 import com.shareyourproxy.app.fragment.EditGroupFragment;
 
 import butterknife.ButterKnife;
@@ -21,8 +19,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
-import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
-import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -35,10 +31,6 @@ public class EditGroupActivity extends BaseActivity {
     //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra(ARG_USER_SELECTED_PROFILE, getLoggedInUser());
-        intent.putExtra(ARG_USER_LOGGED_IN, true);
-        setResult(Activity.RESULT_OK, intent);
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
@@ -74,14 +66,14 @@ public class EditGroupActivity extends BaseActivity {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
-                if (event instanceof GroupDeleted) {
-                    removeGroupFromUser(getLoggedInUser(), selectedGroup());
+                if (event instanceof UserGroupDeletedEvent) {
+                    removeGroupFromUser(getLoggedInUser(), getSelectedGroup());
                     // todo do something with the new user
-                } else if (event instanceof GroupChannelToggled) {
+                } else if (event instanceof GroupChannelToggledEvent) {
                     Channel channel = null;
                     for (Channel userChannel : getLoggedInUser().channels()) {
-                        if (userChannel.id().equals(((GroupChannelToggled) event)
-                            .channelid)) {
+                        if (userChannel.id().equals(((GroupChannelToggledEvent) event)
+                            .channelId)) {
                             channel = userChannel;
                         }
                     }
@@ -123,18 +115,18 @@ public class EditGroupActivity extends BaseActivity {
         }
     }
 
-    private Group selectedGroup() {
+    private Group getSelectedGroup() {
         return getIntent().getExtras().getParcelable(ARG_SELECTED_GROUP);
     }
 
     private void toggleChannelInGroup(Channel toggleChannel) {
-        for (Channel channel : selectedGroup().channels()) {
+        for (Channel channel : getSelectedGroup().channels()) {
             if (toggleChannel.id().equals(channel.id())) {
-                selectedGroup().channels().remove(channel);
+                getSelectedGroup().channels().remove(channel);
                 return;
             }
         }
-        addChannelToGroup(selectedGroup(), toggleChannel);
+        addChannelToGroup(getSelectedGroup(), toggleChannel);
     }
 
     private void addChannelToGroup(Group group, Channel channel) {

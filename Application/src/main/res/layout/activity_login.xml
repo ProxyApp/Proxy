@@ -25,27 +25,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_rect_small"
+        android:layout_marginTop="@dimen/common_rect_huge"
         android:text="@string/activity_login_title"
         android:textAllCaps="true"
-        android:textColor="@color/common_red"
+        android:textColor="@color/common_blue"
         android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/activity_login_sub_title"
-        style="@style/TextAppearance.AppCompat.Headline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"
-        android:text="@string/activity_login_sub_title"/>
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/activity_login_sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_margin_xxhuge"
+        android:layout_marginTop="@dimen/common_rect_tiny"
         android:enabled="false"/>
 
 </LinearLayout>
