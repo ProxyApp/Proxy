@@ -16,6 +16,8 @@ import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.observables.ConnectableObservable;
+import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
 
@@ -121,11 +123,24 @@ public class RxUserGroupSync {
             .addUserGroup(userId, group.id().value(), group);
     }
 
-
     private static rx.Observable<Group> deleteFirebaseUserGroup(
         Context context, String userId, Group group) {
-        return rx.Observable.merge(Observable.just(group), RestClient.getUserGroupService(context)
-            .deleteUserGroup(userId, group.id().value())).filter(filterNullContact());
+        Observable<Group> deleteObserver = RestClient.getUserGroupService(context)
+            .deleteUserGroup(userId, group.id().value());
+        deleteObserver.subscribe(new JustObserver<Group>() {
+            @Override
+            public void onError() {
+                Timber.e("error deleting group");
+            }
+
+            @Override
+            public void onNext(Group event) {
+                Timber.i("delete group successful");
+            }
+        });
+        ConnectableObservable<Group> connectableObservable = deleteObserver.publish();
+        return rx.Observable.merge(Observable.just(group), connectableObservable)
+            .filter(filterNullContact());
     }
 
     private static Func1<Group, Boolean> filterNullContact() {

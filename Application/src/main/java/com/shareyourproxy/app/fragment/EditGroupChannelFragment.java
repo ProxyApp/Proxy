@@ -14,33 +14,31 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.DeleteUserGroupCommand;
 import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
-import com.shareyourproxy.app.adapter.EditGroupAdapter;
+import com.shareyourproxy.app.adapter.EditGroupChannelAdapter;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
-public class EditGroupFragment extends BaseFragment implements ItemClickListener {
+public class EditGroupChannelFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_group_edit_recyclerview)
     protected RecyclerView recyclerView;
-    private EditGroupAdapter adapter;
+    private EditGroupChannelAdapter adapter;
 
-    public EditGroupFragment() {
+    public EditGroupChannelFragment() {
     }
 
-    public static EditGroupFragment newInstance() {
-        return new EditGroupFragment();
+    public static EditGroupChannelFragment newInstance() {
+        return new EditGroupChannelFragment();
     }
 
     @OnClick(R.id.fragment_group_edit_delete)
     public void onClick() {
         getRxBus().post(new DeleteUserGroupCommand(getLoggedInUser(), getSelectedGroup()));
-        Timber.i("Deleted group");
     }
 
     private Group getSelectedGroup() {
@@ -58,7 +56,7 @@ public class EditGroupFragment extends BaseFragment implements ItemClickListener
 
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = EditGroupAdapter.newInstance(this);
+        adapter = EditGroupChannelAdapter.newInstance(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -66,15 +64,12 @@ public class EditGroupFragment extends BaseFragment implements ItemClickListener
 
     @Override
     public void onItemClick(View view, int position) {
-        int viewType = recyclerView.getChildViewHolder(view).getItemViewType();
-        if (viewType == EditGroupAdapter.TYPE_LIST_ITEM) {
-            Switch channelSwitch = ((EditGroupAdapter.ItemViewHolder)
+            Switch channelSwitch = ((EditGroupChannelAdapter.ItemViewHolder)
                 recyclerView.getChildViewHolder(view)).itemSwitch;
             channelSwitch.setChecked(!channelSwitch.isChecked());
             RxBusDriver.getInstance().post(
-                new GroupChannelToggledEvent(adapter.getItemData(position).channel().id().value()));
-            //todo send a message to the bus indicating the channel was changed
-        }
+                new GroupChannelToggledEvent(
+                    adapter.getItemData(position).getChannel().id().value()));
     }
 
     @Override

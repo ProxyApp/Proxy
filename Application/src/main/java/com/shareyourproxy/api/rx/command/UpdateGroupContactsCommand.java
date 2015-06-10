@@ -33,16 +33,14 @@ public class UpdateGroupContactsCommand extends BaseCommand {
     public final ArrayList<GroupEditContact> groups;
     public final Contact contact;
     public final User user;
-    public boolean inAnyGroup = false;
 
     public UpdateGroupContactsCommand(
-        User user, ArrayList<GroupEditContact> groups, Contact contact, boolean inAnyGroup) {
+        User user, ArrayList<GroupEditContact> groups, Contact contact) {
         super(UpdateGroupContactsCommand.class.getPackage().getName(),
             UpdateGroupContactsCommand.class.getName());
         this.user = user;
         this.groups = groups;
         this.contact = contact;
-        this.inAnyGroup = inAnyGroup;
     }
 
     public UpdateGroupContactsCommand(BaseCommand command) {
@@ -51,18 +49,17 @@ public class UpdateGroupContactsCommand extends BaseCommand {
         this.user = ((UpdateGroupContactsCommand) command).user;
         this.groups = ((UpdateGroupContactsCommand) command).groups;
         this.contact = ((UpdateGroupContactsCommand) command).contact;
-        this.inAnyGroup = ((UpdateGroupContactsCommand) command).inAnyGroup;
     }
 
     private UpdateGroupContactsCommand(Parcel in) {
         this((User) in.readValue(CL), (ArrayList<GroupEditContact>) in.readValue(CL),
-            (Contact) in.readValue(CL), (boolean) in.readValue(CL));
+            (Contact) in.readValue(CL));
     }
 
     @Override
     public List<CommandEvent> execute(IntentService service) {
         return RxGroupContactSync
-            .updateGroupContacts(service, user, groups, contact, inAnyGroup);
+            .updateGroupContacts(service, user, groups, contact);
     }
 
     @Override
@@ -75,7 +72,6 @@ public class UpdateGroupContactsCommand extends BaseCommand {
         dest.writeValue(user);
         dest.writeValue(groups);
         dest.writeValue(contact);
-        dest.writeValue(inAnyGroup);
     }
 
 }

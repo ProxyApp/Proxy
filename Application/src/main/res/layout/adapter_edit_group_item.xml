@@ -31,7 +31,8 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/common_margin_tiny"
-        android:layout_toEndOf="@id/adapter_add_channel_list_item_label"/>
+        android:layout_toEndOf="@id/adapter_add_channel_list_item_label"
+        android:theme="@style/Theme.Proxy.Accent"/>
 
     <View
         android:layout_width="match_parent"

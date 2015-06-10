@@ -37,7 +37,7 @@ public class RealmGroup extends RealmObject {
     /**
      * Getter.
      *
-     * @return groups name
+     * @return contactGroups name
      */
     public String getLabel() {
         return label;

@@ -2,7 +2,6 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
-import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
@@ -16,8 +15,10 @@ import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
+import static com.shareyourproxy.api.RestClient.getUserContactService;
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
 
 /**
@@ -120,16 +121,31 @@ public class RxUserContactSync {
 
     private static rx.Observable<Contact> saveFirebaseUserGroup(
         Context context, String userId, Contact contact) {
-        return RestClient.getUserContactService(context)
+        return getUserContactService(context)
             .addUserContact(userId, contact.id().value(), contact);
     }
 
 
     private static rx.Observable<Contact> deleteFirebaseUserContact(
         Context context, String userId, Contact contact) {
-        return rx.Observable.merge(Observable.just(contact),
-            RestClient.getUserContactService(context)
-                .deleteUserContact(userId, contact.id().value())).filter(filterNullContact());
+        //TODO:WHY DOES THIS NEED TO BE A CONNECTIBLE OBSERVABLE FLOW, WHY CANT IT BE LIKE SAVE?
+        Observable<Contact> deleteObserver = getUserContactService(context)
+            .deleteUserContact(userId, contact.id().value());
+        deleteObserver.subscribe(new JustObserver<Contact>() {
+            @Override
+            public void onError() {
+                Timber.e("error deleting user contact");
+            }
+
+            @Override
+            public void onNext(Contact event) {
+                Timber.i("delete user contact successful");
+            }
+        });
+        ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();
+
+        return rx.Observable.merge(Observable.just(contact), connectableObservable)
+            .filter(filterNullContact());
     }
 
     private static Func1<Contact, Boolean> filterNullContact() {

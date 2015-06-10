@@ -19,16 +19,12 @@ import android.widget.ImageView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
-import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.AddUserContactCommand;
-import com.shareyourproxy.api.rx.command.DeleteUserContactCommand;
 import com.shareyourproxy.api.rx.command.event.GroupContactsUpdatedEvent;
-import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.api.rx.command.event.UserChannelAddedEvent;
 import com.shareyourproxy.api.rx.command.event.UserChannelDeletedEvent;
+import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ChannelGridAdapter;
 import com.shareyourproxy.app.dialog.EditChannelDialog;
@@ -47,6 +43,8 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
+import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.app.adapter.ChannelGridAdapter.VIEW_TYPE_SECTION;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
@@ -125,29 +123,11 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     private void getGroupEditContacts() {
-        //TODO: TRASH this n^2 bullshit
-        ArrayList<Group> groups = getLoggedInUser().groups();
         _contactGroups.clear();
-        if (groups != null) {
-            for (Group group : groups) {
-                ArrayList<Contact> contacts = group.contacts();
-                if (contacts != null && contacts.size() > 0) {
-                    //default to contact not in group
-                    boolean hasContact = false;
-                    // for every group's contacts
-                    for (Contact contact : contacts) {
-                        // if the selected contact is in the group
-                        if (_user.id().value().equals(contact.id().value())){
-                            hasContact = true;
-                            break;
-                        }
-                    }
-                    _contactGroups.add(GroupEditContact.create(group, hasContact));
-                } else {
-                    _contactGroups.add(GroupEditContact.create(group, false));
-                }
-            }
-        }
+        _contactGroups.addAll(queryContactGroups(
+            getLoggedInUser(), createModelContact(_user)));
+        updateGroupButtonText(queryContactGroups(
+            _contactGroups, createModelContact(_user)));
     }
 
     /**
@@ -213,7 +193,10 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             _paletteListener = new PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
                     Resources res = getActivity().getResources();
-                    Integer color = palette.getVibrantColor(res.getColor(R.color.common_blue));
+                    Integer offColor = palette.getMutedColor(
+                        res.getColor(R.color.common_blue));
+
+                    Integer color = palette.getVibrantColor(offColor);
                     collapsingToolbarLayout.setContentScrimColor(color);
                     collapsingToolbarLayout.setStatusBarScrimColor(color);
                     collapsingToolbarLayout.setBackgroundColor(color);
@@ -289,19 +272,25 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
                     addUserChannel(((UserChannelAddedEvent) event));
                 } else if (event instanceof UserChannelDeletedEvent) {
                     deleteUserChannel(((UserChannelDeletedEvent) event));
-                }
-                else if (event instanceof GroupContactsUpdatedEvent){
-                    checkUpdateUserContacts((GroupContactsUpdatedEvent) event);
+                } else if (event instanceof GroupContactsUpdatedEvent) {
+                    groupContactsUpdatedEvent((GroupContactsUpdatedEvent) event);
                 }
             }
         };
     }
 
-    private void checkUpdateUserContacts(GroupContactsUpdatedEvent event) {
-        if (event.inGroup) {
-            getRxBus().post(new AddUserContactCommand(getLoggedInUser(), event.contact));
+    private void groupContactsUpdatedEvent(GroupContactsUpdatedEvent event) {
+        updateGroupButtonText(event);
+    }
+
+    private void updateGroupButtonText(GroupContactsUpdatedEvent event) {
+        int groupSize = event.contactGroups.size();
+        if (groupSize == 0) {
+            groupButton.setText(R.string.add_to_group);
+        } else if (groupSize > 1) {
+            groupButton.setText(getString(R.string.edit_groups));
         } else {
-            getRxBus().post(new DeleteUserContactCommand(getLoggedInUser(), event.contact));
+            groupButton.setText(event.contactGroups.get(0).label());
         }
     }
 

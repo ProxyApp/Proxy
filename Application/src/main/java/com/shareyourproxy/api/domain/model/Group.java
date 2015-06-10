@@ -85,7 +85,7 @@ public abstract class Group implements Parcelable {
     public interface Builder {
 
         /**
-         * Set the groups Id.
+         * Set the contactGroups Id.
          *
          * @param id group unique groupId
          * @return group groupId
@@ -93,7 +93,7 @@ public abstract class Group implements Parcelable {
         Builder id(Id id);
 
         /**
-         * Set the groups name.
+         * Set the contactGroups name.
          *
          * @param label group name
          * @return label
@@ -112,7 +112,7 @@ public abstract class Group implements Parcelable {
         /**
          * Set group contacts.
          *
-         * @param contacts this groups contacts
+         * @param contacts this contactGroups contacts
          * @return contacts
          */
         @Nullable

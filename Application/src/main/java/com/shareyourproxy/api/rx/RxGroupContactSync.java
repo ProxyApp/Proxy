@@ -2,7 +2,6 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
-import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.GroupFactory;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
@@ -21,9 +20,12 @@ import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
+import static com.shareyourproxy.api.RestClient.getGroupContactService;
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
+import static com.shareyourproxy.api.rx.RxHelper.filterNullContact;
 
 /**
  * Created by Evan on 6/4/15.
@@ -37,13 +39,27 @@ public class RxGroupContactSync {
     }
 
     public static List<CommandEvent> updateGroupContacts(
-        final Context context, final User user, ArrayList<GroupEditContact> editGroups,
-        final Contact contact, final boolean inAnyGroup) {
+        final Context context, final User user,
+        final ArrayList<GroupEditContact> editGroups, final Contact contact) {
         return Observable.merge(
-            Observable.just(inAnyGroup).map(createGroupContactEvent(contact)),
+            Observable.from(editGroups).map(contactInGroup())
+                .filter(filterNullContact()).toList().map(createGroupContactEvent(contact)),
             Observable.from(editGroups).flatMap(
                 groupContactCommand(context, user, contact)))
             .toList().toBlocking().single();
+    }
+
+    private static Func1<GroupEditContact, Group> contactInGroup() {
+        return new Func1<GroupEditContact, Group>() {
+            @Override
+            public Group call(GroupEditContact groupEditContact) {
+                if (groupEditContact.hasContact()) {
+                    return groupEditContact.getGroup();
+                } else {
+                    return null;
+                }
+            }
+        };
     }
 
     private static Func1<GroupEditContact, Observable<CommandEvent>> groupContactCommand(
@@ -60,13 +76,12 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<Boolean, CommandEvent> createGroupContactEvent(final Contact contact) {
-        return new Func1<Boolean, CommandEvent>() {
-
-
+    private static Func1<List<Group>, CommandEvent> createGroupContactEvent(
+        final Contact contact) {
+        return new Func1<List<Group>, CommandEvent>() {
             @Override
-            public GroupContactsUpdatedEvent call(Boolean inAnyGroup) {
-                return new GroupContactsUpdatedEvent(contact, inAnyGroup);
+            public GroupContactsUpdatedEvent call(List<Group> groups) {
+                return new GroupContactsUpdatedEvent(contact, new ArrayList<>(groups));
             }
         };
     }
@@ -139,7 +154,6 @@ public class RxGroupContactSync {
         return new Func1<Group, Group>() {
             @Override
             public Group call(Group oldGroup) {
-                Timber.i("Contact Object: " + contact.toString());
                 Group newGroup = GroupFactory.deleteGroupContact(oldGroup, contact);
                 User newUser = UserFactory.addUserGroup(user, newGroup);
                 Realm realm = Realm.getInstance(context);
@@ -154,24 +168,29 @@ public class RxGroupContactSync {
 
     private static rx.Observable<Contact> saveFirebaseGroupContact(
         Context context, String userId, String groupId, Contact contact) {
-        return RestClient.getGroupContactService(context)
+        return getGroupContactService(context)
             .addGroupContact(userId, groupId, contact.id().value(), contact);
     }
 
-
     private static rx.Observable<Contact> deleteFirebaseGroupContact(
         Context context, String userId, String groupId, Contact contact) {
-        return rx.Observable.merge(Observable.just(contact), RestClient.getGroupContactService
-            (context).deleteGroupContact(userId, groupId, contact.id().value()))
+        Observable<Contact> deleteObserver = getGroupContactService(context)
+            .deleteGroupContact(userId, groupId, contact.id().value());
+        deleteObserver.subscribe(new JustObserver<Contact>() {
+            @Override
+            public void onError() {
+                Timber.e("error deleting group contact");
+            }
+
+            @Override
+            public void onNext(Contact event) {
+                Timber.i("delete group contact successful");
+            }
+        });
+        ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();
+        return rx.Observable.merge(
+            Observable.just(contact), connectableObservable)
             .filter(filterNullContact());
     }
 
-    private static Func1<Contact, Boolean> filterNullContact() {
-        return new Func1<Contact, Boolean>() {
-            @Override
-            public Boolean call(Contact contact) {
-                return contact != null;
-            }
-        };
-    }
 }

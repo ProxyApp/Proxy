@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 import butterknife.InjectView;
 
-import static com.shareyourproxy.app.adapter.BaseViewHolder.*;
+import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
 /**
@@ -36,8 +36,13 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     public ContactAdapter(ArrayList<Contact> contacts, ItemClickListener listener) {
         _clickListener = listener;
-        _contacts = new SortedList<>(Contact.class, getSortedCallback(), contacts.size());
-        addContactsArray(contacts);
+        if (contacts != null) {
+            _contacts = new SortedList<>(Contact.class, getSortedCallback(), contacts.size());
+            addContactsArray(contacts);
+        } else {
+            _contacts = new SortedList<>(Contact.class, getSortedCallback());
+        }
+
     }
 
     /**
@@ -142,8 +147,8 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private void addContactsArray(ArrayList<Contact> contacts) {
         _contacts.beginBatchedUpdates();
-        for (Contact user : contacts) {
-            _contacts.add(user);
+        for (Contact contact : contacts) {
+            _contacts.add(contact);
         }
         _contacts.endBatchedUpdates();
     }

@@ -17,7 +17,7 @@ import timber.log.Timber;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
- * Activity to display a groups contacts.
+ * Activity to display a contactGroups contacts.
  */
 public class GroupContactsActivity extends BaseActivity {
     @Override
@@ -36,13 +36,13 @@ public class GroupContactsActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_activity_view_group_users, menu);
+        inflater.inflate(R.menu.menu_activity_group_contacts, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem editGroup = menu.findItem(R.id.menu_view_group_users_edit_group);
+        MenuItem editGroup = menu.findItem(R.id.menu_group_contacts_edit_group);
         // Add Icons to the menu items before they are displayed
         editGroup.setIcon(getMenuIcon(this, R.raw.ic_mode_edit));
         return super.onPrepareOptionsMenu(menu);
@@ -58,7 +58,7 @@ public class GroupContactsActivity extends BaseActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-            case R.id.menu_view_group_users_edit_group:
+            case R.id.menu_group_contacts_edit_group:
                 IntentLauncher.launchEditGroupActivity(this, getSelectedGroup());
                 break;
             default:

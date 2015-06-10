@@ -22,14 +22,14 @@ public interface UserGroupService {
      *
      * @param userId unique id for {@link User} table
      */
-    @GET("/users/{userId}/groups.json")
+    @GET("/users/{userId}/contactGroups.json")
     Observable<Map<String, Group>> listUserGroups(@Path("userId") String userId);
 
-    @PUT("/users/{userId}/groups/{groupId}.json")
+    @PUT("/users/{userId}/contactGroups/{groupId}.json")
     Observable<Group> addUserGroup(
         @Path("userId") String userId, @Path("groupId") String groupId, @Body Group group);
 
-    @DELETE("/users/{userId}/groups/{groupId}.json")
+    @DELETE("/users/{userId}/contactGroups/{groupId}.json")
     Observable<Group> deleteUserGroup(
         @Path("userId") String userId, @Path("groupId") String groupId);
 }
