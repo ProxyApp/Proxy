@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.os.Parcel;
 
 import com.shareyourproxy.api.rx.RxUserSync;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 
 import java.util.List;
 

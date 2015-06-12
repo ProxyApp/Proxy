@@ -20,7 +20,7 @@ import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 /**
  * Created by Evan on 5/5/15.
  */
-public class ChannelListFragment extends BaseFragment implements ItemClickListener {
+public class AddChannelListFragment extends BaseFragment implements ItemClickListener {
 
     @InjectView(R.id.fragment_channel_list_recyclerview)
     protected BaseRecyclerView recyclerView;
@@ -29,7 +29,7 @@ public class ChannelListFragment extends BaseFragment implements ItemClickListen
     /**
      * Constructor.
      */
-    public ChannelListFragment() {
+    public AddChannelListFragment() {
     }
 
     /**
@@ -37,8 +37,8 @@ public class ChannelListFragment extends BaseFragment implements ItemClickListen
      *
      * @return fragment
      */
-    public static ChannelListFragment newInstance() {
-        return new ChannelListFragment();
+    public static AddChannelListFragment newInstance() {
+        return new AddChannelListFragment();
     }
 
     @Override

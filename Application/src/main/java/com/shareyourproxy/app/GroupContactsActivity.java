@@ -14,7 +14,7 @@ import com.shareyourproxy.app.fragment.GroupContactsFragment;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
-import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 
 /**
  * Activity to display a contactGroups contacts.
@@ -44,7 +44,7 @@ public class GroupContactsActivity extends BaseActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem editGroup = menu.findItem(R.id.menu_group_contacts_edit_group);
         // Add Icons to the menu items before they are displayed
-        editGroup.setIcon(getMenuIcon(this, R.raw.ic_mode_edit));
+        editGroup.setIcon(getMenuIconSecondary(this, R.raw.ic_mode_edit));
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -59,7 +59,7 @@ public class GroupContactsActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.menu_group_contacts_edit_group:
-                IntentLauncher.launchEditGroupActivity(this, getSelectedGroup());
+                IntentLauncher.launchGroupEditChannelActivity(this, getSelectedGroup());
                 break;
             default:
                 Timber.e("Menu Item ID unknown");

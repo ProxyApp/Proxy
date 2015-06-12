@@ -8,4 +8,4 @@
                  android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
                  android:paddingStart="?android:attr/listPreferredItemPaddingStart"
                  android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                 android:theme="@style/Theme.Proxy.Accent"/>
+                 android:theme="@style/Widget.Proxy.CheckedTextView.CheckedBox"/>

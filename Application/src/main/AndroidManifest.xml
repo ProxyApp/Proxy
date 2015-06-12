@@ -65,7 +65,7 @@
         </activity>
 
         <activity
-            android:name="com.shareyourproxy.app.ChannelListActivity"
+            android:name=".app.AddChannelListActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.proxy.intent.action.ADD_CHANNEL_LIST"/>
@@ -74,7 +74,7 @@
         </activity>
 
         <activity
-            android:name=".app.EditGroupChannelActivity"
+            android:name=".app.GroupEditChannelActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.proxy.intent.action.EDIT_GROUP"/>

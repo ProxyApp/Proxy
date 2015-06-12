@@ -25,7 +25,7 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 import static rx.android.app.AppObservable.bindActivity;
 
 
@@ -141,7 +141,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem search = menu.findItem(R.id.menu_main_search);
         // Add Icons to the menu items before they are displayed
-        search.setIcon(getMenuIcon(this, R.raw.ic_search));
+        search.setIcon(getMenuIconDark(this, R.raw.ic_search));
         return super.onPrepareOptionsMenu(menu);
     }
 

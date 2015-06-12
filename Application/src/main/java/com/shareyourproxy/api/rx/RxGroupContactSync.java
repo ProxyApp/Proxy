@@ -8,10 +8,10 @@ import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
-import com.shareyourproxy.api.rx.command.event.GroupContactAddedEvent;
-import com.shareyourproxy.api.rx.command.event.GroupContactDeletedEvent;
-import com.shareyourproxy.api.rx.command.event.GroupContactsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.GroupContactAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.GroupContactDeletedEvent;
+import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -179,12 +179,12 @@ public class RxGroupContactSync {
         deleteObserver.subscribe(new JustObserver<Contact>() {
             @Override
             public void onError() {
-                Timber.e("error deleting group contact");
+                Timber.e("error deleting group group");
             }
 
             @Override
             public void onNext(Contact event) {
-                Timber.i("delete group contact successful");
+                Timber.i("delete group group successful");
             }
         });
         ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();
