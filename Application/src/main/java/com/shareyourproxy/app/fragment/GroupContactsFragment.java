@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.rx.command.callback.GroupChannelsUpdatedEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
@@ -72,9 +73,16 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
                 public void call(Object event) {
                     if (event instanceof UserSelectedEvent) {
                         onUserSelected((UserSelectedEvent) event);
+                    } else if (event instanceof GroupChannelsUpdatedEvent) {
+                        channelsUpdated((GroupChannelsUpdatedEvent) event);
                     }
                 }
             }));
+    }
+
+    private void channelsUpdated(GroupChannelsUpdatedEvent event) {
+        getActivity().getIntent().putExtra(ARG_SELECTED_GROUP, event.group);
+        getSupportActionBar().setTitle(capitalize(getGroupArg().label()));
     }
 
     @Override

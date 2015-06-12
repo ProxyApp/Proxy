@@ -2,9 +2,12 @@ package com.shareyourproxy.api.rx.event;
 
 import android.support.annotation.NonNull;
 
+import com.shareyourproxy.api.domain.model.GroupEditChannel;
+
 public class GroupChannelToggledEvent {
-    public final String channelId;
-    public GroupChannelToggledEvent(@NonNull String channelId) {
-        this.channelId = channelId;
+    public final GroupEditChannel editChannel;
+
+    public GroupChannelToggledEvent(@NonNull GroupEditChannel editChannel) {
+        this.editChannel = editChannel;
     }
 }

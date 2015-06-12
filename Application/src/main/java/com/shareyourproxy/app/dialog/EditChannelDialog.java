@@ -58,7 +58,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     @InjectView(R.id.dialog_channel_action_address_floatlabel)
     protected TextInputLayout floatLabelAddress;
     private int _gray;
-    private int _green;
+    private int _blue;
     private Channel _channel;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
@@ -145,14 +145,14 @@ public class EditChannelDialog extends BaseDialogFragment {
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void afterActionAddressChanged(Editable editable) {
         editTextActionAddress.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _green, PorterDuff.Mode.SRC_IN);
+            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
     }
 
     @OnTextChanged(value = R.id.dialog_channel_label_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void afterLabelChanged(Editable editable) {
         editTextLabel.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _green, PorterDuff.Mode.SRC_IN);
+            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
@@ -203,12 +203,12 @@ public class EditChannelDialog extends BaseDialogFragment {
     private void initializeEditTextColors() {
         Context context = editTextActionAddress.getContext();
         _gray = context.getResources().getColor(R.color.common_divider);
-        _green = context.getResources().getColor(R.color.common_green);
+        _blue = context.getResources().getColor(R.color.common_blue);
 
-        editTextActionAddress.getBackground().setColorFilter(_green, PorterDuff.Mode.SRC_IN);
+        editTextActionAddress.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
         editTextActionAddress.setText(_channel.actionAddress());
 
-        editTextLabel.getBackground().setColorFilter(_green, PorterDuff.Mode.SRC_IN);
+        editTextLabel.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
         editTextLabel.setText(_channel.label());
 
         floatLabelAddress.setHint(context.getString(R.string.edit_channel_address));

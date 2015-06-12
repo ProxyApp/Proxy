@@ -28,7 +28,6 @@ public interface UserService {
      * Get a specific user.
      *
      * @param userId   user unique identifier
-     * @param callback async callback
      * @return user
      */
     @GET("/users/{id}.json")

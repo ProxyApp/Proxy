@@ -6,9 +6,9 @@ import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.event.CommandEvent;
-import com.shareyourproxy.api.rx.command.event.UserGroupAddedEvent;
-import com.shareyourproxy.api.rx.command.event.UserGroupDeletedEvent;
+import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.callback.UserGroupAddedEvent;
+import com.shareyourproxy.api.rx.command.callback.UserGroupDeletedEvent;
 
 import java.util.List;
 

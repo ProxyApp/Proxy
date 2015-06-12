@@ -21,7 +21,7 @@ import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.AddUserContactCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserContactCommand;
-import com.shareyourproxy.api.rx.command.UpdateGroupContactsCommand;
+import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
 import com.shareyourproxy.util.DebugUtils;
@@ -88,7 +88,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
         } else {
             getRxBus().post(new DeleteUserContactCommand(getLoggedInUser(), contact));
         }
-        getRxBus().post(new UpdateGroupContactsCommand(
+        getRxBus().post(new SaveGroupContactsCommand(
             getLoggedInUser(), _adapter.getDataArray(), contact));
     }
 
@@ -136,7 +136,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_green);
+        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
         setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
         initializeRecyclerView();
     }

@@ -8,8 +8,8 @@ import android.widget.Toast;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.app.AddChannelListActivity;
 import com.shareyourproxy.app.BaseActivity;
-import com.shareyourproxy.app.ChannelListActivity;
 import com.shareyourproxy.app.DispatchActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
@@ -109,7 +109,7 @@ public final class IntentLauncher {
     }
 
     /**
-     * Launch the {@link ChannelListActivity}.
+     * Launch the {@link AddChannelListActivity}.
      *
      * @param activity The context used to start this intent
      */
@@ -119,8 +119,8 @@ public final class IntentLauncher {
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
-    public static void launchEditGroupActivity(Activity activity, Group group) {
-        Intent intent = new Intent(Intents.ACTION_EDIT_GROUP);
+    public static void launchGroupEditChannelActivity(Activity activity, Group group) {
+        Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
         intent.putExtra(ARG_SELECTED_GROUP, group);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);

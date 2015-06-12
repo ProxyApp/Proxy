@@ -1,4 +1,5 @@
-package com.shareyourproxy.api.rx.command.event;
+package com.shareyourproxy.api.rx.command.callback;
+
 
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -6,10 +7,7 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 
-/**
- * Created by Evan on 6/8/15.
- */
-public class UserGroupAddedEvent extends CommandEvent {
+public class UserGroupDeletedEvent extends CommandEvent {
 
     public final User user;
     public final Group group;
@@ -19,7 +17,7 @@ public class UserGroupAddedEvent extends CommandEvent {
      *
      * @param group this events group
      */
-    public UserGroupAddedEvent(@NonNull User user, @NonNull Group group) {
+    public UserGroupDeletedEvent(@NonNull User user, @NonNull Group group) {
         this.user = user;
         this.group = group;
     }

@@ -14,7 +14,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
-import com.shareyourproxy.api.rx.command.event.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ContactAdapter;
 

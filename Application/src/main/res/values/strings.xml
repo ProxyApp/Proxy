@@ -45,6 +45,7 @@
     <string name="Add">Add</string>
     <string name="Dial">Dial</string>
     <string name="edit_group">Edit Group</string>
+    <string name="group_name">Group name</string>
     <string name="edit_groups">Edit groups</string>
     <string name="add_channel">Add Channel</string>
     <string name="Delete">Delete</string>

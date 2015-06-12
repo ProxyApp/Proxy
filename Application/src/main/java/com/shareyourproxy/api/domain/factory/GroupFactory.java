@@ -1,5 +1,6 @@
 package com.shareyourproxy.api.domain.factory;
 
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
@@ -45,5 +46,10 @@ public class GroupFactory {
             contacts.remove(contact);
         }
         return Group.copy(group.id(), group.label(), group.channels(), contacts);
+    }
+
+    public static Group addGroupChannels(
+        String newTitle, Group oldGroup, ArrayList<Channel> channels) {
+        return Group.copy(oldGroup.id(), newTitle, channels, oldGroup.contacts());
     }
 }
