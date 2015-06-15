@@ -12,11 +12,14 @@ import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
+import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ContactAdapter;
+
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -96,7 +99,11 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ContactAdapter.newInstance(getLoggedInUser().contacts(), this);
+        ArrayList<Contact> contacts = null;
+        if (getLoggedInUser() != null) {
+            contacts = getLoggedInUser().contacts();
+        }
+        _adapter = ContactAdapter.newInstance(contacts, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -112,8 +119,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                 public void call(Object event) {
                     if (event instanceof UserSelectedEvent) {
                         onUserSelected((UserSelectedEvent) event);
-                    }
-                    else if (event instanceof UsersDownloadedEvent) {
+                    } else if (event instanceof UsersDownloadedEvent) {
                         usersDownloaded((UsersDownloadedEvent) event);
                     }
                 }

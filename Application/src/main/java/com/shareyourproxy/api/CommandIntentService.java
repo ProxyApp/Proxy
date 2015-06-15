@@ -10,7 +10,6 @@ import android.util.Log;
 import com.shareyourproxy.api.rx.command.BaseCommand;
 import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,7 @@ public class CommandIntentService extends IntentService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onHandleIntent(Intent intent) {
         BaseCommand command = intent.getExtras().getParcelable(ARG_COMMAND_CLASS);
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
@@ -47,21 +47,13 @@ public class CommandIntentService extends IntentService {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, new ArrayList(events));
             result.send(Activity.RESULT_OK, bundle);
-        } catch (ClassNotFoundException e) {
-            Timber.e(Log.getStackTraceString(e));
-            result.send(Activity.RESULT_CANCELED, null);
-        } catch (InvocationTargetException e) {
-            Timber.e(Log.getStackTraceString(e));
-            result.send(Activity.RESULT_CANCELED, null);
-        } catch (NoSuchMethodException e) {
-            Timber.e(Log.getStackTraceString(e));
-            result.send(Activity.RESULT_CANCELED, null);
-        } catch (IllegalAccessException e) {
-            Timber.e(Log.getStackTraceString(e));
-            result.send(Activity.RESULT_CANCELED, null);
-        } catch (InstantiationException e) {
-            Timber.e(Log.getStackTraceString(e));
-            result.send(Activity.RESULT_CANCELED, null);
+        } catch (Exception e) {
+            logError(result, e);
         }
+    }
+
+    private void logError(ResultReceiver result, Exception e) {
+        Timber.e(Log.getStackTraceString(e));
+        result.send(Activity.RESULT_CANCELED, null);
     }
 }

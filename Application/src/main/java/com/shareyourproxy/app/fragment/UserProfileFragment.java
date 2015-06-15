@@ -3,7 +3,9 @@ package com.shareyourproxy.app.fragment;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.graphics.Palette;
@@ -15,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
@@ -50,6 +54,7 @@ import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.app.adapter.ChannelGridAdapter.VIEW_TYPE_SECTION;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
+import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
@@ -64,10 +69,12 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     protected BaseRecyclerView recyclerView;
     @InjectView(R.id.fragment_user_profile_header_image)
     protected ImageView userImage;
-    @InjectView(R.id.fragment_user_profile_collapsing_toolbar)
-    protected CollapsingToolbarLayout collapsingToolbarLayout;
     @InjectView(R.id.fragment_user_profile_header_button)
     protected Button groupButton;
+    @InjectView(R.id.fragment_user_profile_empty_textview)
+    protected TextView emptyTextView;
+    protected CollapsingToolbarLayout collapsingToolbarLayout;
+    protected FrameLayout userProfileBackground;
     private ChannelGridAdapter _adapter;
     private Target _target;
     private PaletteAsyncListener _paletteListener;
@@ -75,6 +82,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ArrayList<GroupEditContact> _contactGroups = new ArrayList<>();
+
 
     /**
      * Constructor.
@@ -106,22 +114,27 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
+        View rootView;
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+            rootView = inflater.inflate(R.layout.fragment_user_profile_v21, container, false);
+        } else {
+            rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
+        }
         ButterKnife.inject(this, rootView);
-        initialize();
+        initialize(rootView);
         return rootView;
     }
 
     /**
      * Initialize this fragments views.
      */
-    private void initialize() {
-        initializeActionBar();
+    private void initialize(View rootView) {
+        initializeActionBar(rootView);
         initializeHeader();
         if (!_isLoggedInUser) {
             getGroupEditContacts();
             initializeRecyclerView(null);
-            getPermissionedChannels();
+            getSharedChannels();
         } else {
             initializeRecyclerView(getLoggedInUser().channels());
         }
@@ -137,13 +150,23 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     /**
      * Initialize this view.
+     *
+     * @param rootView
      */
-    private void initializeActionBar() {
+    private void initializeActionBar(View rootView) {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        collapsingToolbarLayout.setTitle(
-            joinWithSpace(new String[]{ _userContact.first(), _userContact.last() }));
+        String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+            getSupportActionBar().setTitle(title);
+            userProfileBackground = ButterKnife.findById(rootView, R.id
+                .fragment_user_profile_header_background);
+        } else {
+            collapsingToolbarLayout = ButterKnife.findById(rootView, R.id
+                .fragment_user_profile_collapsing_toolbar);
+            collapsingToolbarLayout.setTitle(title);
+            getSupportActionBar().setTitle("");
+        }
     }
 
     private void initializeHeader() {
@@ -153,6 +176,9 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             .into(getBitmapTargetView());
         if (_isLoggedInUser) {
             groupButton.setVisibility(View.GONE);
+        } else {
+            groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                getMenuIcon(getActivity(), R.raw.ic_groups), null, null, null);
         }
     }
 
@@ -202,9 +228,14 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
                         res.getColor(R.color.common_blue));
 
                     Integer color = palette.getVibrantColor(offColor);
-                    collapsingToolbarLayout.setContentScrimColor(color);
-                    collapsingToolbarLayout.setStatusBarScrimColor(color);
-                    collapsingToolbarLayout.setBackgroundColor(color);
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+                        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+                        userProfileBackground.setBackgroundColor(color);
+                    } else {
+                        collapsingToolbarLayout.setContentScrimColor(color);
+                        collapsingToolbarLayout.setStatusBarScrimColor(color);
+                        collapsingToolbarLayout.setBackgroundColor(color);
+                    }
                 }
             };
         }
@@ -297,7 +328,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         if (groupSize == 0) {
             groupButton.setText(R.string.add_to_group);
         } else if (groupSize > 1) {
-            groupButton.setText(getString(R.string.edit_groups));
+            groupButton.setText(getString(R.string.in_blank_groups, groupSize));
         } else {
             groupButton.setText(event.contactGroups.get(0).label());
         }
@@ -328,7 +359,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         _adapter.removeChannel(event.channel);
     }
 
-    public void getPermissionedChannels() {
+    public void getSharedChannels() {
         checkCompositButton();
         _subscriptions.add(bindFragment(this, queryPermissionedChannels(
             getActivity(), getLoggedInUser().id().value(), _userContact.id().value()))
@@ -346,7 +377,14 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
             @Override
             public void onNext(ArrayList<Channel> channels) {
-                _adapter.refreshChannels(channels);
+                if (channels.size() == 0) {
+                    emptyTextView.setText(getString(R.string.no_information_to_share,
+                        _userContact.first()));
+                    recyclerView.setEmptyView(emptyTextView);
+                    _adapter.notifyDataSetChanged();
+                } else {
+                    _adapter.refreshChannels(channels);
+                }
             }
         };
     }

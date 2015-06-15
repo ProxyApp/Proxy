@@ -76,6 +76,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     public void refreshChannels(ArrayList<Channel> channels) {
         _channels.clear();
         updateChannels(channels);
+        notifyDataSetChanged();
     }
 
     public void addChannel(Channel channel) {
@@ -192,7 +193,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
                     context, channelType.getResId(),
                     getChannelBackgroundColor(context, channelType)));
         }
-        holder.channelName.setText(channel.label().toLowerCase());
+        holder.channelName.setText(channel.label());
     }
 
     /**
