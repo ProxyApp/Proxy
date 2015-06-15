@@ -29,4 +29,5 @@
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
     <dimen name="common_svg_ultra">720dp</dimen>
     <dimen name="user_groups_dialog_height">600dp</dimen>
+    <dimen name="fragment_userprofile_header_background_size">300dp</dimen>
 </resources>

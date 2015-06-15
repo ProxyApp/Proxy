@@ -77,8 +77,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         //if the user presses logout
         if (DrawerAdapter.isHeader(event.position)) {
             IntentLauncher.launchUserProfileActivity(this, getLoggedInUser());
-        } else if (getString(R.string.settings_logout)
-            .equals(event.message)) {
+        } else if (getString(R.string.settings_logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {
                 setLoggedInUser(null);
@@ -90,6 +89,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                     , Toast.LENGTH_SHORT).show();
                 _googleApiClient.connect();
             }
+        }
+        else if(getString(R.string.settings_about).equals(event.message)){
+            IntentLauncher.launchAboutActivity(this);
         }
     }
 

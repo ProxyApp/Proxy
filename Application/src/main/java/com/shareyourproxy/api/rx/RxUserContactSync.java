@@ -1,14 +1,17 @@
 package com.shareyourproxy.api.rx;
 
 import android.content.Context;
+import android.util.Pair;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.callback.CommandEvent;
 import com.shareyourproxy.api.rx.command.callback.UserContactAddedEvent;
 import com.shareyourproxy.api.rx.command.callback.UserContactDeletedEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -98,8 +101,7 @@ public class RxUserContactSync {
     private static rx.Observable<User> deleteRealmUserContact(
         Context context, Contact contact, User user) {
         return Observable.just(contact)
-            .map(deleteRealmUserContact(context, user))
-            .compose(RxHelper.<User>applySchedulers());
+            .map(deleteRealmUserContact(context, user));
     }
 
     private static Func1<Contact, User> deleteRealmUserContact(
@@ -153,6 +155,70 @@ public class RxUserContactSync {
             @Override
             public Boolean call(Contact contact) {
                 return contact != null;
+            }
+        };
+    }
+
+    public static List<CommandEvent> checkContacts(
+        final Context context, final User user,
+        ArrayList<Contact> contacts, final ArrayList<Group> userGroups) {
+        return Observable.from(contacts)
+            .map(findContactsToDelete(userGroups))
+            .filter(filterMissingContacts())
+            .map(unwrapPairedContact())
+            .flatMap(zipDeleteUserContact(context, user))
+            .toList().toBlocking().single();
+    }
+
+    private static Func1<Contact, Pair<Contact, Boolean>> findContactsToDelete(
+        final ArrayList<Group> userGroups) {
+        return new Func1<Contact, Pair<Contact, Boolean>>() {
+            @Override
+            public Pair<Contact, Boolean> call(Contact checkContact) {
+                for (Group group : userGroups) {
+                    ArrayList<Contact> groupContacts = group.contacts();
+                    if (groupContacts != null) {
+                        for (Contact groupContact : groupContacts) {
+                            if (groupContact.id().value().equals(checkContact.id().value())) {
+                                return new Pair<>(checkContact, true);
+                            }
+                        }
+                        return new Pair<>(checkContact, false);
+                    }
+                }
+                return new Pair<>(checkContact, false);
+            }
+        };
+    }
+
+    private static Func1<Pair<Contact, Boolean>, Boolean> filterMissingContacts() {
+        return new Func1<Pair<Contact, Boolean>, Boolean>() {
+            @Override
+            public Boolean call(Pair<Contact, Boolean> contactPair) {
+                // we only want contacts to remove... false means remove
+                return !contactPair.second;
+            }
+        };
+    }
+
+    private static Func1<Pair<Contact, Boolean>, Contact> unwrapPairedContact() {
+        return new Func1<Pair<Contact, Boolean>, Contact>() {
+            @Override
+            public Contact call(Pair<Contact, Boolean> contact) {
+                return contact.first;
+            }
+        };
+    }
+
+    private static Func1<Contact, Observable<CommandEvent>> zipDeleteUserContact(
+        final Context context, final User user) {
+        return new Func1<Contact, Observable<CommandEvent>>() {
+            @Override
+            public Observable<CommandEvent> call(Contact contact) {
+                return Observable.zip(
+                    deleteRealmUserContact(context, contact, user),
+                    deleteFirebaseUserContact(context, user.id().value(), contact),
+                    zipDeleteUserContact());
             }
         };
     }

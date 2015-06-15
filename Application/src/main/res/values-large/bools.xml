@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <bool name="common_is_device_phone">false</bool>
-    <bool name="snackbar_is_swipeable">true</bool>
-</resources>

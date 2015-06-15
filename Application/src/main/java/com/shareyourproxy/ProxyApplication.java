@@ -17,12 +17,15 @@ package com.shareyourproxy;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
@@ -46,6 +49,7 @@ public class ProxyApplication extends Application {
 
     private User _currentUser;
     private RxBusDriver _bus = RxBusDriver.getInstance();
+    private SharedPreferences _sharedPrefrences;
 
     @Override
     public void onCreate() {
@@ -56,7 +60,14 @@ public class ProxyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
             LeakCanary.install(this);
+        } else {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            analytics.newTracker(getString(R.string.google_analytics_tracker));
+            analytics.enableAdvertisingIdCollection(true);
+            analytics.enableAutoActivityReports(this);
         }
+        _sharedPrefrences = getSharedPreferences(
+            getString(R.string.shared_prefrences_key), Context.MODE_PRIVATE);
         Firebase.setAndroidContext(this);
         Realm.deleteRealmFile(this);
         _bus.toObserverable().subscribe(getRequest());
@@ -75,7 +86,7 @@ public class ProxyApplication extends Application {
                             @Override
                             protected void onReceiveResult(int resultCode, Bundle resultData) {
                                 if (resultCode == Activity.RESULT_OK) {
-                                    updateApplicationUser();
+                                    updateUser();
 
                                     ArrayList<CommandEvent> events =
                                         resultData.getParcelableArrayList(
@@ -96,9 +107,15 @@ public class ProxyApplication extends Application {
         };
     }
 
-    private void updateApplicationUser() {
-        setCurrentUser(queryUser(
-            ProxyApplication.this, _currentUser.id().value()).single());
+    private void updateUser() {
+        User user = queryUser(
+            ProxyApplication.this, _currentUser.id().value()).single();
+
+        setCurrentUser(user);
+        _sharedPrefrences
+            .edit()
+            .putString(Constants.KEY_USER_ID_VALUE, user.id().value())
+            .apply();
     }
 
     /**

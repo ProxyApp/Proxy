@@ -181,7 +181,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
                 getSVGIconDrawable(context, editChannel.getChannel().channelType().getResId(),
                     getChannelBackgroundColor(context, channelType)));
         }
-        holder.itemLabel.setText(editChannel.getChannel().label().toLowerCase());
+        holder.itemLabel.setText(editChannel.getChannel().label());
         holder.itemSwitch.setChecked(editChannel.inGroup());
         holder.itemSwitch.setOnClickListener(switchListener(holder));
     }

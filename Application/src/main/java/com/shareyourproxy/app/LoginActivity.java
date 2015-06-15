@@ -4,8 +4,8 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Pair;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -24,7 +24,6 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.shareyourproxy.IntentLauncher;
-import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.Id;
@@ -32,7 +31,6 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserCommand;
-import com.shareyourproxy.api.rx.command.callback.UserSavedEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;
@@ -41,7 +39,8 @@ import java.lang.ref.WeakReference;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import rx.functions.Action1;
+import rx.Observable;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -61,12 +60,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     // Views
     @InjectView(R.id.activity_login_sign_in_button)
     protected SignInButton signInButton;
-    private AuthResultHandler _authResultHandler = new AuthResultHandler(
-        new WeakReference<>(this), PROVIDER_GOOGLE);
+    private final AuthResultHandler _authResultHandler = new AuthResultHandler(
+        new WeakReference<>(this), PROVIDER_GOOGLE, signInButton);
     private Firebase _firebaseRef;
     private boolean _googleIntentInProgress = false;
-    // GoogleApiClient wraps our service connection to Google Play services and
-    // provides access to the users sign in state and Google's APIs.
     private GoogleApiClient _googleApiClient;
     // Used to store the PendingIntent most recently returned by Google Play
     // services until the user clicks 'sign in'.
@@ -103,12 +100,15 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
-        // Button listeners
+        initialize();
+    }
+
+    private void initialize() {
         signInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
         signInButton.setEnabled(true);
-        _googleApiClient = buildGoogleApiClient();
-                /* Create the Firebase ref that is used for all authentication with Firebase */
+
         _firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
+        _googleApiClient = buildGoogleApiClient();
     }
 
     /**
@@ -138,13 +138,16 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
-            .subscribe(new Action1<Object>() {
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
+            .subscribe(new JustObserver<Object>() {
                 @Override
-                public void call(Object event) {
-                    if (event instanceof UserSavedEvent) {
-                        userAddedToFirebase((UserSavedEvent) event);
-                    }
+                public void onError() {
+                    showErrorDialog(LoginActivity.this, getString(R.string.rx_eventbus_error));
+                    signInButton.setEnabled(true);
+                }
+
+                @Override
+                public void onNext(Object event) {
                 }
             }));
     }
@@ -164,15 +167,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         }
     }
 
-    /* onConnected is called when our Activity successfully connects to Google
-     * Play services.  onConnected indicates that an account was selected on the
-     * device, that the selected account has granted any requested permissions to
-     * our app and that we were able to establish a service connection to Google
-     * Play services.
-     */
     @Override
     public void onConnected(Bundle connectionHint) {
-        // Update the user interface to reflect that the user is signed in
         getUserFromDatabase();
     }
 
@@ -190,8 +186,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 .subscribe(new JustObserver<User>() {
                     @Override
                     public void onError() {
-                        showErrorDialog(LoginActivity.this, "Retrofit general onError getting " +
-                            "User");
+                        showErrorDialog(
+                            LoginActivity.this, getString(R.string.retrofit_general_error));
                         signInButton.setEnabled(true);
                     }
 
@@ -200,8 +196,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                         if (user == null) {
                             addUserToDatabase(createUserFromGoogle());
                         } else {
-                            setLoggedInUser(user);
-                            authUser(user);
+                            updateUser(user);
                         }
                     }
                 });
@@ -239,24 +234,14 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param newUser the {@link User} to log in
      */
     private void addUserToDatabase(User newUser) {
-        setLoggedInUser(newUser);
+        updateUser(newUser);
         getRxBus().post(new AddUserCommand(newUser));
     }
 
-    private void userAddedToFirebase(UserSavedEvent event) {
-        authUser(event.user);
-//TODO: ERROR HANDLING FOR SAVING A USER
-//                signInButton.setEnabled(true);
-//                showErrorDialog(LoginActivity.this, "Retrofit general onError saving User");
-    }
-
-    /**
-     * Set the user in {@link ProxyApplication}.
-     *
-     * @param user to login
-     */
-    private void authUser(final User user) {
+    public void updateUser(User user) {
+        setLoggedInUser(user);
         getGoogleOAuthTokenAndLogin();
+
     }
 
     /**
@@ -273,13 +258,12 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * Get the authentication token from google plus so we can log into firebase.
      */
     private void getGoogleOAuthTokenAndLogin() {
-        /* Get OAuth token in Background */
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-            String errorMessage = null;
 
+        Observable.just("").map(new Func1<String, Pair<String, String>>() {
             @Override
-            protected String doInBackground(Void... params) {
+            public Pair<String, String> call(String s) {
                 String token = null;
+                String errorMessage = s;
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
                     token = GoogleAuthUtil.getToken(LoginActivity.this, Plus.AccountApi
@@ -289,7 +273,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     Timber.e(GOOGLE_ERROR_AUTH + transientEx);
                     errorMessage = "Network onError: " + transientEx.getMessage();
                 } catch (UserRecoverableAuthException e) {
-                    Timber.w("Recoverable Google OAuth onError: " + e.toString());
+                    Timber.e("Recoverable Google OAuth onError: " + e.toString());
                     /* We probably need to ask for permissions, so start the intent if there is
                     none pending */
                     if (!_googleIntentInProgress) {
@@ -304,20 +288,28 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     Timber.e(GOOGLE_ERROR_AUTH + authEx.getMessage(), authEx);
                     errorMessage = GOOGLE_ERROR_AUTH + authEx.getMessage();
                 }
-                return token;
+                return new Pair<>(token, errorMessage);
             }
-
-            @Override
-            protected void onPostExecute(String token) {
-                if (token != null) {
-                    /* Successfully got OAuth token, now login with Google */
-                    _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
-                } else if (errorMessage != null) {
-                    showErrorDialog(LoginActivity.this, errorMessage);
+        })
+            .compose(RxHelper.<Pair<String, String>>applySchedulers())
+            .subscribe(new JustObserver<Pair<String, String>>() {
+                @Override
+                public void onError() {
+                    showErrorDialog(LoginActivity.this, getString(R.string.oauth_error));
                 }
-            }
-        };
-        task.execute();
+
+                @Override
+                public void onNext(Pair<String, String> values) {
+                    String token = values.first;
+                    String errorMessage = values.second;
+                    if (token != null) {
+                    /* Successfully got OAuth token, now login with Google */
+                        _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
+                    } else if (errorMessage != null) {
+                        showErrorDialog(LoginActivity.this, errorMessage);
+                    }
+                }
+            });
     }
 
     /* onConnectionFailed is called when our Activity could not connect to Google
@@ -406,17 +398,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         int requestCode, int resultCode, Intent data) {
         _googleIntentInProgress = false;
         switch (requestCode) {
-            case REQUESTCODE_SIGN_IN:
-                if (!_googleApiClient.isConnecting()) {
-                    // If Google Play services resolved the issue with a dialog then
-                    // onStart is not called so we need to re-attempt connection here.
-                    _googleApiClient.connect();
-                }
-                break;
             default:
                 if (!_googleApiClient.isConnecting()) {
-                    // If Google Play services resolved the issue with a dialog then
-                    // onStart is not called so we need to re-attempt connection here.
                     _googleApiClient.connect();
                 }
                 break;
@@ -437,6 +420,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     private static class AuthResultHandler implements Firebase.AuthResultHandler {
         private final WeakReference<LoginActivity> activity;
         private final String provider;
+        private final SignInButton signInButton;
 
         /**
          * Constructor.
@@ -444,9 +428,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
          * @param activity context
          * @param provider auth provider
          */
-        public AuthResultHandler(WeakReference<LoginActivity> activity, String provider) {
+        public AuthResultHandler(
+            WeakReference<LoginActivity> activity, String provider, SignInButton signInButton) {
             this.provider = provider;
             this.activity = activity;
+            this.signInButton = signInButton;
         }
 
         @Override
@@ -459,6 +445,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         @Override
         public void onAuthenticationError(FirebaseError firebaseError) {
             showErrorDialog(activity.get(), firebaseError.toString());
+            signInButton.setEnabled(true);
         }
     }
 

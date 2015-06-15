@@ -16,6 +16,7 @@ public class Intents {
     public static final String ACTION_USER_PROFILE = "com.proxy.intent.action.USER_PROFILE";
     public static final String ACTION_EDIT_GROUP_CHANNEL = "com.proxy.intent.action.EDIT_GROUP";
     public static final String ACTION_VIEW_GROUP_USERS = "com.proxy.intent.action.VIEW_GROUP_USERS";
+    public static final String ACTION_VIEW_ABOUT= "com.proxy.intent.action.VIEW_ABOUT";
 
     /**
      * Private constructor.

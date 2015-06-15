@@ -175,7 +175,12 @@ public class MainGroupFragment
      * @return Group List
      */
     private ArrayList<Group> getGroupData() {
-        return getLoggedInUser().groups();
+        if(getLoggedInUser().groups() != null){
+            return getLoggedInUser().groups();
+        }
+        else{
+            return null;
+        }
     }
 
     private void usersDownloaded(UsersDownloadedEvent event) {
