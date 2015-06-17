@@ -13,8 +13,8 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Adapts the contactGroups that a user belongs to in a dialog.
@@ -92,7 +92,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
      * ViewHolder for the entered {@link Group} data.
      */
     protected static class ContentViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_user_groups_textview)
+        @Bind(R.id.adapter_user_groups_textview)
         protected CheckedTextView checkedTextView;
 
         /**

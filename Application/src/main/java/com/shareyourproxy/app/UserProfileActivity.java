@@ -4,21 +4,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
-import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
+import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
@@ -28,35 +27,37 @@ import static rx.android.app.AppObservable.bindActivity;
 public class UserProfileActivity extends BaseActivity {
 
     private CompositeSubscription _subscriptions;
+    private boolean _isLoggedInUser;
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
-    }
-
-    private boolean isLoggedInUser() {
-        return getIntent().getExtras().getBoolean(ARG_USER_LOGGED_IN);
+        if (this.isTaskRoot()) {
+            IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB);
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-        ButterKnife.inject(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_user_profile_container,
                     UserProfileFragment.newInstance()).commit();
         }
+        User userContact = getIntent().getExtras().getParcelable
+            (ARG_USER_SELECTED_PROFILE);
+        _isLoggedInUser = isLoggedInUser(userContact);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        if (isLoggedInUser()) {
+        if (_isLoggedInUser) {
             inflater.inflate(R.menu.menu_activity_current_user, menu);
         }
         return super.onCreateOptionsMenu(menu);
@@ -64,7 +65,7 @@ public class UserProfileActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (isLoggedInUser()) {
+        if (_isLoggedInUser) {
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
         }
@@ -82,10 +83,6 @@ public class UserProfileActivity extends BaseActivity {
                 IntentLauncher.launchChannelListActivity(this);
                 break;
 
-            case R.id.menu_user_profile_favorite:
-                Toast.makeText(this, "You're my favorite", Toast.LENGTH_SHORT).show();
-                break;
-
             default:
                 Timber.e("Option item selected is unknown");
         }
@@ -97,7 +94,7 @@ public class UserProfileActivity extends BaseActivity {
         super.onResume();
         Timber.i("onResume");
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -130,9 +127,11 @@ public class UserProfileActivity extends BaseActivity {
             case Web:
                 IntentLauncher.launchWebIntent(this, event.channel.actionAddress());
                 break;
+            case Facebook:
+                IntentLauncher.launchFacebookIntent(this, event.channel.actionAddress());
+                break;
             case Custom:
                 break;
         }
     }
-
 }

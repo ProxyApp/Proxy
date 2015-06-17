@@ -8,15 +8,14 @@ import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
-import com.shareyourproxy.api.rx.command.callback.GroupContactAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.GroupContactDeletedEvent;
-import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupContactAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupContactDeletedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -24,8 +23,8 @@ import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.RestClient.getGroupContactService;
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
-import static com.shareyourproxy.api.rx.RxHelper.filterNullContact;
+import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
  * Created by Evan on 6/4/15.
@@ -38,12 +37,13 @@ public class RxGroupContactSync {
     private RxGroupContactSync() {
     }
 
-    public static List<CommandEvent> updateGroupContacts(
+    public static List<EventCallback> updateGroupContacts(
         final Context context, final User user,
         final ArrayList<GroupEditContact> editGroups, final Contact contact) {
         return Observable.merge(
             Observable.from(editGroups).map(contactInGroup())
-                .filter(filterNullContact()).toList().map(createGroupContactEvent(contact)),
+                .filter(filterNullObject()).toList()
+                .map(createGroupContactEvent(contact)),
             Observable.from(editGroups).flatMap(
                 groupContactCommand(context, user, contact)))
             .toList().toBlocking().single();
@@ -62,11 +62,11 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<GroupEditContact, Observable<CommandEvent>> groupContactCommand(
+    private static Func1<GroupEditContact, Observable<EventCallback>> groupContactCommand(
         final Context context, final User user, final Contact contact) {
-        return new Func1<GroupEditContact, Observable<CommandEvent>>() {
+        return new Func1<GroupEditContact, Observable<EventCallback>>() {
             @Override
-            public Observable<CommandEvent> call(GroupEditContact groupEditContact) {
+            public Observable<EventCallback> call(GroupEditContact groupEditContact) {
                 if (groupEditContact.hasContact()) {
                     return addGroupContact(context, user, groupEditContact.getGroup(), contact);
                 } else {
@@ -76,17 +76,17 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<List<Group>, CommandEvent> createGroupContactEvent(
+    private static Func1<List<Group>, EventCallback> createGroupContactEvent(
         final Contact contact) {
-        return new Func1<List<Group>, CommandEvent>() {
+        return new Func1<List<Group>, EventCallback>() {
             @Override
-            public GroupContactsUpdatedEvent call(List<Group> groups) {
-                return new GroupContactsUpdatedEvent(contact, new ArrayList<>(groups));
+            public GroupContactsUpdatedEventCallback call(List<Group> groups) {
+                return new GroupContactsUpdatedEventCallback(contact, groups);
             }
         };
     }
 
-    public static Observable<CommandEvent> addGroupContact(
+    public static Observable<EventCallback> addGroupContact(
         Context context, User user, Group editGroup, Contact contact) {
         return rx.Observable.zip(
             saveRealmGroupContact(context, user, editGroup, contact),
@@ -94,7 +94,7 @@ public class RxGroupContactSync {
             zipAddGroupContact());
     }
 
-    public static Observable<CommandEvent> deleteGroupContact(
+    public static Observable<EventCallback> deleteGroupContact(
         Context context, User user, Group editGroup, Contact contact) {
         return rx.Observable.zip(
             deleteRealmGroupContact(context, user, editGroup, contact),
@@ -103,20 +103,20 @@ public class RxGroupContactSync {
             zipDeleteGroupContact());
     }
 
-    private static Func2<Group, Contact, CommandEvent> zipAddGroupContact() {
-        return new Func2<Group, Contact, CommandEvent>() {
+    private static Func2<Group, Contact, EventCallback> zipAddGroupContact() {
+        return new Func2<Group, Contact, EventCallback>() {
             @Override
-            public GroupContactAddedEvent call(Group group, Contact contact) {
-                return new GroupContactAddedEvent(group, contact);
+            public GroupContactAddedEventCallback call(Group group, Contact contact) {
+                return new GroupContactAddedEventCallback(group, contact);
             }
         };
     }
 
-    private static Func2<Group, Contact, CommandEvent> zipDeleteGroupContact() {
-        return new Func2<Group, Contact, CommandEvent>() {
+    private static Func2<Group, Contact, EventCallback> zipDeleteGroupContact() {
+        return new Func2<Group, Contact, EventCallback>() {
             @Override
-            public GroupContactDeletedEvent call(Group group, Contact contact) {
-                return new GroupContactDeletedEvent(group, contact);
+            public GroupContactDeletedEventCallback call(Group group, Contact contact) {
+                return new GroupContactDeletedEventCallback(group, contact);
             }
         };
     }
@@ -133,11 +133,7 @@ public class RxGroupContactSync {
             public Group call(Group oldGroup) {
                 Group newGroup = GroupFactory.addGroupContact(oldGroup, contact);
                 User newUser = UserFactory.addUserGroup(user, newGroup);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newGroup;
             }
         };
@@ -156,11 +152,7 @@ public class RxGroupContactSync {
             public Group call(Group oldGroup) {
                 Group newGroup = GroupFactory.deleteGroupContact(oldGroup, contact);
                 User newUser = UserFactory.addUserGroup(user, newGroup);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newGroup;
             }
         };
@@ -190,7 +182,7 @@ public class RxGroupContactSync {
         ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();
         return rx.Observable.merge(
             Observable.just(contact), connectableObservable)
-            .filter(filterNullContact());
+            .filter(filterNullObject());
     }
 
 }

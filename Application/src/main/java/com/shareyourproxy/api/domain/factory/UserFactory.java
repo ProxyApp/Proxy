@@ -7,8 +7,7 @@ import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 
 import io.realm.RealmResults;
 
@@ -35,8 +34,8 @@ public class UserFactory {
     public static User createModelUser(RealmUser realmUser) {
         if (realmUser != null) {
             return User.create(getUserId(realmUser.getId()), realmUser.getFirst(),
-                realmUser.getLast(), realmUser.getEmail(), realmUser.getImageURL(),
-                getModelChannels(realmUser.getChannels()), getModelGroups(realmUser
+                realmUser.getLast(), realmUser.getEmail(), realmUser.getProfileURL(),
+                realmUser.getCoverURL(), getModelChannels(realmUser.getChannels()), getModelGroups(realmUser
                     .getGroups()), getModelContacts(realmUser.getContacts()));
         }
         return null;
@@ -44,25 +43,25 @@ public class UserFactory {
 
     public static User createModelUser(Contact contact) {
         return User.create(contact.id(), contact.first(), contact.last(), null,
-            contact.imageURL(), contact.channels(), null, null);
+            contact.profileURL(), contact.coverURL(), contact.channels(), null, null);
     }
 
-    public static ArrayList<User> createModelUsers(RealmResults<RealmUser> realmUsers) {
-        ArrayList<User> users = new ArrayList<>();
+    public static HashMap<String, User> createModelUsers(RealmResults<RealmUser> realmUsers) {
+        HashMap<String, User> users = new HashMap<>();
         for (RealmUser realmUser : realmUsers) {
-            users.add(createModelUser(realmUser));
+            users.put(realmUser.getId(), createModelUser(realmUser));
         }
         return users;
     }
 
     public static User addUserContact(User user, Contact contact) {
-        ArrayList<Contact> contactArrayList = user.contacts();
-        if (contactArrayList == null) {
-            contactArrayList = new ArrayList<>(1);
+        HashMap<String, Contact> contactHashMap = user.contacts();
+        if (contactHashMap == null) {
+            contactHashMap = new HashMap<>();
         }
-        contactArrayList.add(contact);
+        contactHashMap.put(contact.id().value(), contact);
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), user.groups(), contactArrayList);
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactHashMap);
     }
 
     /**
@@ -72,13 +71,13 @@ public class UserFactory {
      * @return updated user
      */
     public static User addUserChannel(User user, Channel channel) {
-        ArrayList<Channel> channelArrayList = user.channels();
-        if (channelArrayList == null) {
-            channelArrayList = new ArrayList<>(1);
+        HashMap<String, Channel> channelHashMap = user.channels();
+        if (channelHashMap == null) {
+            channelHashMap = new HashMap<>();
         }
-        channelArrayList.add(channel);
+        channelHashMap.put(channel.id().value(), channel);
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), channelArrayList, user.groups(), user.contacts());
+            user.profileURL(), user.coverURL(), channelHashMap, user.groups(), user.contacts());
     }
 
     /**
@@ -88,20 +87,14 @@ public class UserFactory {
      * @return updated user
      */
     public static User addUserGroup(User user, Group newGroup) {
-        ArrayList<Group> groups = user.groups();
-        for (Iterator<Group> iterator = groups.iterator(); iterator.hasNext(); ) {
-            Group group = iterator.next();
-            if (group.id().value().equals(newGroup.id().value())) {
-                iterator.remove();
-            }
-        }
-        groups.add(newGroup);
+        HashMap<String, Group> groups = user.groups();
+        groups.put(newGroup.id().value(), newGroup);
         return addUserGroups(user, groups);
     }
 
     public static User deleteUserGroup(User user, Group group) {
-        ArrayList<Group> groups = user.groups();
-        groups.remove(group);
+        HashMap<String, Group> groups = user.groups();
+        groups.remove(group.id().value());
         return addUserGroups(user, groups);
     }
 
@@ -112,26 +105,26 @@ public class UserFactory {
      * @param groups to update
      * @return updated user
      */
-    public static User addUserGroups(User user, ArrayList<Group> groups) {
+    public static User addUserGroups(User user, HashMap<String, Group> groups) {
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), groups, user.contacts());
+            user.profileURL(), user.coverURL(), user.channels(), groups, user.contacts());
     }
 
     public static User deleteUserContact(User user, Contact contact) {
-        ArrayList<Contact> contacts = user.contacts();
+        HashMap<String, Contact> contacts = user.contacts();
         if (contacts != null) {
-            contacts.remove(contact);
+            contacts.remove(contact.id().value());
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), user.channels(), user.groups(), contacts);
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contacts);
     }
 
     public static User deleteUserChannel(User user, Channel channel) {
-        ArrayList<Channel> channels = user.channels();
+        HashMap<String, Channel> channels = user.channels();
         if (channels != null) {
-            channels.remove(channel);
+            channels.remove(channel.id().value());
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.imageURL(), channels, user.groups(), user.contacts());
+            user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts());
     }
 }

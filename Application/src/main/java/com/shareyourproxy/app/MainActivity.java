@@ -11,16 +11,18 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.rx.command.GetAllUsersCommand;
+import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.adapter.DrawerAdapter;
 import com.shareyourproxy.app.fragment.DrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
-import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -41,7 +43,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.inject(this);
         _googleApiClient = buildGoogleApiClient();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -49,7 +50,10 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                 .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
                 .commit();
         }
-
+        User loggedInUser = getLoggedInUser();
+        if (loggedInUser != null) {
+            getRxBus().post(new SyncAllUsersCommand(loggedInUser.id().value()));
+        }
     }
 
     /**
@@ -67,7 +71,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         return builder.build();
     }
 
-
     /**
      * {@link SelectDrawerItemEvent}.
      *
@@ -76,22 +79,27 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
         //if the user presses logout
         if (DrawerAdapter.isHeader(event.position)) {
-            IntentLauncher.launchUserProfileActivity(this, getLoggedInUser());
+            User user = getLoggedInUser();
+            IntentLauncher.launchUserProfileActivity(this, user, user.id().value());
         } else if (getString(R.string.settings_logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {
                 setLoggedInUser(null);
                 Plus.AccountApi.clearDefaultAccount(_googleApiClient);
                 IntentLauncher.launchLoginActivity(this, true);
+                getSharedPreferences().edit().remove(Constants.KEY_LOGGED_IN_USER).commit();
                 finish();
             } else {
                 Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
                     , Toast.LENGTH_SHORT).show();
                 _googleApiClient.connect();
             }
-        }
-        else if(getString(R.string.settings_about).equals(event.message)){
+        } else if (getString(R.string.settings_about).equals(event.message)) {
             IntentLauncher.launchAboutActivity(this);
+        }
+        else if(getString(R.string.common_save).equals(event.message)){
+            RxHelper.saveRealmFile(this);
+
         }
     }
 
@@ -99,7 +107,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     protected void onStart() {
         super.onStart();
         _googleApiClient.connect();
-        getRxBus().post(new GetAllUsersCommand());
     }
 
     @Override

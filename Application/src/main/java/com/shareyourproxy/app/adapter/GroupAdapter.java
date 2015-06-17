@@ -13,9 +13,10 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * An Adapter to handle displaying {@link Group}s.
@@ -34,9 +35,13 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param groups a list of {@link Group}s
      */
     public GroupAdapter(
-        BaseRecyclerView recyclerView, ArrayList<Group> groups, ItemClickListener listener) {
+        BaseRecyclerView recyclerView, HashMap<String, Group> groups, ItemClickListener listener) {
         _recyclerView = recyclerView;
-        _groups = new SortedList<>(Group.class, getSortedCallback(), groups.size());
+        if (groups != null) {
+            _groups = new SortedList<>(Group.class, getSortedCallback(), groups.size());
+        } else {
+            _groups = new SortedList<>(Group.class, getSortedCallback(), 0);
+        }
         addGroups(groups);
         _listener = listener;
     }
@@ -50,7 +55,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     public static GroupAdapter newInstance(
         BaseRecyclerView recyclerView,
-        ArrayList<Group> groups, ItemClickListener listner) {
+        HashMap<String, Group> groups, ItemClickListener listner) {
         return new GroupAdapter(recyclerView, groups, listner);
     }
 
@@ -149,6 +154,15 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         }
     }
 
+    public void updateGroupData(@NonNull HashMap<String, Group> groups) {
+        _groups.beginBatchedUpdates();
+        _groups.clear();
+        for (Map.Entry<String, Group> group : groups.entrySet()) {
+            _groups.add(group.getValue());
+        }
+        _groups.endBatchedUpdates();
+    }
+
     /**
      * Get the desired {@link Group} based off its position in a list.
      *
@@ -159,15 +173,15 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return _groups.get(position);
     }
 
-    public void refreshGroupData(ArrayList<Group> groups) {
+    public void refreshGroupData(HashMap<String, Group> groups) {
         _groups.clear();
         addGroups(groups);
     }
 
-    private void addGroups(ArrayList<Group> groups) {
+    private void addGroups(HashMap<String, Group> groups) {
         _groups.beginBatchedUpdates();
-        for (Group group : groups) {
-            _groups.add(group);
+        for (Map.Entry<String, Group> group : groups.entrySet()) {
+            _groups.add(group.getValue());
         }
         _groups.endBatchedUpdates();
     }
@@ -176,7 +190,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * ViewHolder for the entered {@link Group} data.
      */
     public static class GroupViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_group_name)
+        @Bind(R.id.adapter_group_name)
         protected TextView groupName;
 
         /**

@@ -1,13 +1,13 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserGroupSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
@@ -44,19 +44,12 @@ public class DeleteUserGroupCommand extends BaseCommand {
         this.group = group;
     }
 
-    public DeleteUserGroupCommand(BaseCommand command) {
-        super(DeleteUserGroupCommand.class.getPackage().getName(),
-            DeleteUserGroupCommand.class.getName());
-        this.user = ((DeleteUserGroupCommand) command).user;
-        this.group = ((DeleteUserGroupCommand) command).group;
-    }
-
     private DeleteUserGroupCommand(Parcel in) {
         this((User) in.readValue(CL), (Group) in.readValue(CL));
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
         return RxUserGroupSync.deleteUserGroup(service, user, group);
     }
 

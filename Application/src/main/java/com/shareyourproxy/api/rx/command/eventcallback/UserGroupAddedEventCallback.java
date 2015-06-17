@@ -1,5 +1,4 @@
-package com.shareyourproxy.api.rx.command.callback;
-
+package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -7,9 +6,10 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 
-public class UserGroupDeletedEvent extends CommandEvent {
-
-    public final User user;
+/**
+ * Created by Evan on 6/8/15.
+ */
+public class UserGroupAddedEventCallback extends UserEventCallback {
     public final Group group;
 
     /**
@@ -17,8 +17,8 @@ public class UserGroupDeletedEvent extends CommandEvent {
      *
      * @param group this events group
      */
-    public UserGroupDeletedEvent(@NonNull User user, @NonNull Group group) {
-        this.user = user;
+    public UserGroupAddedEventCallback(@NonNull User user, @NonNull Group group) {
+        super(user);
         this.group = group;
     }
 
@@ -29,7 +29,6 @@ public class UserGroupDeletedEvent extends CommandEvent {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(user, flags);
-        dest.writeParcelable(group, flags);
+        dest.writeValue(group);
     }
 }

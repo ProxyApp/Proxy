@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.util.ViewUtils;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
@@ -36,23 +37,25 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class MainFragment extends BaseFragment {
 
-    @InjectView(R.id.include_toolbar)
+    @Bind(R.id.include_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.activity_main_drawer_layout)
+    @Bind(R.id.activity_main_drawer_layout)
     protected DrawerLayout drawerLayout;
-    @InjectView(R.id.fragment_main_viewpager)
+    @Bind(R.id.fragment_main_viewpager)
     protected ViewPager viewPager;
-    @InjectView(R.id.fragment_main_sliding_tabs)
+    @Bind(R.id.fragment_main_sliding_tabs)
     protected TabLayout slidingTabLayout;
     private List<Fragment> _fragmentArray;
     private int _selectedColor;
     private int _unselectedColor;
+    public static final int ARG_SELECT_CONTACTS_TAB = 0;
+    public static final int ARG_SELECT_GROUP_TAB = 1;
 
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initialize();
         return rootView;
     }
@@ -97,6 +100,9 @@ public class MainFragment extends BaseFragment {
         slidingTabLayout.setTabMode(TabLayout.MODE_FIXED);
         slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
+        //set the selected tab
+        slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
+            .getInt(Constants.ARG_SELECTED_MAINFRAGMENT_TAB)).select();
     }
 
     private OnTabSelectedListener getOnTabSelectedListener() {
@@ -178,7 +184,7 @@ public class MainFragment extends BaseFragment {
      */
     private ContentDescriptionDrawable getUserDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_group,
-            getLargeIconDimen(getActivity()), _selectedColor)
+            getLargeIconDimen(getActivity()), _unselectedColor)
             .setContentDescription(getString(R.string.Contacts));
     }
 
@@ -196,7 +202,7 @@ public class MainFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     /**

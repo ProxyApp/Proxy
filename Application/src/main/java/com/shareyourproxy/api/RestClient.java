@@ -5,13 +5,13 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
-import com.shareyourproxy.R;
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.AutoGson;
 import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
-import com.shareyourproxy.api.service.GroupChannelService;
 import com.shareyourproxy.api.service.GroupContactService;
+import com.shareyourproxy.api.service.MessageService;
 import com.shareyourproxy.api.service.UserChannelService;
 import com.shareyourproxy.api.service.UserContactService;
 import com.shareyourproxy.api.service.UserGroupService;
@@ -67,9 +67,9 @@ public class RestClient {
             buildGsonConverter()).create(GroupContactService.class);
     }
 
-    public static GroupChannelService getGroupChannelService(Context context) {
+    public static MessageService getMessageService(Context context) {
         return buildRestClient(context,
-            buildGsonConverter()).create(GroupChannelService.class);
+            buildGsonConverter()).create(MessageService.class);
     }
 
     public static RestAdapter buildRestClient(Context context, Gson gson) {
@@ -77,7 +77,7 @@ public class RestClient {
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
             .setClient(new OkClient(getClient()))
-            .setEndpoint(context.getResources().getString(R.string.firebase_url))
+            .setEndpoint(BuildConfig.FIREBASE_ENDPOINT)
             .setConverter(new GsonConverter(gson))
             .build();
     }

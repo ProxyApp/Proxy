@@ -22,7 +22,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * Parse a svg and return a Large sized {@link Drawable}.
      *
      * @param context    activity context
-     * @param resourceId resource to copy drawable
+     * @param resourceId resource to create drawable
      * @return Drawable
      */
     public static Drawable getSectionResourceDrawable(Context context, int resourceId) {
@@ -58,6 +58,8 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
     public static int getChannelBackgroundColor(Context context, ChannelType channelType) {
         Resources res = context.getResources();
         switch (channelType) {
+            case Custom:
+                return res.getColor(R.color.common_text_secondary);
             case Phone:
                 return res.getColor(R.color.common_indigo);
             case SMS:
@@ -66,8 +68,8 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
                 return res.getColor(R.color.common_red);
             case Web:
                 return res.getColor(R.color.common_text_secondary);
-            case Custom:
-                return res.getColor(R.color.common_text_secondary);
+            case Facebook:
+                return res.getColor(R.color.common_facebook);
             default:
                 return res.getColor(R.color.common_text_secondary);
         }

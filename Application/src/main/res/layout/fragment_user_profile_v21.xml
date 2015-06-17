@@ -52,7 +52,7 @@
         <com.shareyourproxy.app.adapter.BaseRecyclerView
             android:id="@+id/fragment_user_profile_recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:background="@android:color/white"
             app:layout_scrollFlags="scroll"/>
     </LinearLayout>

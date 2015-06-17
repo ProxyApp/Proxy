@@ -21,7 +21,7 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
      */
     protected BaseViewHolder(View view, ItemClickListener clickListener) {
         super(view);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         _view = view;
         _view.setOnClickListener(this);
         _view.setOnLongClickListener(this);
@@ -30,13 +30,21 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
 
     @Override
     public void onClick(View v) {
-        _itemClickListener.onItemClick(v, getLayoutPosition());
+        _itemClickListener.onItemClick(v, getItemPosition());
     }
 
     @Override
     public boolean onLongClick(View v) {
-        _itemClickListener.onItemLongClick(v, getLayoutPosition());
+        _itemClickListener.onItemLongClick(v, getItemPosition());
         return true;
+    }
+
+    public int getItemPosition() {
+        int position = getLayoutPosition();
+        if(position < 0){
+            position = 0;
+        }
+        return position;
     }
 
     /**

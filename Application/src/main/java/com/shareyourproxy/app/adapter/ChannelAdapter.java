@@ -12,30 +12,34 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.factory.ChannelFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.util.ObjectUtils;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.getEmailChannel;
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.getFacebookChannel;
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.getPhoneChannel;
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.getSMSChannel;
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.getWebChannel;
 import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
 import static com.shareyourproxy.util.ViewUtils.getActivityIcon;
 
 /**
- * Created by Evan on 5/5/15.
+ * Adapter that handles displaying channels.
  */
 public class ChannelAdapter extends BaseRecyclerViewAdapter {
-    public static final Channel DIALER = ChannelFactory.getPhoneChannel();
-    public static final Channel HANGOUTS = ChannelFactory.getSMSChannel();
-    public static final Channel EMAIL = ChannelFactory.getEmailChannel();
-    public static final Channel WEB = ChannelFactory.getWebChannel();
-    //    private static final int TYPE_SECTION_HEADER = 0;
+    private static final Channel DIALER = getPhoneChannel();
+    private static final Channel HANGOUTS = getSMSChannel();
+    private static final Channel EMAIL = getEmailChannel();
+    private static final Channel WEB = getWebChannel();
+    private static final Channel FACEBOOK = getFacebookChannel();
     private static final int TYPE_LIST_ITEM = 1;
-    Callback<Channel> _sortedListCallback;
-    SortedList<Channel> _channels = new SortedList<>(Channel.class, getSortedCallback());
+    private Callback<Channel> _sortedListCallback;
+    private SortedList<Channel> _channels = new SortedList<>(Channel.class, getSortedCallback());
     private ItemClickListener _clickListener;
 
     public ChannelAdapter(ItemClickListener listener) {
@@ -44,6 +48,7 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
         _channels.add(HANGOUTS);
         _channels.add(EMAIL);
         _channels.add(WEB);
+        _channels.add(FACEBOOK);
     }
 
     /**
@@ -60,7 +65,6 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
     public Callback<Channel> getSortedCallback() {
         if (_sortedListCallback == null) {
             _sortedListCallback = new Callback<Channel>() {
-
 
                 @Override
                 public int compare(Channel item1, Channel item2) {
@@ -117,25 +121,14 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//        if (viewType == TYPE_SECTION_HEADER) {
-//            View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.adapter_add_channel_list_section, parent, false);
-//            return SectionHeaderViewHolder.newInstance(view, _clickListener);
-//        } else {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_add_channel_list_item, parent, false);
         return ItemViewHolder.newInstance(view, _clickListener);
-//        }
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-//        if (holder instanceof SectionHeaderViewHolder) {
-//            bindSectionContent((SectionHeaderViewHolder) holder, getItemData(position));
-//        } else if (holder instanceof ItemViewHolder) {
-        //section offset
         bindItemViewData((ItemViewHolder) holder, getItemData(position));
-//        }
     }
 
     /**
@@ -147,15 +140,6 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
     public Channel getItemData(int position) {
         return _channels.get(position);
     }
-
-//    private void bindSectionContent(
-//        SectionHeaderViewHolder holder, Channel channelData) {
-//        Context context = holder._view.getContext();
-//        int resourceId = General.getResId();
-//
-//        holder.sectionLabel.setText(General.toString());
-//        holder.sectionImage.setImageDrawable(getSectionResourceDrawable(context, resourceId));
-//    }
 
     /**
      * Set the Channel Intent link content.
@@ -180,7 +164,6 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public int getItemViewType(int position) {
-//        return position == TYPE_SECTION_HEADER ? TYPE_SECTION_HEADER : TYPE_LIST_ITEM;
         return TYPE_LIST_ITEM;
     }
 
@@ -193,9 +176,9 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the settings header.
      */
     public static final class SectionHeaderViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_add_channel_list_section_image)
+        @Bind(R.id.adapter_add_channel_list_section_image)
         protected ImageView sectionImage;
-        @InjectView(R.id.adapter_add_channel_list_section_label)
+        @Bind(R.id.adapter_add_channel_list_section_label)
         protected TextView sectionLabel;
 
         /**
@@ -225,9 +208,9 @@ public class ChannelAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the entered settings data.
      */
     public static final class ItemViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_add_channel_list_item_image)
+        @Bind(R.id.adapter_add_channel_list_item_image)
         protected ImageView itemImage;
-        @InjectView(R.id.adapter_add_channel_list_item_label)
+        @Bind(R.id.adapter_add_channel_list_item_label)
         protected TextView itemLabel;
 
         /**

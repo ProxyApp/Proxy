@@ -10,14 +10,14 @@ import android.view.ViewGroup;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.command.callback.GroupChannelsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.ContactAdapter;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -31,9 +31,9 @@ import static rx.android.app.AppObservable.bindFragment;
  * Fragment to display a contactGroups contacts.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
-    @InjectView(R.id.fragment_view_group_users_toolbar)
+    @Bind(R.id.fragment_view_group_users_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.fragment_view_group_users_recyclerview)
+    @Bind(R.id.fragment_view_group_users_recyclerview)
     protected BaseRecyclerView recyclerView;
     private ContactAdapter _adapter;
     private CompositeSubscription _subscriptions;
@@ -58,7 +58,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
         LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_view_group_users, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initialize();
         return rootView;
     }
@@ -73,14 +73,14 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
                 public void call(Object event) {
                     if (event instanceof UserSelectedEvent) {
                         onUserSelected((UserSelectedEvent) event);
-                    } else if (event instanceof GroupChannelsUpdatedEvent) {
-                        channelsUpdated((GroupChannelsUpdatedEvent) event);
+                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
+                        channelsUpdated((GroupChannelsUpdatedEventCallback) event);
                     }
                 }
             }));
     }
 
-    private void channelsUpdated(GroupChannelsUpdatedEvent event) {
+    private void channelsUpdated(GroupChannelsUpdatedEventCallback event) {
         getActivity().getIntent().putExtra(ARG_SELECTED_GROUP, event.group);
         getSupportActionBar().setTitle(capitalize(getGroupArg().label()));
     }
@@ -95,7 +95,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     /**
@@ -104,7 +104,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user);
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
     }
 
     private Group getGroupArg() {

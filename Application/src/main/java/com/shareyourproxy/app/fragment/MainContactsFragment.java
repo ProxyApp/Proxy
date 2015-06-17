@@ -14,15 +14,16 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ContactAdapter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -35,23 +36,23 @@ import static rx.android.app.AppObservable.bindFragment;
  * A recyclerView of Favorite {@link User}s.
  */
 public class MainContactsFragment extends BaseFragment implements ItemClickListener {
-    @InjectView(R.id.fragment_contact_main_recyclerview)
+    @Bind(R.id.fragment_contact_main_recyclerview)
     protected BaseRecyclerView recyclerView;
-    @InjectView(R.id.fragment_contact_main_swipe_refresh)
+    @Bind(R.id.fragment_contact_main_swipe_refresh)
     protected SwipeRefreshLayout swipeRefreshLayout;
-    private ContactAdapter _adapter;
     OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override
         public void onRefresh() {
             recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    _adapter.refreshContactList(getLoggedInUser().contacts());
+                    getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
                     swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
     };
+    private ContactAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -73,7 +74,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.common_recyclerview, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initializeRecyclerView();
         initializeSwipeRefresh();
         return rootView;
@@ -84,14 +85,14 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      */
     private void initializeSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(_refreshListener);
-        swipeRefreshLayout.setColorSchemeResources(android.R.color.black, android.R.color
-            .holo_orange_dark, R.color.common_green);
+        swipeRefreshLayout.setColorSchemeResources(
+            R.color.common_text, R.color.common_blue, R.color.common_green);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     /**
@@ -99,7 +100,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ArrayList<Contact> contacts = null;
+        HashMap<String, Contact> contacts = null;
         if (getLoggedInUser() != null) {
             contacts = getLoggedInUser().contacts();
         }
@@ -113,17 +114,21 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
                     if (event instanceof UserSelectedEvent) {
                         onUserSelected((UserSelectedEvent) event);
-                    } else if (event instanceof UsersDownloadedEvent) {
-                        usersDownloaded((UsersDownloadedEvent) event);
+                    } else if (event instanceof LoggedInUserUpdatedEventCallback) {
+                        userUpdated((LoggedInUserUpdatedEventCallback) event);
                     }
                 }
             }));
+        User loggedInUser = getLoggedInUser();
+        if (getLoggedInUser() != null && loggedInUser.contacts().size() > 0) {
+            _adapter.updateContactsList(loggedInUser.contacts());
+        }
     }
 
     @Override
@@ -131,10 +136,11 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         super.onPause();
         _subscriptions.unsubscribe();
         _subscriptions = null;
+        swipeRefreshLayout.setRefreshing(false);
     }
 
-    private void usersDownloaded(UsersDownloadedEvent event) {
-        _adapter.refreshContactList(getLoggedInUser().contacts());
+    private void userUpdated(LoggedInUserUpdatedEventCallback event) {
+        _adapter.updateContactsList(event.user.contacts());
     }
 
     @Override
@@ -154,6 +160,6 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user);
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
     }
 }

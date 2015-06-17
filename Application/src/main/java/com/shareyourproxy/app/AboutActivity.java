@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import com.shareyourproxy.R;
 import com.shareyourproxy.app.fragment.AboutFragment;
 
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 /**
@@ -18,7 +17,6 @@ public class AboutActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        ButterKnife.inject(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_about_container,

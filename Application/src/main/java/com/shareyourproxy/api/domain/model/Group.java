@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import auto.parcel.AutoParcel;
@@ -29,13 +29,13 @@ public abstract class Group implements Parcelable {
             .contacts(null).build();
     }
 
-    public static Group copy(Group group, String newTitle, ArrayList<Channel> channels) {
+    public static Group copy(Group group, String newTitle, HashMap<String, Channel> channels) {
         return builder().id(group.id()).label(newTitle).channels(channels)
             .contacts(group.contacts()).build();
     }
 
     public static Group copy(
-        Id id, String label, ArrayList<Channel> channels, ArrayList<Contact> contacts) {
+        Id id, String label, HashMap<String, Channel> channels, HashMap<String, Contact> contacts) {
         return builder().id(id).label(label).channels(channels)
             .contacts(contacts).build();
     }
@@ -69,7 +69,7 @@ public abstract class Group implements Parcelable {
      * @return list of {@link Channel}s
      */
     @Nullable
-    public abstract ArrayList<Channel> channels();
+    public abstract HashMap<String, Channel> channels();
 
     /**
      * Get the list of {@link Contact}s in this {@link Group}.
@@ -77,7 +77,7 @@ public abstract class Group implements Parcelable {
      * @return list of {@link Contact}s
      */
     @Nullable
-    public abstract ArrayList<Contact> contacts();
+    public abstract HashMap<String, Contact> contacts();
 
     /**
      * Group Builder.
@@ -108,7 +108,7 @@ public abstract class Group implements Parcelable {
          * @return channels
          */
         @Nullable
-        Builder channels(ArrayList<Channel> channels);
+        Builder channels(HashMap<String, Channel> channels);
 
         /**
          * Set group contacts.
@@ -117,7 +117,7 @@ public abstract class Group implements Parcelable {
          * @return contacts
          */
         @Nullable
-        Builder contacts(ArrayList<Contact> contacts);
+        Builder contacts(HashMap<String, Contact> contacts);
 
         /**
          * BUILD.

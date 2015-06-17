@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.rx.command.callback;
+package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
 
@@ -8,12 +8,11 @@ import com.shareyourproxy.api.domain.model.User;
 /**
  * Created by Evan on 6/8/15.
  */
-public class UserContactDeletedEvent extends CommandEvent {
-    private final User user;
-    private final Contact contact;
+public class UserContactAddedEventCallback extends UserEventCallback {
+    public final Contact contact;
 
-    public UserContactDeletedEvent(User user, Contact contact) {
-        this.user = user;
+    public UserContactAddedEventCallback(User user, Contact contact) {
+        super(user);
         this.contact = contact;
     }
 
@@ -24,7 +23,6 @@ public class UserContactDeletedEvent extends CommandEvent {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(user, flags);
-        dest.writeParcelable(contact, flags);
+        dest.writeValue(contact);
     }
 }

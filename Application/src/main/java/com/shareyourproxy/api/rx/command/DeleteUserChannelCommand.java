@@ -1,13 +1,13 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserChannelSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
@@ -39,19 +39,12 @@ public class DeleteUserChannelCommand extends BaseCommand {
         this.channel = channel;
     }
 
-    public DeleteUserChannelCommand(BaseCommand command) {
-        super(DeleteUserChannelCommand.class.getPackage().getName(),
-            DeleteUserChannelCommand.class.getName());
-        this.user = ((DeleteUserChannelCommand) command).user;
-        this.channel = ((DeleteUserChannelCommand) command).channel;
-    }
-
     private DeleteUserChannelCommand(Parcel in) {
         this((User) in.readValue(CL), (Channel) in.readValue(CL));
     }
     
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
        return RxUserChannelSync.deleteChannel(service, user, channel);
     }
 

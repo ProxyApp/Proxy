@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.rx.command.callback;
+package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -8,11 +8,10 @@ import com.shareyourproxy.api.domain.model.User;
 /**
  * Created by Evan on 6/9/15.
  */
-public class UserSavedEvent extends CommandEvent {
-    public final User user;
+public class LoggedInUserUpdatedEventCallback extends UserEventCallback {
 
-    public UserSavedEvent(@NonNull User user){
-        this.user = user;
+    public LoggedInUserUpdatedEventCallback(@NonNull User user) {
+        super(user);
     }
 
     @Override
@@ -22,6 +21,5 @@ public class UserSavedEvent extends CommandEvent {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(user);
     }
 }

@@ -3,13 +3,11 @@ package com.shareyourproxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.AddChannelListActivity;
-import com.shareyourproxy.app.BaseActivity;
 import com.shareyourproxy.app.DispatchActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
@@ -17,8 +15,7 @@ import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserProfileActivity;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
-import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
-import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.Intents.getUserProfileIntent;
 
 
 /**
@@ -49,10 +46,12 @@ public final class IntentLauncher {
      *
      * @param activity The context used to start this intent
      */
-    public static void launchMainActivity(Activity activity) {
+    public static void launchMainActivity(Activity activity, int selectTab) {
         Intent intent = new Intent(Intents.ACTION_MAIN_VIEW).addFlags(Intent
             .FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(Constants.ARG_SELECTED_MAINFRAGMENT_TAB, selectTab);
         activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
     /**
@@ -73,13 +72,9 @@ public final class IntentLauncher {
      * @param activity The context used to start this intent
      * @param user     that was selected
      */
-    public static void launchUserProfileActivity(Activity activity, User user) {
-        Bundle bundle = new Bundle();
-        User loggedInUser = ((BaseActivity) activity).getLoggedInUser();
-        boolean isLoggedInUser = ((BaseActivity) activity).isLoggedInUser(user);
-        Intent intent = new Intent(Intents.ACTION_USER_PROFILE);
-        intent.putExtra(ARG_USER_SELECTED_PROFILE, user);
-        intent.putExtra(ARG_USER_LOGGED_IN, isLoggedInUser);
+    public static void launchUserProfileActivity(
+        Activity activity, User user, String loggedInUserId) {
+        Intent intent = getUserProfileIntent(user, loggedInUserId);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
@@ -182,6 +177,36 @@ public final class IntentLauncher {
     public static void launchSMSIntent(Activity activity, String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("smsto:" + phoneNumber));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        }
+    }
+
+    /**
+     * View facebook user page.
+     *
+     * @param activity context
+     * @param userId   user profile ID
+     */
+    public static void launchFacebookIntent(Activity activity, String userId) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        String mobileURI = "https://www.facebook.com/app_scoped_user_id/"+userId;
+        intent.setData(Uri.parse("https://www.facebook.com/"+userId));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        }
+    }
+
+    /**
+     * View facebook help page.
+     *
+     * @param activity context
+     */
+    public static void launchFacebookHelpIntent(Activity activity) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("http:www.facebook.com/help/211813265517027"));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);

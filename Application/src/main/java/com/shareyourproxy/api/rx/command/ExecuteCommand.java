@@ -1,8 +1,8 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
@@ -10,5 +10,5 @@ import java.util.List;
  * Command Pattern.
  */
 public interface ExecuteCommand {
-    List<CommandEvent> execute(IntentService service);
+    List<EventCallback> execute(Service service);
 }

@@ -27,7 +27,7 @@ public enum ChannelSection {
     /**
      * Constructor.
      *
-     * @param weight channel weight
+     * @param weight newChannel weight
      * @param label   of channelSection
      */
     ChannelSection(int weight, String label, int resId) {

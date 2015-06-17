@@ -13,7 +13,9 @@ public class RealmContact extends RealmObject {
     private String id;
     private String first;
     private String last;
-    private String imageURL;
+    private String profileURL;
+
+    private String coverURL;
     private RealmList<RealmChannel> channels;
 
     /**
@@ -50,18 +52,26 @@ public class RealmContact extends RealmObject {
         this.last = last;
     }
 
-    public String getImageURL() {
-        return imageURL;
+    public String getProfileURL() {
+        return profileURL;
     }
 
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+    public void setProfileURL(String profileURL) {
+        this.profileURL = profileURL;
+    }
+
+    public String getCoverURL() {
+        return coverURL;
+    }
+
+    public void setCoverURL(String coverURL) {
+        this.coverURL = coverURL;
     }
 
     /**
      * Getter.
      *
-     * @return Contact's channel permissions
+     * @return Contact's newChannel permissions
      */
     public RealmList<RealmChannel> getChannels() {
         return channels;

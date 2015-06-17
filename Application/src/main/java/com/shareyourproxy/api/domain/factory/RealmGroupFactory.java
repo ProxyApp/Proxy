@@ -3,7 +3,8 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.realm.RealmGroup;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.realm.RealmList;
 
@@ -18,12 +19,13 @@ public class RealmGroupFactory {
     /**
      * Return a RealmList of Contacts from a user
      *
-     * @param groupArrayList to get contacts from
+     * @param groupHashMap to get contacts from
      * @return RealmList of Contacts
      */
-    public static RealmList<RealmGroup> getRealmGroups(ArrayList<Group> groupArrayList) {
+    public static RealmList<RealmGroup> getRealmGroups(HashMap<String, Group> groupHashMap) {
             RealmList<RealmGroup> realmGroupArray = new RealmList<>();
-            for (Group group : groupArrayList) {
+            for (Map.Entry<String, Group> entryGroup : groupHashMap.entrySet()) {
+                Group group = entryGroup.getValue();
                 RealmGroup realmGroup = new RealmGroup();
                 realmGroup.setId(group.id().value());
                 realmGroup.setLabel(group.label());

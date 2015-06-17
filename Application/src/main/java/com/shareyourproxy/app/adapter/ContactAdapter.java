@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
@@ -14,9 +15,10 @@ import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
@@ -34,11 +36,11 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     private SortedList<Contact> _contacts;
     private SortedList.Callback<Contact> _sortedListCallback;
 
-    public ContactAdapter(ArrayList<Contact> contacts, ItemClickListener listener) {
+    public ContactAdapter(HashMap<String, Contact> contacts, ItemClickListener listener) {
         _clickListener = listener;
         if (contacts != null) {
             _contacts = new SortedList<>(Contact.class, getSortedCallback(), contacts.size());
-            addContactsArray(contacts);
+            addContactsList(contacts);
         } else {
             _contacts = new SortedList<>(Contact.class, getSortedCallback());
         }
@@ -51,7 +53,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return an {@link ContactAdapter} with no data
      */
     public static ContactAdapter newInstance(
-        ArrayList<Contact> contacts, ItemClickListener listener) {
+        HashMap<String, Contact> contacts, ItemClickListener listener) {
         return new ContactAdapter(contacts, listener);
     }
 
@@ -60,12 +62,12 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             _sortedListCallback = new SortedList.Callback<Contact>() {
                 @Override
                 public int compare(Contact item1, Contact item2) {
-                    int comapreFirst = item1.first().compareTo(item2.first());
+                    int compareFirst = item1.first().compareTo(item2.first());
 
-                    if (comapreFirst == 0) {
+                    if (compareFirst == 0) {
                         return item1.last().compareTo(item2.last());
                     } else {
-                        return comapreFirst;
+                        return compareFirst;
                     }
                 }
 
@@ -125,11 +127,11 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param holder {@link Contact} {@link BaseViewHolder}
      * @param user   the {@link Contact} data
      */
-    private void setItemViewData(ContactViewHolder holder, Contact user) {
+    private void setItemViewData(final ContactViewHolder holder, Contact user) {
         Context context = holder._view.getContext();
         holder.userName.setText(joinWithSpace(new String[]{ user.first(),
             user.last() }));
-        Picasso.with(context).load(user.imageURL())
+        Picasso.with(context).load(user.profileURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(holder.userImage);
@@ -140,15 +142,15 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return _contacts.size();
     }
 
-    public void refreshContactList(ArrayList<Contact> contacts) {
-        _contacts.clear();
-        addContactsArray(contacts);
+    public void updateContactsList(HashMap<String, Contact> contacts) {
+        addContactsList(contacts);
     }
 
-    private void addContactsArray(ArrayList<Contact> contacts) {
+    private void addContactsList(HashMap<String, Contact> contacts) {
         _contacts.beginBatchedUpdates();
-        for (Contact contact : contacts) {
-            _contacts.add(contact);
+        _contacts.clear();
+        for (Map.Entry<String, Contact> entryContact : contacts.entrySet()) {
+            _contacts.add(entryContact.getValue());
         }
         _contacts.endBatchedUpdates();
     }
@@ -167,9 +169,11 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * ViewHolder for the entered {@link Contact} data.
      */
     protected static class ContactViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_contact_name)
+        @Bind(R.id.adapter_contact_item_container)
+        protected RelativeLayout userBackground;
+        @Bind(R.id.adapter_contact_name)
         protected TextView userName;
-        @InjectView(R.id.adapter_contact_image)
+        @Bind(R.id.adapter_contact_image)
         protected ImageView userImage;
 
         /**

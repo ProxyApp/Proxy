@@ -14,13 +14,13 @@ import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import timber.log.Timber;
 
 
 /**
- * {@link User} TypeAdapter that deserializes JSON to copy a user.
+ * {@link User} TypeAdapter that deserializes JSON to create a user.
  */
 public class UserTypeAdapter extends TypeAdapter<User> {
 
@@ -44,9 +44,9 @@ public class UserTypeAdapter extends TypeAdapter<User> {
     @Override
     public User read(JsonReader reader) throws IOException {
         User.Builder user = User.builder();
-        ArrayList<Channel> channels = new ArrayList<>();
-        ArrayList<Contact> contacts = new ArrayList<>();
-        ArrayList<Group> groups = new ArrayList<>();
+        HashMap<String, Channel> channels = new HashMap<>();
+        HashMap<String, Contact> contacts = new HashMap<>();
+        HashMap<String, Group> groups = new HashMap<>();
         while (reader.hasNext()) {
             if (reader.peek() == JsonToken.NULL) {
                 reader.nextNull();
@@ -66,8 +66,11 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                         case "email":
                             user.email(reader.nextString());
                             break;
-                        case "imageURL":
-                            user.imageURL(reader.nextString());
+                        case "profileURL":
+                            user.profileURL(reader.nextString());
+                            break;
+                        case "coverURL":
+                            user.coverURL(reader.nextString());
                             break;
                         case "channels":
                             checkChannelArray(reader, channels);
@@ -97,18 +100,22 @@ public class UserTypeAdapter extends TypeAdapter<User> {
 
     public Id readId(JsonReader reader) throws IOException {
         String res = null;
-        reader.beginObject();
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "value":
-                    res = reader.nextString();
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "value":
+                        res = reader.nextString();
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
             }
+            reader.endObject();
+        } else if (reader.peek() == JsonToken.STRING) {
+            res = reader.nextString();
         }
-        reader.endObject();
 
         if (res == null) {
             throw new IOException("Invalid Json");
@@ -166,7 +173,7 @@ public class UserTypeAdapter extends TypeAdapter<User> {
      */
     public Contact readContact(JsonReader reader) throws IOException {
         Contact.Builder contact = Contact.builder();
-        ArrayList<Channel> channels = new ArrayList<>();
+        HashMap<String, Channel> channels = new HashMap<>();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -180,8 +187,11 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                 case "last":
                     contact.last(reader.nextString());
                     break;
-                case "imageURL":
-                    contact.imageURL(reader.nextString());
+                case "profileURL":
+                    contact.profileURL(reader.nextString());
+                    break;
+                case "coverURL":
+                    contact.coverURL(reader.nextString());
                     break;
                 case "channels":
                     checkChannelArray(reader, channels);
@@ -205,8 +215,8 @@ public class UserTypeAdapter extends TypeAdapter<User> {
      */
     public Group readGroup(JsonReader reader) throws IOException {
         Group.Builder group = Group.builder();
-        ArrayList<Channel> channels = new ArrayList<>();
-        ArrayList<Contact> contacts = new ArrayList<>();
+        HashMap<String, Channel> channels = new HashMap<>();
+        HashMap<String, Contact> contacts = new HashMap<>();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -234,19 +244,19 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         return group.build();
     }
 
-    private void checkChannelArray(JsonReader reader, ArrayList<Channel> channels) throws
-        IOException {
+    private void checkChannelArray(JsonReader reader, HashMap<String, Channel> channels)
+        throws IOException {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
-                reader.nextName();
-                channels.add(readChannel(reader));
+                channels.put(reader.nextName(), readChannel(reader));
             }
             reader.endObject();
         } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
             reader.beginArray();
             while (reader.hasNext()) {
-                channels.add(readChannel(reader));
+                Channel channel = readChannel(reader);
+                channels.put(channel.id().value(), channel);
             }
             reader.endArray();
         } else {
@@ -255,24 +265,23 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         }
     }
 
-    private void checkContactsArray(JsonReader reader, ArrayList<Contact> contacts) throws
-        IOException {
+    private void checkContactsArray(JsonReader reader, HashMap<String, Contact> contacts)
+        throws IOException {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
-                reader.nextName();
-                contacts.add(readContact(reader));
+                contacts.put(reader.nextName(), readContact(reader));
             }
             reader.endObject();
         } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
             reader.beginArray();
             while (reader.hasNext()) {
-                if(reader.peek() == JsonToken.BEGIN_OBJECT){
-                    contacts.add(readContact(reader));
-                }
-                else {
-                    reader.nextName();
-                    contacts.add(readContact(reader));
+
+                if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+                    Contact contact = readContact(reader);
+                    contacts.put(contact.id().value(), contact);
+                } else {
+                    contacts.put(reader.nextName(), readContact(reader));
                 }
             }
             reader.endArray();
@@ -282,19 +291,23 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         }
     }
 
-    private void checkGroupsArray(JsonReader reader, ArrayList<Group> groups) throws IOException {
+    private void checkGroupsArray(JsonReader reader, HashMap<String, Group> groups)
+        throws IOException {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
-                reader.nextName();
-                groups.add(readGroup(reader));
+                groups.put(reader.nextName(), readGroup(reader));
             }
             reader.endObject();
         } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
             reader.beginArray();
             while (reader.hasNext()) {
-                reader.nextName();
-                groups.add(readGroup(reader));
+                if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+                    Group group = readGroup(reader);
+                    groups.put(group.id().value(), group);
+                } else {
+                    groups.put(reader.nextName(), readGroup(reader));
+                }
             }
             reader.endArray();
         } else {

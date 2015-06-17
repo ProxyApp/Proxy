@@ -18,8 +18,9 @@ import android.widget.TextView;
 
 import com.shareyourproxy.R;
 
+import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnTextChanged;
 
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
@@ -29,7 +30,7 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  */
 public class AddGroupDialog extends BaseDialogFragment {
 
-    @InjectView(R.id.dialog_addgroup_edittext)
+    @Bind(R.id.dialog_addgroup_edittext)
     protected EditText editText;
     private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
@@ -51,7 +52,6 @@ public class AddGroupDialog extends BaseDialogFragment {
                 // FixedDecimalEditText's inputType is Decimal
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
-                    dispatchGroupEvent();
                     getDialog().dismiss();
                     return true;
                 }
@@ -62,12 +62,15 @@ public class AddGroupDialog extends BaseDialogFragment {
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dispatchGroupEvent();
                 dialogInterface.dismiss();
             }
         };
-    private int _gray;
-    private int _blue;
+    @BindColor(R.color.common_text)
+    protected int _textColor;
+    @BindColor(R.color.common_divider)
+    protected int _gray;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
 
 
     /**
@@ -79,16 +82,7 @@ public class AddGroupDialog extends BaseDialogFragment {
         return new AddGroupDialog();
     }
 
-    /**
-     * Dispatch a Group Added Event
-     */
-    private void dispatchGroupEvent() {
-//        String groupLabel = editText.getText().toString();
-//        if (!TextUtils.isEmpty(groupLabel) && !groupLabel.trim().isEmpty()) {
-//            Group group = Group.copy(groupLabel, null, null);
-//            getRxBus().post(new AddUserGroupCommand(getLoggedInUser(),group));
-//        }
-    }
+
 
     /**
      * If text is entered into the dialog {@link EditText}, change the background underline of the
@@ -110,7 +104,7 @@ public class AddGroupDialog extends BaseDialogFragment {
         super.onCreateDialog(savedInstanceState);
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_addgroup, null, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         editText.setOnEditorActionListener(_onEditorActionListener);
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
@@ -134,28 +128,19 @@ public class AddGroupDialog extends BaseDialogFragment {
         super.onStart();
         // Setup Button Colors
         AlertDialog dialog = (AlertDialog) getDialog();
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), android.R.color.black);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
-        initializeEditTextColors();
-    }
-
-    /**
-     * Initialize values for EditText to switch color on in {@link AddGroupDialog#afterTextChanged}
-     */
-    private void initializeEditTextColors() {
-        _gray = editText.getContext().getResources().getColor(R.color.common_divider);
-        _blue = editText.getContext().getResources().getColor(R.color.common_blue);
         editText.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 }

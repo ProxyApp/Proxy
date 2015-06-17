@@ -7,14 +7,14 @@ import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
-import com.shareyourproxy.api.rx.command.callback.UserContactAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserContactDeletedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCallback;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -22,7 +22,7 @@ import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.RestClient.getUserContactService;
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
  * Sync contacts asynchronously.
@@ -35,42 +35,42 @@ public class RxUserContactSync {
     private RxUserContactSync() {
     }
 
-    public static List<CommandEvent> addUserContact(
+    public static List<EventCallback> addUserContact(
         Context context, User user, Contact contact) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, contact, user),
             saveFirebaseUserGroup(context, user.id().value(), contact),
             zipAddUserContact())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    public static List<CommandEvent> deleteUserContact(
+    public static List<EventCallback> deleteUserContact(
         Context context, User user, Contact contact) {
         return rx.Observable.zip(
             deleteRealmUserContact(context, contact, user),
             deleteFirebaseUserContact(context, user.id().value(), contact),
             zipDeleteUserContact())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static Func2<User, Contact, CommandEvent> zipAddUserContact() {
-        return new Func2<User, Contact, CommandEvent>() {
+    private static Func2<User, Contact, EventCallback> zipAddUserContact() {
+        return new Func2<User, Contact, EventCallback>() {
             @Override
-            public UserContactAddedEvent call(User user, Contact contact) {
-                return new UserContactAddedEvent(user, contact);
+            public UserContactAddedEventCallback call(User user, Contact contact) {
+                return new UserContactAddedEventCallback(user, contact);
             }
         };
     }
 
-    private static Func2<User, Contact, CommandEvent> zipDeleteUserContact() {
-        return new Func2<User, Contact, CommandEvent>() {
+    private static Func2<User, Contact, EventCallback> zipDeleteUserContact() {
+        return new Func2<User, Contact, EventCallback>() {
             @Override
-            public UserContactDeletedEvent call(User user, Contact contact) {
-                return new UserContactDeletedEvent(user, contact);
+            public UserContactDeletedEventCallback call(User user, Contact contact) {
+                return new UserContactDeletedEventCallback(user, contact);
             }
         };
     }
@@ -88,11 +88,7 @@ public class RxUserContactSync {
             public User call(Contact Contact) {
                 Timber.i("Contact Object: " + Contact.toString());
                 User newUser = UserFactory.addUserContact(user, Contact);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };
@@ -111,11 +107,7 @@ public class RxUserContactSync {
             public User call(Contact Contact) {
                 Timber.i("Contact Object: " + Contact.toString());
                 User newUser = UserFactory.deleteUserContact(user, Contact);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };
@@ -159,10 +151,10 @@ public class RxUserContactSync {
         };
     }
 
-    public static List<CommandEvent> checkContacts(
+    public static List<EventCallback> checkContacts(
         final Context context, final User user,
-        ArrayList<Contact> contacts, final ArrayList<Group> userGroups) {
-        return Observable.from(contacts)
+        HashMap<String, Contact> contacts, final HashMap<String, Group> userGroups) {
+        return Observable.from(contacts.entrySet())
             .map(findContactsToDelete(userGroups))
             .filter(filterMissingContacts())
             .map(unwrapPairedContact())
@@ -170,15 +162,19 @@ public class RxUserContactSync {
             .toList().toBlocking().single();
     }
 
-    private static Func1<Contact, Pair<Contact, Boolean>> findContactsToDelete(
-        final ArrayList<Group> userGroups) {
-        return new Func1<Contact, Pair<Contact, Boolean>>() {
+    private static Func1<Map.Entry<String,Contact>, Pair<Contact, Boolean>> findContactsToDelete(
+        final HashMap<String, Group> userGroups) {
+        return new Func1<Map.Entry<String,Contact>, Pair<Contact, Boolean>>() {
             @Override
-            public Pair<Contact, Boolean> call(Contact checkContact) {
-                for (Group group : userGroups) {
-                    ArrayList<Contact> groupContacts = group.contacts();
+            public Pair<Contact, Boolean> call(Map.Entry<String, Contact> entryCheckContact) {
+                Contact checkContact = entryCheckContact.getValue();
+                for (Map.Entry<String, Group> entryGroup : userGroups.entrySet()) {
+                    Group group = entryGroup.getValue();
+                    HashMap<String, Contact> groupContacts = group.contacts();
                     if (groupContacts != null) {
-                        for (Contact groupContact : groupContacts) {
+                        for (Map.Entry<String, Contact> entryGroupContact :
+                            groupContacts.entrySet()) {
+                            Contact groupContact = entryGroupContact.getValue();
                             if (groupContact.id().value().equals(checkContact.id().value())) {
                                 return new Pair<>(checkContact, true);
                             }
@@ -210,11 +206,11 @@ public class RxUserContactSync {
         };
     }
 
-    private static Func1<Contact, Observable<CommandEvent>> zipDeleteUserContact(
+    private static Func1<Contact, Observable<EventCallback>> zipDeleteUserContact(
         final Context context, final User user) {
-        return new Func1<Contact, Observable<CommandEvent>>() {
+        return new Func1<Contact, Observable<EventCallback>>() {
             @Override
-            public Observable<CommandEvent> call(Contact contact) {
+            public Observable<EventCallback> call(Contact contact) {
                 return Observable.zip(
                     deleteRealmUserContact(context, contact, user),
                     deleteFirebaseUserContact(context, user.id().value(), contact),

@@ -1,13 +1,13 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
@@ -37,19 +37,12 @@ public class AddUserCommand extends BaseCommand {
         this.user = user;
     }
 
-    public AddUserCommand(BaseCommand command) {
-        super(AddUserCommand.class.getPackage().getName(),
-            AddUserCommand.class.getName());
-        this.user = ((AddUserCommand) command).user;
-    }
-
-
     private AddUserCommand(Parcel in) {
         this((User) in.readValue(CL));
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
         return RxUserSync.saveUser(service, user);
     }
 

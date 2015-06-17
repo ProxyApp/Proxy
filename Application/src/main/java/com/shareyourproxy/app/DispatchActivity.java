@@ -5,10 +5,10 @@ import android.os.Bundle;
 import com.shareyourproxy.R;
 import com.shareyourproxy.app.fragment.DispatchFragment;
 
-import butterknife.ButterKnife;
+import io.realm.Realm;
 
 /**
- * Created by Evan on 3/23/15.
+ * Activity to check if we have a cached user in SharedPreferences.
  */
 public class DispatchActivity extends BaseActivity {
 
@@ -16,7 +16,7 @@ public class DispatchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dispatch);
-        ButterKnife.inject(this);
+        Realm.deleteRealmFile(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_dispatch_container,

@@ -23,10 +23,10 @@ import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserAdapter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import rx.Observable;
@@ -49,18 +49,17 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 public class SearchFragment extends BaseFragment implements ItemClickListener {
 
-    @InjectView(R.id.fragment_search_back_button)
+    @Bind(R.id.fragment_search_back_button)
     protected ImageView imageViewBackButton;
-    @InjectView(R.id.fragment_search_edittext)
+    @Bind(R.id.fragment_search_edittext)
     protected EditText editText;
-    @InjectView(R.id.fragment_search_clear_button)
+    @Bind(R.id.fragment_search_clear_button)
     protected ImageView imageViewClearButton;
-    @InjectView(R.id.fragment_search_recyclerview)
+    @Bind(R.id.fragment_search_recyclerview)
     protected BaseRecyclerView recyclerView;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
-    private Observable<ArrayList<User>> _queryUsers;
 
     /**
      * Constructor.
@@ -105,15 +104,15 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         _textWatcherSubject.post(editable.toString().trim());
     }
 
-    private JustObserver<ArrayList<User>> getSearchObserver() {
-        return new JustObserver<ArrayList<User>>() {
+    private JustObserver<HashMap<String, User>> getSearchObserver() {
+        return new JustObserver<HashMap<String, User>>() {
             @Override
             public void onError() {
 
             }
 
             @Override
-            public void onNext(ArrayList<User> users) {
+            public void onNext(HashMap<String, User> users) {
                 _adapter.refreshUserList(users);
             }
         };
@@ -123,7 +122,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initialize();
         return rootView;
     }
@@ -136,6 +135,10 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
+        _subscriptions = new CompositeSubscription();
+        Observable<HashMap<String, User>> _queryUsers = bindFragment(this, queryFilteredUsers(
+            getActivity(), getLoggedInUser().id().value()));
+        _subscriptions.add(_queryUsers.subscribe(getSearchObserver()));
         showSoftwareKeyboard(editText);
     }
 
@@ -170,7 +173,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     @Override
@@ -209,9 +212,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
             .subscribe(onNextEvent()));
-        _queryUsers = bindFragment(this, queryFilteredUsers(
-            getActivity(), getLoggedInUser().id().value()));
-        _subscriptions.add(_queryUsers.subscribe(getSearchObserver()));
+
         _subscriptions.add(bindFragment(this,
             _textWatcherSubject.toObserverable().map(
                 searchUserString(getActivity(), getLoggedInUser().id().value())))
@@ -242,7 +243,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user);
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
     }
 
 }

@@ -1,13 +1,14 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserChannelSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
@@ -28,31 +29,26 @@ public class AddUserChannelCommand extends BaseCommand {
         }
     };
     private final static java.lang.ClassLoader CL = AddUserChannelCommand.class.getClassLoader();
-    public final Channel channel;
     public final User user;
+    public final Channel newChannel;
+    public final Channel oldChannel;
 
-    public AddUserChannelCommand(@NonNull User user, @NonNull Channel channel) {
+    public AddUserChannelCommand(
+        @NonNull User user, @NonNull Channel newChannel, @Nullable Channel oldChannel) {
         super(AddUserChannelCommand.class.getPackage().getName(),
             AddUserChannelCommand.class.getName());
         this.user = user;
-        this.channel = channel;
+        this.newChannel = newChannel;
+        this.oldChannel = oldChannel;
     }
-
-    public AddUserChannelCommand(BaseCommand command) {
-        super(AddUserChannelCommand.class.getPackage().getName(),
-            AddUserChannelCommand.class.getName());
-        this.user = ((AddUserChannelCommand) command).user;
-        this.channel = ((AddUserChannelCommand) command).channel;
-    }
-
 
     private AddUserChannelCommand(Parcel in) {
-        this((User) in.readValue(CL), (Channel) in.readValue(CL));
+        this((User) in.readValue(CL), (Channel) in.readValue(CL), (Channel) in.readValue(CL));
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
-        return RxUserChannelSync.addChannel(service, user, channel);
+    public List<EventCallback> execute(Service service) {
+        return RxUserChannelSync.addChannel(service, user, newChannel, oldChannel);
     }
 
     @Override
@@ -63,6 +59,7 @@ public class AddUserChannelCommand extends BaseCommand {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(user);
-        dest.writeValue(channel);
+        dest.writeValue(newChannel);
+        dest.writeValue(oldChannel);
     }
 }

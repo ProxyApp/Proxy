@@ -15,9 +15,10 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
@@ -76,7 +77,7 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
+                    notifyItemRangeInserted(position, count);
                 }
 
                 @Override
@@ -122,7 +123,7 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         Context context = holder._view.getContext();
         holder.userName.setText(joinWithSpace(new String[]{ user.first(),
             user.last() }));
-        Picasso.with(context).load(user.imageURL())
+        Picasso.with(context).load(user.profileURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(holder.userImage);
@@ -133,11 +134,11 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return _users.size();
     }
 
-    public void refreshUserList(ArrayList<User> users) {
+    public void refreshUserList(HashMap<String, User> users) {
         _users.clear();
         _users.beginBatchedUpdates();
-        for (User user : users) {
-            _users.add(user);
+        for (Map.Entry<String, User> user : users.entrySet()) {
+            _users.add(user.getValue());
         }
         _users.endBatchedUpdates();
     }
@@ -156,9 +157,10 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * ViewHolder for the entered {@link User} data.
      */
     protected static class UserViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_user_name)
+
+        @Bind(R.id.adapter_user_name)
         protected TextView userName;
-        @InjectView(R.id.adapter_user_image)
+        @Bind(R.id.adapter_user_image)
         protected ImageView userImage;
 
         /**

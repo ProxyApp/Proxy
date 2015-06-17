@@ -8,12 +8,12 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.shareyourproxy.api.rx.command.BaseCommand;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -35,17 +35,17 @@ public class CommandIntentService extends IntentService {
 
     @Override
     @SuppressWarnings("unchecked")
+    @DebugLog
     protected void onHandleIntent(Intent intent) {
         BaseCommand command = intent.getExtras().getParcelable(ARG_COMMAND_CLASS);
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
+
         try {
-            Class<?> clazz = Class.forName(command.componentName.getClassName());
-            Object obj = clazz.getConstructor(BaseCommand.class)
-                .newInstance(command);
-            Method method = clazz.getMethod("execute", IntentService.class);
-            List<CommandEvent> events = (List<CommandEvent>) method.invoke(obj, this);
+            List<EventCallback> events = command.execute(this);
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, new ArrayList(events));
+            for(EventCallback event : events){
+            }
             result.send(Activity.RESULT_OK, bundle);
         } catch (Exception e) {
             logError(result, e);

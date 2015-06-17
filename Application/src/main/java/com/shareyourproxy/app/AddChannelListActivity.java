@@ -8,8 +8,8 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.app.fragment.AddChannelListFragment;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -18,11 +18,11 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindActivity;
 
 /**
- * Created by Evan on 5/5/15.
+ * Activity that displays a list of ChannelTypes to choose from.
  */
 public class AddChannelListActivity extends BaseActivity {
 
-    @InjectView(R.id.activity_toolbar)
+    @Bind(R.id.activity_toolbar)
     Toolbar toolbar;
     private CompositeSubscription _subscriptions;
 
@@ -30,7 +30,7 @@ public class AddChannelListActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.common_activity_fragment_container);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         initialize();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

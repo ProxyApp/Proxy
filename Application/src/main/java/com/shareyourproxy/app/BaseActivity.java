@@ -1,11 +1,13 @@
 package com.shareyourproxy.app;
 
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.shareyourproxy.ProxyApplication;
+import com.shareyourproxy.api.domain.model.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 
@@ -24,6 +26,15 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
+     * Get currently logged in {@link User} in this {@link ProxyApplication}.
+     *
+     * @return logged in user
+     */
+    public SharedPreferences getSharedPreferences() {
+        return ((ProxyApplication) getApplication()).getSharedPreferences();
+    }
+
+    /**
      * Set the currently logged in {@link User} in this {@link ProxyApplication}.
      *
      * @param user currently logged in
@@ -32,11 +43,15 @@ public class BaseActivity extends AppCompatActivity {
         ((ProxyApplication) getApplication()).setCurrentUser(user);
     }
 
-    public boolean isLoggedInUser(User user){
-        return user.id().equals(getLoggedInUser().id());
+    public boolean isLoggedInUser(@NonNull User user) {
+        if (getLoggedInUser() == null) {
+            return false;
+        } else {
+            return user.id().value().equals(getLoggedInUser().id().value());
+        }
     }
 
-    public RxBusDriver getRxBus(){
+    public RxBusDriver getRxBus() {
         return ((ProxyApplication) getApplication()).getRxBus();
     }
 

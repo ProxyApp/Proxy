@@ -1,15 +1,15 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 
 import com.shareyourproxy.api.rx.RxUserSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
 /**
- * Created by Evan on 6/9/15.
+ * Get all users from Firebase.
  */
 public class GetAllUsersCommand extends BaseCommand {
 
@@ -25,14 +25,8 @@ public class GetAllUsersCommand extends BaseCommand {
             return new GetAllUsersCommand[size];
         }
     };
-    private final static java.lang.ClassLoader CL = GetAllUsersCommand.class.getClassLoader();
 
     public GetAllUsersCommand() {
-        super(GetAllUsersCommand.class.getPackage().getName(),
-            GetAllUsersCommand.class.getName());
-    }
-
-    public GetAllUsersCommand(BaseCommand command) {
         super(GetAllUsersCommand.class.getPackage().getName(),
             GetAllUsersCommand.class.getName());
     }
@@ -42,7 +36,7 @@ public class GetAllUsersCommand extends BaseCommand {
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
         return RxUserSync.getAllUsers(service);
     }
 
