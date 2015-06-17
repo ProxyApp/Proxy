@@ -126,6 +126,12 @@ public final class IntentLauncher {
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
+    public static void launchAboutActivity(Activity activity) {
+        Intent intent = new Intent(Intents.ACTION_VIEW_ABOUT);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+    }
+
     /**
      * Launch the Dialer App.
      *

@@ -292,6 +292,17 @@ public class ViewUtils {
      * @param resId icon resource id
      * @return menu icon drawable
      */
+    public static ContentDescriptionDrawable getMenuIconDarkText(Context context, int resId) {
+        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
+            context.getResources().getColor(R.color.common_text));
+    }
+
+    /**
+     * Return a new Drawable of the entered resource icon.
+     *
+     * @param resId icon resource id
+     * @return menu icon drawable
+     */
     public static ContentDescriptionDrawable getMenuIcon(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
             context.getResources().getColor(R.color.common_text_inverse));

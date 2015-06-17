@@ -61,6 +61,9 @@ public class BaseRecyclerView extends RecyclerView {
      * @param emptyView the view to display when this array has no data
      */
     public void setEmptyView(View emptyView) {
+        if(_emptyView!=null){
+            _emptyView.setVisibility(View.GONE);
+        }
         _emptyView = emptyView;
     }
 
@@ -75,6 +78,7 @@ public class BaseRecyclerView extends RecyclerView {
         super.setAdapter(adapter);
         updateEmptyView();
     }
+
 
     /**
      * Show or hide the empty view.

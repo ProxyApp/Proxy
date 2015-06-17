@@ -8,8 +8,8 @@ import android.view.MenuItem;
 
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.rx.command.CheckUserContactsCommand;
 import com.shareyourproxy.api.rx.command.callback.UserGroupDeletedEvent;
-import com.shareyourproxy.api.rx.event.GroupChannelToggledEvent;
 import com.shareyourproxy.api.rx.event.SaveChannelsClicked;
 import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
 
@@ -71,8 +71,6 @@ public class GroupEditChannelActivity extends BaseActivity {
             public void call(Object event) {
                 if (event instanceof UserGroupDeletedEvent) {
                     userGroupDeleted((UserGroupDeletedEvent) event);
-                } else if (event instanceof GroupChannelToggledEvent) {
-                    toggleChannelInGroup(((GroupChannelToggledEvent) event));
                 }
             }
         };
@@ -116,11 +114,10 @@ public class GroupEditChannelActivity extends BaseActivity {
     }
 
     private void userGroupDeleted(UserGroupDeletedEvent event) {
+        getRxBus().post(new CheckUserContactsCommand(
+            getLoggedInUser(), event.group.contacts(), getLoggedInUser().groups()));
         IntentLauncher.launchMainActivity(this);
         onBackPressed();
-    }
-
-    private void toggleChannelInGroup(GroupChannelToggledEvent toggleChannel) {
     }
 
 }

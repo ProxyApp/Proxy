@@ -30,12 +30,12 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
 
     @Override
     public void onClick(View v) {
-        _itemClickListener.onItemClick(v, getAdapterPosition());
+        _itemClickListener.onItemClick(v, getLayoutPosition());
     }
 
     @Override
     public boolean onLongClick(View v) {
-        _itemClickListener.onItemLongClick(v, getAdapterPosition());
+        _itemClickListener.onItemLongClick(v, getLayoutPosition());
         return true;
     }
 
