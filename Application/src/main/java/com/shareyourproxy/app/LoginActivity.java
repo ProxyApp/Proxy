@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 
 import com.firebase.client.AuthData;
@@ -23,6 +24,8 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.google.android.gms.plus.model.people.Person.Cover.CoverPhoto;
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
@@ -32,12 +35,13 @@ import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserCommand;
 import com.shareyourproxy.app.dialog.ErrorDialog;
+import com.shareyourproxy.app.fragment.MainFragment;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.functions.Func1;
@@ -52,24 +56,23 @@ import static rx.android.app.AppObservable.bindActivity;
 public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
 
+    // Final
     private static final int REQUESTCODE_SIGN_IN = 0;
     private static final String PROVIDER_GOOGLE = "google";
     private static final String GOOGLE_UID_PREFIX = "google:";
     private static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
-    private static final String SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
-    // Views
-    @InjectView(R.id.activity_login_sign_in_button)
+    private static final String SCOPE_EMAIL =
+        "https://www.googleapis.com/auth/plus.profile.emails.read";
+    // View
+    @Bind(R.id.activity_login_sign_in_button)
     protected SignInButton signInButton;
+    // Transient
     private final AuthResultHandler _authResultHandler = new AuthResultHandler(
         new WeakReference<>(this), PROVIDER_GOOGLE, signInButton);
     private Firebase _firebaseRef;
     private boolean _googleIntentInProgress = false;
     private GoogleApiClient _googleApiClient;
-    // Used to store the PendingIntent most recently returned by Google Play
-    // services until the user clicks 'sign in'.
     private PendingIntent _signInIntent;
-    // Used to store the onError code most recently returned by Google Play services
-    // until the user clicks 'sign in'.
     private int _signInError;
     private CompositeSubscription _subscriptions;
 
@@ -99,7 +102,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         initialize();
     }
 
@@ -107,7 +110,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         signInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
         signInButton.setEnabled(true);
 
-        _firebaseRef = new Firebase(getResources().getString(R.string.firebase_url));
+        _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
         _googleApiClient = buildGoogleApiClient();
     }
 
@@ -221,11 +224,19 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
         String email = Plus.AccountApi.getAccountName(_googleApiClient);
-        String imageURL = getLargeImageURL(currentUser);
-
-        //Create a new {@link User} with empty contactGroups, contacts, and channels
+        String profileURL = getLargeImageURL(currentUser);
+        Person.Cover cover = currentUser.getCover();
+        String coverURL = null;
+        Timber.e("has cover:" + currentUser.hasCover());
+        if (cover != null) {
+            CoverPhoto coverPhoto = cover.getCoverPhoto();
+            if (coverPhoto != null) {
+                coverURL = coverPhoto.getUrl();
+            }
+        }
+        //Create a new {@link User} with empty groups, contacts, and channels
         Id id = Id.builder().value(userUID).build();
-        return User.create(id, firstName, lastName, email, imageURL, null, null, null);
+        return User.create(id, firstName, lastName, email, profileURL, coverURL, null, null, null);
     }
 
     /**
@@ -266,8 +277,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 String errorMessage = s;
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
-                    token = GoogleAuthUtil.getToken(LoginActivity.this, Plus.AccountApi
-                        .getAccountName(_googleApiClient), scope);
+                    if(_googleApiClient.isConnected()) {
+                        token = GoogleAuthUtil.getToken(LoginActivity.this, Plus.AccountApi
+                            .getAccountName(_googleApiClient), scope);
+                    }
                 } catch (IOException transientEx) {
                     /* Network or server onError */
                     Timber.e(GOOGLE_ERROR_AUTH + transientEx);
@@ -287,6 +300,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                      * Google Play services is installed. */
                     Timber.e(GOOGLE_ERROR_AUTH + authEx.getMessage(), authEx);
                     errorMessage = GOOGLE_ERROR_AUTH + authEx.getMessage();
+                }
+                catch (Exception e){
+                    Timber.e(GOOGLE_ERROR_AUTH + Log.getStackTraceString(e));
                 }
                 return new Pair<>(token, errorMessage);
             }
@@ -438,7 +454,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         @Override
         public void onAuthenticated(AuthData authData) {
             Timber.i(provider + authData);
-            IntentLauncher.launchMainActivity(activity.get());
+            IntentLauncher.launchMainActivity(activity.get(), MainFragment.ARG_SELECT_CONTACTS_TAB);
             activity.get().finish();
         }
 

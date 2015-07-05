@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -9,9 +9,11 @@ import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserContactSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -32,12 +34,12 @@ public class CheckUserContactsCommand extends BaseCommand {
         };
     private final static java.lang.ClassLoader CL = CheckUserContactsCommand.class.getClassLoader();
     public final User user;
-    public final ArrayList<Contact> contacts;
-    public final ArrayList<Group> userGroups;
+    public final HashMap<String, Contact> contacts;
+    public final HashMap<String, Group> userGroups;
 
     public CheckUserContactsCommand(
-        @NonNull User user, @NonNull ArrayList<Contact> contacts,
-        @NonNull ArrayList<Group> userGroups) {
+        @NonNull User user, @NonNull HashMap<String, Contact> contacts,
+        @NonNull HashMap<String, Group> userGroups) {
         super(CheckUserContactsCommand.class.getPackage().getName(),
             CheckUserContactsCommand.class.getName());
         this.user = user;
@@ -54,12 +56,12 @@ public class CheckUserContactsCommand extends BaseCommand {
     }
 
     private CheckUserContactsCommand(Parcel in) {
-        this((User) in.readValue(CL), (ArrayList<Contact>) in.readValue(CL),
-            (ArrayList<Group>) in.readValue(CL));
+        this((User) in.readValue(CL), (HashMap<String, Contact>) in.readValue(CL),
+            (HashMap<String, Group>) in.readValue(CL));
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
         return RxUserContactSync.checkContacts(service, user, contacts, userGroups);
     }
 

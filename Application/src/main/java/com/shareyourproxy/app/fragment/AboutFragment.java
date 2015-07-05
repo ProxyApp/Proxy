@@ -12,13 +12,13 @@ import android.view.ViewGroup;
 import com.shareyourproxy.R;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * Created by Evan on 6/16/15.
  */
 public class AboutFragment extends BaseFragment {
-    @InjectView(R.id.fragment_about_toolbar)
+    @Bind(R.id.fragment_about_toolbar)
     protected Toolbar toolbar;
 
 
@@ -32,9 +32,15 @@ public class AboutFragment extends BaseFragment {
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_about, null, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initialize();
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
     private void initialize() {

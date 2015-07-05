@@ -55,7 +55,7 @@ public class RealmGroup extends RealmObject {
     /**
      * Getter.
      *
-     * @return channel permissions shared with this {@link RealmGroup}
+     * @return newChannel permissions shared with this {@link RealmGroup}
      */
     public RealmList<RealmChannel> getChannels() {
         return channels;

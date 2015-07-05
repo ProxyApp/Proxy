@@ -20,4 +20,4 @@ crashlytics.properties
 .DS_Store
 
 # No Api Keys for Github
-/keys.xml
+keys.xml

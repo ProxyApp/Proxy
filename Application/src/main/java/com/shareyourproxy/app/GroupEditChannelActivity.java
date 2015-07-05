@@ -9,12 +9,13 @@ import android.view.MenuItem;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.command.CheckUserContactsCommand;
-import com.shareyourproxy.api.rx.command.callback.UserGroupDeletedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SaveChannelsClicked;
 import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
+import com.shareyourproxy.app.fragment.MainFragment;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
@@ -23,13 +24,16 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static rx.android.app.AppObservable.bindActivity;
 
+/**
+ * Add and remove newChannel permissions from a group.
+ */
 public class GroupEditChannelActivity extends BaseActivity {
-
-    @InjectView(R.id.activity_toolbar)
+    // View
+    @Bind(R.id.activity_toolbar)
     protected Toolbar toolbar;
+    // Transient
     private CompositeSubscription _subscriptions;
 
-    //note this may make sense to factor out into the base activity
     @Override
     public void onBackPressed() {
         hideSoftwareKeyboard(toolbar);
@@ -41,7 +45,7 @@ public class GroupEditChannelActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.common_activity_fragment_container);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         initialize();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -51,8 +55,6 @@ public class GroupEditChannelActivity extends BaseActivity {
     }
 
     private void initialize() {
-        //we'll need a set of user channels
-        //and a group
         buildToolbar(toolbar, getString(R.string.edit_group),
             getMenuIconSecondary(this, R.raw.ic_clear));
     }
@@ -69,8 +71,8 @@ public class GroupEditChannelActivity extends BaseActivity {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
-                if (event instanceof UserGroupDeletedEvent) {
-                    userGroupDeleted((UserGroupDeletedEvent) event);
+                if (event instanceof UserGroupDeletedEventCallback) {
+                    userGroupDeleted((UserGroupDeletedEventCallback) event);
                 }
             }
         };
@@ -84,7 +86,6 @@ public class GroupEditChannelActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_activity_edit_group_channel, menu);
         return super.onCreateOptionsMenu(menu);
@@ -93,7 +94,6 @@ public class GroupEditChannelActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem search = menu.findItem(R.id.menu_edit_group_channel_save);
-        // Add Icons to the menu items before they are displayed
         search.setIcon(getMenuIconSecondary(this, R.raw.ic_done));
         return super.onPrepareOptionsMenu(menu);
     }
@@ -113,10 +113,10 @@ public class GroupEditChannelActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void userGroupDeleted(UserGroupDeletedEvent event) {
+    private void userGroupDeleted(UserGroupDeletedEventCallback event) {
         getRxBus().post(new CheckUserContactsCommand(
             getLoggedInUser(), event.group.contacts(), getLoggedInUser().groups()));
-        IntentLauncher.launchMainActivity(this);
+        IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB);
         onBackPressed();
     }
 

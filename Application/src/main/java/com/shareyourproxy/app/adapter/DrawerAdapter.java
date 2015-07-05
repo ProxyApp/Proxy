@@ -2,6 +2,7 @@ package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
@@ -16,11 +17,12 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
+import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * Adapter to handle creating a drawer with a User Header and User Settings.
@@ -31,12 +33,14 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_LIST_ITEM = 1;
     private final User _currentUser;
     private String[] _values;
-    private Target _target;
+    private Target _targetProfileImage;
+    private Target _targetBackground;
     private ItemClickListener _clickListener;
 
     /**
      * Constructor for {@link DrawerAdapter}.
-     *  @param currentUser   currently logged in User
+     *
+     * @param currentUser   currently logged in User
      * @param settingsArray array of drawer options
      * @param listener
      */
@@ -55,8 +59,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @param settingsArray array of drawer options
      * @return an {@link DrawerAdapter} with no data
      */
-    public static DrawerAdapter newInstance(User currentUser, String[] settingsArray,
-                                                    ItemClickListener listener) {
+    public static DrawerAdapter newInstance(
+        User currentUser, String[] settingsArray,
+        ItemClickListener listener) {
         return new DrawerAdapter(currentUser, settingsArray, listener);
     }
 
@@ -81,9 +86,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
                 Context context = viewHolder._view.getContext();
-                viewHolder.backgroundContainer.setBackgroundColor(
-                    palette.getVibrantColor(
-                        context.getResources().getColor(R.color.common_deep_purple)));
+                if(_currentUser.coverURL() == null || "".equals(_currentUser.coverURL())) {
+                    viewHolder.backgroundContainer.setBackgroundColor(
+                        palette.getVibrantColor(
+                            context.getResources().getColor(R.color.common_deep_purple)));
+                }
             }
         };
     }
@@ -109,10 +116,16 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             viewHolder.userName.setText(_currentUser.first() + " "
                 + _currentUser.last());
 
-            Picasso.with(context).load(_currentUser.imageURL())
+            Picasso.with(context).load(_currentUser.profileURL())
                 .transform(CircleTransform.create())
                 .placeholder(R.mipmap.ic_proxy)
                 .into(getBitmapTargetView(viewHolder));
+
+            if (_currentUser.coverURL() != null && !"".equals(_currentUser.coverURL())) {
+                Picasso.with(context).load(_currentUser.coverURL())
+                    .transform(AlphaTransform.create())
+                    .into(getBackgroundTarget(viewHolder));
+            }
 
         } else {
             ItemViewHolder viewHolder = (ItemViewHolder) holder;
@@ -120,8 +133,32 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public String getItemValue(int position){
-        return _values[position-1];
+    public String getItemValue(int position) {
+        return _values[position - 1];
+    }
+
+
+    private Target getBackgroundTarget(final HeaderViewHolder viewHolder) {
+        if (_targetBackground == null) {
+            _targetBackground = new Target() {
+                @Override
+                public void onBitmapLoaded (Bitmap bitmap, Picasso.LoadedFrom from){
+                    viewHolder.backgroundContainer.setBackground(
+                        new BitmapDrawable(viewHolder._view.getContext().getResources(), bitmap));
+                }
+
+                @Override
+                public void onBitmapFailed (Drawable errorDrawable){
+
+                }
+
+                @Override
+                public void onPrepareLoad (Drawable placeHolderDrawable){
+
+                }
+            } ;
+        }
+        return _targetBackground;
     }
 
     /**
@@ -131,8 +168,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @return target
      */
     private Target getBitmapTargetView(final HeaderViewHolder viewHolder) {
-        if (_target == null) {
-            _target = new Target() {
+        if (_targetProfileImage == null) {
+            _targetProfileImage = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
@@ -156,7 +193,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             };
         }
-        return _target;
+        return _targetProfileImage;
     }
 
     @Override
@@ -189,11 +226,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * ViewHolder for the settings header.
      */
     protected static class HeaderViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_drawer_header_container)
+        @Bind(R.id.adapter_drawer_header_container)
         protected LinearLayout backgroundContainer;
-        @InjectView(R.id.adapter_drawer_header_image)
+        @Bind(R.id.adapter_drawer_header_image)
         protected ImageView userImage;
-        @InjectView(R.id.adapter_drawer_header_name)
+        @Bind(R.id.adapter_drawer_header_name)
         protected TextView userName;
 
         /**
@@ -222,7 +259,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * ViewHolder for the entered settings data.
      */
     protected static class ItemViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_group_name)
+        @Bind(R.id.adapter_group_name)
         protected TextView name;
 
         /**

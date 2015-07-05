@@ -9,9 +9,9 @@ import com.shareyourproxy.R;
  */
 public enum ChannelType {
 
-    Phone(0, "Phone", R.raw.ic_call), SMS(1, "SMS", R.raw.ic_sms),
-    Email(2, "Email", R.raw.ic_email), Web(3, "Web", R.raw.ic_link),
-    Custom(4, "Custom", R.raw.ic_star);
+    Custom(0, "Custom", R.raw.ic_star), Phone(1, "Phone", R.raw.ic_call),
+    SMS(2, "SMS", R.raw.ic_sms), Email(3, "Email", R.raw.ic_email),
+    Web(4, "Web", R.raw.ic_link), Facebook(5, "Facebook", R.raw.ic_facebook);
 
     private final int weight;
     private final String label;
@@ -20,7 +20,7 @@ public enum ChannelType {
     /**
      * Constructor.
      *
-     * @param label name of channel
+     * @param label name of newChannel
      */
     ChannelType(int weight, String label, int resId) {
         this.weight = weight;

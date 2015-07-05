@@ -1,5 +1,6 @@
 <resources>
     <!--common-->
+    <string name="facebook_app_id">470093589815006</string>
     <string name="app_name">Proxy</string>
     <string name="common_settings">Settings</string>
     <string name="common_open">open</string>
@@ -52,12 +53,13 @@
     <string name="Delete">Delete</string>
     <string name="edit_channel_description">Edit channel description</string>
     <string name="edit_channel_address">Edit channel address</string>
+    <string name="update_facebook_username">Update facebook username</string>
     <string name="common_delete">Delete</string>
     <string name="dialog_edit_user_groups">Select groups for</string>
     <string name="add_to_group">Add to group</string>
     <string name="rx_eventbus_error">Error processing event data</string>
     <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
-    <string name="shared_prefrences_key">com.shareyourproxy.application.shared_prefrences_key
+    <string name="shared_preferences_key">com.shareyourproxy.application.shared_preferences_key
     </string>
     <string name="oauth_error">Error retrieving token from Google OAuth</string>
     <string name="about_license">Copyright 2015 Evan Denerley\n\nLicensed under the Apache License,
@@ -69,8 +71,12 @@
         and limitations under the License.
     </string>
     <string name="no_information_to_share">%1$s isn\'t sharing any content with you yet.</string>
+    <string name="facebook">Facebook</string>
+    <string name="added_to_contacts">"%1$s added you to their contacts."</string>
+    <string name="common_help">Help</string>
 
     <string-array name="drawer_settings">
+        <item>@string/common_save</item>
         <item>@string/settings_about</item>
         <item>@string/settings_logout</item>
     </string-array>

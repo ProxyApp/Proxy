@@ -5,7 +5,7 @@ import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmContact;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.realm.RealmList;
 
@@ -22,22 +22,26 @@ public class ContactFactory {
      * @param realmContactsArray to get contacts from
      * @return RealmList of Contacts
      */
-    public static ArrayList<Contact> getModelContacts(RealmList<RealmContact> realmContactsArray) {
+    public static HashMap<String, Contact> getModelContacts(
+        RealmList<RealmContact> realmContactsArray) {
         if (realmContactsArray != null) {
-            ArrayList<Contact> contactArrayList = new ArrayList<>(realmContactsArray.size());
+            HashMap<String, Contact> contactHashMap = new HashMap<>(realmContactsArray.size());
             for (RealmContact realmContact : realmContactsArray) {
-                contactArrayList.add(
-                    Contact.create(Id.builder().value(realmContact.getId()).build(),
-                        realmContact.getFirst(), realmContact.getLast(), realmContact.getImageURL(),
-                        getModelChannels(realmContact.getChannels())));
+                contactHashMap.put(realmContact.getId(), createModelContact(realmContact));
             }
-            return contactArrayList;
+            return contactHashMap;
         }
         return null;
     }
 
     public static Contact createModelContact(User user) {
         return Contact.create(user.id(), user.first(), user.last(),
-            user.imageURL(), user.channels());
+            user.profileURL(), user.coverURL(), user.channels());
+    }
+
+    public static Contact createModelContact(RealmContact realmContact) {
+        return Contact.create(Id.builder().value(realmContact.getId()).build(),
+            realmContact.getFirst(), realmContact.getLast(), realmContact.getProfileURL(),
+            realmContact.getCoverURL(), getModelChannels(realmContact.getChannels()));
     }
 }

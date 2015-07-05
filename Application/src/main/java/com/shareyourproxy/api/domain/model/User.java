@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import auto.parcel.AutoParcel;
 
@@ -20,21 +20,23 @@ public abstract class User implements Parcelable {
     /**
      * User Constructor.
      *
-     * @param id        user unique ID
-     * @param firstName user first name
-     * @param lastName  user last name
-     * @param email     user email
-     * @param imageURL  user profile picture
-     * @param channels  user channels
-     * @param contacts  user contacts
-     * @param groups    user contactGroups
-     * @return the entered user data
+     * @param id         user unique ID
+     * @param firstName  user first name
+     * @param lastName   user last name
+     * @param email      user email
+     * @param profileURL user profile picture
+     * @param coverURL   user cover image
+     * @param channels   user channels
+     * @param groups     user contactGroups
+     * @param contacts   user contacts    @return the entered user data
      */
     public static User create(
-        Id id, String firstName, String lastName, String email, String imageURL,
-        ArrayList<Channel> channels, ArrayList<Group> groups, ArrayList<Contact> contacts) {
+        Id id, String firstName, String lastName, String email, String profileURL,
+        String coverURL, HashMap<String, Channel> channels, HashMap<String, Group> groups,
+        HashMap<String, Contact> contacts) {
         return builder().id(id).first(firstName).last(lastName).email(email)
-            .imageURL(imageURL).channels(channels).groups(groups).contacts(contacts).build();
+            .profileURL(profileURL).coverURL(coverURL).channels(channels)
+            .groups(groups).contacts(contacts).build();
     }
 
     /**
@@ -86,7 +88,15 @@ public abstract class User implements Parcelable {
      *
      * @return profile image
      */
-    public abstract String imageURL();
+    public abstract String profileURL();
+
+    /**
+     * Get user profile image.
+     *
+     * @return profile image
+     */
+    @Nullable
+    public abstract String coverURL();
 
     /**
      * Get users channels.
@@ -94,7 +104,7 @@ public abstract class User implements Parcelable {
      * @return channels
      */
     @Nullable
-    public abstract ArrayList<Channel> channels();
+    public abstract HashMap<String, Channel> channels();
 
     /**
      * Get users contacts.
@@ -102,7 +112,7 @@ public abstract class User implements Parcelable {
      * @return contacts
      */
     @Nullable
-    public abstract ArrayList<Contact> contacts();
+    public abstract HashMap<String, Contact> contacts();
 
     /**
      * Get users contactGroups.
@@ -110,7 +120,7 @@ public abstract class User implements Parcelable {
      * @return contactGroups
      */
     @Nullable
-    public abstract ArrayList<Group> groups();
+    public abstract HashMap<String, Group> groups();
 
     /**
      * Validation conditions.
@@ -167,10 +177,19 @@ public abstract class User implements Parcelable {
         /**
          * Set the user profile image URL.
          *
-         * @param imageURL profile image url
+         * @param profileURL profile image url
          * @return URL string
          */
-        Builder imageURL(String imageURL);
+        Builder profileURL(String profileURL);
+
+        /**
+         * Set the user profile image URL.
+         *
+         * @param coverURL profile cover url
+         * @return URL string
+         */
+        @Nullable
+        Builder coverURL(String coverURL);
 
         /**
          * Set this {@link User}s {@link Contact}s
@@ -179,7 +198,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Contact}
          */
         @Nullable
-        Builder contacts(ArrayList<Contact> contacts);
+        Builder contacts(HashMap<String, Contact> contacts);
 
         /**
          * Set this {@link User}s {@link Group}s
@@ -188,7 +207,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Group}
          */
         @Nullable
-        Builder groups(ArrayList<Group> groups);
+        Builder groups(HashMap<String, Group> groups);
 
         /**
          * Set this {@link User}s {@link Channel}s
@@ -197,7 +216,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Channel}
          */
         @Nullable
-        Builder channels(ArrayList<Channel> channels);
+        Builder channels(HashMap<String, Channel> channels);
 
         /**
          * BUILD.

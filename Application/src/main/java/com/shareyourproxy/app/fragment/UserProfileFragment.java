@@ -3,6 +3,7 @@ package com.shareyourproxy.app.fragment;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.support.v7.graphics.Palette.PaletteAsyncListener;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,33 +23,39 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
-import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserChannelAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserChannelDeletedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.ChannelGridAdapter;
 import com.shareyourproxy.app.dialog.EditChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
+import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.ARG_USER_LOGGED_IN;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
@@ -63,15 +71,15 @@ import static rx.android.app.AppObservable.bindFragment;
 public class UserProfileFragment extends BaseFragment implements ItemClickListener {
 
     public static final int SPAN_COUNT = 4;
-    @InjectView(R.id.fragment_user_profile_toolbar)
+    @Bind(R.id.fragment_user_profile_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.fragment_user_profile_recyclerview)
+    @Bind(R.id.fragment_user_profile_recyclerview)
     protected BaseRecyclerView recyclerView;
-    @InjectView(R.id.fragment_user_profile_header_image)
+    @Bind(R.id.fragment_user_profile_header_image)
     protected ImageView userImage;
-    @InjectView(R.id.fragment_user_profile_header_button)
+    @Bind(R.id.fragment_user_profile_header_button)
     protected Button groupButton;
-    @InjectView(R.id.fragment_user_profile_empty_textview)
+    @Bind(R.id.fragment_user_profile_empty_textview)
     protected TextView emptyTextView;
     protected CollapsingToolbarLayout collapsingToolbarLayout;
     protected FrameLayout userProfileBackground;
@@ -108,7 +116,28 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         _userContact = activity.getIntent().getExtras().getParcelable(ARG_USER_SELECTED_PROFILE);
-        _isLoggedInUser = activity.getIntent().getExtras().getBoolean(ARG_USER_LOGGED_IN);
+        String loggedInUserId = activity.getIntent().getExtras()
+            .getString(Constants.ARG_LOGGEDIN_USER_ID);
+        _isLoggedInUser = isLoggedInUser(_userContact);
+        if (getLoggedInUser() == null) {
+            User user = null;
+            try {
+                user = UserTypeAdapter.newInstace().fromJson(getSharedPrefrences()
+                    .getString(Constants.KEY_LOGGED_IN_USER, null));
+            } catch (IOException e) {
+                Timber.e(Log.getStackTraceString(e));
+            }
+            //set the sharedprefrences user if it matches the logged in user id
+            if (user != null && user.id().value().equals(loggedInUserId)) {
+                setLoggedInUser(user);
+            }
+            // get the user from the database
+            //TODO log in the user
+            else {
+                setLoggedInUser(
+                    getUserService(activity).getUser(loggedInUserId).toBlocking().single());
+            }
+        }
     }
 
     @Override
@@ -120,7 +149,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         } else {
             rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         }
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initialize(rootView);
         return rootView;
     }
@@ -170,16 +199,42 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     private void initializeHeader() {
-        Picasso.with(getActivity()).load(_userContact.imageURL())
+        Picasso.with(getActivity()).load(_userContact.profileURL())
             .placeholder(R.mipmap.ic_proxy)
             .transform(new CircleTransform())
             .into(getBitmapTargetView());
+
+        if (_userContact.coverURL() != null && !"".equals(_userContact.coverURL())) {
+            Picasso.with(getActivity()).load(_userContact.coverURL())
+                .transform(AlphaTransform.create())
+                .into(getBackgroundTarget());
+        }
         if (_isLoggedInUser) {
             groupButton.setVisibility(View.GONE);
         } else {
             groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 getMenuIcon(getActivity(), R.raw.ic_groups), null, null, null);
         }
+    }
+
+    private Target getBackgroundTarget() {
+        return new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                collapsingToolbarLayout.setBackground(
+                    new BitmapDrawable(getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
     }
 
     /**
@@ -234,7 +289,9 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
                     } else {
                         collapsingToolbarLayout.setContentScrimColor(color);
                         collapsingToolbarLayout.setStatusBarScrimColor(color);
-                        collapsingToolbarLayout.setBackgroundColor(color);
+                        if (_userContact.coverURL() == null || "".equals(_userContact.coverURL())) {
+                            collapsingToolbarLayout.setBackgroundColor(color);
+                        }
                     }
                 }
             };
@@ -245,7 +302,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     /**
      * Initialize a recyclerView with User data.
      */
-    private void initializeRecyclerView(ArrayList<Channel> channels) {
+    private void initializeRecyclerView(HashMap<String, Channel> channels) {
         final GridLayoutManager manager = new GridLayoutManager(getActivity(), SPAN_COUNT);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -264,30 +321,15 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public final void onItemClick(View view, int position) {
         Channel channel = _adapter.getItemData(position);
-//        int viewType = _adapter.getItemViewType(position);
-//        if (viewType == VIEW_TYPE_SECTION) {
-//            Timber.v("view section clicked");
-//        } else if (viewType == VIEW_TYPE_CONTENT) {
         getRxBus().post(new SelectUserChannelEvent(channel));
-//        } else {
-//            Timber.e("Unknown ViewType Clicked");
-//        }
     }
 
     @Override
     public void onItemLongClick(View view, int position) {
         Channel channel = _adapter.getItemData(position);
-//        int viewType = _adapter.getItemViewType(position);
-//        if (viewType == VIEW_TYPE_SECTION) {
-//            String sectionName = channel.channelSection().getLabel();
-//            Toast.makeText(getActivity(), sectionName + " section", Toast.LENGTH_SHORT).show();
-//        } else if (viewType == VIEW_TYPE_CONTENT) {
-        if (isLoggedInUser()) {
+        if (_isLoggedInUser) {
             EditChannelDialog.newInstance(channel).show(getFragmentManager());
         }
-//        } else {
-//            Timber.e("Unknown Viewtype Clicked");
-//        }
     }
 
     @Override
@@ -308,34 +350,34 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
-                if (event instanceof UserChannelAddedEvent) {
-                    addUserChannel(((UserChannelAddedEvent) event));
-                } else if (event instanceof UserChannelDeletedEvent) {
-                    deleteUserChannel(((UserChannelDeletedEvent) event));
-                } else if (event instanceof GroupContactsUpdatedEvent) {
-                    groupContactsUpdatedEvent((GroupContactsUpdatedEvent) event);
+                if (event instanceof UserChannelAddedEventCallback) {
+                    addUserChannel(((UserChannelAddedEventCallback) event));
+                } else if (event instanceof UserChannelDeletedEventCallback) {
+                    deleteUserChannel(((UserChannelDeletedEventCallback) event));
+                } else if (event instanceof GroupContactsUpdatedEventCallback) {
+                    groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
                 }
             }
         };
     }
 
-    private void groupContactsUpdatedEvent(GroupContactsUpdatedEvent event) {
+    private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
         updateGroupButtonText(event);
     }
 
-    private void updateGroupButtonText(GroupContactsUpdatedEvent event) {
-        int groupSize = event.contactGroups.size();
-        if (groupSize == 0) {
-            groupButton.setText(R.string.add_to_group);
-        } else if (groupSize > 1) {
-            groupButton.setText(getString(R.string.in_blank_groups, groupSize));
+    private void updateGroupButtonText(GroupContactsUpdatedEventCallback event) {
+        if (event.contactGroups != null) {
+            int groupSize = event.contactGroups.size();
+            if (groupSize == 1) {
+                groupButton.setText(event.contactGroups.get(0).label());
+            } else if (groupSize == 0) {
+                groupButton.setText(R.string.add_to_group);
+            } else if (groupSize > 1) {
+                groupButton.setText(getString(R.string.in_blank_groups, groupSize));
+            }
         } else {
-            groupButton.setText(event.contactGroups.get(0).label());
+            groupButton.setText(R.string.add_to_group);
         }
-    }
-
-    private boolean isLoggedInUser() {
-        return getActivity().getIntent().getExtras().getBoolean(ARG_USER_LOGGED_IN);
     }
 
     @Override
@@ -348,14 +390,18 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
-    private void addUserChannel(UserChannelAddedEvent event) {
-        _adapter.addChannel(event.channel);
+    private void addUserChannel(UserChannelAddedEventCallback event) {
+        if (event.oldChannel != null) {
+            _adapter.updateChannel(event.oldChannel, event.newChannel);
+        } else {
+            _adapter.addChannel(event.newChannel);
+        }
     }
 
-    private void deleteUserChannel(UserChannelDeletedEvent event) {
+    private void deleteUserChannel(UserChannelDeletedEventCallback event) {
         _adapter.removeChannel(event.channel);
     }
 
@@ -366,17 +412,15 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             .subscribe(permissionedObserver()));
     }
 
-    private JustObserver<ArrayList<Channel>> permissionedObserver() {
-        return new JustObserver<ArrayList<Channel>>() {
-
-
+    private JustObserver<HashMap<String, Channel>> permissionedObserver() {
+        return new JustObserver<HashMap<String, Channel>>() {
             @Override
             public void onError() {
-
+                Timber.e("Error downloading permissioned channels");
             }
 
             @Override
-            public void onNext(ArrayList<Channel> channels) {
+            public void onNext(HashMap<String, Channel> channels) {
                 if (channels.size() == 0) {
                     emptyTextView.setText(getString(R.string.no_information_to_share,
                         _userContact.first()));

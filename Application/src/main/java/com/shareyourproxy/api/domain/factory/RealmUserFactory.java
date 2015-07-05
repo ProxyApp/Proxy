@@ -3,10 +3,9 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 
-import java.util.List;
+import java.util.Map;
 
 import io.realm.RealmList;
-import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.RealmChannelFactory.getRealmChannels;
 import static com.shareyourproxy.api.domain.factory.RealmContactFactory.getRealmContacts;
@@ -31,19 +30,19 @@ public class RealmUserFactory {
             realmUser.setLast(user.last());
             realmUser.setFullName(joinWithSpace(new String[]{ user.first(), user.last() }));
             realmUser.setEmail(user.email());
-            realmUser.setImageURL(user.imageURL());
+            realmUser.setProfileURL(user.profileURL());
+            realmUser.setCoverURL(user.coverURL());
             realmUser.setChannels(getRealmChannels(user.channels()));
             realmUser.setContacts(getRealmContacts(user.contacts()));
             realmUser.setGroups(getRealmGroups(user.groups()));
         }
-        Timber.i("User Conversion: " + user.toString());
         return realmUser;
     }
 
-    public static List<RealmUser> createRealmUsers(List<User> users) {
+    public static RealmList<RealmUser> createRealmUsers(Map<String, User> users) {
         RealmList<RealmUser> realmUsers = new RealmList<>();
-        for (User user : users) {
-            realmUsers.add(createRealmUser(user));
+        for (Map.Entry<String, User> user : users.entrySet()) {
+            realmUsers.add(createRealmUser(user.getValue()));
         }
         return realmUsers;
     }

@@ -1,5 +1,6 @@
 apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'android-apt'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
@@ -18,13 +19,21 @@ android {
     def versionMajor = 0
     def versionMinor = 1
     def versionPatch = 0
-    def versionBuild = 2 // bump for dogfood builds, public betas, etc.
+    def versionBuild = 3 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 22
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
+    }
+
+    sourceSets {
+        main {
+            aidl.srcDirs = ['src/main/java']
+        }
     }
 
     signingConfigs {
@@ -48,11 +57,19 @@ android {
         }
     }
 
+    def env_google_tracker = env["GA_TRACKER_ID"]
+    def tracker_id = properties.getProperty('GA_TRACKER_ID', env_google_tracker)
+    def env_firebase_endpoint = env["FIREBASE_ENDPOINT"]
+    def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
     buildTypes {
         debug {
             // disable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
+            //disable google analytics
+            buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "false"
+            buildConfigField "String", "GA_TRACKER_ID", tracker_id
+            buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
         }
         release {
 //            minifyEnabled true
@@ -60,6 +77,10 @@ android {
 //            enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
+            buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"
+            buildConfigField "String", "GA_TRACKER_ID", tracker_id
+            buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
+
             signingConfig signingConfigs.release
         }
     }
@@ -114,16 +135,17 @@ dependencies {
     //Square
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
-    compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.jakewharton:butterknife:7.0.0'
     compile 'com.jakewharton.timber:timber:3.1.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     //Third party
+    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
     compile 'com.github.frankiesardo:auto-parcel:0.3'
     apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
-    compile 'io.realm:realm-android:0.80.3'
+    compile 'io.realm:realm-android:0.81.1'
     compile 'com.firebase:firebase-client-android:2.3.0'
     compile 'io.reactivex:rxjava:1.0.11'
     compile 'io.reactivex:rxandroid:0.24.0'

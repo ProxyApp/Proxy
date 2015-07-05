@@ -1,9 +1,11 @@
 package com.shareyourproxy.app.fragment;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
+import com.shareyourproxy.api.domain.model.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
@@ -22,25 +24,43 @@ public class BaseFragment extends Fragment {
         return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
-//    /**
-//     * Set the logged in user.
-//     *
-//     * @param user update user
-//     */
-//    public void setLoggedInUser(User user) {
-//        ((BaseActivity) getActivity()).setLoggedInUser(user);
-//    }
+
+    /**
+     * Get currently logged in {@link User} in this {@link ProxyApplication}.
+     *
+     * @return logged in user
+     */
+    public SharedPreferences getSharedPrefrences() {
+        return ((BaseActivity) getActivity()).getSharedPreferences();
+    }
+
+    /**
+     * Set the logged in user.
+     *
+     */
+    public void setLoggedInUser(User user) {
+        ((BaseActivity) getActivity()).setLoggedInUser(user);
+    }
+
+    /**
+     * Get the logged in user.
+     *
+     * @return Logged in user
+     */
+    public boolean isLoggedInUser(User user) {
+        return ((BaseActivity) getActivity()).isLoggedInUser(user);
+    }
 
     public RxBusDriver getRxBus() {
         return ((BaseActivity) getActivity()).getRxBus();
     }
 
-    public void setSupportActionBar(Toolbar toolbar) {
-        ((BaseActivity)getActivity()).setSupportActionBar(toolbar);
+    public ActionBar getSupportActionBar() {
+        return ((BaseActivity) getActivity()).getSupportActionBar();
     }
 
-    public ActionBar getSupportActionBar() {
-        return ((BaseActivity)getActivity()).getSupportActionBar();
+    public void setSupportActionBar(Toolbar toolbar) {
+        ((BaseActivity) getActivity()).setSupportActionBar(toolbar);
     }
 
 }

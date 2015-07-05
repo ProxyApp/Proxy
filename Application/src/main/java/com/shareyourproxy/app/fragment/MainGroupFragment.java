@@ -17,23 +17,24 @@ import android.view.ViewGroup;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.rx.command.callback.GroupChannelsUpdatedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserGroupAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
+import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.GroupAdapter;
 import com.shareyourproxy.app.dialog.AddGroupDialog;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static rx.android.app.AppObservable.bindFragment;
@@ -43,14 +44,12 @@ import static rx.android.app.AppObservable.bindFragment;
  */
 public class MainGroupFragment
     extends BaseFragment implements ItemClickListener {
-    private static final String TAG = getSimpleName(MainGroupFragment.class);
-    @InjectView(R.id.fragment_group_main_recyclerview)
+    @Bind(R.id.fragment_group_main_recyclerview)
     protected BaseRecyclerView recyclerView;
-    @InjectView(R.id.fragment_group_main_fab_group)
+    @Bind(R.id.fragment_group_main_fab_group)
     protected FloatingActionButton floatingActionButton;
-    @InjectView(R.id.fragment_group_main_swipe_refresh)
+    @Bind(R.id.fragment_group_main_swipe_refresh)
     protected SwipeRefreshLayout swipeRefreshLayout;
-    private GroupAdapter _adapter;
     SwipeRefreshLayout.OnRefreshListener _refreshListener = new SwipeRefreshLayout
         .OnRefreshListener() {
         @Override
@@ -58,12 +57,13 @@ public class MainGroupFragment
             recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    _adapter.refreshGroupData(getGroupData());
+                    getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
                     swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
     };
+    private GroupAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -94,7 +94,7 @@ public class MainGroupFragment
         LayoutInflater inflater, ViewGroup container,
         Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initializeSVG();
         initializeRecyclerView();
         initializeSwipeRefresh();
@@ -104,7 +104,7 @@ public class MainGroupFragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     /**
@@ -126,20 +126,26 @@ public class MainGroupFragment
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
-                    if (event instanceof UserGroupAddedEvent) {
-                        groupAdded((UserGroupAddedEvent) event);
-                    }
-                    else if (event instanceof UsersDownloadedEvent) {
-                        usersDownloaded((UsersDownloadedEvent) event);
-                    }
-                    else if (event instanceof GroupChannelsUpdatedEvent) {
-                        groupAdded((GroupChannelsUpdatedEvent) event);
+                    if (event instanceof UserGroupAddedEventCallback) {
+                        groupAdded((UserGroupAddedEventCallback) event);
+                    } else if (event instanceof LoggedInUserUpdatedEventCallback) {
+                        updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
+                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
+                        groupAdded((GroupChannelsUpdatedEventCallback) event);
                     }
                 }
             }));
+        User user = getLoggedInUser();
+        if (user != null && user.groups().size() > 0) {
+            _adapter.updateGroupData(user.groups());
+        }
     }
 
-    private void groupAdded(GroupChannelsUpdatedEvent event) {
+    public void updateGroups(HashMap<String, Group> groups) {
+        _adapter.refreshGroupData(groups);
+    }
+
+    private void groupAdded(GroupChannelsUpdatedEventCallback event) {
         _adapter.addGroupData(event.group);
     }
 
@@ -147,6 +153,8 @@ public class MainGroupFragment
     public void onPause() {
         super.onPause();
         _subscriptions.unsubscribe();
+        //if we're refreshing data, get rid of the UI
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
@@ -174,25 +182,20 @@ public class MainGroupFragment
      *
      * @return Group List
      */
-    private ArrayList<Group> getGroupData() {
-        if(getLoggedInUser().groups() != null){
+    private HashMap<String, Group> getGroupData() {
+        if (getLoggedInUser().groups() != null) {
             return getLoggedInUser().groups();
-        }
-        else{
+        } else {
             return null;
         }
     }
 
-    private void usersDownloaded(UsersDownloadedEvent event) {
-        _adapter.refreshGroupData(getGroupData());
-    }
-
     /**
-     * {@link UserGroupAddedEvent}
+     * {@link UserGroupAddedEventCallback}
      *
      * @param event group
      */
-    public void groupAdded(UserGroupAddedEvent event) {
+    public void groupAdded(UserGroupAddedEventCallback event) {
         _adapter.addGroupData(event.group);
     }
 

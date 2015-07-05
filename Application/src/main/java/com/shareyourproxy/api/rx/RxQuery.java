@@ -2,6 +2,7 @@ package com.shareyourproxy.api.rx;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
@@ -10,70 +11,70 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
-import com.shareyourproxy.api.rx.command.callback.GroupContactsUpdatedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.functions.Func1;
-import rx.observables.BlockingObservable;
 
-import static com.shareyourproxy.api.rx.RxHelper.filterNullContact;
+import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
 
 /**
  * Query the realm DB.
  */
 public class RxQuery {
 
-    public static rx.Observable<ArrayList<User>> queryFilteredUsers(
+    public static rx.Observable<HashMap<String, User>> queryFilteredUsers(
         Context context, final String userId) {
-        return Observable.just(context).map(new Func1<Context, ArrayList<User>>() {
+        return Observable.just(context).map(new Func1<Context, HashMap<String, User>>() {
             @Override
-            public ArrayList<User> call(Context context) {
+            public HashMap<String, User> call(Context context) {
                 Realm realm = Realm.getInstance(context);
+                realm.refresh();
                 RealmResults<RealmUser> realmUsers =
-                    realm.where(RealmUser.class)
-                        .notEqualTo("id", userId).findAll();
-                ArrayList<User> users = UserFactory.createModelUsers(realmUsers);
+                    realm.where(RealmUser.class).notEqualTo("id", userId).findAll();
+                HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
                 realm.close();
                 return users;
             }
-        }).compose(RxHelper.<ArrayList<User>>applySchedulers());
+        }).compose(RxHelper.<HashMap<String, User>>applySchedulers());
     }
 
-    public static rx.Observable<ArrayList<Channel>> queryPermissionedChannels(
+    public static rx.Observable<HashMap<String, Channel>> queryPermissionedChannels(
         Context context, final String loggedInUserId, final String contactId) {
         return Observable.just(context).map(getRealmUser(contactId))
             .map(getPermissionedChannels(loggedInUserId))
-            .compose(RxHelper.<ArrayList<Channel>>applySchedulers());
+            .compose(RxHelper.<HashMap<String, Channel>>applySchedulers());
     }
 
-    private static Func1<User, ArrayList<Channel>> getPermissionedChannels(
+    private static Func1<User, HashMap<String, Channel>> getPermissionedChannels(
         final String loggedInUserId) {
-        return new Func1<User, ArrayList<Channel>>() {
+        return new Func1<User, HashMap<String, Channel>>() {
             @Override
-            public ArrayList<Channel> call(User contact) {
-                HashSet<Channel> setChannels = new HashSet<>();
-                for (Group group : contact.groups()) {
-                    for (Contact user : group.contacts()) {
-                        if (user.id().value().equals(loggedInUserId)) {
-                            setChannels.addAll(group.channels());
+            public HashMap<String, Channel> call(User contact) {
+                HashMap<String, Channel> setChannels = new HashMap<>();
+                for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
+                    for (Map.Entry<String, Contact> entryUser :
+                        entryGroup.getValue().contacts().entrySet()) {
+                        if (entryUser.getKey().equals(loggedInUserId)) {
+                            setChannels.putAll(entryGroup.getValue().channels());
                         }
                     }
-
                 }
-                return new ArrayList<>(setChannels);
+                return new HashMap<>(setChannels);
             }
         };
     }
 
-    public static BlockingObservable<User> queryUser(Context context, final String userId) {
+    public static User queryUser(Context context, final String userId) {
         return Observable.just(context).map(getRealmUser(userId)).compose(RxHelper
-            .<User>applySchedulers()).toBlocking();
+            .<User>applySchedulers()).toBlocking().single();
     }
 
     private static Func1<Context, User> getRealmUser(final String userId) {
@@ -81,6 +82,7 @@ public class RxQuery {
             @Override
             public User call(Context context) {
                 Realm realm = Realm.getInstance(context);
+                realm.refresh();
                 RealmUser realmUser =
                     realm.where(RealmUser.class).contains("id", userId).findFirst();
                 User user = UserFactory.createModelUser(realmUser);
@@ -90,21 +92,21 @@ public class RxQuery {
         };
     }
 
-    public static Func1<String, ArrayList<User>> searchUserString(
+    public static Func1<String, HashMap<String, User>> searchUserString(
         final Context context, final String userId) {
-        return new Func1<String, ArrayList<User>>() {
+        return new Func1<String, HashMap<String, User>>() {
             @Override
-            public ArrayList<User> call(String username) {
+            public HashMap<String, User> call(String username) {
                 return updateSearchText(context, userId, username);
             }
         };
     }
 
-    private static ArrayList<User> updateSearchText(
+    private static HashMap<String, User> updateSearchText(
         Context context, final String userId, CharSequence constraint) {
         RealmResults<RealmUser> realmUsers;
         Realm realm = Realm.getInstance(context);
-
+        realm.refresh();
         realmUsers = realm.where(RealmUser.class)
             .notEqualTo("id", userId)
             .beginGroup()
@@ -114,28 +116,30 @@ public class RxQuery {
             .endGroup()
             .findAll();
 
-        ArrayList<User> users = UserFactory.createModelUsers(realmUsers);
+        HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
         realm.close();
         return users;
     }
 
     public static List<GroupEditContact> queryContactGroups(
-        final User user, final Contact selectedContact) {
-        return Observable.from(user.groups())
+        @NonNull final User user, final Contact selectedContact) {
+        return Observable.from(user.groups().entrySet())
             .map(mapContacts(selectedContact))
             .toList()
             .toBlocking().single();
     }
 
-    private static Func1<Group, GroupEditContact> mapContacts(final Contact selectedContact) {
-        return new Func1<Group, GroupEditContact>() {
+    private static Func1<Map.Entry<String, Group>, GroupEditContact> mapContacts(final Contact
+                                                                                     selectedContact) {
+        return new Func1<Map.Entry<String, Group>, GroupEditContact>() {
             @Override
-            public GroupEditContact call(Group group) {
-                ArrayList<Contact> contacts = group.contacts();
+            public GroupEditContact call(Map.Entry<String, Group> groupEntry) {
+                Group group = groupEntry.getValue();
+                HashMap<String, Contact> contacts = group.contacts();
                 if (contacts != null && contacts.size() > 0) {
                     boolean hasContact = false;
-                    for (Contact contact : contacts) {
-                        if (contact.id().value().equals(selectedContact.id().value())) {
+                    for (Map.Entry<String, Contact> entryContacts : contacts.entrySet()) {
+                        if (entryContacts.getKey().equals(selectedContact.id().value())) {
                             hasContact = true;
                             break;
                         }
@@ -147,10 +151,10 @@ public class RxQuery {
         };
     }
 
-    public static GroupContactsUpdatedEvent queryContactGroups(
+    public static GroupContactsUpdatedEventCallback queryContactGroups(
         ArrayList<GroupEditContact> groupEditContact, final Contact selectedContact) {
         return Observable.from(groupEditContact).map(filterSelectedGroups())
-            .filter(filterNullContact())
+            .filter(filterNullObject())
             .toList()
             .map(packageGroupContacts(selectedContact))
             .toBlocking().single();
@@ -160,24 +164,17 @@ public class RxQuery {
         return new Func1<GroupEditContact, Group>() {
             @Override
             public Group call(GroupEditContact editContact) {
-
-                if (editContact.hasContact()) {
-                    return editContact.getGroup();
-                } else {
-                    return null;
-                }
+                return editContact.hasContact() ? editContact.getGroup() : null;
             }
         };
     }
 
-    private static Func1<List<Group>, GroupContactsUpdatedEvent> packageGroupContacts(final
-                                                                                      Contact
-                                                                                          selectedContact) {
-        return new Func1<List<Group>, GroupContactsUpdatedEvent>() {
+    private static Func1<List<Group>, GroupContactsUpdatedEventCallback>
+    packageGroupContacts(final Contact selectedContact) {
+        return new Func1<List<Group>, GroupContactsUpdatedEventCallback>() {
             @Override
-            public GroupContactsUpdatedEvent call(List<Group> groups) {
-                return new GroupContactsUpdatedEvent(
-                    selectedContact, new ArrayList<Group>(groups));
+            public GroupContactsUpdatedEventCallback call(List<Group> groups) {
+                return new GroupContactsUpdatedEventCallback(selectedContact, groups);
             }
         };
     }

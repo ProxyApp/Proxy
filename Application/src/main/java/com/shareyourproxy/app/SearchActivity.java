@@ -5,8 +5,6 @@ import android.os.Bundle;
 import com.shareyourproxy.R;
 import com.shareyourproxy.app.fragment.SearchFragment;
 
-import butterknife.ButterKnife;
-
 /**
  * Activity to handle displaying contacts and searching for new ones.
  */
@@ -16,7 +14,6 @@ public class SearchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        ButterKnife.inject(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_search_container,

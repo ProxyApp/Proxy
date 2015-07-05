@@ -3,21 +3,21 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
+import com.shareyourproxy.api.domain.factory.ContactFactory;
+import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
-import com.shareyourproxy.api.rx.command.callback.UserSavedEvent;
-import com.shareyourproxy.api.rx.command.callback.UsersDownloadedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.realm.Realm;
 import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserService;
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUsers;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
  * Created by Evan on 6/9/15.
@@ -30,61 +30,89 @@ public class RxUserSync {
     private RxUserSync() {
     }
 
-    public static List<CommandEvent> getAllUsers(Context context) {
-        return getFirebaseUsers(context).map(saveRealmUsers(context))
+    /**
+     * Download all users from firebase, save them to Realm, and return them as an HashMap<User>.
+     *
+     * @param context to get realm instance
+     * @return HashMap<User>
+     */
+    public static List<EventCallback> getAllUsers(Context context) {
+        return getFirebaseUsers(context)
+            .map(saveRealmUsers(context))
+            .map(usersDownloaded())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static rx.Observable<ArrayList<User>> getFirebaseUsers(Context context) {
-        return getUserService(context).listUsers().map(
-            UsersToListArrayList());
+    public static List<EventCallback> syncAllUsers(Context context, String loggedInUserId) {
+        User newUser = getFirebaseUsers(context).map(saveRealmUsers(context))
+            .map(updateCachedContacts(loggedInUserId))
+            .compose(RxHelper.<User>applySchedulers())
+            .toBlocking().single();
+        return saveUser(context, newUser);
     }
 
-    private static Func1<Map<String, User>, ArrayList<User>> UsersToListArrayList() {
-        return new Func1<Map<String, User>, ArrayList<User>>() {
+    private static Func1<HashMap<String, User>, User> updateCachedContacts(final String userId) {
+        return new Func1<HashMap<String, User>, User>() {
             @Override
-            public ArrayList<User> call(Map<String, User> userMap) {
-                return new ArrayList<>(userMap.values());
+            public User call(HashMap<String, User> users) {
+                User loggedInUser = users.get(userId);
+                //for every contact that's in the entire user list, remove the old copy and
+                // replace it with the new user data
+                for(Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()){
+                    for (Map.Entry<String, User> userEntry : users.entrySet()) {
+                        if (userEntry.getKey().equals(contactEntry.getKey())) {
+                            loggedInUser.contacts()
+                                .put(userEntry.getKey(),
+                                ContactFactory.createModelContact(userEntry.getValue()));
+                        }
+                    }
+                }
+                return loggedInUser;
             }
         };
     }
 
-    private static Func1<ArrayList<User>, CommandEvent> saveRealmUsers(final Context context) {
-        return new Func1<ArrayList<User>, CommandEvent>() {
+    private static rx.Observable<HashMap<String, User>> getFirebaseUsers(Context context) {
+        return getUserService(context).listUsers();
+    }
+
+    private static Func1<HashMap<String, User>, HashMap<String, User>> saveRealmUsers(final Context context) {
+        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
             @Override
-            public UsersDownloadedEvent call(ArrayList<User> users) {
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUsers(users));
-                realm.commitTransaction();
-                realm.close();
-                return new UsersDownloadedEvent(users);
+            public HashMap<String, User> call(HashMap<String, User> users) {
+                updateRealmUser(context, users);
+                return users;
             }
         };
     }
 
-    private static Func1<User, CommandEvent> saveRealmUser(final Context context) {
-        return new Func1<User, CommandEvent>() {
+    private static Func1<HashMap<String, User>, EventCallback> usersDownloaded() {
+        return new Func1<HashMap<String, User>, EventCallback>() {
             @Override
-            public UserSavedEvent call(User user) {
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(user));
-                realm.commitTransaction();
-                realm.close();
-                return new UserSavedEvent(user);
+            public UsersDownloadedEventCallback call(HashMap<String, User> users) {
+                return new UsersDownloadedEventCallback(users);
             }
         };
     }
 
-    public static List<CommandEvent> saveUser(Context context, User newUser) {
+    private static Func1<User, EventCallback> saveRealmUser(final Context context) {
+        return new Func1<User, EventCallback>() {
+            @Override
+            public LoggedInUserUpdatedEventCallback call(User user) {
+                updateRealmUser(context, user);
+                return new LoggedInUserUpdatedEventCallback(user);
+            }
+        };
+    }
+
+    public static List<EventCallback> saveUser(Context context, User newUser) {
         return RestClient.getUserService(context).updateUser(newUser.id().value(),
             newUser)
             .map(saveRealmUser(context))
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 }

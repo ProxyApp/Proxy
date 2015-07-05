@@ -18,8 +18,10 @@ import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.util.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
@@ -34,8 +36,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
 
     public GroupEditChannelAdapter(
-        ItemClickListener listener, ArrayList<Channel> userChannels,
-        ArrayList<Channel> groupChannels) {
+        ItemClickListener listener, HashMap<String, Channel> userChannels,
+        HashMap<String, Channel> groupChannels) {
         _clickListener = listener;
         _channels = new SortedList<>(
             GroupEditChannel.class, getSortedCallback(), userChannels.size());
@@ -43,17 +45,19 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public static GroupEditChannelAdapter newInstance(
-        ItemClickListener listener, ArrayList<Channel> userChannels,
-        ArrayList<Channel> groupChannels) {
+        ItemClickListener listener, HashMap<String, Channel> userChannels,
+        HashMap<String, Channel> groupChannels) {
         return new GroupEditChannelAdapter(listener, userChannels, groupChannels);
     }
 
-    private void updateChannels(ArrayList<Channel> userChannels, ArrayList<Channel> groupChannels) {
+    private void updateChannels(
+        HashMap<String, Channel> userChannels, HashMap<String, Channel> groupChannels) {
         if (userChannels != null) {
             ArrayList<GroupEditChannel> groupEditChannels = new ArrayList<>();
-            for (Channel userChannel : userChannels) {
+            for (Map.Entry<String, Channel> userChannel : userChannels.entrySet()) {
                 groupEditChannels.add(
-                    new GroupEditChannel(userChannel, channelInGroup(userChannel, groupChannels)));
+                    new GroupEditChannel(userChannel.getValue(),
+                        channelInGroup(userChannel.getValue(), groupChannels)));
             }
             _channels.beginBatchedUpdates();
             for (GroupEditChannel channel : groupEditChannels) {
@@ -63,10 +67,10 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    private boolean channelInGroup(Channel userChannel, ArrayList<Channel> groupChannels) {
+    private boolean channelInGroup(Channel userChannel, HashMap<String, Channel> groupChannels) {
         if (groupChannels != null) {
-            for (Channel groupChannel : groupChannels) {
-                if (groupChannel.id().value().equals(userChannel.id().value())) {
+            for (Map.Entry<String, Channel> groupChannel : groupChannels.entrySet()) {
+                if (groupChannel.getKey().equals(userChannel.id().value())) {
                     return true;
                 }
             }
@@ -196,7 +200,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         };
     }
 
-    public ArrayList<Channel> getSelectedChannels() {
+    public HashMap<String, Channel> getSelectedChannels() {
         return RxGroupChannelSync.getSelectedChannels(_channels);
     }
 
@@ -209,7 +213,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
 
 //    public static final class SectionHeaderViewHolder extends BaseViewHolder {
-//        @InjectView(R.id.adapter_edit_group_list_section_label)
+//        @Bind(R.id.adapter_edit_group_list_section_label)
 //        protected TextView sectionLabel;
 //
 //        private SectionHeaderViewHolder(View view, ItemClickListener itemClickListener) {
@@ -224,11 +228,11 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
 
     public static final class ItemViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_edit_group_list_item_switch)
+        @Bind(R.id.adapter_edit_group_list_item_switch)
         public Switch itemSwitch;
-        @InjectView(R.id.adapter_edit_group_list_item_image)
+        @Bind(R.id.adapter_edit_group_list_item_image)
         protected ImageView itemImage;
-        @InjectView(R.id.adapter_edit_group_list_item_label)
+        @Bind(R.id.adapter_edit_group_list_item_label)
         protected TextView itemLabel;
 
         private ItemViewHolder(View view, ItemClickListener itemClickListener) {

@@ -8,6 +8,8 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -15,6 +17,9 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,6 +35,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.pm.PackageManager.NameNotFoundException;
 import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
+import static android.support.v8.renderscript.Element.U8_4;
 
 /**
  * Utility class for view functions.
@@ -39,7 +45,7 @@ public class ViewUtils {
     public static final int NO_COLOR = Integer.MIN_VALUE;
 
     /**
-     * Constructor
+     * Private Constructor
      */
     private ViewUtils() {
 
@@ -99,6 +105,51 @@ public class ViewUtils {
         Resources res = context.getResources();
         return (int) (res.getDimension(R.dimen.common_svg_large)
             / res.getDisplayMetrics().density);
+    }
+
+    /**
+     * Alpha a bitmap by drawing ARGB layer on top of it.
+     *
+     * @param source Bitmap to alpha
+     * @return the circular bitmap resource
+     */
+    public static Bitmap getAlphaBitmapImage(Bitmap source) {
+        Bitmap bitmap = Bitmap.createBitmap(
+            source.getWidth(), source.getHeight(), source.getConfig());
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawBitmap(source, null, getDstFromSource(source), null);
+        canvas.drawARGB(120,0,0,0);
+        source.recycle();
+        return bitmap;
+    }
+
+    /**
+     * Return destination bitmap size from source bitmap dimensions.
+     * @param source bitmap
+     * @return Rectangle dimensions
+     */
+    public static RectF getDstFromSource(Bitmap source) {
+        return new RectF(new Rect(0, 0, source.getWidth(), source.getHeight()));
+    }
+
+    /**
+     * Blur a bitmap with renderscript.
+     *
+     * @param source Bitmap to blur
+     * @return the circular bitmap resource
+     */
+    public static Bitmap getBlurBitmapImage(Context context, Bitmap source) {
+        final RenderScript rs = RenderScript.create(context);
+        final Allocation input = Allocation.createFromBitmap(
+            rs, source, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+        final Allocation output = Allocation.createTyped(rs, input.getType());
+        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, U8_4(rs));
+        script.setRadius(12f);
+        script.setInput(input);
+        script.forEach(output);
+        output.copyTo(source);
+        rs.destroy();
+        return source;
     }
 
     /**

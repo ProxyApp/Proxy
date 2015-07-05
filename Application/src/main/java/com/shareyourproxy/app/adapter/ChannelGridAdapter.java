@@ -17,9 +17,10 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.util.ObjectUtils;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import butterknife.InjectView;
+import butterknife.Bind;
 
 import static com.shareyourproxy.api.domain.model.ChannelSection.General;
 import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
@@ -41,7 +42,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
      *
      * @param listener click listener
      */
-    private ChannelGridAdapter(ArrayList<Channel> channels, ItemClickListener listener) {
+    private ChannelGridAdapter(HashMap<String, Channel> channels, ItemClickListener listener) {
         _clickListener = listener;
         if (channels != null) {
             _channels = new SortedList<>(
@@ -59,28 +60,31 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
      * @return an {@link ChannelGridAdapter} with no data
      */
     public static ChannelGridAdapter newInstance(
-        ArrayList<Channel> channels, ItemClickListener listener) {
+        HashMap<String, Channel> channels, ItemClickListener listener) {
         return new ChannelGridAdapter(channels, listener);
     }
 
-    private void updateChannels(ArrayList<Channel> channels) {
+    private void updateChannels(HashMap<String, Channel> channels) {
         if (channels != null) {
             _channels.beginBatchedUpdates();
-            for (Channel channel : channels) {
-                _channels.add(channel);
+            _channels.clear();
+            for (Map.Entry<String, Channel> channel : channels.entrySet()) {
+                _channels.add(channel.getValue());
             }
             _channels.endBatchedUpdates();
         }
     }
 
-    public void refreshChannels(ArrayList<Channel> channels) {
-        _channels.clear();
+    public void refreshChannels(HashMap<String, Channel> channels) {
         updateChannels(channels);
-        notifyDataSetChanged();
     }
 
     public void addChannel(Channel channel) {
         _channels.add(channel);
+    }
+
+    public void updateChannel(Channel oldChannel, Channel newChannel) {
+        _channels.updateItemAt(_channels.indexOf(oldChannel), newChannel);
     }
 
     public Callback<Channel> getSortedCallback() {
@@ -120,7 +124,6 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areContentsTheSame(Channel item1, Channel item2) {
-                    // we dont compare resId because its probably going to be removed
                     return (item1.id().value().equals(item2.id().value())
                         && item1.label().equals(item2.label())
                         && item1.packageName().equals(item2.packageName())
@@ -130,7 +133,6 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areItemsTheSame(Channel item1, Channel item2) {
-                    //Sections will have the same ID but different categories
                     return (item1.id().equals(item2.id())
                         && item1.channelSection() == item2.channelSection());
                 }
@@ -141,28 +143,14 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public int getItemViewType(int position) {
-//        if (position == 0) {
-//            return VIEW_TYPE_SECTION;
-//        } else {
         return VIEW_TYPE_CONTENT;
-//        }
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
-//        if (viewType == VIEW_TYPE_SECTION) {
-//            view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.adapter_channel_grid_section, parent, false);
-//            return SectionViewHolder.newInstance(view, _clickListener);
-//        } else if (viewType == VIEW_TYPE_CONTENT) {
-        view = LayoutInflater.from(parent.getContext())
+        View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_channel_grid_content, parent, false);
         return ContentViewHolder.newInstance(view, _clickListener);
-//        } else {
-//            Timber.e("Error, Unknown ViewType");
-//            return null;
-//        }
     }
 
     @Override
@@ -231,9 +219,9 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the entered settings data.
      */
     public static final class SectionViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_channel_grid_section_image)
+        @Bind(R.id.adapter_channel_grid_section_image)
         protected ImageView sectionImage;
-        @InjectView(R.id.adapter_channel_grid_section_name)
+        @Bind(R.id.adapter_channel_grid_section_name)
         protected TextView sectionName;
 
         /**
@@ -263,9 +251,9 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the entered settings data.
      */
     public static final class ContentViewHolder extends BaseViewHolder {
-        @InjectView(R.id.adapter_channel_grid_content_image)
+        @Bind(R.id.adapter_channel_grid_content_image)
         protected ImageView channelImage;
-        @InjectView(R.id.adapter_channel_grid_content_name)
+        @Bind(R.id.adapter_channel_grid_content_name)
         protected TextView channelName;
 
         /**

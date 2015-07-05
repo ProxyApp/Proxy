@@ -3,7 +3,7 @@ package com.shareyourproxy.api.service;
 
 import com.shareyourproxy.api.domain.model.User;
 
-import java.util.Map;
+import java.util.HashMap;
 
 import retrofit.http.Body;
 import retrofit.http.GET;
@@ -22,7 +22,7 @@ public interface UserService {
      * @return user observable
      */
     @GET("/users.json")
-    Observable<Map<String, User>> listUsers();
+    Observable<HashMap<String, User>> listUsers();
 
     /**
      * Get a specific user.

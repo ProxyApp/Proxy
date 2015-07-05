@@ -9,8 +9,7 @@ import io.realm.annotations.PrimaryKey;
 
 /**
  * Users have a basic profile that contains their specific {@link RealmChannel}s, {@link
- * RealmContact}s, and
- * {@link RealmGroup}s.
+ * RealmContact}s, and {@link RealmGroup}s.
  */
 public class RealmUser extends RealmObject {
     @PrimaryKey
@@ -19,7 +18,9 @@ public class RealmUser extends RealmObject {
     private String last;
     private String fullName;
     private String email;
-    private String imageURL;
+    private String profileURL;
+    @Nullable
+    private String coverURL;
     @Nullable
     private RealmList<RealmChannel> channels;
     @Nullable
@@ -83,6 +84,7 @@ public class RealmUser extends RealmObject {
 
     /**
      * Getter.
+     *
      * @return fullName
      */
     public String getFullName() {
@@ -91,6 +93,7 @@ public class RealmUser extends RealmObject {
 
     /**
      * Setter.
+     *
      * @param fullName string
      */
     public void setFullName(String fullName) {
@@ -120,17 +123,26 @@ public class RealmUser extends RealmObject {
      *
      * @return users profile picture url
      */
-    public String getImageURL() {
-        return imageURL;
+    public String getProfileURL() {
+        return profileURL;
     }
 
     /**
      * Setter.
      *
-     * @param imageURL string
+     * @param profileURL string
      */
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+    public void setProfileURL(String profileURL) {
+        this.profileURL = profileURL;
+    }
+
+    @Nullable
+    public String getCoverURL() {
+        return coverURL;
+    }
+
+    public void setCoverURL(@Nullable String coverURL) {
+        this.coverURL = coverURL;
     }
 
     /**

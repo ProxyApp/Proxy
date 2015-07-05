@@ -1,23 +1,21 @@
-package com.shareyourproxy.api.rx.command.callback;
+package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
 
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 
-import java.util.ArrayList;
-
 /**
- * Created by Evan on 6/10/15.
+ * Created by Evan on 6/8/15.
  */
-public class GroupContactsUpdatedEvent extends CommandEvent {
+public class GroupContactAddedEventCallback extends EventCallback {
 
-    public final ArrayList<Group> contactGroups;
+    public final Group group;
     public final Contact contact;
 
-    public GroupContactsUpdatedEvent(Contact contact, ArrayList<Group> groups) {
+    public GroupContactAddedEventCallback(Group group, Contact contact) {
+        this.group = group;
         this.contact = contact;
-        this.contactGroups = groups;
     }
 
     @Override
@@ -27,7 +25,7 @@ public class GroupContactsUpdatedEvent extends CommandEvent {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(group);
         dest.writeValue(contact);
-        dest.writeValue(contactGroups);
     }
 }

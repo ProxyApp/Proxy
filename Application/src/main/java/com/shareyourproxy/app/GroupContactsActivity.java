@@ -11,20 +11,18 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.app.fragment.GroupContactsFragment;
 
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 
 /**
- * Activity to display a contactGroups contacts.
+ * Activity to display a groups associated contacts.
  */
 public class GroupContactsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_group_users);
-        ButterKnife.inject(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_view_group_users_container,

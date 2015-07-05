@@ -30,7 +30,7 @@ import com.shareyourproxy.util.ViewUtils;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 /**
  * Group selection dialog for users to sort their contacts.
@@ -47,7 +47,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    @InjectView(R.id.fragment_user_groups_recyclerview)
+    @Bind(R.id.fragment_user_groups_recyclerview)
     protected BaseRecyclerView recyclerView;
     private UserGroupsAdapter _adapter;
     private final OnClickListener _positiveClicked =
@@ -100,7 +100,6 @@ public class UserGroupsDialog extends BaseDialogFragment {
         return getArguments().getParcelableArrayList(ARG_GROUPS);
     }
 
-
     @NonNull
     @Override
     @SuppressLint("InflateParams")
@@ -108,7 +107,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
         super.onCreateDialog(savedInstanceState);
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_user_groups, null, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         String title = getString(R.string.dialog_edit_user_groups) + " " + getUserArg().first();
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
@@ -122,6 +121,21 @@ public class UserGroupsDialog extends BaseDialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        AlertDialog dialog = (AlertDialog) getDialog();
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
+        initializeRecyclerView();
+    }
+
     private void initializeRecyclerView() {
         _adapter = UserGroupsAdapter.newInstance(getCheckedGroups());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -130,15 +144,6 @@ public class UserGroupsDialog extends BaseDialogFragment {
         ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
         lp.height = (int) ViewUtils.dpToPx(getResources(), R.dimen.user_groups_dialog_height);
         recyclerView.setLayoutParams(lp);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        AlertDialog dialog = (AlertDialog) getDialog();
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
-        initializeRecyclerView();
     }
 
     /**

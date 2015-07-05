@@ -6,20 +6,19 @@ import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
-import com.shareyourproxy.api.rx.command.callback.UserGroupAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserGroupDeletedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
 
 import java.util.List;
 
-import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
  * Created by Evan on 6/8/15.
@@ -31,42 +30,42 @@ public class RxUserGroupSync {
     private RxUserGroupSync() {
     }
 
-    public static List<CommandEvent> addUserGroup(
+    public static List<EventCallback> addUserGroup(
         Context context, User user, Group group) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, group, user),
             saveFirebaseUserGroup(context, user.id().value(), group),
             zipAddUserGroup())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    public static List<CommandEvent> deleteUserGroup(
+    public static List<EventCallback> deleteUserGroup(
         Context context, User user, Group group) {
         return rx.Observable.zip(
             deleteRealmUserGroup(context, group, user),
             deleteFirebaseUserGroup(context, user.id().value(), group),
             zipDeleteUserGroup())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static Func2<User, Group, CommandEvent> zipAddUserGroup() {
-        return new Func2<User, Group, CommandEvent>() {
+    private static Func2<User, Group, EventCallback> zipAddUserGroup() {
+        return new Func2<User, Group, EventCallback>() {
             @Override
-            public UserGroupAddedEvent call(User user, Group group) {
-                return new UserGroupAddedEvent(user, group);
+            public UserGroupAddedEventCallback call(User user, Group group) {
+                return new UserGroupAddedEventCallback(user, group);
             }
         };
     }
 
-    private static Func2<User, Group, CommandEvent> zipDeleteUserGroup() {
-        return new Func2<User, Group, CommandEvent>() {
+    private static Func2<User, Group, EventCallback> zipDeleteUserGroup() {
+        return new Func2<User, Group, EventCallback>() {
             @Override
-            public UserGroupDeletedEvent call(User user, Group group) {
-                return new UserGroupDeletedEvent(user, group);
+            public UserGroupDeletedEventCallback call(User user, Group group) {
+                return new UserGroupDeletedEventCallback(user, group);
             }
         };
     }
@@ -84,11 +83,7 @@ public class RxUserGroupSync {
             @Override
             public User call(Group group) {
                 User newUser = UserFactory.addUserGroup(user, group);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };
@@ -107,11 +102,7 @@ public class RxUserGroupSync {
             @Override
             public User call(Group group) {
                 User newUser = UserFactory.deleteUserGroup(user, group);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };

@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import auto.parcel.AutoParcel;
 
@@ -24,8 +24,11 @@ public abstract class Contact implements Parcelable {
      * @return Immutable group
      */
     @SuppressWarnings("unused")
-    public static Contact create(Id id, String first, String last,String imageURL, ArrayList<Channel> channels) {
-        return builder().id(id).first(first).last(last).imageURL(imageURL).channels(channels).build();
+    public static Contact create(
+        Id id, String first, String last, String profileURL, String coverURL,
+        HashMap<String, Channel> channels) {
+        return builder().id(id).first(first).last(last).profileURL(profileURL).coverURL(coverURL)
+            .channels(channels).build();
     }
 
     /**
@@ -59,19 +62,27 @@ public abstract class Contact implements Parcelable {
     public abstract String last();
 
     /**
-     * Get group profile image.
+     * Get contact profile image.
      *
      * @return profile image
      */
-    public abstract String imageURL();
+    public abstract String profileURL();
 
     /**
-     * Get the list of channels a group has.
+     * Get contact cover image.
+     *
+     * @return profile image
+     */
+    @Nullable
+    public abstract String coverURL();
+
+    /**
+     * Get the list of channels a contact has.
      *
      * @return list of group's channels
      */
     @Nullable
-    public abstract ArrayList<Channel> channels();
+    public abstract HashMap<String, Channel> channels();
 
     /**
      * Group Builder.
@@ -106,19 +117,28 @@ public abstract class Contact implements Parcelable {
         /**
          * Set the contacts name.
          *
-         * @param label group name
+         * @param profileURL profile image
          * @return label
          */
-        Builder imageURL(String imageURL);
+        Builder profileURL(String profileURL);
+
+        /**
+         * Set the contacts name.
+         *
+         * @param coverURL cover image
+         * @return label
+         */
+        @Nullable
+        Builder coverURL(String coverURL);
 
         /**
          * Set group channels.
          *
-         * @param channels group channels
+         * @param channels contact channels
          * @return channels
          */
         @Nullable
-        Builder channels(ArrayList<Channel> channels);
+        Builder channels(HashMap<String, Channel> channels);
 
         /**
          * BUILD.

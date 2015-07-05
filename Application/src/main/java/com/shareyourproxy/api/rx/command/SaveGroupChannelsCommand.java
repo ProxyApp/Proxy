@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -8,9 +8,9 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,11 +35,11 @@ public class SaveGroupChannelsCommand extends BaseCommand {
     public final User user;
     public final String newTitle;
     public final Group group;
-    public final ArrayList<Channel> channels;
+    public final HashMap<String, Channel> channels;
 
 
     public SaveGroupChannelsCommand(
-        User user, String newTitle, Group group, ArrayList<Channel> channels) {
+        User user, String newTitle, Group group, HashMap<String, Channel> channels) {
         super(SaveGroupChannelsCommand.class.getPackage().getName(),
             SaveGroupChannelsCommand.class.getName());
         this.user = user;
@@ -48,22 +48,13 @@ public class SaveGroupChannelsCommand extends BaseCommand {
         this.channels = channels;
     }
 
-    public SaveGroupChannelsCommand(BaseCommand command) {
-        super(SaveGroupChannelsCommand.class.getPackage().getName(),
-            SaveGroupChannelsCommand.class.getName());
-        this.user = ((SaveGroupChannelsCommand) command).user;
-        this.newTitle = ((SaveGroupChannelsCommand) command).newTitle;
-        this.group = ((SaveGroupChannelsCommand) command).group;
-        this.channels = ((SaveGroupChannelsCommand) command).channels;
-    }
-
     private SaveGroupChannelsCommand(Parcel in) {
         this((User) in.readValue(CL), (String) in.readValue(CL),
-            (Group) in.readValue(CL), (ArrayList<Channel>) in.readValue(CL));
+            (Group) in.readValue(CL), (HashMap<String, Channel>) in.readValue(CL));
     }
 
     @Override
-    public List<CommandEvent> execute(IntentService service) {
+    public List<EventCallback> execute(Service service) {
         return RxGroupChannelSync
             .updateGroupChannels(service, user, newTitle, group, channels);
     }

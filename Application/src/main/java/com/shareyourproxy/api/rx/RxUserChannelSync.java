@@ -6,13 +6,12 @@ import android.content.Context;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.callback.CommandEvent;
-import com.shareyourproxy.api.rx.command.callback.UserChannelAddedEvent;
-import com.shareyourproxy.api.rx.command.callback.UserChannelDeletedEvent;
+import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 
 import java.util.List;
 
-import io.realm.Realm;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -20,11 +19,11 @@ import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.RestClient.getUserChannelService;
-import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 
 /**
- * Sync channel operations.
+ * Sync newChannel operations.
  */
 public class RxUserChannelSync {
 
@@ -34,42 +33,42 @@ public class RxUserChannelSync {
     private RxUserChannelSync() {
     }
 
-    public static List<CommandEvent> addChannel(
-        Context context, User user, Channel channel) {
+    public static List<EventCallback> addChannel(
+        Context context, User user, Channel channel, Channel oldChannel) {
         return rx.Observable.zip(
             saveRealmChannel(context, channel, user),
             saveChannelToFirebase(context, user.id().value(), channel),
-            zipAddChannel())
+            zipAddChannel(oldChannel))
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    public static List<CommandEvent> deleteChannel(
+    public static List<EventCallback> deleteChannel(
         Context context, User user, Channel channel) {
         return rx.Observable.zip(
             deleteRealmUserChannel(context, channel, user),
             deleteChannelFromFirebase(context, user.id().value(), channel),
             zipDeleteChannel())
             .toList()
-            .compose(RxHelper.<List<CommandEvent>>applySchedulers())
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static Func2<User, Channel, CommandEvent> zipAddChannel() {
-        return new Func2<User, Channel, CommandEvent>() {
+    private static Func2<User, Channel, EventCallback> zipAddChannel(final Channel oldChannel) {
+        return new Func2<User, Channel, EventCallback>() {
             @Override
-            public UserChannelAddedEvent call(User user, Channel channel) {
-                return new UserChannelAddedEvent(user, channel);
+            public UserChannelAddedEventCallback call(User user, Channel channel) {
+                return new UserChannelAddedEventCallback(user, channel, oldChannel);
             }
         };
     }
 
-    private static Func2<User, Channel, CommandEvent> zipDeleteChannel() {
-        return new Func2<User, Channel, CommandEvent>() {
+    private static Func2<User, Channel, EventCallback> zipDeleteChannel() {
+        return new Func2<User, Channel, EventCallback>() {
             @Override
-            public UserChannelDeletedEvent call(User user, Channel channel) {
-                return new UserChannelDeletedEvent(user, channel);
+            public UserChannelDeletedEventCallback call(User user, Channel channel) {
+                return new UserChannelDeletedEventCallback(user, channel);
             }
         };
     }
@@ -93,11 +92,7 @@ public class RxUserChannelSync {
             public User call(Channel channel) {
                 Timber.i("Channel Object: " + channel.toString());
                 User newUser = UserFactory.addUserChannel(user, channel);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };
@@ -110,11 +105,7 @@ public class RxUserChannelSync {
             public User call(Channel channel) {
                 Timber.i("Channel Object: " + channel.toString());
                 User newUser = UserFactory.deleteUserChannel(user, channel);
-                Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(createRealmUser(newUser));
-                realm.commitTransaction();
-                realm.close();
+                updateRealmUser(context, newUser);
                 return newUser;
             }
         };
@@ -133,12 +124,12 @@ public class RxUserChannelSync {
         deleteObserver.subscribe(new JustObserver<Channel>() {
             @Override
             public void onError() {
-                Timber.e("error deleting channel");
+                Timber.e("error deleting newChannel");
             }
 
             @Override
             public void onNext(Channel event) {
-                Timber.i("delete channel successful");
+                Timber.i("delete newChannel successful");
             }
         });
         ConnectableObservable<Channel> connectableObservable = deleteObserver.publish();

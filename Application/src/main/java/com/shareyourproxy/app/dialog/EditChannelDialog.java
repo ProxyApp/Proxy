@@ -28,20 +28,23 @@ import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
 import com.shareyourproxy.util.DebugUtils;
 
+import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnTextChanged;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Created by Evan on 5/21/15.
+ * Dialog fragment that handles editing a selected newChannel.
  */
 public class EditChannelDialog extends BaseDialogFragment {
+    // Final
     private static final String ARG_CHANNEL = "EditChannelDialog.Channel";
     private static final String TAG = DebugUtils.getSimpleName(AddChannelDialog.class);
-    @InjectView(R.id.dialog_channel_action_address_edittext)
+    // View
+    @Bind(R.id.dialog_channel_action_address_edittext)
     protected EditText editTextActionAddress;
     private final OnClickListener _negativeClicked =
         new OnClickListener() {
@@ -51,14 +54,20 @@ public class EditChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    @InjectView(R.id.dialog_channel_label_edittext)
+    @Bind(R.id.dialog_channel_label_edittext)
     protected EditText editTextLabel;
-    @InjectView(R.id.dialog_channel_label_floatlabel)
+    @Bind(R.id.dialog_channel_label_floatlabel)
     protected TextInputLayout floatLabelChannelLabel;
-    @InjectView(R.id.dialog_channel_action_address_floatlabel)
+    @Bind(R.id.dialog_channel_action_address_floatlabel)
     protected TextInputLayout floatLabelAddress;
-    private int _gray;
-    private int _blue;
+    // Color
+    @BindColor(R.color.common_text)
+    protected int _textColor;
+    @BindColor(R.color.common_divider)
+    protected int _gray;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
+    // Transient
     private Channel _channel;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
@@ -68,8 +77,6 @@ public class EditChannelDialog extends BaseDialogFragment {
         new OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                // KeyEvent.KEYCODE_ENDCALL is the actionID of the Done button when this
-                // FixedDecimalEditText's inputType is Decimal
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
                     dispatchAddChannel();
@@ -131,7 +138,7 @@ public class EditChannelDialog extends BaseDialogFragment {
                 createModelInstance(_channel.id().value(), labelContent,
                     _channel.channelType(), _channel.channelSection(),
                     actionContent);
-            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
         }
     }
 
@@ -168,7 +175,7 @@ public class EditChannelDialog extends BaseDialogFragment {
         super.onCreateDialog(savedInstanceState);
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_channel, null, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
@@ -190,9 +197,9 @@ public class EditChannelDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_green);
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
-        setTextColorResource(dialog.getButton(Dialog.BUTTON_NEUTRAL), R.color.common_text);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
         initializeEditTextColors();
 
     }
@@ -202,8 +209,6 @@ public class EditChannelDialog extends BaseDialogFragment {
      */
     private void initializeEditTextColors() {
         Context context = editTextActionAddress.getContext();
-        _gray = context.getResources().getColor(R.color.common_divider);
-        _blue = context.getResources().getColor(R.color.common_blue);
 
         editTextActionAddress.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
         editTextActionAddress.setText(_channel.actionAddress());
@@ -218,7 +223,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 
     /**

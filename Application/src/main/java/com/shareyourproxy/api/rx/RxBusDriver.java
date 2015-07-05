@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx;
 
-import com.shareyourproxy.ProxyApplication;
+import com.shareyourproxy.api.domain.model.ProxyApplication;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;

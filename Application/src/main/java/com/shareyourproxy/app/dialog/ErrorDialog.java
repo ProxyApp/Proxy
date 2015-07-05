@@ -57,13 +57,9 @@ public class ErrorDialog extends BaseDialogFragment {
         String title = getArguments().getString(ARG_TITLE);
         String message = getArguments().getString(ARG_MESSAGE);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
+        return  new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Widget_Proxy_App_Dialog)).setTitle(title).setMessage(message)
-            .setPositiveButton(R.string.common_ok, _onOkClicked);
-
-        Dialog dialog = builder.create();
-
-        return dialog;
+            .setPositiveButton(R.string.common_ok, _onOkClicked).create();
     }
 
     /**

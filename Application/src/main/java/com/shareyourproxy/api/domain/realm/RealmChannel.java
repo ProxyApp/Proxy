@@ -20,7 +20,7 @@ public class RealmChannel extends RealmObject {
     /**
      * Getter
      *
-     * @return id of the channel
+     * @return id of the newChannel
      */
     public String getId() {
         return id;
@@ -29,7 +29,7 @@ public class RealmChannel extends RealmObject {
     /**
      * Setter.
      *
-     * @param id ID of the channel
+     * @param id ID of the newChannel
      */
     public void setId(String id) {
         this.id = id;
@@ -38,7 +38,7 @@ public class RealmChannel extends RealmObject {
     /**
      * Getter.
      *
-     * @return channel label
+     * @return newChannel label
      */
     public String getLabel() {
         return label;
@@ -47,7 +47,7 @@ public class RealmChannel extends RealmObject {
     /**
      * Setter.
      *
-     * @param label of the channel
+     * @param label of the newChannel
      */
     public void setLabel(String label) {
         this.label = label;

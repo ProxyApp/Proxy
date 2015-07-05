@@ -21,7 +21,7 @@ import com.shareyourproxy.app.adapter.GroupEditChannelAdapter;
 import com.shareyourproxy.util.ViewUtils;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -33,9 +33,9 @@ import static rx.android.app.AppObservable.bindActivity;
 
 public class GroupEditChannelFragment extends BaseFragment implements ItemClickListener {
 
-    @InjectView(R.id.fragment_group_edit_channel_recyclerview)
+    @Bind(R.id.fragment_group_edit_channel_recyclerview)
     protected RecyclerView recyclerView;
-    @InjectView(R.id.fragment_group_edit_channel_edittext)
+    @Bind(R.id.fragment_group_edit_channel_edittext)
     protected EditText editText;
     private GroupEditChannelAdapter _adapter;
     private int _gray;
@@ -67,7 +67,7 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle state) {
         View rootView = inflater.inflate(R.layout.fragment_edit_group, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         initializeRecyclerView();
         initializeEditTextInput();
         return rootView;
@@ -82,14 +82,14 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
                 @Override
                 public void call(Object event) {
                     if (event instanceof SaveChannelsClicked) {
-                        saveGroupChannels((SaveChannelsClicked) event);
+                        saveGroupChannels();
                     }
                 }
             }));
         ViewUtils.showSoftwareKeyboard(editText);
     }
 
-    private void saveGroupChannels(SaveChannelsClicked event) {
+    private void saveGroupChannels() {
         getRxBus().post(new SaveGroupChannelsCommand(
             getLoggedInUser(),editText.getText().toString(),getSelectedGroup(),
             _adapter.getSelectedChannels()));
@@ -148,6 +148,6 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
     }
 }
