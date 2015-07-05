@@ -2,7 +2,7 @@ package com.shareyourproxy.api.service;
 
 
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.domain.model.Messages;
+import com.shareyourproxy.api.domain.model.Message;
 
 import java.util.HashMap;
 
@@ -20,14 +20,14 @@ public interface MessageService {
     @GET("/users/{userId}/messages.json")
     Observable<HashMap<String, Contact>> getUserMessages(@Path("userId") String userId);
 
-    @PUT("/users/{userId}/messages/{messageId}.json")
-    Observable<Messages> addUserMessage(
-        @Path("userId") String userId, @Path("messageId") String messageId, @Body Contact contact);
+    @PUT("/users/{userId}/messages.json")
+    Observable<Message> addUserMessage(
+        @Path("userId") String userId, @Body HashMap<String, Contact> contact);
 
     @DELETE("/users/{userId}/messages/{messageId}.json")
-    Observable<Messages> deleteUserMessage(
+    Observable<Message> deleteUserMessage(
         @Path("userId") String userId, @Path("messageId") String messageId);
 
     @DELETE("/users/{userId}/messages.json")
-    Observable<Messages> deleteAllUserMessages(@Path("userId") String userId);
+    Observable<Message> deleteAllUserMessages(@Path("userId") String userId);
 }

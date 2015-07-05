@@ -7,7 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 /**
  * This BitmapDrawable has a name. For now this functionality is being used to display the {@link
  * ContentDescriptionDrawable#_contentDescription} in a Toast when a user long presses a tab {@link
- * SlidingTabLayout#getLongClickListener}.
+ * android.support.design.widget.TabLayout}.
  */
 public class ContentDescriptionDrawable extends BitmapDrawable {
 

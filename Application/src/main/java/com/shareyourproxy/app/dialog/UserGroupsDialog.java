@@ -29,11 +29,13 @@ import com.shareyourproxy.util.ViewUtils;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.BindColor;
+import butterknife.ButterKnife;
 
 /**
- * Group selection dialog for users to sort their contacts.
+ * This Dialog provides a toggle selection to add a User contact to that User's various saved
+ * groups.
  */
 public class UserGroupsDialog extends BaseDialogFragment {
 
@@ -58,21 +60,28 @@ public class UserGroupsDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-
+    // Color
+    @BindColor(R.color.common_text)
+    protected int _textColor;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
 
     public UserGroupsDialog() {
     }
 
     /**
-     * Create a new instance of a {@link AddGroupDialog}.
+     * Create a new instance of a {@link UserGroupsDialog}.
      *
-     * @return A {@link AddGroupDialog}
+     * @param groups logged in user groups
+     * @param user   this is actually the contact of the logged in user
+     * @return A {@link UserGroupsDialog}
      */
     public static UserGroupsDialog newInstance(
         @NonNull ArrayList<GroupEditContact> groups, @NonNull User user) {
         //Bundle arguments
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_GROUPS, groups);
+
         bundle.putParcelable(ARG_USER, user);
         //copy dialog instance
         UserGroupsDialog dialog = new UserGroupsDialog();
@@ -92,6 +101,10 @@ public class UserGroupsDialog extends BaseDialogFragment {
             getLoggedInUser(), _adapter.getDataArray(), contact));
     }
 
+    /**
+     * Get the logged in user's contact.
+     * @return contact
+     */
     private User getUserArg() {
         return getArguments().getParcelable(ARG_USER);
     }
@@ -131,8 +144,8 @@ public class UserGroupsDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), R.color.common_blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), R.color.common_text);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         initializeRecyclerView();
     }
 

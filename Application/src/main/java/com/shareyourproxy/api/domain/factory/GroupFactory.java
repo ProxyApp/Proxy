@@ -4,9 +4,11 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmGroup;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.realm.RealmList;
 
@@ -47,7 +49,7 @@ public class GroupFactory {
     public static Group deleteGroupContact(Group group, Contact contact) {
         HashMap<String, Contact> contacts = group.contacts();
         if (contacts != null) {
-            contacts.remove(contact);
+            contacts.remove(contact.id().value());
         }
         return Group.copy(group.id(), group.label(), group.channels(), contacts);
     }
@@ -56,4 +58,28 @@ public class GroupFactory {
         String newTitle, Group oldGroup, HashMap<String, Channel> channels) {
         return Group.copy(oldGroup.id(), newTitle, channels, oldGroup.contacts());
     }
+
+    public static void addUserGroupsChannel(User user, Channel channel) {
+        HashMap<String, Group> oldGroups = user.groups();
+        String channelId = channel.id().value();
+        for (Map.Entry<String, Group> entryGroup : oldGroups.entrySet()) {
+            Group group = entryGroup.getValue();
+            if (group.channels().containsKey(channelId)) {
+                group.channels().put(channelId, channel);
+            }
+        }
+    }
+
+    public static void removeUserGroupsChannel(User user, Channel channel) {
+        HashMap<String, Group> oldGroups = user.groups();
+        String channelId = channel.id().value();
+        for (Map.Entry<String, Group> entryGroup : oldGroups.entrySet()) {
+            Group group = entryGroup.getValue();
+            if (group.channels().containsKey(channelId)) {
+                group.channels().remove(channelId);
+            }
+        }
+    }
+
+
 }

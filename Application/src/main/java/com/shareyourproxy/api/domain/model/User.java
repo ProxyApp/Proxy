@@ -28,15 +28,17 @@ public abstract class User implements Parcelable {
      * @param coverURL   user cover image
      * @param channels   user channels
      * @param groups     user contactGroups
-     * @param contacts   user contacts    @return the entered user data
+     * @param contacts   user contacts
+     * @param messages   user messages
+     * @return the entered user data
      */
     public static User create(
         Id id, String firstName, String lastName, String email, String profileURL,
         String coverURL, HashMap<String, Channel> channels, HashMap<String, Group> groups,
-        HashMap<String, Contact> contacts) {
+        HashMap<String, Contact> contacts, HashMap<String, Message> messages) {
         return builder().id(id).first(firstName).last(lastName).email(email)
             .profileURL(profileURL).coverURL(coverURL).channels(channels)
-            .groups(groups).contacts(contacts).build();
+            .groups(groups).contacts(contacts).messages(messages).build();
     }
 
     /**
@@ -121,6 +123,14 @@ public abstract class User implements Parcelable {
      */
     @Nullable
     public abstract HashMap<String, Group> groups();
+
+    /**
+     * Get users messages.
+     *
+     * @return messages
+     */
+    @Nullable
+    public abstract HashMap<String, Message> messages();
 
     /**
      * Validation conditions.
@@ -217,6 +227,15 @@ public abstract class User implements Parcelable {
          */
         @Nullable
         Builder channels(HashMap<String, Channel> channels);
+
+        /**
+         * Set this {@link User}s {@link Message}s
+         *
+         * @param messages user messages
+         * @return List {@link Channel}
+         */
+        @Nullable
+        Builder messages(HashMap<String, Message> messages);
 
         /**
          * BUILD.

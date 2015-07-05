@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
@@ -46,6 +47,7 @@ import com.squareup.picasso.Target;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -66,7 +68,8 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
- * Display a User or Contacts Profile.
+ * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
+ * Contact's to be added to be observed and added to groups logged in user groups.
  */
 public class UserProfileFragment extends BaseFragment implements ItemClickListener {
 
@@ -81,19 +84,23 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     protected Button groupButton;
     @Bind(R.id.fragment_user_profile_empty_textview)
     protected TextView emptyTextView;
+    @Nullable
+    @Bind(R.id.fragment_user_profile_collapsing_toolbar)
     protected CollapsingToolbarLayout collapsingToolbarLayout;
+    @Nullable
+    @Bind(R.id.fragment_user_profile_header_background)
     protected FrameLayout userProfileBackground;
     private ChannelGridAdapter _adapter;
     private Target _target;
+    private Target _backgroundTarget;
     private PaletteAsyncListener _paletteListener;
     private User _userContact;
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ArrayList<GroupEditContact> _contactGroups = new ArrayList<>();
 
-
     /**
-     * Constructor.
+     * Empty Fragment Constructor.
      */
     public UserProfileFragment() {
     }
@@ -122,7 +129,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         if (getLoggedInUser() == null) {
             User user = null;
             try {
-                user = UserTypeAdapter.newInstace().fromJson(getSharedPrefrences()
+                user = UserTypeAdapter.newInstance().fromJson(getSharedPrefrences()
                     .getString(Constants.KEY_LOGGED_IN_USER, null));
             } catch (IOException e) {
                 Timber.e(Log.getStackTraceString(e));
@@ -130,12 +137,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             //set the sharedprefrences user if it matches the logged in user id
             if (user != null && user.id().value().equals(loggedInUserId)) {
                 setLoggedInUser(user);
-            }
-            // get the user from the database
-            //TODO log in the user
-            else {
-                setLoggedInUser(
-                    getUserService(activity).getUser(loggedInUserId).toBlocking().single());
+            } else {
+                setLoggedInUser(getUserService().getUser(loggedInUserId).toBlocking().single());
             }
         }
     }
@@ -143,22 +146,17 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView;
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
-            rootView = inflater.inflate(R.layout.fragment_user_profile_v21, container, false);
-        } else {
-            rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
-        }
+        View rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         ButterKnife.bind(this, rootView);
-        initialize(rootView);
+        initialize();
         return rootView;
     }
 
     /**
      * Initialize this fragments views.
      */
-    private void initialize(View rootView) {
-        initializeActionBar(rootView);
+    private void initialize() {
+        initializeActionBar();
         initializeHeader();
         if (!_isLoggedInUser) {
             getGroupEditContacts();
@@ -171,31 +169,26 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     private void getGroupEditContacts() {
         _contactGroups.clear();
-        _contactGroups.addAll(queryContactGroups(
-            getLoggedInUser(), createModelContact(_userContact)));
-        updateGroupButtonText(queryContactGroups(
-            _contactGroups, createModelContact(_userContact)));
+
+        //creates group edit contacts array
+        List<GroupEditContact> list = queryContactGroups(
+            getLoggedInUser(), createModelContact(_userContact));
+        _contactGroups.addAll(list);
+        updateGroupButtonText(list);
     }
 
     /**
      * Initialize this view.
-     *
-     * @param rootView
      */
-    private void initializeActionBar(View rootView) {
+    private void initializeActionBar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
-            getSupportActionBar().setTitle(title);
-            userProfileBackground = ButterKnife.findById(rootView, R.id
-                .fragment_user_profile_header_background);
-        } else {
-            collapsingToolbarLayout = ButterKnife.findById(rootView, R.id
-                .fragment_user_profile_collapsing_toolbar);
+        if (collapsingToolbarLayout != null) {
             collapsingToolbarLayout.setTitle(title);
-            getSupportActionBar().setTitle("");
         }
+        getSupportActionBar().setTitle("");
+
     }
 
     private void initializeHeader() {
@@ -217,24 +210,34 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         }
     }
 
+    /**
+     * Handle setting the User profile background cover bitmap.
+     *
+     * @return Target callback
+     */
     private Target getBackgroundTarget() {
-        return new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                collapsingToolbarLayout.setBackground(
-                    new BitmapDrawable(getResources(), bitmap));
-            }
+        if (_backgroundTarget == null) {
+            _backgroundTarget = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    if (collapsingToolbarLayout != null) {
+                        collapsingToolbarLayout.setBackground(
+                            new BitmapDrawable(getResources(), bitmap));
+                    }
+                }
 
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
 
-            }
+                }
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-            }
-        };
+                }
+            };
+        }
+        return _backgroundTarget;
     }
 
     /**
@@ -270,7 +273,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     /**
-     * Async return when palette has been loaded.
+     * Async returns when palette has been loaded.
      *
      * @return palette listener
      */
@@ -283,9 +286,11 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
                         res.getColor(R.color.common_blue));
 
                     Integer color = palette.getVibrantColor(offColor);
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+                    if (collapsingToolbarLayout == null) {
                         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-                        userProfileBackground.setBackgroundColor(color);
+                        if (userProfileBackground != null) {
+                            userProfileBackground.setBackgroundColor(color);
+                        }
                     } else {
                         collapsingToolbarLayout.setContentScrimColor(color);
                         collapsingToolbarLayout.setStatusBarScrimColor(color);
@@ -362,14 +367,20 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
-        updateGroupButtonText(event);
+        updateGroupButtonText(event.contactGroups);
     }
 
-    private void updateGroupButtonText(GroupContactsUpdatedEventCallback event) {
-        if (event.contactGroups != null) {
-            int groupSize = event.contactGroups.size();
+    @SuppressWarnings("unchecked")
+    private void updateGroupButtonText(List<? extends Object> list) {
+        if (list != null) {
+            int groupSize = list.size();
             if (groupSize == 1) {
-                groupButton.setText(event.contactGroups.get(0).label());
+                Object object = list.get(0);
+                if (object instanceof Group) {
+                    groupButton.setText(((Group) object).label());
+                } else if (object instanceof GroupEditContact) {
+                    groupButton.setText(((GroupEditContact) object).getGroup().label());
+                }
             } else if (groupSize == 0) {
                 groupButton.setText(R.string.add_to_group);
             } else if (groupSize > 1) {

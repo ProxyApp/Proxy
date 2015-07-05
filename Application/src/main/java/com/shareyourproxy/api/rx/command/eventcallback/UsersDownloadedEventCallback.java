@@ -9,10 +9,11 @@ import java.util.HashMap;
 /**
  * Created by Evan on 6/9/15.
  */
-public class UsersDownloadedEventCallback extends EventCallback {
+public class UsersDownloadedEventCallback extends UserEventCallback {
     public final HashMap<String, User> users;
 
-    public UsersDownloadedEventCallback(HashMap<String, User> users) {
+    public UsersDownloadedEventCallback(User loggedInUser, HashMap<String, User> users) {
+        super(loggedInUser);
         this.users = users;
     }
 

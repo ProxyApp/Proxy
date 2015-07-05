@@ -7,7 +7,7 @@ import com.shareyourproxy.util.ViewUtils;
 import com.squareup.picasso.Transformation;
 
 /**
- * Created by Evan on 6/30/15.
+ * Transformation that blurs a source bitmap image.
  */
 public class BlurTransform implements Transformation {
 

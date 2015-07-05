@@ -184,7 +184,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         if (currentUser != null) {
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-            RestClient.getUserService(this).getUser(userId)
+            RestClient.getUserService().getUser(userId)
                 .compose(RxHelper.<User>applySchedulers())
                 .subscribe(new JustObserver<User>() {
                     @Override
@@ -236,7 +236,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         }
         //Create a new {@link User} with empty groups, contacts, and channels
         Id id = Id.builder().value(userUID).build();
-        return User.create(id, firstName, lastName, email, profileURL, coverURL, null, null, null);
+        return User.create(id, firstName, lastName, email, profileURL, coverURL,
+            null, null, null, null);
     }
 
     /**

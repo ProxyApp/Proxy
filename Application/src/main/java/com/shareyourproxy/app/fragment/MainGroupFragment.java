@@ -25,7 +25,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallba
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.GroupAdapter;
-import com.shareyourproxy.app.dialog.AddGroupDialog;
 
 import java.util.HashMap;
 
@@ -82,7 +81,7 @@ public class MainGroupFragment
     }
 
     /**
-     * Prompt user with a {@link AddGroupDialog} to add a new {@link Group}.
+     * Prompt user with a {@link GroupEditChannelFragment} to add a new {@link Group}.
      */
     @OnClick(R.id.fragment_group_main_fab_group)
     public void onClick() {

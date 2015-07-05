@@ -14,7 +14,7 @@ import android.support.v4.app.TaskStackBuilder;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.domain.model.Messages;
+import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback;
@@ -22,6 +22,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEve
 import com.shareyourproxy.app.UserProfileActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,22 +32,23 @@ import rx.observables.BlockingObservable;
 
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 import static com.shareyourproxy.api.RestClient.getMessageService;
-import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
 /**
- * Created by Evan on 6/18/15.
+ * Cold Rx.Observable calls to handle syncing messages for Users.
  */
 public class RxMessageSync {
 
+    /**
+     * Private Constructor.
+     */
     private RxMessageSync() {
     }
 
     public static List<EventCallback> getFirebaseMessages(
         final Context context, @NonNull User user) {
         final String userId = user.id().value();
-
-        return getMessageService(context)
+        return getMessageService()
             .getUserMessages(userId).map(new Func1<Map<String, Contact>, EventCallback>() {
                 @Override
                 public EventCallback call(Map<String, Contact> contacts) {
@@ -59,6 +61,8 @@ public class RxMessageSync {
                             NotificationCompat.Builder _builder =
                                 new NotificationCompat.Builder(context)
                                     .setLargeIcon(getProxyIcon(context))
+                                    .setSmallIcon(R.mipmap.ic_proxy)
+                                    .setAutoCancel(true)
                                     .setVibrate(new long[]{ 1000, 1000 })
                                     .setLights(Color.MAGENTA, 1000, 1000)
                                     .setContentTitle(context.getString(R.string.app_name))
@@ -95,42 +99,41 @@ public class RxMessageSync {
         return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public static List<EventCallback> saveFirebaseMessage(
-        Context context, Messages message) {
-        User user = message.user();
+    public static List<EventCallback> saveFirebaseMessage(String userId, Message message) {
         String contactId = message.contact().id().value();
-
-        return getMessageService(context)
-            .addUserMessage(contactId, message.id().value(), createModelContact(user))
-            .map(new Func1<Messages, EventCallback>() {
-
-                @Override
-                public EventCallback call(Messages message) {
-                    return new UserMessageAddedEventCallback(message);
-                }
-            })
+        Contact contact = message.contact();
+        HashMap<String, Contact> contactEntry = new HashMap<>(1);
+        contactEntry.put(contactId, contact);
+        return getMessageService()
+            .addUserMessage(userId, contactEntry)
+            .map(getUserMessageCallback())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    public static BlockingObservable<Messages> deleteFirebaseMessage(
-        Context context, Messages message) {
-        String contactId = message.contact().id().value();
+    private static Func1<Message, EventCallback> getUserMessageCallback() {
+        return new Func1<Message, EventCallback>() {
+            @Override
+            public EventCallback call(Message message) {
+                return new UserMessageAddedEventCallback(message);
+            }
+        };
+    }
 
-        return getMessageService(context)
+    public static BlockingObservable<Message> deleteFirebaseMessage(Message message) {
+        String contactId = message.contact().id().value();
+        return getMessageService()
             .deleteUserMessage(contactId, message.id().value())
-            .compose(RxHelper.<Messages>applySchedulers())
+            .compose(RxHelper.<Message>applySchedulers())
             .toBlocking();
     }
 
-    public static Observable<Messages> deleteAllFirebaseMessages(
-        Context context, User user) {
+    public static Observable<Message> deleteAllFirebaseMessages(User user) {
         String contactId = user.id().value();
-
-        return getMessageService(context)
+        return getMessageService()
             .deleteAllUserMessages(contactId)
-            .compose(RxHelper.<Messages>applySchedulers());
+            .compose(RxHelper.<Message>applySchedulers());
     }
 
 

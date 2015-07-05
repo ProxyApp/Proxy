@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 import butterknife.Bind;
 
 /**
- * Created by Evan on 6/16/15.
+ * Show an Apache License.
  */
 public class AboutFragment extends BaseFragment {
     @Bind(R.id.fragment_about_toolbar)

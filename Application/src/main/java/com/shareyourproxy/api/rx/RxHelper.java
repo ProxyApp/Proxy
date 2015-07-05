@@ -1,6 +1,7 @@
 package com.shareyourproxy.api.rx;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
@@ -16,20 +17,21 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.RealmList;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUser;
 import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealmUsers;
 
 /**
- * Created by Evan on 5/21/15.
+ * RxHelper for common rx.Observable method calls.
  */
 public class RxHelper {
 
-    @SuppressWarnings("unchecked")
     public static <T> Observable.Transformer<T, T> applySchedulers() {
         return new Observable.Transformer<T, T>() {
             @Override
@@ -52,8 +54,8 @@ public class RxHelper {
     public static void updateRealmUser(Context context, User user) {
         Realm realm = Realm.getInstance(context);
         realm.refresh();
+        final RealmUser realmUser = createRealmUser(user);
         realm.beginTransaction();
-        RealmUser realmUser = createRealmUser(user);
         realm.copyToRealmOrUpdate(realmUser);
         realm.commitTransaction();
         realm.close();
@@ -62,8 +64,8 @@ public class RxHelper {
     public static void updateRealmUser(Context context, Map<String, User> users) {
         Realm realm = Realm.getInstance(context);
         realm.refresh();
+        final RealmList<RealmUser> realmUsers = createRealmUsers(users);
         realm.beginTransaction();
-        RealmList<RealmUser> realmUsers = createRealmUsers(users);
         realm.copyToRealmOrUpdate(realmUsers);
         realm.commitTransaction();
         realm.close();
@@ -81,7 +83,7 @@ public class RxHelper {
                         try {
                             copyRealmFile(f, new File("/sdcard/default.realm"));
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            Timber.e(Log.getStackTraceString(e));
                         }
                     }
                 } finally {
@@ -90,7 +92,27 @@ public class RxHelper {
                     subscriber.unsubscribe();
                 }
             }
-        }).compose(applySchedulers()).subscribe();
+        }).compose(applySchedulers()).subscribe(saveFileObserver());
+    }
+
+    public static Observer<Object> saveFileObserver() {
+        return new Observer<Object>() {
+            @Override
+            public void onCompleted() {
+                Timber.i("Realm File saved");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(Log.getStackTraceString(e));
+                Timber.e("Realm File failed to save");
+            }
+
+            @Override
+            public void onNext(Object event) {
+                Timber.i("Realm File save onNext");
+            }
+        };
     }
 
     private static void copyRealmFile(File src, File dst) throws IOException {

@@ -14,6 +14,7 @@ import io.realm.RealmResults;
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.getModelChannels;
 import static com.shareyourproxy.api.domain.factory.ContactFactory.getModelContacts;
 import static com.shareyourproxy.api.domain.factory.GroupFactory.getModelGroups;
+import static com.shareyourproxy.api.domain.factory.MessageFactory.getRealmMessages;
 
 
 /**
@@ -22,30 +23,51 @@ import static com.shareyourproxy.api.domain.factory.GroupFactory.getModelGroups;
 public class UserFactory {
 
     /**
-     * Stupid Constructor.
+     * Private Constructor.
      */
     private UserFactory() {
     }
 
+    /**
+     * Could be in and IdFractory but is only one method.
+     * @param userId users Id.
+     * @return user Id
+     */
     private static Id getUserId(String userId) {
         return Id.builder().value(userId).build();
     }
 
+    /**
+     * Take in a realm user and create a model user.
+     * @param realmUser to copy
+     * @return model user
+     */
     public static User createModelUser(RealmUser realmUser) {
         if (realmUser != null) {
             return User.create(getUserId(realmUser.getId()), realmUser.getFirst(),
                 realmUser.getLast(), realmUser.getEmail(), realmUser.getProfileURL(),
-                realmUser.getCoverURL(), getModelChannels(realmUser.getChannels()), getModelGroups(realmUser
-                    .getGroups()), getModelContacts(realmUser.getContacts()));
+                realmUser.getCoverURL(), getModelChannels(realmUser.getChannels()),
+                getModelGroups(realmUser.getGroups()), getModelContacts(realmUser.getContacts()),
+                    getRealmMessages(realmUser.getMessages()));
         }
         return null;
     }
 
+    /**
+     * Create a model User from a contact to use in user profiles.
+     * @param contact
+     * @return
+     */
     public static User createModelUser(Contact contact) {
         return User.create(contact.id(), contact.first(), contact.last(), null,
-            contact.profileURL(), contact.coverURL(), contact.channels(), null, null);
+            contact.profileURL(), contact.coverURL(), contact.channels(), null, null, null);
     }
 
+    /**
+     * Create a HashMap of Users from all
+     * @param realmUsers
+     * @return
+     */
     public static HashMap<String, User> createModelUsers(RealmResults<RealmUser> realmUsers) {
         HashMap<String, User> users = new HashMap<>();
         for (RealmUser realmUser : realmUsers) {
@@ -61,7 +83,8 @@ public class UserFactory {
         }
         contactHashMap.put(contact.id().value(), contact);
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactHashMap);
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactHashMap,
+            user.messages());
     }
 
     /**
@@ -77,7 +100,8 @@ public class UserFactory {
         }
         channelHashMap.put(channel.id().value(), channel);
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), channelHashMap, user.groups(), user.contacts());
+            user.profileURL(), user.coverURL(), channelHashMap, user.groups(), user.contacts(),
+            user.messages());
     }
 
     /**
@@ -107,7 +131,8 @@ public class UserFactory {
      */
     public static User addUserGroups(User user, HashMap<String, Group> groups) {
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), user.channels(), groups, user.contacts());
+            user.profileURL(), user.coverURL(), user.channels(), groups, user.contacts(),
+            user.messages());
     }
 
     public static User deleteUserContact(User user, Contact contact) {
@@ -116,7 +141,8 @@ public class UserFactory {
             contacts.remove(contact.id().value());
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contacts);
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contacts,
+            user.messages());
     }
 
     public static User deleteUserChannel(User user, Channel channel) {
@@ -125,6 +151,7 @@ public class UserFactory {
             channels.remove(channel.id().value());
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts());
+            user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts(),
+            user.messages());
     }
 }

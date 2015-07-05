@@ -2,6 +2,7 @@ package com.shareyourproxy.api;
 
 import android.app.Activity;
 import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -11,13 +12,14 @@ import com.shareyourproxy.api.rx.command.BaseCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
- * Created by Evan on 6/7/15.
+ * Take in a {@link BaseCommand} and call its {@link BaseCommand#execute(Service)} method. Get a
+ * List of EventCallback data and return the result in the ProxyApplication's EventCallback
+ * Subscription.
  */
 public class CommandIntentService extends IntentService {
 
@@ -34,24 +36,21 @@ public class CommandIntentService extends IntentService {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     @DebugLog
     protected void onHandleIntent(Intent intent) {
         BaseCommand command = intent.getExtras().getParcelable(ARG_COMMAND_CLASS);
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
 
         try {
-            List<EventCallback> events = command.execute(this);
+            ArrayList<EventCallback> events = (ArrayList<EventCallback>) command.execute(this);
             Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, new ArrayList(events));
-            for(EventCallback event : events){
-            }
+            bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, events);
             result.send(Activity.RESULT_OK, bundle);
         } catch (Exception e) {
             logError(result, e);
         }
     }
-
+    @DebugLog
     private void logError(ResultReceiver result, Exception e) {
         Timber.e(Log.getStackTraceString(e));
         result.send(Activity.RESULT_CANCELED, null);

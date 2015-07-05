@@ -87,7 +87,7 @@ public class RxGroupChannelSync {
         Context context, String userId, String newTitle, Group group,
         HashMap<String, Channel> channels) {
         String groupId = group.id().value();
-        return getUserGroupService(context)
+        return getUserGroupService()
             .addUserGroup(userId, groupId, Group.copy(group, newTitle, channels));
     }
 

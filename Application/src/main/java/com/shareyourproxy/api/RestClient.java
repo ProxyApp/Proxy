@@ -1,7 +1,5 @@
 package com.shareyourproxy.api;
 
-import android.content.Context;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -40,39 +38,34 @@ public class RestClient {
      *
      * @return userService
      */
-    public static UserService getUserService(final Context context) {
-        return buildRestClient(context,
+    public static UserService getUserService() {
+        return buildRestClient(
             buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
-                UserTypeAdapter.newInstace()))
+                UserTypeAdapter.newInstance()))
             .create(UserService.class);
     }
 
-    public static UserGroupService getUserGroupService(Context context) {
-        return buildRestClient(context,
-            buildGsonConverter()).create(UserGroupService.class);
+    public static UserGroupService getUserGroupService() {
+        return buildRestClient(buildGsonConverter()).create(UserGroupService.class);
     }
 
-    public static UserChannelService getUserChannelService(Context context) {
-        return buildRestClient(context,
-            buildGsonConverter()).create(UserChannelService.class);
+    public static UserChannelService getUserChannelService() {
+        return buildRestClient(buildGsonConverter()).create(UserChannelService.class);
     }
 
-    public static UserContactService getUserContactService(Context context) {
-        return buildRestClient(context,
-            buildGsonConverter()).create(UserContactService.class);
+    public static UserContactService getUserContactService() {
+        return buildRestClient(buildGsonConverter()).create(UserContactService.class);
     }
 
-    public static GroupContactService getGroupContactService(Context context) {
-        return buildRestClient(context,
-            buildGsonConverter()).create(GroupContactService.class);
+    public static GroupContactService getGroupContactService() {
+        return buildRestClient(buildGsonConverter()).create(GroupContactService.class);
     }
 
-    public static MessageService getMessageService(Context context) {
-        return buildRestClient(context,
-            buildGsonConverter()).create(MessageService.class);
+    public static MessageService getMessageService() {
+        return buildRestClient(buildGsonConverter()).create(MessageService.class);
     }
 
-    public static RestAdapter buildRestClient(Context context, Gson gson) {
+    public static RestAdapter buildRestClient(Gson gson) {
 
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)

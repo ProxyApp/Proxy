@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import hugo.weaving.DebugLog;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
@@ -26,10 +27,10 @@ import rx.functions.Func1;
 import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
 
 /**
- * Query the realm DB.
+ * Query the realm DB for data.
  */
 public class RxQuery {
-
+    @DebugLog
     public static rx.Observable<HashMap<String, User>> queryFilteredUsers(
         Context context, final String userId) {
         return Observable.just(context).map(new Func1<Context, HashMap<String, User>>() {
@@ -37,15 +38,18 @@ public class RxQuery {
             public HashMap<String, User> call(Context context) {
                 Realm realm = Realm.getInstance(context);
                 realm.refresh();
+                realm.beginTransaction();
                 RealmResults<RealmUser> realmUsers =
                     realm.where(RealmUser.class).notEqualTo("id", userId).findAll();
                 HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
+                realm.commitTransaction();
                 realm.close();
                 return users;
             }
         }).compose(RxHelper.<HashMap<String, User>>applySchedulers());
     }
 
+    @DebugLog
     public static rx.Observable<HashMap<String, Channel>> queryPermissionedChannels(
         Context context, final String loggedInUserId, final String contactId) {
         return Observable.just(context).map(getRealmUser(contactId))
@@ -72,6 +76,7 @@ public class RxQuery {
         };
     }
 
+    @DebugLog
     public static User queryUser(Context context, final String userId) {
         return Observable.just(context).map(getRealmUser(userId)).compose(RxHelper
             .<User>applySchedulers()).toBlocking().single();
@@ -83,9 +88,11 @@ public class RxQuery {
             public User call(Context context) {
                 Realm realm = Realm.getInstance(context);
                 realm.refresh();
+                realm.beginTransaction();
                 RealmUser realmUser =
                     realm.where(RealmUser.class).contains("id", userId).findFirst();
                 User user = UserFactory.createModelUser(realmUser);
+                realm.commitTransaction();
                 realm.close();
                 return user;
             }
@@ -107,6 +114,7 @@ public class RxQuery {
         RealmResults<RealmUser> realmUsers;
         Realm realm = Realm.getInstance(context);
         realm.refresh();
+        realm.beginTransaction();
         realmUsers = realm.where(RealmUser.class)
             .notEqualTo("id", userId)
             .beginGroup()
@@ -117,6 +125,7 @@ public class RxQuery {
             .findAll();
 
         HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
+        realm.commitTransaction();
         realm.close();
         return users;
     }
@@ -129,8 +138,8 @@ public class RxQuery {
             .toBlocking().single();
     }
 
-    private static Func1<Map.Entry<String, Group>, GroupEditContact> mapContacts(final Contact
-                                                                                     selectedContact) {
+    private static Func1<Map.Entry<String, Group>, GroupEditContact> mapContacts(
+        final Contact selectedContact) {
         return new Func1<Map.Entry<String, Group>, GroupEditContact>() {
             @Override
             public GroupEditContact call(Map.Entry<String, Group> groupEntry) {

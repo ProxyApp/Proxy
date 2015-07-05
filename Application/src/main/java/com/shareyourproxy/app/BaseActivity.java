@@ -11,6 +11,9 @@ import com.shareyourproxy.api.domain.model.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 /**
  * Base abstraction for all Activities to inherit from.
  */
@@ -44,11 +47,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public boolean isLoggedInUser(@NonNull User user) {
-        if (getLoggedInUser() == null) {
-            return false;
-        } else {
-            return user.id().value().equals(getLoggedInUser().id().value());
-        }
+        return getLoggedInUser() != null &&
+            user.id().value().equals(getLoggedInUser().id().value());
     }
 
     public RxBusDriver getRxBus() {
@@ -61,6 +61,13 @@ public class BaseActivity extends AppCompatActivity {
         bar.setTitle(title);
         bar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(icon);
+    }
+
+    protected void deleteRealm() {
+        Realm realm = Realm.getDefaultInstance();
+        RealmConfiguration config = realm.getConfiguration();
+        realm.close();
+        Realm.deleteRealm(config);
     }
 
 }
