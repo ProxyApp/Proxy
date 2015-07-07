@@ -3,20 +3,20 @@ package com.shareyourproxy.api.rx.command.eventcallback;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import com.shareyourproxy.api.domain.model.Messages;
+import com.shareyourproxy.api.domain.model.Message;
 
 /**
  * Created by Evan on 6/18/15.
  */
 public class UserMessageAddedEventCallback extends EventCallback {
-    public final Messages message;
+    public final Message message;
 
     /**
      * Public constructor.
      *
      * @param message notification content
      */
-    public UserMessageAddedEventCallback(@NonNull Messages message) {
+    public UserMessageAddedEventCallback(@NonNull Message message) {
         this.message = message;
     }
 

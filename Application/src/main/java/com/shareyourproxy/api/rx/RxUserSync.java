@@ -3,13 +3,15 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.factory.ContactFactory;
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +19,11 @@ import java.util.Map;
 import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserService;
+import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
- * Created by Evan on 6/9/15.
+ * Cold Observables to sync users to firebase and realm.
  */
 public class RxUserSync {
 
@@ -31,54 +34,76 @@ public class RxUserSync {
     }
 
     /**
-     * Download all users from firebase, save them to Realm, and return them as an HashMap<User>.
+     * Download All Users from firebase and sync them to realm. Used for swipe refresh in the {@link
+     * com.shareyourproxy.app.fragment.MainContactsFragment} and {@link
+     * com.shareyourproxy.app.fragment.MainGroupFragment}'s {@link android.support.v4.widget
+     * .SwipeRefreshLayout}s
      *
-     * @param context to get realm instance
-     * @return HashMap<User>
+     * @param context        for realm instance
+     * @param loggedInUserId to identify the logged in user
+     * @return {@link UsersDownloadedEventCallback} to rxBus
      */
-    public static List<EventCallback> getAllUsers(Context context) {
-        return getFirebaseUsers(context)
-            .map(saveRealmUsers(context))
-            .map(usersDownloaded())
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
-            .toBlocking().single();
-    }
-
     public static List<EventCallback> syncAllUsers(Context context, String loggedInUserId) {
-        User newUser = getFirebaseUsers(context).map(saveRealmUsers(context))
+        return getFirebaseUsers()
             .map(updateCachedContacts(loggedInUserId))
-            .compose(RxHelper.<User>applySchedulers())
-            .toBlocking().single();
-        return saveUser(context, newUser);
+            .map(updateCachedChannels(loggedInUserId))
+            .map(saveRealmUsers(context))
+            .map(usersDownloaded(loggedInUserId))
+            .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
     }
 
-    private static Func1<HashMap<String, User>, User> updateCachedContacts(final String userId) {
-        return new Func1<HashMap<String, User>, User>() {
+    private static Func1<HashMap<String, User>, HashMap<String, User>> updateCachedChannels(
+        final String loggedInUserId) {
+        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
             @Override
-            public User call(HashMap<String, User> users) {
-                User loggedInUser = users.get(userId);
-                //for every contact that's in the entire user list, remove the old copy and
-                // replace it with the new user data
-                for(Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()){
-                    for (Map.Entry<String, User> userEntry : users.entrySet()) {
-                        if (userEntry.getKey().equals(contactEntry.getKey())) {
-                            loggedInUser.contacts()
-                                .put(userEntry.getKey(),
-                                ContactFactory.createModelContact(userEntry.getValue()));
+            public HashMap<String, User> call(HashMap<String, User> users) {
+                User loggedInUser = users.get(loggedInUserId);
+                for (Map.Entry<String, Channel> channelEntry : loggedInUser.channels().entrySet()) {
+                    Channel channel = channelEntry.getValue();
+                    String channelId = channel.id().value();
+                    for (Map.Entry<String, Group> entryGroup : loggedInUser.groups().entrySet()) {
+                        Group group = entryGroup.getValue();
+                        if (group.channels().containsKey(channelId)) {
+                            group.channels().put(channelId, channel);
                         }
                     }
                 }
-                return loggedInUser;
+                users.put(loggedInUserId, loggedInUser);
+                return users;
             }
         };
     }
 
-    private static rx.Observable<HashMap<String, User>> getFirebaseUsers(Context context) {
-        return getUserService(context).listUsers();
+    private static Func1<HashMap<String, User>, HashMap<String, User>> updateCachedContacts(
+        final String userId) {
+        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
+
+            @Override
+            public HashMap<String, User> call(HashMap<String, User> users) {
+                User loggedInUser = users.get(userId);
+                //for every contact that's in the entire user list, remove the old copy and
+                // replace it with the new user data
+                for (Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()) {
+                    for (Map.Entry<String, User> userEntry : users.entrySet()) {
+                        if (userEntry.getKey().equals(contactEntry.getKey())) {
+                            User userEntryValue = userEntry.getValue();
+                            loggedInUser.contacts()
+                                .put(userEntry.getKey(), createModelContact(userEntryValue));
+                        }
+                    }
+                }
+                users.put(loggedInUser.id().value(), loggedInUser);
+                return users;
+            }
+        };
     }
 
-    private static Func1<HashMap<String, User>, HashMap<String, User>> saveRealmUsers(final Context context) {
+    private static rx.Observable<HashMap<String, User>> getFirebaseUsers() {
+        return getUserService().listUsers();
+    }
+
+    private static Func1<HashMap<String, User>, HashMap<String, User>>
+    saveRealmUsers(final Context context) {
         return new Func1<HashMap<String, User>, HashMap<String, User>>() {
             @Override
             public HashMap<String, User> call(HashMap<String, User> users) {
@@ -88,11 +113,20 @@ public class RxUserSync {
         };
     }
 
-    private static Func1<HashMap<String, User>, EventCallback> usersDownloaded() {
-        return new Func1<HashMap<String, User>, EventCallback>() {
+    private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(
+        final String loggedInUserId) {
+        return new Func1<HashMap<String, User>, List<EventCallback>>() {
             @Override
-            public UsersDownloadedEventCallback call(HashMap<String, User> users) {
-                return new UsersDownloadedEventCallback(users);
+            public List<EventCallback> call(HashMap<String, User> users) {
+                User loggedInUser = users.get(loggedInUserId);
+                UsersDownloadedEventCallback usersCallback =
+                    new UsersDownloadedEventCallback(loggedInUser, users);
+                LoggedInUserUpdatedEventCallback loggedInUserCallback =
+                    new LoggedInUserUpdatedEventCallback(loggedInUser);
+                ArrayList<EventCallback> list = new ArrayList<>();
+                list.add(usersCallback);
+                list.add(loggedInUserCallback);
+                return list;
             }
         };
     }
@@ -108,7 +142,7 @@ public class RxUserSync {
     }
 
     public static List<EventCallback> saveUser(Context context, User newUser) {
-        return RestClient.getUserService(context).updateUser(newUser.id().value(),
+        return RestClient.getUserService().updateUser(newUser.id().value(),
             newUser)
             .map(saveRealmUser(context))
             .toList()

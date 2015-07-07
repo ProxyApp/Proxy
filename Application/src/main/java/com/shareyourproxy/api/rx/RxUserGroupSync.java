@@ -34,7 +34,7 @@ public class RxUserGroupSync {
         Context context, User user, Group group) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, group, user),
-            saveFirebaseUserGroup(context, user.id().value(), group),
+            saveFirebaseUserGroup(user.id().value(), group),
             zipAddUserGroup())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -108,15 +108,13 @@ public class RxUserGroupSync {
         };
     }
 
-    private static rx.Observable<Group> saveFirebaseUserGroup(
-        Context context, String userId, Group group) {
-        return RestClient.getUserGroupService(context)
-            .addUserGroup(userId, group.id().value(), group);
+    private static rx.Observable<Group> saveFirebaseUserGroup(String userId, Group group) {
+        return RestClient.getUserGroupService().addUserGroup(userId, group.id().value(), group);
     }
 
     private static rx.Observable<Group> deleteFirebaseUserGroup(
         Context context, String userId, Group group) {
-        Observable<Group> deleteObserver = RestClient.getUserGroupService(context)
+        Observable<Group> deleteObserver = RestClient.getUserGroupService()
             .deleteUserGroup(userId, group.id().value());
         deleteObserver.subscribe(new JustObserver<Group>() {
             @Override

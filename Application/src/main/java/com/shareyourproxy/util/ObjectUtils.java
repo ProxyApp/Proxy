@@ -3,11 +3,11 @@ package com.shareyourproxy.util;
 import android.text.TextUtils;
 
 /**
- * Helper class for formatting text.
+ * Helper class for formatting objects.
  */
 public class ObjectUtils {
     /**
-     * Constructor
+     * Private Constructor.
      */
     private ObjectUtils() {
         super();
@@ -35,13 +35,9 @@ public class ObjectUtils {
     }
 
     public static String capitalize(String string) {
-        int stringLength;
-        if (string == null || (stringLength = string.length()) == 0) {
-            return string;
+        if (string == null || string.length() == 0) {
+            return "";
         }
-        return new StringBuffer(stringLength)
-            .append(Character.toTitleCase(string.charAt(0)))
-            .append(string.substring(1))
-            .toString();
+        return String.valueOf(Character.toTitleCase(string.charAt(0))) + string.substring(1);
     }
 }

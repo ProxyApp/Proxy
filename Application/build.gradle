@@ -63,7 +63,6 @@ android {
     def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
     buildTypes {
         debug {
-            // disable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
             //disable google analytics
@@ -74,7 +73,6 @@ android {
         release {
 //            minifyEnabled true
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"

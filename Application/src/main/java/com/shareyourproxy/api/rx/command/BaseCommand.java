@@ -4,7 +4,7 @@ import android.content.ComponentName;
 import android.os.Parcelable;
 
 /**
- * Created by Evan on 6/8/15.
+ * Send a command request to be processed in ProxyApplication.
  */
 public abstract class BaseCommand implements ExecuteCommand, Parcelable {
     public final ComponentName componentName;

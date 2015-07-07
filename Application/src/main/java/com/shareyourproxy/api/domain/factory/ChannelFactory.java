@@ -12,7 +12,6 @@ import com.shareyourproxy.api.domain.realm.RealmChannelType;
 
 import java.util.HashMap;
 
-import hugo.weaving.DebugLog;
 import io.realm.RealmList;
 
 import static com.shareyourproxy.api.domain.model.Channel.builder;
@@ -45,7 +44,7 @@ public class ChannelFactory {
 
     public static Channel createModelInstance(Channel copyChannel, String actionAddress) {
         Channel.Builder channel = Channel.builder();
-        channel.id(copyChannel.id());
+        channel.id(Id.builder().value(copyChannel.id().value()).build());
         channel.label(copyChannel.label());
         channel.packageName(copyChannel.packageName());
         channel.actionAddress(actionAddress);
@@ -162,7 +161,6 @@ public class ChannelFactory {
      * @param realmChannels to get channels from
      * @return RealmList of Contacts
      */
-    @DebugLog
     public static HashMap<String, Channel> getModelChannels(RealmList<RealmChannel> realmChannels) {
         if (realmChannels != null) {
             HashMap<String, Channel> channels = new HashMap<>(realmChannels.size());

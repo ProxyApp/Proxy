@@ -34,6 +34,7 @@ public class UserProfileActivity extends BaseActivity {
         super.onBackPressed();
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
+        //if we launched from a notification go back to the MainActivity explicitly
         if (this.isTaskRoot()) {
             IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB);
         }
@@ -78,11 +79,9 @@ public class UserProfileActivity extends BaseActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-
             case R.id.menu_current_user_add_channel:
                 IntentLauncher.launchChannelListActivity(this);
                 break;
-
             default:
                 Timber.e("Option item selected is unknown");
         }
@@ -111,24 +110,28 @@ public class UserProfileActivity extends BaseActivity {
         _subscriptions.unsubscribe();
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Handle channel selected events to launch the correct android process.
+     * @param event data
+     */
     public void onChannelSelected(SelectUserChannelEvent event) {
         ChannelType channelType = event.channel.channelType();
+        String actionAddress = event.channel.actionAddress();
         switch (channelType) {
             case Phone:
-                IntentLauncher.launchPhoneIntent(this, event.channel.actionAddress());
+                IntentLauncher.launchPhoneIntent(this,actionAddress);
                 break;
             case SMS:
-                IntentLauncher.launchSMSIntent(this, event.channel.actionAddress());
+                IntentLauncher.launchSMSIntent(this, actionAddress);
                 break;
             case Email:
-                IntentLauncher.launchEmailIntent(this, event.channel.actionAddress());
+                IntentLauncher.launchEmailIntent(this, actionAddress);
                 break;
             case Web:
-                IntentLauncher.launchWebIntent(this, event.channel.actionAddress());
+                IntentLauncher.launchWebIntent(this, actionAddress);
                 break;
             case Facebook:
-                IntentLauncher.launchFacebookIntent(this, event.channel.actionAddress());
+                IntentLauncher.launchFacebookIntent(this, actionAddress);
                 break;
             case Custom:
                 break;

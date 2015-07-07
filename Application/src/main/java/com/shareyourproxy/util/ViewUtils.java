@@ -270,6 +270,12 @@ public class ViewUtils {
         return svgToBitmapDrawable(context, resourceId, size, NO_COLOR);
     }
 
+    /**
+     * Use the DrawablCompat lib to tin a source drawable.
+     * @param source drawable to tint
+     * @param color of tint
+     * @return unwrapped tinted drawable
+     */
     public static Drawable tintDrawableCompat(Drawable source, int color) {
         Drawable drawable = DrawableCompat.wrap(source);
         DrawableCompat.setTint(drawable, color);
@@ -335,17 +341,6 @@ public class ViewUtils {
     public static ContentDescriptionDrawable getMenuIconDark(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
             context.getResources().getColor(R.color.common_proxy_dark_selected));
-    }
-
-    /**
-     * Return a new Drawable of the entered resource icon.
-     *
-     * @param resId icon resource id
-     * @return menu icon drawable
-     */
-    public static ContentDescriptionDrawable getMenuIconDarkText(Context context, int resId) {
-        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
-            context.getResources().getColor(R.color.common_text));
     }
 
     /**

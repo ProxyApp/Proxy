@@ -27,6 +27,8 @@ public class RealmUser extends RealmObject {
     private RealmList<RealmContact> contacts;
     @Nullable
     private RealmList<RealmGroup> groups;
+    @Nullable
+    private RealmList<RealmMessage> messages;
 
     /**
      * Getter.
@@ -202,5 +204,13 @@ public class RealmUser extends RealmObject {
         this.groups = groups;
     }
 
+    @Nullable
+    public RealmList<RealmMessage> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(@Nullable RealmList<RealmMessage> messages) {
+        this.messages = messages;
+    }
 
 }

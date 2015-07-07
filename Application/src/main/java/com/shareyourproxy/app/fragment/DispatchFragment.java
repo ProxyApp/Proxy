@@ -38,16 +38,19 @@ public class DispatchFragment extends BaseFragment {
         @Override
         public void run() {
             User user = null;
-            try {
-                user = UserTypeAdapter.newInstace()
-                    .fromJson(getSharedPrefrences().getString(Constants.KEY_LOGGED_IN_USER, ""));
-            } catch (IOException e) {
-                Timber.e(Log.getStackTraceString(e));
+            String jsonUser = getSharedPrefrences().getString(Constants.KEY_LOGGED_IN_USER, null);
+            if (jsonUser != null) {
+                try {
+                    user = UserTypeAdapter.newInstance()
+                        .fromJson(jsonUser);
+                } catch (IOException e) {
+                    Timber.e(Log.getStackTraceString(e));
+                }
             }
+
             if (user == null) {
-                IntentLauncher.launchLoginActivity(getActivity(), false);
-            }
-            else{
+                IntentLauncher.launchLoginActivity(getActivity());
+            } else {
                 setLoggedInUser(user);
                 IntentLauncher.launchMainActivity(getActivity(),
                     MainFragment.ARG_SELECT_CONTACTS_TAB);

@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.AddChannelListActivity;
-import com.shareyourproxy.app.DispatchActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
@@ -21,24 +20,12 @@ import static com.shareyourproxy.Intents.getUserProfileIntent;
 /**
  * Utility for launching Activities.
  */
-@SuppressWarnings("unused")
 public final class IntentLauncher {
 
     /**
      * Private constructor.
      */
     private IntentLauncher() {
-    }
-
-    /**
-     * Launch the {@link DispatchActivity}.
-     *
-     * @param activity The context used to start this intent
-     */
-    public static void launchDispatchActivity(Activity activity) {
-        Intent intent = new Intent(Intents.ACTION_DISPATCH).addFlags(Intent
-            .FLAG_ACTIVITY_CLEAR_TOP);
-        activity.startActivity(intent);
     }
 
     /**
@@ -58,9 +45,8 @@ public final class IntentLauncher {
      * Launch the {@link LoginActivity}.
      *
      * @param activity      The context used to start this intent
-     * @param logoutClicked boolean value to communicate if the use is logging out
      */
-    public static void launchLoginActivity(Activity activity, boolean logoutClicked) {
+    public static void launchLoginActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_LOGIN).addFlags(
             Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(intent);
@@ -94,7 +80,7 @@ public final class IntentLauncher {
      * Launch the {@link SearchActivity}.
      *
      * @param activity The context used to start this intent
-     * @param group
+     * @param group group data
      */
     public static void launchViewGroupUsersActivity(Activity activity, Group group) {
         Intent intent = new Intent(Intents.ACTION_VIEW_GROUP_USERS);
@@ -191,7 +177,7 @@ public final class IntentLauncher {
      */
     public static void launchFacebookIntent(Activity activity, String userId) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        String mobileURI = "https://www.facebook.com/app_scoped_user_id/"+userId;
+//        String mobileURI = "https://www.facebook.com/app_scoped_user_id/"+userId;
         intent.setData(Uri.parse("https://www.facebook.com/"+userId));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {

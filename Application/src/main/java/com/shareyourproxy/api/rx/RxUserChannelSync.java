@@ -3,6 +3,7 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
+import com.shareyourproxy.api.domain.factory.GroupFactory;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
@@ -37,7 +38,7 @@ public class RxUserChannelSync {
         Context context, User user, Channel channel, Channel oldChannel) {
         return rx.Observable.zip(
             saveRealmChannel(context, channel, user),
-            saveChannelToFirebase(context, user.id().value(), channel),
+            saveChannelToFirebase(user.id().value(), channel),
             zipAddChannel(oldChannel))
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -48,7 +49,7 @@ public class RxUserChannelSync {
         Context context, User user, Channel channel) {
         return rx.Observable.zip(
             deleteRealmUserChannel(context, channel, user),
-            deleteChannelFromFirebase(context, user.id().value(), channel),
+            deleteChannelFromFirebase(user.id().value(), channel),
             zipDeleteChannel())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -92,6 +93,7 @@ public class RxUserChannelSync {
             public User call(Channel channel) {
                 Timber.i("Channel Object: " + channel.toString());
                 User newUser = UserFactory.addUserChannel(user, channel);
+                GroupFactory.addUserGroupsChannel(newUser, channel);
                 updateRealmUser(context, newUser);
                 return newUser;
             }
@@ -105,23 +107,28 @@ public class RxUserChannelSync {
             public User call(Channel channel) {
                 Timber.i("Channel Object: " + channel.toString());
                 User newUser = UserFactory.deleteUserChannel(user, channel);
+                GroupFactory.removeUserGroupsChannel(newUser, channel);
                 updateRealmUser(context, newUser);
                 return newUser;
             }
         };
     }
 
-    private static rx.Observable<Channel> saveChannelToFirebase(
-        Context context, String userId, Channel channel) {
-        return getUserChannelService(context)
-            .addUserChannel(userId, channel.id().value(), channel);
+    private static rx.Observable<Channel> saveChannelToFirebase(String userId, Channel channel) {
+        return getUserChannelService().addUserChannel(userId, channel.id().value(), channel);
     }
 
-    private static rx.Observable<Channel> deleteChannelFromFirebase(
-        Context context, String userId, Channel channel) {
-        Observable<Channel> deleteObserver = getUserChannelService(context)
+    private static rx.Observable<Channel> deleteChannelFromFirebase(String userId, Channel channel) {
+        Observable<Channel> deleteObserver = getUserChannelService()
             .deleteUserChannel(userId, channel.id().value());
-        deleteObserver.subscribe(new JustObserver<Channel>() {
+        deleteObserver.subscribe(getDeleteChannelObserver());
+        ConnectableObservable<Channel> connectibleObservable = deleteObserver.publish();
+        connectibleObservable.connect();
+        return rx.Observable.merge(Observable.just(channel), connectibleObservable);
+    }
+
+    private static JustObserver<Channel> getDeleteChannelObserver() {
+        return new JustObserver<Channel>() {
             @Override
             public void onError() {
                 Timber.e("error deleting newChannel");
@@ -130,18 +137,6 @@ public class RxUserChannelSync {
             @Override
             public void onNext(Channel event) {
                 Timber.i("delete newChannel successful");
-            }
-        });
-        ConnectableObservable<Channel> connectableObservable = deleteObserver.publish();
-        return rx.Observable.merge(Observable.just(channel), connectableObservable)
-            .filter(filterNullChannel());
-    }
-
-    private static Func1<Channel, Boolean> filterNullChannel() {
-        return new Func1<Channel, Boolean>() {
-            @Override
-            public Boolean call(Channel channel) {
-                return channel != null;
             }
         };
     }

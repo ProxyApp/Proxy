@@ -13,6 +13,8 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEve
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by Evan on 6/18/15.
  */
@@ -29,10 +31,11 @@ public class NotificationService extends Service {
                 ArrayList<Notification> notifications =
                     ((UserMessagesDownloadedEventCallback) eventData).notifications;
                 if (notifications != null) {
+                    Timber.e("Message Downloaded");
                     return notifications;
                 }
-                return notifications;
             }
+            Timber.e("No Message");
             return new ArrayList<>();
         }
     };

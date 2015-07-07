@@ -11,6 +11,7 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
+import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
 
 import java.io.IOException;
@@ -30,15 +31,15 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         this.gson = gson;
     }
 
-    public static UserTypeAdapter newInstace() {
+    public static UserTypeAdapter newInstance() {
         return new UserTypeAdapter(new Gson());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void write(JsonWriter out, User value) throws IOException {
-        AutoGson annotation = User.class.getAnnotation(AutoGson.class);
-        gson.getAdapter(annotation.autoValueClass()).write(out, value);
+        Class annotation = User.class.getAnnotation(AutoGson.class).autoValueClass();
+        gson.getAdapter(annotation).write(out, value);
     }
 
     @Override
@@ -47,12 +48,11 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         HashMap<String, Channel> channels = new HashMap<>();
         HashMap<String, Contact> contacts = new HashMap<>();
         HashMap<String, Group> groups = new HashMap<>();
-        while (reader.hasNext()) {
-            if (reader.peek() == JsonToken.NULL) {
-                reader.nextNull();
-            } else if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                reader.beginObject();
-                while (reader.hasNext()) {
+        HashMap<String, Message> messages = new HashMap<>();
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                if (reader.peek() == JsonToken.NAME) {
                     switch (reader.nextName()) {
                         case "id":
                             user.id(readId(reader));
@@ -70,7 +70,7 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                             user.profileURL(reader.nextString());
                             break;
                         case "coverURL":
-                            user.coverURL(reader.nextString());
+                            user.coverURL(readCoverURL(reader));
                             break;
                         case "channels":
                             checkChannelArray(reader, channels);
@@ -85,15 +85,24 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                             reader.skipValue();
                             break;
                     }
+                } else if (reader.peek() == JsonToken.STRING) {
+                    Timber.e(reader.nextString());
+                    user.coverURL(readCoverURL(reader));
+                } else if (reader.peek() == JsonToken.NULL) {
+                    reader.nextNull();
+                } else if (reader.peek() == JsonToken.END_DOCUMENT) {
+                    return null;
+                } else {
+                    Timber.e("User read onError");
+                    throw new IOException("Invalid Json");
                 }
-                reader.endObject();
-                user.channels(channels);
-                user.contacts(contacts);
-                user.groups(groups);
-                return user.build();
-            } else if (reader.peek() == JsonToken.END_DOCUMENT) {
-                return null;
             }
+            reader.endObject();
+            user.channels(channels);
+            user.contacts(contacts);
+            user.groups(groups);
+            user.messages(messages);
+            return user.build();
         }
         return null;
     }
@@ -135,6 +144,9 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         Channel.Builder channel = Channel.builder();
         reader.beginObject();
         while (reader.hasNext()) {
+            if (reader.peek() == JsonToken.NULL) {
+                reader.nextNull();
+            }
             switch (reader.nextName()) {
                 case "id":
                     channel.id(readId(reader));
@@ -177,33 +189,57 @@ public class UserTypeAdapter extends TypeAdapter<User> {
 
         reader.beginObject();
         while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "id":
-                    contact.id(readId(reader));
-                    break;
-                case "first":
-                    contact.first(reader.nextString());
-                    break;
-                case "last":
-                    contact.last(reader.nextString());
-                    break;
-                case "profileURL":
-                    contact.profileURL(reader.nextString());
-                    break;
-                case "coverURL":
-                    contact.coverURL(reader.nextString());
-                    break;
-                case "channels":
-                    checkChannelArray(reader, channels);
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
+            if (reader.peek() == JsonToken.NULL) {
+                reader.nextNull();
+            } else if (reader.peek() == JsonToken.NAME) {
+                switch (reader.nextName()) {
+                    case "id":
+                        contact.id(readId(reader));
+                        break;
+                    case "first":
+                        contact.first(reader.nextString());
+                        break;
+                    case "last":
+                        contact.last(reader.nextString());
+                        break;
+                    case "profileURL":
+                        contact.profileURL(reader.nextString());
+                        break;
+                    case "coverURL":
+                        contact.coverURL(readCoverURL(reader));
+                        break;
+                    case "channels":
+                        checkChannelArray(reader, channels);
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            } else if (reader.peek() == JsonToken.STRING) {
+                Timber.e(reader.nextString());
+                contact.coverURL(readCoverURL(reader));
+            } else if (reader.peek() == JsonToken.NULL) {
+                return null;
+            } else {
+                Timber.e("readContact onError");
+                throw new IOException("Invalid Json");
             }
         }
         reader.endObject();
         contact.channels(channels);
         return contact.build();
+    }
+
+    public String readCoverURL(JsonReader reader) throws IOException {
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            return reader.nextString();
+        } else if (reader.peek() == JsonToken.STRING) {
+            return reader.nextString();
+        } else if (reader.peek() == JsonToken.NULL) {
+            return null;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -244,6 +280,47 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         return group.build();
     }
 
+    private Message readMessage(JsonReader reader) throws IOException {
+        Message.Builder message = Message.builder();
+        Contact.Builder contact = Contact.builder();
+        HashMap<String, Channel> channels = new HashMap<>();
+        if (reader.peek() == JsonToken.NULL) {
+            reader.nextNull();
+        } else if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "id":
+                        Id id = readId(reader);
+                        message.id(id);
+                        contact.id(id);
+                        break;
+                    case "first":
+                        contact.first(reader.nextString());
+                        break;
+                    case "last":
+                        contact.last(reader.nextString());
+                        break;
+                    case "profileURL":
+                        contact.profileURL(reader.nextString());
+                        break;
+                    case "channels":
+                        checkChannelArray(reader, channels);
+                        contact.channels(channels);
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            }
+            reader.endObject();
+            message.contact(contact.build());
+            return message.build();
+        }
+        Timber.e("Invalid Message");
+        return null;
+    }
+
     private void checkChannelArray(JsonReader reader, HashMap<String, Channel> channels)
         throws IOException {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
@@ -260,7 +337,8 @@ public class UserTypeAdapter extends TypeAdapter<User> {
             }
             reader.endArray();
         } else {
-            Timber.e("checkChannelArray onError");
+            Timber.e("checkChannelArray onError expected:" +
+                reader.peek().toString());
             throw new IOException("Invalid Json");
         }
     }
@@ -313,6 +391,21 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         } else {
             Timber.i("Reader Error: " + reader.peek().toString());
             Timber.e("checkGroupsArray onError");
+            throw new IOException("Invalid Json");
+        }
+    }
+
+    private void checkMessagesArray(JsonReader reader, HashMap<String, Message> messages)
+        throws IOException {
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                messages.put(reader.nextName(), readMessage(reader));
+            }
+            reader.endObject();
+        } else {
+            Timber.i("Reader Error: " + reader.peek().toString());
+            Timber.e("checkMessageArray onError");
             throw new IOException("Invalid Json");
         }
     }

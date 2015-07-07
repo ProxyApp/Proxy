@@ -27,7 +27,7 @@ import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
- * Created by Evan on 6/4/15.
+ * Update Group contacts and User contacts when they've been added or removed to any groups.
  */
 public class RxGroupContactSync {
 
@@ -90,7 +90,7 @@ public class RxGroupContactSync {
         Context context, User user, Group editGroup, Contact contact) {
         return rx.Observable.zip(
             saveRealmGroupContact(context, user, editGroup, contact),
-            saveFirebaseGroupContact(context, user.id().value(), editGroup.id().value(), contact),
+            saveFirebaseGroupContact(user.id().value(), editGroup.id().value(), contact),
             zipAddGroupContact());
     }
 
@@ -98,8 +98,7 @@ public class RxGroupContactSync {
         Context context, User user, Group editGroup, Contact contact) {
         return rx.Observable.zip(
             deleteRealmGroupContact(context, user, editGroup, contact),
-            deleteFirebaseGroupContact(
-                context, user.id().value(), editGroup.id().value(), contact),
+            deleteFirebaseGroupContact(user.id().value(), editGroup.id().value(), contact),
             zipDeleteGroupContact());
     }
 
@@ -159,14 +158,14 @@ public class RxGroupContactSync {
     }
 
     private static rx.Observable<Contact> saveFirebaseGroupContact(
-        Context context, String userId, String groupId, Contact contact) {
-        return getGroupContactService(context)
+        String userId, String groupId, Contact contact) {
+        return getGroupContactService()
             .addGroupContact(userId, groupId, contact.id().value(), contact);
     }
 
     private static rx.Observable<Contact> deleteFirebaseGroupContact(
-        Context context, String userId, String groupId, Contact contact) {
-        Observable<Contact> deleteObserver = getGroupContactService(context)
+        String userId, String groupId, Contact contact) {
+        Observable<Contact> deleteObserver = getGroupContactService()
             .deleteGroupContact(userId, groupId, contact.id().value());
         deleteObserver.subscribe(new JustObserver<Contact>() {
             @Override

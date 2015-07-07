@@ -15,10 +15,6 @@ public class UserMessagesDownloadedEventCallback extends EventCallback {
         this.notifications = notifications;
     }
 
-    public UserMessagesDownloadedEventCallback() {
-        this.notifications = new ArrayList<>();
-    }
-
     @Override
     public int describeContents() {
         return 0;

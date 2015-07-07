@@ -115,15 +115,14 @@ public class RxUserContactSync {
 
     private static rx.Observable<Contact> saveFirebaseUserGroup(
         Context context, String userId, Contact contact) {
-        return getUserContactService(context)
-            .addUserContact(userId, contact.id().value(), contact);
+        return getUserContactService().addUserContact(userId, contact.id().value(), contact);
     }
 
 
     private static rx.Observable<Contact> deleteFirebaseUserContact(
         Context context, String userId, Contact contact) {
         //TODO:WHY DOES THIS NEED TO BE A CONNECTIBLE OBSERVABLE FLOW, WHY CANT IT BE LIKE SAVE?
-        Observable<Contact> deleteObserver = getUserContactService(context)
+        Observable<Contact> deleteObserver = getUserContactService()
             .deleteUserContact(userId, contact.id().value());
         deleteObserver.subscribe(new JustObserver<Contact>() {
             @Override

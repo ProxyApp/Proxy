@@ -86,7 +86,8 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             if (_googleApiClient.isConnected()) {
                 setLoggedInUser(null);
                 Plus.AccountApi.clearDefaultAccount(_googleApiClient);
-                IntentLauncher.launchLoginActivity(this, true);
+                IntentLauncher.launchLoginActivity(this);
+                deleteRealm();
                 getSharedPreferences().edit().remove(Constants.KEY_LOGGED_IN_USER).commit();
                 finish();
             } else {

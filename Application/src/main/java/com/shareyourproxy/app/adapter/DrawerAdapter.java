@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
@@ -86,7 +87,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
                 Context context = viewHolder._view.getContext();
-                if(_currentUser.coverURL() == null || "".equals(_currentUser.coverURL())) {
+                if (_currentUser.coverURL() == null || "".equals(_currentUser.coverURL())) {
                     viewHolder.backgroundContainer.setBackgroundColor(
                         palette.getVibrantColor(
                             context.getResources().getColor(R.color.common_deep_purple)));
@@ -116,10 +117,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             viewHolder.userName.setText(_currentUser.first() + " "
                 + _currentUser.last());
 
-            Picasso.with(context).load(_currentUser.profileURL())
-                .transform(CircleTransform.create())
-                .placeholder(R.mipmap.ic_proxy)
-                .into(getBitmapTargetView(viewHolder));
+            if (_currentUser.profileURL() != null && !"".equals(_currentUser.profileURL())) {
+                Picasso.with(context).load(_currentUser.profileURL())
+                    .transform(CircleTransform.create())
+                    .placeholder(R.mipmap.ic_proxy)
+                    .into(getBitmapTargetView(viewHolder));
+            }
 
             if (_currentUser.coverURL() != null && !"".equals(_currentUser.coverURL())) {
                 Picasso.with(context).load(_currentUser.coverURL())
@@ -129,7 +132,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         } else {
             ItemViewHolder viewHolder = (ItemViewHolder) holder;
-            viewHolder.name.setText(getItemValue(position));
+            String name = getItemValue(position);
+            viewHolder.name.setText(name);
+            if (!BuildConfig.DEBUG) {
+                viewHolder._view.setVisibility(View.GONE);
+                viewHolder._view.setClickable(false);
+            }
         }
     }
 
@@ -142,21 +150,21 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (_targetBackground == null) {
             _targetBackground = new Target() {
                 @Override
-                public void onBitmapLoaded (Bitmap bitmap, Picasso.LoadedFrom from){
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.backgroundContainer.setBackground(
                         new BitmapDrawable(viewHolder._view.getContext().getResources(), bitmap));
                 }
 
                 @Override
-                public void onBitmapFailed (Drawable errorDrawable){
+                public void onBitmapFailed(Drawable errorDrawable) {
 
                 }
 
                 @Override
-                public void onPrepareLoad (Drawable placeHolderDrawable){
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
 
                 }
-            } ;
+            };
         }
         return _targetBackground;
     }

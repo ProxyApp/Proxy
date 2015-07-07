@@ -10,7 +10,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import java.util.List;
 
 /**
- * Sync All Users in Realm and return the logged in User.
+ * Sync All Users data from firebase to Realm and return the logged in User.
  */
 public class SyncAllUsersCommand extends BaseCommand {
     public static final Parcelable.Creator<SyncAllUsersCommand> CREATOR = new Parcelable

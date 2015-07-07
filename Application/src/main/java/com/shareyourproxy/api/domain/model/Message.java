@@ -1,29 +1,30 @@
 package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
 import auto.parcel.AutoParcel;
 
 /**
- * Messages information for Notifications.
+ * Message information for Notifications.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_Messages.class)
-public abstract class Messages implements Parcelable {
+@AutoGson(autoValueClass = AutoParcel_Message.class)
+public abstract class Message implements Parcelable {
 
-    public static Messages create(Id id, User user, Contact contact) {
-        return builder().id(id).user(user).contact(contact).build();
+    public static Message create(Id id, Contact contact) {
+        return builder().id(id).contact(contact).build();
     }
 
     /**
-     * Messages builder.
+     * Message builder.
      *
-     * @return this Messages.
+     * @return this Message.
      */
     public static Builder builder() {
-        return new AutoParcel_Messages.Builder();
+        return new AutoParcel_Message.Builder();
     }
 
     /**
@@ -34,21 +35,15 @@ public abstract class Messages implements Parcelable {
     public abstract Id id();
 
     /**
-     * The User that Added the messages recipient as a contact
-     *
-     * @return user adding a contact
-     */
-    public abstract User user();
-
-    /**
      * If you're receiving this message, you are the contact that a user added.
      *
      * @return contact the user added
      */
+    @Nullable
     public abstract Contact contact();
 
     /**
-     * Messages Builder.
+     * Message Builder.
      */
     @AutoParcel.Builder
     public interface Builder {
@@ -62,14 +57,6 @@ public abstract class Messages implements Parcelable {
         Builder id(Id id);
 
         /**
-         * Set the User.
-         *
-         * @param user adding contact
-         * @return user
-         */
-        Builder user(User user);
-
-        /**
          * Set the contact.
          *
          * @param contact added to user
@@ -80,8 +67,8 @@ public abstract class Messages implements Parcelable {
         /**
          * BUILD.
          *
-         * @return Messages
+         * @return Message
          */
-        Messages build();
+        Message build();
     }
 }
