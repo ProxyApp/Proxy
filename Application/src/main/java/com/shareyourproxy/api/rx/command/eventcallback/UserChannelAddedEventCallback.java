@@ -15,10 +15,10 @@ public class UserChannelAddedEventCallback extends UserEventCallback {
     public final Channel oldChannel;
 
     public UserChannelAddedEventCallback(
-        @NonNull User user, @NonNull Channel newChannel, @Nullable Channel oldChannel) {
+        @NonNull User user, @Nullable Channel oldChannel, @NonNull Channel newChannel) {
         super(user);
-        this.newChannel = newChannel;
         this.oldChannel = oldChannel;
+        this.newChannel = newChannel;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class UserChannelAddedEventCallback extends UserEventCallback {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(newChannel);
         dest.writeValue(oldChannel);
+        dest.writeValue(newChannel);
     }
 }

@@ -126,7 +126,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                 }
             }));
         User loggedInUser = getLoggedInUser();
-        if (getLoggedInUser() != null && loggedInUser.contacts().size() > 0) {
+        if (getLoggedInUser() != null) {
             _adapter.updateContactsList(loggedInUser.contacts());
         }
     }

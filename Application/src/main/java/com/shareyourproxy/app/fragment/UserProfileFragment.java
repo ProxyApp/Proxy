@@ -134,7 +134,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             } catch (IOException e) {
                 Timber.e(Log.getStackTraceString(e));
             }
-            //set the sharedprefrences user if it matches the logged in user id
+            //set the shared preferences user if it matches the logged in user id
             if (user != null && user.id().value().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
@@ -169,12 +169,17 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     private void getGroupEditContacts() {
         _contactGroups.clear();
-
         //creates group edit contacts array
         List<GroupEditContact> list = queryContactGroups(
             getLoggedInUser(), createModelContact(_userContact));
         _contactGroups.addAll(list);
-        updateGroupButtonText(list);
+        ArrayList<Group> selectedGroupsList = new ArrayList<>(list.size());
+        for (GroupEditContact groupEditContact : list) {
+            if (groupEditContact.hasContact()) {
+                selectedGroupsList.add(groupEditContact.getGroup());
+            }
+        }
+        updateGroupButtonText(selectedGroupsList);
     }
 
     /**
@@ -371,16 +376,12 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     @SuppressWarnings("unchecked")
-    private void updateGroupButtonText(List<? extends Object> list) {
+    private void updateGroupButtonText(List<Group> list) {
         if (list != null) {
             int groupSize = list.size();
             if (groupSize == 1) {
                 Object object = list.get(0);
-                if (object instanceof Group) {
-                    groupButton.setText(((Group) object).label());
-                } else if (object instanceof GroupEditContact) {
-                    groupButton.setText(((GroupEditContact) object).getGroup().label());
-                }
+                groupButton.setText(((Group) object).label());
             } else if (groupSize == 0) {
                 groupButton.setText(R.string.add_to_group);
             } else if (groupSize > 1) {

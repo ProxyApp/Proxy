@@ -1,6 +1,7 @@
 package com.shareyourproxy.api.rx;
 
 import android.content.Context;
+import android.util.Pair;
 
 import com.shareyourproxy.api.domain.factory.GroupFactory;
 import com.shareyourproxy.api.domain.factory.UserFactory;
@@ -23,6 +24,8 @@ import rx.observables.ConnectableObservable;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.RestClient.getGroupContactService;
+import static com.shareyourproxy.api.RestClient.getUserContactService;
+import static com.shareyourproxy.api.RestClient.getUserGroupService;
 import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
@@ -40,48 +43,68 @@ public class RxGroupContactSync {
     public static List<EventCallback> updateGroupContacts(
         final Context context, final User user,
         final ArrayList<GroupEditContact> editGroups, final Contact contact) {
-        return Observable.merge(
-            Observable.from(editGroups).map(contactInGroup())
-                .filter(filterNullObject()).toList()
-                .map(createGroupContactEvent(contact)),
-            Observable.from(editGroups).flatMap(
-                groupContactCommand(context, user, contact)))
+        return Observable.just(editGroups)
+            .map(userUpdateContacts(user, contact))
+            .map(saveUserToDB(context, contact))
+            .map(createGroupContactEvent(contact))
             .toList().toBlocking().single();
     }
 
-    private static Func1<GroupEditContact, Group> contactInGroup() {
-        return new Func1<GroupEditContact, Group>() {
+    public static Func1<Pair<User, List<Group>>, Pair<User, List<Group>>> saveUserToDB(
+        final Context context, final Contact contact) {
+        return new Func1<Pair<User, List<Group>>, Pair<User, List<Group>>>() {
             @Override
-            public Group call(GroupEditContact groupEditContact) {
-                if (groupEditContact.hasContact()) {
-                    return groupEditContact.getGroup();
+            public Pair<User, List<Group>> call(Pair<User, List<Group>> userListPair) {
+                User newUser = userListPair.first;
+                String userId = newUser.id().value();
+                String contactId = contact.id().value();
+                List<Group> contactInGroup = userListPair.second;
+                updateRealmUser(context, newUser);
+                if (contactInGroup.size() > 0) {
+                    getUserContactService().addUserContact(userId, contactId, contact).subscribe();
                 } else {
-                    return null;
+                    getUserContactService().deleteUserContact(userId, contactId).subscribe();
                 }
+                getUserGroupService().updateUserGroups(userId, newUser.groups()).subscribe();
+                return userListPair;
             }
         };
     }
 
-    private static Func1<GroupEditContact, Observable<EventCallback>> groupContactCommand(
-        final Context context, final User user, final Contact contact) {
-        return new Func1<GroupEditContact, Observable<EventCallback>>() {
+    private static Func1<ArrayList<GroupEditContact>, Pair<User, List<Group>>> userUpdateContacts(
+        final User user, final Contact contact) {
+        return new Func1<ArrayList<GroupEditContact>, Pair<User, List<Group>>>() {
             @Override
-            public Observable<EventCallback> call(GroupEditContact groupEditContact) {
-                if (groupEditContact.hasContact()) {
-                    return addGroupContact(context, user, groupEditContact.getGroup(), contact);
-                } else {
-                    return deleteGroupContact(context, user, groupEditContact.getGroup(), contact);
+            public Pair<User, List<Group>> call(ArrayList<GroupEditContact> groupEditContacts) {
+                boolean groupHasContact = false;
+                String contactId = contact.id().value();
+                ArrayList<Group> contactInGroup = new ArrayList<>();
+                for (GroupEditContact groupEditContact : groupEditContacts) {
+                    String groupId = groupEditContact.getGroup().id().value();
+                    if (groupEditContact.hasContact()) {
+                        groupHasContact = true;
+                        user.groups().get(groupId).contacts().put(contactId, contact);
+                        contactInGroup.add(user.groups().get(groupId));
+                    } else {
+                        user.groups().get(groupId).contacts().remove(contactId);
+                    }
                 }
+                if (groupHasContact) {
+                    user.contacts().put(contactId, contact);
+                } else {
+                    user.contacts().remove(contactId);
+                }
+                return new Pair<User, List<Group>>(user, contactInGroup);
             }
         };
     }
 
-    private static Func1<List<Group>, EventCallback> createGroupContactEvent(
+    private static Func1<Pair<User, List<Group>>, EventCallback> createGroupContactEvent(
         final Contact contact) {
-        return new Func1<List<Group>, EventCallback>() {
+        return new Func1<Pair<User, List<Group>>, EventCallback>() {
             @Override
-            public GroupContactsUpdatedEventCallback call(List<Group> groups) {
-                return new GroupContactsUpdatedEventCallback(contact, groups);
+            public GroupContactsUpdatedEventCallback call(Pair<User, List<Group>> groups) {
+                return new GroupContactsUpdatedEventCallback(groups.first, contact, groups.second);
             }
         };
     }

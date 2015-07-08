@@ -62,16 +62,16 @@ public class RxQuery {
         return new Func1<User, HashMap<String, Channel>>() {
             @Override
             public HashMap<String, Channel> call(User contact) {
-                HashMap<String, Channel> setChannels = new HashMap<>();
+                HashMap<String, Channel> permissionedChannels = new HashMap<>();
                 for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
                     for (Map.Entry<String, Contact> entryUser :
                         entryGroup.getValue().contacts().entrySet()) {
                         if (entryUser.getKey().equals(loggedInUserId)) {
-                            setChannels.putAll(entryGroup.getValue().channels());
+                            permissionedChannels.putAll(entryGroup.getValue().channels());
                         }
                     }
                 }
-                return new HashMap<>(setChannels);
+                return new HashMap<>(permissionedChannels);
             }
         };
     }
@@ -144,28 +144,23 @@ public class RxQuery {
             @Override
             public GroupEditContact call(Map.Entry<String, Group> groupEntry) {
                 Group group = groupEntry.getValue();
+                String contactId = selectedContact.id().value();
                 HashMap<String, Contact> contacts = group.contacts();
-                if (contacts != null && contacts.size() > 0) {
-                    boolean hasContact = false;
-                    for (Map.Entry<String, Contact> entryContacts : contacts.entrySet()) {
-                        if (entryContacts.getKey().equals(selectedContact.id().value())) {
-                            hasContact = true;
-                            break;
-                        }
-                    }
-                    return new GroupEditContact(group, hasContact);
+                if (contacts != null && contacts.size() > 0 &&
+                    group.contacts().containsKey(contactId)) {
+                    return new GroupEditContact(group, true);
                 }
                 return new GroupEditContact(group, false);
             }
         };
     }
 
-    public static GroupContactsUpdatedEventCallback queryContactGroups(
+    public static GroupContactsUpdatedEventCallback queryContactGroups(User user,
         ArrayList<GroupEditContact> groupEditContact, final Contact selectedContact) {
         return Observable.from(groupEditContact).map(filterSelectedGroups())
             .filter(filterNullObject())
             .toList()
-            .map(packageGroupContacts(selectedContact))
+            .map(packageGroupContacts(user, selectedContact))
             .toBlocking().single();
     }
 
@@ -179,11 +174,11 @@ public class RxQuery {
     }
 
     private static Func1<List<Group>, GroupContactsUpdatedEventCallback>
-    packageGroupContacts(final Contact selectedContact) {
+    packageGroupContacts(final User user, final Contact selectedContact) {
         return new Func1<List<Group>, GroupContactsUpdatedEventCallback>() {
             @Override
             public GroupContactsUpdatedEventCallback call(List<Group> groups) {
-                return new GroupContactsUpdatedEventCallback(selectedContact, groups);
+                return new GroupContactsUpdatedEventCallback(user, selectedContact, groups);
             }
         };
     }
