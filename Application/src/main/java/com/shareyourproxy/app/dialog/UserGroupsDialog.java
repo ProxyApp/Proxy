@@ -19,8 +19,6 @@ import com.shareyourproxy.api.domain.factory.ContactFactory;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.AddUserContactCommand;
-import com.shareyourproxy.api.rx.command.DeleteUserContactCommand;
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
@@ -34,8 +32,8 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 /**
- * This Dialog provides a toggle selection to add a User contact to that User's various saved
- * groups.
+ * This Dialog provides a toggle selection to add a User contact to the logged in User's various
+ * saved groups.
  */
 public class UserGroupsDialog extends BaseDialogFragment {
 
@@ -51,6 +49,11 @@ public class UserGroupsDialog extends BaseDialogFragment {
         };
     @Bind(R.id.fragment_user_groups_recyclerview)
     protected BaseRecyclerView recyclerView;
+    // Color
+    @BindColor(R.color.common_text)
+    protected int _textColor;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
     private UserGroupsAdapter _adapter;
     private final OnClickListener _positiveClicked =
         new OnClickListener() {
@@ -60,11 +63,6 @@ public class UserGroupsDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    // Color
-    @BindColor(R.color.common_text)
-    protected int _textColor;
-    @BindColor(R.color.common_blue)
-    protected int _blue;
 
     public UserGroupsDialog() {
     }
@@ -92,17 +90,13 @@ public class UserGroupsDialog extends BaseDialogFragment {
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
         Contact contact = ContactFactory.createModelContact(user);
-        if (_adapter.contactInGroup()) {
-            getRxBus().post(new AddUserContactCommand(getLoggedInUser(), contact));
-        } else {
-            getRxBus().post(new DeleteUserContactCommand(getLoggedInUser(), contact));
-        }
         getRxBus().post(new SaveGroupContactsCommand(
             getLoggedInUser(), _adapter.getDataArray(), contact));
     }
 
     /**
      * Get the logged in user's contact.
+     *
      * @return contact
      */
     private User getUserArg() {

@@ -61,7 +61,7 @@ public class RxMessageSync {
                             NotificationCompat.Builder _builder =
                                 new NotificationCompat.Builder(context)
                                     .setLargeIcon(getProxyIcon(context))
-                                    .setSmallIcon(R.mipmap.ic_proxy)
+                                    .setSmallIcon(R.mipmap.ic_proxy_notification)
                                     .setAutoCancel(true)
                                     .setVibrate(new long[]{ 1000, 1000 })
                                     .setLights(Color.MAGENTA, 1000, 1000)

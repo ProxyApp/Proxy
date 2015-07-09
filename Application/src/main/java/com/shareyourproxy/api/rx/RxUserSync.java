@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
@@ -45,57 +44,38 @@ public class RxUserSync {
      */
     public static List<EventCallback> syncAllUsers(Context context, String loggedInUserId) {
         return getFirebaseUsers()
-            .map(updateCachedContacts(loggedInUserId))
-            .map(updateCachedChannels(loggedInUserId))
+            .map(updateLoggedInUser(loggedInUserId))
             .map(saveRealmUsers(context))
             .map(usersDownloaded(loggedInUserId))
             .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
     }
 
-    private static Func1<HashMap<String, User>, HashMap<String, User>> updateCachedChannels(
+    private static Func1<HashMap<String, User>, HashMap<String, User>> updateLoggedInUser(
         final String loggedInUserId) {
         return new Func1<HashMap<String, User>, HashMap<String, User>>() {
             @Override
             public HashMap<String, User> call(HashMap<String, User> users) {
                 User loggedInUser = users.get(loggedInUserId);
-                for (Map.Entry<String, Channel> channelEntry : loggedInUser.channels().entrySet()) {
-                    Channel channel = channelEntry.getValue();
-                    String channelId = channel.id().value();
-                    for (Map.Entry<String, Group> entryGroup : loggedInUser.groups().entrySet()) {
-                        Group group = entryGroup.getValue();
-                        if (group.channels().containsKey(channelId)) {
-                            group.channels().put(channelId, channel);
+                //for every loggedInUserContact
+                for (Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()) {
+                    Contact contact = contactEntry.getValue();
+                    String contactId = contact.id().value();
+                    //if that contact is in any logged in user group, update it
+                    for (Map.Entry<String, Group> groupEntry : loggedInUser.groups().entrySet()) {
+                        Group group = groupEntry.getValue();
+                        HashMap<String, Contact> groupContacts = group.contacts();
+                        if (groupContacts.containsKey(contactId)){
+                            group.contacts().put(contactId, contact);
                         }
+                        loggedInUser.contacts().put(contactId, createModelContact(users.get
+                            (contactId)));
                     }
                 }
                 users.put(loggedInUserId, loggedInUser);
                 return users;
             }
         };
-    }
 
-    private static Func1<HashMap<String, User>, HashMap<String, User>> updateCachedContacts(
-        final String userId) {
-        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
-
-            @Override
-            public HashMap<String, User> call(HashMap<String, User> users) {
-                User loggedInUser = users.get(userId);
-                //for every contact that's in the entire user list, remove the old copy and
-                // replace it with the new user data
-                for (Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()) {
-                    for (Map.Entry<String, User> userEntry : users.entrySet()) {
-                        if (userEntry.getKey().equals(contactEntry.getKey())) {
-                            User userEntryValue = userEntry.getValue();
-                            loggedInUser.contacts()
-                                .put(userEntry.getKey(), createModelContact(userEntryValue));
-                        }
-                    }
-                }
-                users.put(loggedInUser.id().value(), loggedInUser);
-                return users;
-            }
-        };
     }
 
     private static rx.Observable<HashMap<String, User>> getFirebaseUsers() {
@@ -109,24 +89,6 @@ public class RxUserSync {
             public HashMap<String, User> call(HashMap<String, User> users) {
                 updateRealmUser(context, users);
                 return users;
-            }
-        };
-    }
-
-    private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(
-        final String loggedInUserId) {
-        return new Func1<HashMap<String, User>, List<EventCallback>>() {
-            @Override
-            public List<EventCallback> call(HashMap<String, User> users) {
-                User loggedInUser = users.get(loggedInUserId);
-                UsersDownloadedEventCallback usersCallback =
-                    new UsersDownloadedEventCallback(loggedInUser, users);
-                LoggedInUserUpdatedEventCallback loggedInUserCallback =
-                    new LoggedInUserUpdatedEventCallback(loggedInUser);
-                ArrayList<EventCallback> list = new ArrayList<>();
-                list.add(usersCallback);
-                list.add(loggedInUserCallback);
-                return list;
             }
         };
     }
@@ -148,5 +110,23 @@ public class RxUserSync {
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
+    }
+
+    private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(
+        final String loggedInUserId) {
+        return new Func1<HashMap<String, User>, List<EventCallback>>() {
+            @Override
+            public List<EventCallback> call(HashMap<String, User> users) {
+                User loggedInUser = users.get(loggedInUserId);
+                UsersDownloadedEventCallback usersCallback =
+                    new UsersDownloadedEventCallback(loggedInUser, users);
+                LoggedInUserUpdatedEventCallback loggedInUserCallback =
+                    new LoggedInUserUpdatedEventCallback(loggedInUser);
+                ArrayList<EventCallback> list = new ArrayList<>();
+                list.add(usersCallback);
+                list.add(loggedInUserCallback);
+                return list;
+            }
+        };
     }
 }

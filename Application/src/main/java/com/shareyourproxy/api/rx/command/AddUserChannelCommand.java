@@ -48,7 +48,7 @@ public class AddUserChannelCommand extends BaseCommand {
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserChannelSync.addChannel(service, user, newChannel, oldChannel);
+        return RxUserChannelSync.addUserChannel(service, user, oldChannel, newChannel);
     }
 
     @Override

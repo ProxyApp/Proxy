@@ -1,18 +1,3 @@
-/*Copyright 2013 Jake Wharton
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
 package com.shareyourproxy.api.domain.model;
 
 import android.app.Activity;
@@ -142,7 +127,7 @@ public class ProxyApplication extends Application {
     }
 
     public Observable<Long> getNotificationsObservable() {
-        return Observable.interval(1L, TimeUnit.MINUTES).compose(RxHelper.<Long>applySchedulers());
+        return Observable.interval(3L, TimeUnit.MINUTES).compose(RxHelper.<Long>applySchedulers());
     }
 
     public JustObserver<Long> intervalObserver(final INotificationService _notificationService) {
@@ -211,11 +196,8 @@ public class ProxyApplication extends Application {
                         for (EventCallback event : events) {
                             if (event instanceof UserEventCallback) {
                                 /**
-                                 * Event Callback data below is always correct user.
+                                 * Event Callback data below is always the correct user.
                                  */
-//                            if(event instanceof UsersDownloadedEventCallback){
-//                                updateUser(((UserEventCallback) event).user);
-//                            }
                                 Boolean isEqual = ((UserEventCallback) event).user
                                     .equals(realmUser);
                                 Timber.e("IS REALM USER EQUAL TO EVENTCALLBACK:" +

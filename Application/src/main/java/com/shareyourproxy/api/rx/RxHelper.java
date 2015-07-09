@@ -71,6 +71,26 @@ public class RxHelper {
         realm.close();
     }
 
+    static Func1<Map<String, User>, Map<String, User>> addRealmUsers(final Context context) {
+        return new Func1<Map<String, User>, Map<String, User>>() {
+            @Override
+            public Map<String, User> call(Map<String, User> users) {
+                updateRealmUser(context, users);
+                return users;
+            }
+        };
+    }
+
+    static Func1<User, User> addRealmUser(final Context context) {
+        return new Func1<User, User>() {
+            @Override
+            public User call(User user) {
+                updateRealmUser(context, user);
+                return user;
+            }
+        };
+    }
+
     public static void saveRealmFile(final Context context) {
         Observable.create(new Observable.OnSubscribe<Object>() {
             @Override

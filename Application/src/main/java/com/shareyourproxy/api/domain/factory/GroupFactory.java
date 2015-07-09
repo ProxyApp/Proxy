@@ -59,15 +59,15 @@ public class GroupFactory {
         return Group.copy(oldGroup.id(), newTitle, channels, oldGroup.contacts());
     }
 
-    public static void addUserGroupsChannel(User user, Channel channel) {
-        HashMap<String, Group> oldGroups = user.groups();
+    public static User addUserGroupsChannel(User user, Channel channel) {
         String channelId = channel.id().value();
-        for (Map.Entry<String, Group> entryGroup : oldGroups.entrySet()) {
+        for (Map.Entry<String, Group> entryGroup : user.groups().entrySet()) {
             Group group = entryGroup.getValue();
             if (group.channels().containsKey(channelId)) {
                 group.channels().put(channelId, channel);
             }
         }
+        return user;
     }
 
     public static void removeUserGroupsChannel(User user, Channel channel) {

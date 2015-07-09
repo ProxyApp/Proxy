@@ -4,18 +4,20 @@ import android.os.Parcel;
 
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.User;
 
 import java.util.List;
 
 /**
  * Created by Evan on 6/10/15.
  */
-public class GroupContactsUpdatedEventCallback extends EventCallback {
+public class GroupContactsUpdatedEventCallback extends UserEventCallback {
 
     public final List<Group> contactGroups;
     public final Contact contact;
 
-    public GroupContactsUpdatedEventCallback(Contact contact, List<Group> groups) {
+    public GroupContactsUpdatedEventCallback(User user, Contact contact, List<Group> groups) {
+        super(user);
         this.contact = contact;
         this.contactGroups = groups;
     }
