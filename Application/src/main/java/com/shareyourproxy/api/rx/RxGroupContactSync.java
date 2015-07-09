@@ -13,6 +13,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactDeletedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class RxGroupContactSync {
             .map(userUpdateContacts(user, contact))
             .map(saveUserToDB(context, contact))
             .map(createGroupContactEvent(contact))
-            .toList().toBlocking().single();
+            .toBlocking().single();
     }
 
     public static Func1<Pair<User, List<Group>>, Pair<User, List<Group>>> saveUserToDB(
@@ -99,12 +100,15 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<Pair<User, List<Group>>, EventCallback> createGroupContactEvent(
+    private static Func1<Pair<User, List<Group>>, List<EventCallback>> createGroupContactEvent(
         final Contact contact) {
-        return new Func1<Pair<User, List<Group>>, EventCallback>() {
+        return new Func1<Pair<User, List<Group>>, List<EventCallback>>() {
             @Override
-            public GroupContactsUpdatedEventCallback call(Pair<User, List<Group>> groups) {
-                return new GroupContactsUpdatedEventCallback(groups.first, contact, groups.second);
+            public List<EventCallback> call(Pair<User, List<Group>> groups) {
+                ArrayList<EventCallback> events = new ArrayList<>(2);
+                events.add(new UserContactAddedEventCallback(groups.first, contact));
+                events.add(new GroupContactsUpdatedEventCallback(groups.first, contact, groups.second));
+                return events;
             }
         };
     }
