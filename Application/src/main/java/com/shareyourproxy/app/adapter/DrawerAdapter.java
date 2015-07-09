@@ -134,10 +134,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             ItemViewHolder viewHolder = (ItemViewHolder) holder;
             String name = getItemValue(position);
             viewHolder.name.setText(name);
-            if (!BuildConfig.DEBUG) {
-                viewHolder._view.setVisibility(View.GONE);
-                viewHolder._view.setClickable(false);
-            }
         }
     }
 

@@ -127,7 +127,7 @@ public class ProxyApplication extends Application {
     }
 
     public Observable<Long> getNotificationsObservable() {
-        return Observable.interval(30, TimeUnit.SECONDS).compose(RxHelper.<Long>applySchedulers());
+        return Observable.interval(3, TimeUnit.MINUTES).compose(RxHelper.<Long>applySchedulers());
     }
 
     public JustObserver<Long> intervalObserver(final INotificationService _notificationService) {

@@ -98,10 +98,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         } else if (getString(R.string.settings_about).equals(event.message)) {
             IntentLauncher.launchAboutActivity(this);
         }
-        else if(getString(R.string.common_save).equals(event.message)){
-            RxHelper.saveRealmFile(this);
-
-        }
     }
 
     @Override
