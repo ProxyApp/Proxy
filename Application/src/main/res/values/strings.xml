@@ -76,7 +76,6 @@
     <string name="common_help">Help</string>
     <string name="save_realm_db">"Save Realm DB"</string>
     <string-array name="drawer_settings">
-        <item>@string/save_realm_db</item>
         <item>@string/settings_about</item>
         <item>@string/settings_logout</item>
     </string-array>
