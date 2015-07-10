@@ -4,17 +4,20 @@ import android.os.Parcel;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.User;
 
 import java.util.HashMap;
 
 /**
  * Group Name may have changed, channels updated.
  */
-public class GroupChannelsUpdatedEventCallback extends EventCallback {
+public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
     public final Group group;
     public final HashMap<String, Channel> channels;
 
-    public GroupChannelsUpdatedEventCallback(Group group, HashMap<String, Channel> channels) {
+    public GroupChannelsUpdatedEventCallback(
+        User user, Group group, HashMap<String, Channel> channels) {
+        super(user);
         this.group = group;
         this.channels = channels;
     }

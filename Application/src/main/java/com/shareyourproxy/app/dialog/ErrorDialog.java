@@ -59,7 +59,7 @@ public class ErrorDialog extends BaseDialogFragment {
 
         return  new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
             R.style.Widget_Proxy_App_Dialog)).setTitle(title).setMessage(message)
-            .setPositiveButton(R.string.common_ok, _onOkClicked).create();
+            .setPositiveButton(R.string.ok, _onOkClicked).create();
     }
 
     /**

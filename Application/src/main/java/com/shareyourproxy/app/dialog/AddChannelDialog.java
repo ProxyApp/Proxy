@@ -3,7 +3,6 @@ package com.shareyourproxy.app.dialog;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -25,6 +24,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelSection;
 import com.shareyourproxy.api.domain.model.ChannelType;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 
 import java.util.UUID;
@@ -40,7 +40,7 @@ import static com.shareyourproxy.util.DebugUtils.getSimpleName;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Add a new newChannel to a user.
+ * Add a new {@link Channel} to a {@link User}.
  */
 public class AddChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType";
@@ -89,7 +89,6 @@ public class AddChannelDialog extends BaseDialogFragment {
                 return false;
             }
         };
-
     private final OnClickListener _positiveClicked =
         new OnClickListener() {
             @Override
@@ -98,11 +97,14 @@ public class AddChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
+    private String _dialogTitle;
+    private String _channelAddressHint;
+    private String _channelLabelHint;
 
     /**
-     * Create a new instance of a {@link AddGroupDialog}.
+     * Create a new instance of a {@link AddChannelDialog}.
      *
-     * @return A {@link AddGroupDialog}
+     * @return A {@link AddChannelDialog}
      */
     public static AddChannelDialog newInstance(
         ChannelType channelType, ChannelSection channelSection) {
@@ -166,12 +168,14 @@ public class AddChannelDialog extends BaseDialogFragment {
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_channel, null, false);
         ButterKnife.bind(this, view);
+        initializeDisplayValues();
+
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.dialog_addchannel_title)
+            .setTitle(_dialogTitle)
             .setView(view)
-            .setPositiveButton(getString(R.string.common_save), _positiveClicked)
+            .setPositiveButton(getString(R.string.save), _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
 
@@ -180,30 +184,70 @@ public class AddChannelDialog extends BaseDialogFragment {
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+
+        // Setup Button Colors
+        initializeEditTextColors();
         return dialog;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Setup Button Colors
         AlertDialog dialog = (AlertDialog) getDialog();
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
-        initializeEditTextColors();
+    }
+
+    private void initializeDisplayValues() {
+        switch (_channelType) {
+            case Custom:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_custom);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_custom);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_custom);
+                break;
+            case Phone:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_phone);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_phone);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_phone);
+                break;
+            case SMS:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_sms);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_sms);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_sms);
+                break;
+            case Email:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_email);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_email);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_email);
+                break;
+            case Web:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_web);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_web);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_web);
+                break;
+            case Facebook:
+                //this doesn't get called for now
+                _dialogTitle = getString(R.string.dialog_addchannel_title_facebook);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_facebook);
+                _channelLabelHint = "";
+                break;
+            default:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_default);
+                _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_default);
+                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_default);
+                break;
+        }
     }
 
     /**
-     * Initialize values for EditText to switch color on in {@link AddGroupDialog#afterTextChanged}
+     * Initialize color and hints for edit text.
      */
     private void initializeEditTextColors() {
-        Context context = editTextActionAddress.getContext();
-
         editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
         editTextLabel.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
 
-        floatLabelAddress.setHint(context.getString(R.string.edit_channel_address));
-        floatLabelChannelLabel.setHint(context.getString(R.string.edit_channel_description));
+        floatLabelAddress.setHint(_channelAddressHint);
+        floatLabelChannelLabel.setHint(_channelLabelHint);
     }
 
     @Override

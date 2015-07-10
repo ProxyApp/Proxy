@@ -16,10 +16,8 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
-import com.shareyourproxy.app.adapter.DrawerAdapter;
 import com.shareyourproxy.app.fragment.DrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -78,7 +76,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
      */
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
         //if the user presses logout
-        if (DrawerAdapter.isHeader(event.position)) {
+        if (getString(R.string.settings_profile).equals(event.message)) {
             User user = getLoggedInUser();
             IntentLauncher.launchUserProfileActivity(this, user, user.id().value());
         } else if (getString(R.string.settings_logout).equals(event.message)) {
@@ -97,6 +95,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             }
         } else if (getString(R.string.settings_about).equals(event.message)) {
             IntentLauncher.launchAboutActivity(this);
+        }
+        else if(getString(R.string.settings_report_problem).equals(event.message)){
+            IntentLauncher.launchEmailIntent(this, getString(R.string.contact_proxy));
         }
     }
 

@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
@@ -16,8 +17,8 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.ContactAdapter;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -31,10 +32,12 @@ import static rx.android.app.AppObservable.bindFragment;
  * Fragment to display a contactGroups contacts.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
-    @Bind(R.id.fragment_view_group_users_toolbar)
+    @Bind(R.id.fragment_contact_group_toolbar)
     protected Toolbar toolbar;
-    @Bind(R.id.fragment_view_group_users_recyclerview)
+    @Bind(R.id.fragment_contact_group_recyclerview)
     protected BaseRecyclerView recyclerView;
+    @Bind(R.id.fragment_contact_group_empty_textview)
+    protected TextView emptyTextView;
     private ContactAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
@@ -47,7 +50,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     /**
      * Return new Fragment instance.
      *
-     * @return fragment
+     * @return layouts.fragment
      */
     public static GroupContactsFragment newInstance() {
         return new GroupContactsFragment();
@@ -129,6 +132,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
+        recyclerView.setEmptyView(emptyTextView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = ContactAdapter.newInstance(getGroupArg().contacts(), this);
         recyclerView.setAdapter(_adapter);

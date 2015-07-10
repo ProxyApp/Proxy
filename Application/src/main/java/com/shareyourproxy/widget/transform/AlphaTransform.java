@@ -6,7 +6,7 @@ import com.shareyourproxy.util.ViewUtils;
 import com.squareup.picasso.Transformation;
 
 /**
- * Create a bitmap drawable with a transparent black background placed on top of it.
+ * Create a bitmap image.drawable with a transparent black background placed on top of it.
  */
 public class AlphaTransform implements Transformation{
 

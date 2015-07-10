@@ -67,11 +67,12 @@
     <TextView
         android:id="@+id/fragment_user_profile_empty_textview"
         style="@style/TextAppearance.AppCompat.Title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_userprofile_header_background_size"
         android:gravity="center"
         android:paddingEnd="@dimen/common_margin_huge"
+        android:paddingTop="@dimen/common_rect_tiny"
         android:paddingStart="@dimen/common_margin_huge"
         android:textColor="@color/common_text_disabled"
         android:visibility="gone"/>

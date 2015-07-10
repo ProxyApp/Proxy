@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.factory.UserFactory;
@@ -40,6 +41,8 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_contact_main_swipe_refresh)
     protected SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.fragment_contact_main_empty_textview)
+    protected TextView emptyTextView;
     OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override
         public void onRefresh() {
@@ -62,9 +65,9 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     }
 
     /**
-     * Create a new fragment with favorite contacts.
+     * Create a new layouts.fragment with favorite contacts.
      *
-     * @return user fragment
+     * @return user layouts.fragment
      */
     public static MainContactsFragment newInstance() {
         return new MainContactsFragment();
@@ -104,6 +107,8 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         if (getLoggedInUser() != null) {
             contacts = getLoggedInUser().contacts();
         }
+        recyclerView.setEmptyView(emptyTextView);
+        recyclerView.setSwipeRefreshLayout(swipeRefreshLayout);
         _adapter = ContactAdapter.newInstance(contacts, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);

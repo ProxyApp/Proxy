@@ -36,7 +36,8 @@ public class UserProfileActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
         //if we launched from a notification go back to the MainActivity explicitly
         if (this.isTaskRoot()) {
-            IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB);
+            IntentLauncher.launchMainActivity(
+                this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
         }
     }
 
@@ -112,6 +113,7 @@ public class UserProfileActivity extends BaseActivity {
 
     /**
      * Handle channel selected events to launch the correct android process.
+     *
      * @param event data
      */
     public void onChannelSelected(SelectUserChannelEvent event) {
@@ -119,7 +121,7 @@ public class UserProfileActivity extends BaseActivity {
         String actionAddress = event.channel.actionAddress();
         switch (channelType) {
             case Phone:
-                IntentLauncher.launchPhoneIntent(this,actionAddress);
+                IntentLauncher.launchPhoneIntent(this, actionAddress);
                 break;
             case SMS:
                 IntentLauncher.launchSMSIntent(this, actionAddress);

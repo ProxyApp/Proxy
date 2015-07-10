@@ -2,31 +2,78 @@
     <!--common-->
     <string name="facebook_app_id">470093589815006</string>
     <string name="app_name">Proxy</string>
-    <string name="common_settings">Settings</string>
-    <string name="common_open">open</string>
-    <string name="common_closed">closed</string>
-    <string name="common_undo">undo</string>
-    <string name="common_ok">ok</string>
-    <string name="common_save">save</string>
-    <string name="common_close">close</string>
+    <string name="contact_proxy">contact@shareyourproxy.com</string>
     <!--dialog-->
     <string name="dialog_addgroup_title">Add Group</string>
-    <string name="dialog_addchannel_title">Add Channel</string>
-    <string name="dialog_editchannel_title">Edit Channel</string>
+    <string name="dialog_addchannel_title_default">Add Channel</string>
+    <string name="dialog_addchannel_title_web">Add URL</string>
+    <string name="dialog_addchannel_title_facebook">Add Facebook</string>
+    <string name="dialog_addchannel_title_email">Add Email</string>
+    <string name="dialog_addchannel_title_sms">Add SMS Address</string>
+    <string name="dialog_addchannel_title_phone">Add Phone Address</string>
+    <string name="dialog_addchannel_title_custom">Add Custom Channel</string>
+
+    <string name="dialog_addchannel_hint_address_default">@string/edit_channel_address</string>
+    <string name="dialog_addchannel_hint_address_web">URL (Do not include http://)</string>
+    <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
+    <string name="dialog_addchannel_hint_address_facebook">Facebook Handle</string>
+    <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
+    <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
+    <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
+
+    <string name="dialog_addchannel_hint_label_default">@string/edit_channel_description</string>
+    <string name="dialog_addchannel_hint_label_web">@string/web_label_type</string>
+    <string name="dialog_addchannel_hint_label_email">@string/email_label_type</string>
+    <string name="dialog_addchannel_hint_label_sms">@string/sms_label_type</string>
+    <string name="dialog_addchannel_hint_label_phone">@string/phone_label_type</string>
+    <string name="dialog_addchannel_hint_label_custom">Custom Channel Label</string>
+
+    <string name="dialog_editchannel_title_default">Edit Channel</string>
+    <string name="dialog_editchannel_title_web">Edit URL</string>
+    <string name="dialog_editchannel_title_facebook">Edit facebook</string>
+    <string name="dialog_editchannel_title_email">Edit email</string>
+    <string name="dialog_editchannel_title_sms">Edit phone number for sms</string>
+    <string name="dialog_editchannel_title_phone">Edit phone number for calls</string>
+    <string name="dialog_editchannel_title_custom">Edit custom channel</string>
+
+    <string name="dialog_editchannel_hint_address_default">@string/edit_channel_address</string>
+    <string name="dialog_editchannel_hint_address_web">@string/web_label_type</string>
+    <string name="dialog_editchannel_hint_address_email">@string/email_address</string>
+    <string name="dialog_editchannel_hint_address_facebook">Facebook Handle</string>
+    <string name="dialog_editchannel_hint_address_sms">@string/phone_number</string>
+    <string name="dialog_editchannel_hint_address_phone">@string/phone_number</string>
+    <string name="dialog_editchannel_hint_address_custom">Add Custom Channel Address</string>
+
+    <string name="dialog_editchannel_hint_label_default">@string/edit_channel_description</string>
+    <string name="dialog_editchannel_hint_label_web">URL Description (e.g. Reddit, SoundCloud)</string>
+    <string name="dialog_editchannel_hint_label_email">@string/email_label_type</string>
+    <string name="dialog_editchannel_hint_label_sms">@string/sms_label_type</string>
+    <string name="dialog_editchannel_hint_label_phone">@string/phone_label_type</string>
+    <string name="dialog_editchannel_hint_label_custom">Custom Channel Label</string>
+
+    <string name="web_label_type">URL Description (e.g. Reddit, SoundCloud)</string>
+    <string name="sms_label_type">SMS Type (e.g. google voice, cell)</string>
+    <string name="phone_label_type">Phone Label (e.g. home, ice)</string>
+    <string name="email_label_type">Email Type (e.g. Email Business)</string>
+
+    <string name="phone_number">Phone Number</string>
+    <string name="email_address">Email Address</string>
     <string name="status_signed_out">Signed Out</string>
     <string name="status_signed_in">Signed In</string>
     <string name="status_signing_in">Signing In</string>
     <string name="signed_in_as">Signed in as:</string>
     <string name="play_services_error">Play Services Error</string>
     <string name="configuration_error">Configuration onError</string>
+    <string name="settings_profile">Profile</string>
     <string name="settings_about">About</string>
     <string name="settings_logout">Logout</string>
+    <string name="settings_report_problem">Report Issue</string>
     <string name="activity_login_title">proxy</string>
-    <string name="Notifications">Notifications</string>
-    <string name="Favorites">Favorites</string>
-    <string name="Contacts">Contacts</string>
-    <string name="Groups">Groups</string>
-    <string name="Search">Search</string>
+    <string name="notifications">Notifications</string>
+    <string name="favorites">Favorites</string>
+    <string name="contacts">Contacts</string>
+    <string name="groups">Groups</string>
+    <string name="search">Search</string>
     <string name="snackbar_group_removed">Group Removed</string>
     <string name="action_menu_back_from_search">back from search</string>
     <string name="login_error_failed_connection">Failed to create a connection.</string>
@@ -36,27 +83,35 @@
     <string name="login_error_update_play_service">Please update your play services</string>
     <string name="login_error_api_unavailable">API Unavailable</string>
     <string name="search_contacts">Search contacts</string>
-
+    <string name="settings">Settings</string>
+    <string name="open">open</string>
+    <string name="closed">closed</string>
+    <string name="undo">undo</string>
+    <string name="undo_delete">Undo Delete</string>
+    <string name="ok">OK</string>
+    <string name="save">save</string>
+    <string name="close">close</string>
     <string name="channel_image">channel image</string>
     <string name="channel_header_image">channel header image</string>
     <string name="channel_section_image">channel channelSection image</string>
     <string name="drawer_header_image">drawer header image</string>
     <string name="user_image">user image</string>
     <string name="proxy_logo">Proxy logo</string>
-    <string name="Add">Add</string>
-    <string name="Dial">Dial</string>
+    <string name="add">Add</string>
+    <string name="dial">Dial</string>
     <string name="edit_group">Edit Group</string>
     <string name="group_name">Group name</string>
     <string name="edit_groups">Edit groups</string>
     <string name="in_blank_groups">%1$s groups</string>
     <string name="add_channel">Add Channel</string>
-    <string name="Delete">Delete</string>
+    <string name="delete">Delete</string>
     <string name="edit_channel_description">Edit channel description</string>
     <string name="edit_channel_address">Edit channel address</string>
-    <string name="update_facebook_username">Update facebook username</string>
-    <string name="common_delete">Delete</string>
     <string name="dialog_edit_user_groups">Select groups for</string>
     <string name="add_to_group">Add to group</string>
+    <string name="family">Family</string>
+    <string name="friends">Friends</string>
+    <string name="coworkers">Coworkers</string>
     <string name="rx_eventbus_error">Error processing event data</string>
     <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
     <string name="shared_preferences_key">com.shareyourproxy.application.shared_preferences_key
@@ -71,12 +126,23 @@
         and limitations under the License.
     </string>
     <string name="no_information_to_share">%1$s isn\'t sharing any content with you yet.</string>
+    <string name="no_information_added">You haven\'t added any channels.</string>
     <string name="facebook">Facebook</string>
     <string name="added_to_contacts">"%1$s added you to their contacts."</string>
     <string name="common_help">Help</string>
     <string name="save_realm_db">"Save Realm DB"</string>
     <string-array name="drawer_settings">
+        <item>@string/settings_profile</item>
         <item>@string/settings_about</item>
         <item>@string/settings_logout</item>
+        <item>@string/settings_report_problem</item>
     </string-array>
+    <string-array name="default_groups">
+        <item>@string/family</item>
+        <item>@string/friends</item>
+        <item>@string/coworkers</item>
+    </string-array>
+    <string name="fragment_contact_main_empty_text">"You haven't added any contacts."</string>
+    <string name="fragment_group_main_empty_text">"You haven't added any groups."</string>
+    <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."</string>
 </resources>

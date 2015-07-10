@@ -1,9 +1,8 @@
 package com.shareyourproxy.app.dialog;
 
-    import android.annotation.SuppressLint;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -40,6 +39,13 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 public class AddFacebookChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL = "AddFacebookChannelDialog.Channel";
     private static final String TAG = getSimpleName(AddFacebookChannelDialog.class);
+    private final DialogInterface.OnClickListener _helpClicked =
+        new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                IntentLauncher.launchFacebookHelpIntent(getActivity());
+            }
+        };
     @Bind(R.id.dialog_channel_facebook_action_address_edittext)
     protected EditText editTextActionAddress;
     private final DialogInterface.OnClickListener _negativeClicked =
@@ -76,7 +82,6 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
                 return false;
             }
         };
-
     private final DialogInterface.OnClickListener _positiveClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -85,14 +90,6 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    private final DialogInterface.OnClickListener _helpClicked =
-        new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                IntentLauncher.launchFacebookHelpIntent(getActivity());
-            }
-        };
-
 
     /**
      * Create a new instance of a {@link AddFacebookChannelDialog}.
@@ -122,8 +119,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
     }
 
     /**
-     * If text is entered into the dialog {@link EditText}, change the background underline
-     * of the
+     * If text is entered into the dialog {@link EditText}, change the background underline of the
      * widget.
      *
      * @param editable the string entered in the {@link EditText}
@@ -152,9 +148,9 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.dialog_addchannel_title)
+            .setTitle(R.string.dialog_addchannel_title_facebook)
             .setView(view)
-            .setPositiveButton(getString(R.string.common_save), _positiveClicked)
+            .setPositiveButton(getString(R.string.save), _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .setNeutralButton(R.string.common_help, _helpClicked)
             .create();
@@ -164,27 +160,26 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        initializeEditTextColors();
         return dialog;
     }
-
+    
     @Override
     public void onStart() {
         super.onStart();
-        // Setup Button Colors
         AlertDialog dialog = (AlertDialog) getDialog();
+        // Setup Button Colors
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
-        initializeEditTextColors();
     }
 
     /**
-     * Initialize values for EditText to switch color on in {@link AddGroupDialog#afterTextChanged}
+     * Initialize values for EditText to switch color on.
      */
     private void initializeEditTextColors() {
-        Context context = editTextActionAddress.getContext();
         editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-        floatLabelAddress.setHint(context.getString(R.string.update_facebook_username));
+        floatLabelAddress.setHint(getString(R.string.dialog_addchannel_hint_address_facebook));
     }
 
     @Override

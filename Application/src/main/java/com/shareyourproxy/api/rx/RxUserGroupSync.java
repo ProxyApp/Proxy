@@ -5,6 +5,7 @@ import android.content.Context;
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.SharedLink;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
@@ -16,7 +17,6 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.observables.ConnectableObservable;
-import timber.log.Timber;
 
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
@@ -36,24 +36,50 @@ public class RxUserGroupSync {
             saveRealmUserGroup(context, group, user),
             saveFirebaseUserGroup(user.id().value(), group),
             zipAddUserGroup())
+            .map(saveSharedLink())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
+    }
+
+    public static Func1<UserGroupAddedEventCallback, EventCallback> saveSharedLink() {
+        return new Func1<UserGroupAddedEventCallback, EventCallback>() {
+            @Override
+            public UserGroupAddedEventCallback call(UserGroupAddedEventCallback event) {
+                SharedLink link = SharedLink.create(event.user, event.group);
+                RestClient.getSharedLinkService()
+                    .addSharedLink(link.id().value(), link).subscribe();
+                return event;
+            }
+        };
     }
 
     public static List<EventCallback> deleteUserGroup(
         Context context, User user, Group group) {
-        return rx.Observable.zip(
+        return Observable.zip(
             deleteRealmUserGroup(context, group, user),
-            deleteFirebaseUserGroup(context, user.id().value(), group),
+            deleteFirebaseUserGroup(user.id().value(), group),
             zipDeleteUserGroup())
+            .map(deleteSharedLink())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static Func2<User, Group, EventCallback> zipAddUserGroup() {
-        return new Func2<User, Group, EventCallback>() {
+    public static Func1<UserGroupDeletedEventCallback, EventCallback>
+    deleteSharedLink() {
+        return new Func1<UserGroupDeletedEventCallback, EventCallback>() {
+            @Override
+            public UserGroupDeletedEventCallback call(UserGroupDeletedEventCallback event) {
+                RestClient.getSharedLinkService()
+                    .deleteSharedLink(event.group.id().value()).subscribe();
+                return event;
+            }
+        };
+    }
+
+    private static Func2<User, Group, UserGroupAddedEventCallback> zipAddUserGroup() {
+        return new Func2<User, Group, UserGroupAddedEventCallback>() {
             @Override
             public UserGroupAddedEventCallback call(User user, Group group) {
                 return new UserGroupAddedEventCallback(user, group);
@@ -61,8 +87,8 @@ public class RxUserGroupSync {
         };
     }
 
-    private static Func2<User, Group, EventCallback> zipDeleteUserGroup() {
-        return new Func2<User, Group, EventCallback>() {
+    private static Func2<User, Group, UserGroupDeletedEventCallback> zipDeleteUserGroup() {
+        return new Func2<User, Group, UserGroupDeletedEventCallback>() {
             @Override
             public UserGroupDeletedEventCallback call(User user, Group group) {
                 return new UserGroupDeletedEventCallback(user, group);
@@ -112,23 +138,12 @@ public class RxUserGroupSync {
         return RestClient.getUserGroupService().addUserGroup(userId, group.id().value(), group);
     }
 
-    private static rx.Observable<Group> deleteFirebaseUserGroup(
-        Context context, String userId, Group group) {
+    private static rx.Observable<Group> deleteFirebaseUserGroup(String userId, Group group) {
         Observable<Group> deleteObserver = RestClient.getUserGroupService()
             .deleteUserGroup(userId, group.id().value());
-        deleteObserver.subscribe(new JustObserver<Group>() {
-            @Override
-            public void onError() {
-                Timber.e("error deleting group");
-            }
-
-            @Override
-            public void onNext(Group event) {
-                Timber.i("delete group successful");
-            }
-        });
+        deleteObserver.subscribe();
         ConnectableObservable<Group> connectableObservable = deleteObserver.publish();
-        return rx.Observable.merge(Observable.just(group), connectableObservable)
+        return Observable.merge(Observable.just(group), connectableObservable)
             .filter(filterNullContact());
     }
 

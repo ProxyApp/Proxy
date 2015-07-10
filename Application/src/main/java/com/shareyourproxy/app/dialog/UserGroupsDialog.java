@@ -120,7 +120,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
             R.style.Base_Theme_AppCompat_Light_Dialog)
             .setTitle(title)
             .setView(view)
-            .setPositiveButton(R.string.common_save, _positiveClicked)
+            .setPositiveButton(R.string.save, _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;

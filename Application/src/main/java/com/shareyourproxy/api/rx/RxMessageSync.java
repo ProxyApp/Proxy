@@ -28,7 +28,6 @@ import java.util.Map;
 
 import rx.Observable;
 import rx.functions.Func1;
-import rx.observables.BlockingObservable;
 
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 import static com.shareyourproxy.api.RestClient.getMessageService;
@@ -119,14 +118,6 @@ public class RxMessageSync {
                 return new UserMessageAddedEventCallback(message);
             }
         };
-    }
-
-    public static BlockingObservable<Message> deleteFirebaseMessage(Message message) {
-        String contactId = message.contact().id().value();
-        return getMessageService()
-            .deleteUserMessage(contactId, message.id().value())
-            .compose(RxHelper.<Message>applySchedulers())
-            .toBlocking();
     }
 
     public static Observable<Message> deleteAllFirebaseMessages(User user) {

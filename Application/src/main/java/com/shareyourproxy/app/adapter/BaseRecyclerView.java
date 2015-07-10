@@ -1,17 +1,20 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * {@link BaseRecyclerView} that has a {@link ItemClickListener}.
+ * {@link BaseRecyclerView} that handles empty views.
  */
 @SuppressWarnings("unused")
 public class BaseRecyclerView extends RecyclerView {
 
     private View _emptyView;
+    private SwipeRefreshLayout _swipeRefreshLayout;
 
     /**
      * Observer to monitor if we have an empty dataset.
@@ -60,11 +63,14 @@ public class BaseRecyclerView extends RecyclerView {
      *
      * @param emptyView the view to display when this array has no data
      */
-    public void setEmptyView(View emptyView) {
-        if(_emptyView!=null){
-            _emptyView.setVisibility(View.GONE);
-        }
+    public void setEmptyView(@NonNull View emptyView) {
         _emptyView = emptyView;
+        _emptyView.setVisibility(View.GONE);
+    }
+
+    public void setSwipeRefreshLayout(@NonNull SwipeRefreshLayout swipeRefreshLayout) {
+        _swipeRefreshLayout = swipeRefreshLayout;
+        _swipeRefreshLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -88,6 +94,9 @@ public class BaseRecyclerView extends RecyclerView {
             boolean showEmptyView = getAdapter().getItemCount() == 0;
             _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
             setVisibility(showEmptyView ? GONE : VISIBLE);
+            if(_swipeRefreshLayout != null){
+                _swipeRefreshLayout.setVisibility(showEmptyView ? GONE : VISIBLE);
+            }
         }
     }
 }

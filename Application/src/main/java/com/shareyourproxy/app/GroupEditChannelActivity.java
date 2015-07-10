@@ -116,7 +116,7 @@ public class GroupEditChannelActivity extends BaseActivity {
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
         getRxBus().post(new CheckUserContactsCommand(
             getLoggedInUser(), event.group.contacts(), getLoggedInUser().groups()));
-        IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB);
+        IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
         onBackPressed();
     }
 

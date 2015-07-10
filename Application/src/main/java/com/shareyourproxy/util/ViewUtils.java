@@ -238,7 +238,7 @@ public class ViewUtils {
      * Paint a circular bitmap.
      *
      * @param context         activity context
-     * @param source          drawable
+     * @param source          image.drawable
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
@@ -264,17 +264,17 @@ public class ViewUtils {
      * @param context    for resources
      * @param resourceId resource ID of the SVG
      * @param size       desired size of the icon
-     * @return parsed drawable
+     * @return parsed image.drawable
      */
     public static Drawable svgToBitmapDrawable(Context context, int resourceId, int size) {
         return svgToBitmapDrawable(context, resourceId, size, NO_COLOR);
     }
 
     /**
-     * Use the DrawablCompat lib to tin a source drawable.
-     * @param source drawable to tint
+     * Use the DrawablCompat lib to tin a source image.drawable.
+     * @param source image.drawable to tint
      * @param color of tint
-     * @return unwrapped tinted drawable
+     * @return unwrapped tinted image.drawable
      */
     public static Drawable tintDrawableCompat(Drawable source, int color) {
         Drawable drawable = DrawableCompat.wrap(source);
@@ -290,7 +290,7 @@ public class ViewUtils {
      * @param resourceId resource ID of the SVG
      * @param size       desired size of the icon
      * @param color      desired color of the icon
-     * @return parsed drawable
+     * @return parsed image.drawable
      */
     public static ContentDescriptionDrawable svgToBitmapDrawable(
         Context context, int resourceId, int size, int color) {
@@ -318,7 +318,7 @@ public class ViewUtils {
      *
      * @param context     activity context
      * @param packageName name of the activity to find an image for
-     * @return activity drawable
+     * @return activity image.drawable
      */
     public static Drawable getActivityIcon(Context context, String packageName) {
         PackageManager pm = context.getPackageManager();
@@ -336,7 +336,7 @@ public class ViewUtils {
      * Return a new Drawable of the entered resource icon.
      *
      * @param resId icon resource id
-     * @return menu icon drawable
+     * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIconDark(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
@@ -347,7 +347,7 @@ public class ViewUtils {
      * Return a new Drawable of the entered resource icon.
      *
      * @param resId icon resource id
-     * @return menu icon drawable
+     * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIcon(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
@@ -358,7 +358,7 @@ public class ViewUtils {
      * Return a new Drawable of the entered resource icon.
      *
      * @param resId icon resource id
-     * @return menu icon drawable
+     * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIconSecondary(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),

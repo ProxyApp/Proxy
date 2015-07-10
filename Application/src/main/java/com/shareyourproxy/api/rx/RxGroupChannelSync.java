@@ -9,11 +9,12 @@ import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditChannel;
+import com.shareyourproxy.api.domain.model.SharedLink;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,30 +43,51 @@ public class RxGroupChannelSync {
         return Observable.zip(
             saveRealmUserGroupChannels(context, user),
             saveFirebaseUserGroups(user),
-            zipAddGroupsChannel()).toBlocking().single();
+            zipAddGroupsChannel())
+            .toList().toBlocking().single();
     }
 
-    private static Func2<Object, ? super Group, ArrayList<EventCallback>>
-    zipAddGroupsChannel() {
-        return new Func2<Object, Object, ArrayList<EventCallback>>() {
+    public static Func1<GroupChannelsUpdatedEventCallback, EventCallback> saveSharedLink() {
+        return new Func1<GroupChannelsUpdatedEventCallback, EventCallback>() {
             @Override
-            public ArrayList<EventCallback> call(Object o, Object o2) {
-                return new ArrayList<>();
+            public GroupChannelsUpdatedEventCallback call(GroupChannelsUpdatedEventCallback event) {
+                SharedLink link = SharedLink.create(event.user, event.group);
+                RestClient.getSharedLinkService()
+                    .addSharedLink(link.id().value(), link).subscribe();
+                return event;
             }
         };
     }
 
-    private static Observable<Object> saveRealmUserGroupChannels(
+    private static Func2<User, Group, EventCallback> zipAddGroupsChannel() {
+        return new Func2<User, Group, EventCallback>() {
+            @Override
+            public UserGroupAddedEventCallback call(User user, Group group) {
+                return new UserGroupAddedEventCallback(user, group);
+            }
+        };
+    }
+
+    private static Observable<User> saveRealmUserGroupChannels(
         final Context context, final User user) {
         return Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(Subscriber<? super Object> subscriber) {
                 updateRealmUser(context, user);
             }
-        });
+        }).map(returnUser(user));
     }
 
-    private static rx.Observable<Group> saveFirebaseUserGroups(User user) {
+    private static Func1<Object, User> returnUser(final User user) {
+        return new Func1<Object, User>() {
+            @Override
+            public User call(Object o) {
+                return user;
+            }
+        };
+    }
+
+    private static Observable<Group> saveFirebaseUserGroups(User user) {
         String userId = user.id().value();
         return RestClient.getUserGroupService().updateUserGroups(userId, user.groups());
     }
@@ -81,8 +103,9 @@ public class RxGroupChannelSync {
         HashMap<String, Channel> channels) {
         return Observable.zip(
             saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
-            saveFirebaseGroupChannels(context, user.id().value(), newTitle, oldGroup, channels),
-            zipAddGroupChannels(newTitle, channels))
+            saveFirebaseGroupChannels(user.id().value(), newTitle, oldGroup, channels),
+            zipAddGroupChannels(user, channels))
+            .map(saveSharedLink())
             .toList().toBlocking().single();
     }
 
@@ -124,20 +147,19 @@ public class RxGroupChannelSync {
         };
     }
 
-    private static rx.Observable<Group> saveFirebaseGroupChannels(
-        Context context, String userId, String newTitle, Group group,
-        HashMap<String, Channel> channels) {
+    private static Observable<Group> saveFirebaseGroupChannels(
+        String userId, String newTitle, Group group, HashMap<String, Channel> channels) {
         String groupId = group.id().value();
         return getUserGroupService()
             .addUserGroup(userId, groupId, Group.copy(group, newTitle, channels));
     }
 
-    private static Func2<Group, Group, EventCallback> zipAddGroupChannels(
-        final String newTitle, final HashMap<String, Channel> channels) {
-        return new Func2<Group, Group, EventCallback>() {
+    private static Func2<Group, Group, GroupChannelsUpdatedEventCallback> zipAddGroupChannels(
+        final User user, final HashMap<String, Channel> channels) {
+        return new Func2<Group, Group, GroupChannelsUpdatedEventCallback>() {
             @Override
             public GroupChannelsUpdatedEventCallback call(Group group, Group group2) {
-                return new GroupChannelsUpdatedEventCallback(group, channels);
+                return new GroupChannelsUpdatedEventCallback(user, group, channels);
             }
         };
     }

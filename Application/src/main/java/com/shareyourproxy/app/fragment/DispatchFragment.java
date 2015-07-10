@@ -53,7 +53,7 @@ public class DispatchFragment extends BaseFragment {
             } else {
                 setLoggedInUser(user);
                 IntentLauncher.launchMainActivity(getActivity(),
-                    MainFragment.ARG_SELECT_CONTACTS_TAB);
+                    MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
             }
             getActivity().finish();
         }
@@ -68,7 +68,7 @@ public class DispatchFragment extends BaseFragment {
     /**
      * Return new Fragment instance.
      *
-     * @return fragment
+     * @return layouts.fragment
      */
     public static DispatchFragment newInstance() {
         return new DispatchFragment();
@@ -86,7 +86,7 @@ public class DispatchFragment extends BaseFragment {
     }
 
     /**
-     * Set the Logo drawable on this activities {@link ImageView}.
+     * Set the Logo image.drawable on this activities {@link ImageView}.
      */
     private void drawLogo() {
         ViewCompat.setLayerType(imageView, ViewCompat.LAYER_TYPE_SOFTWARE, null);

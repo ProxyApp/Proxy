@@ -42,7 +42,7 @@
         android:layout_height="@dimen/common_rect_small"
         android:layout_gravity="center"
         android:contentDescription="@null"
-        android:text="@string/Delete"/>
+        android:text="@string/delete"/>
 
 </LinearLayout>
 
