@@ -22,3 +22,5 @@ branches:
   only:
     - master
     - develop
+
+sudo: false
