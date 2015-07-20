@@ -1,9 +1,11 @@
 package com.shareyourproxy.app.fragment;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,11 +15,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.command.AddUserGroupCommand;
 import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
@@ -29,6 +34,7 @@ import com.shareyourproxy.app.adapter.GroupAdapter;
 import java.util.HashMap;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
@@ -49,6 +55,10 @@ public class MainGroupFragment
     protected FloatingActionButton floatingActionButton;
     @Bind(R.id.fragment_group_main_swipe_refresh)
     protected SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.fragment_group_main_empty_textview)
+    protected TextView emptyTextView;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
     SwipeRefreshLayout.OnRefreshListener _refreshListener = new SwipeRefreshLayout
         .OnRefreshListener() {
         @Override
@@ -89,9 +99,35 @@ public class MainGroupFragment
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+    }
+
+    public void checkGroupDeleted(Activity activity) {
+        Boolean groupDeleted = activity.getIntent().getExtras().getBoolean(Constants
+            .ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, false);
+        if (groupDeleted) {
+            showSnackBar((Group) activity.getIntent().getExtras().getParcelable(
+                Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP));
+        }
+    }
+
+    private void showSnackBar(final Group group) {
+        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.undo_delete), Snackbar
+            .LENGTH_LONG);
+        snackbar.setAction(getString(R.string.undo), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRxBus().post(new AddUserGroupCommand(getLoggedInUser(), group));
+            }
+        });
+        snackbar.setActionTextColor(_blue);
+        snackbar.show();
+    }
+
+    @Override
     public View onCreateView(
-        LayoutInflater inflater, ViewGroup container,
-        Bundle savedInstanceState) {
+        LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
         ButterKnife.bind(this, rootView);
         initializeSVG();
@@ -120,6 +156,7 @@ public class MainGroupFragment
     @Override
     public void onResume() {
         super.onResume();
+        checkGroupDeleted(getActivity());
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
             .subscribe(new Action1<Object>() {
@@ -160,6 +197,8 @@ public class MainGroupFragment
      * Initialize this fragments {@link Group} data and {@link RecyclerView}.
      */
     private void initializeRecyclerView() {
+        recyclerView.setEmptyView(emptyTextView);
+        recyclerView.setSwipeRefreshLayout(swipeRefreshLayout);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupAdapter.newInstance(recyclerView, getGroupData(), this);
         recyclerView.setAdapter(_adapter);

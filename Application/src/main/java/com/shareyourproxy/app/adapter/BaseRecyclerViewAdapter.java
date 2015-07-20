@@ -22,7 +22,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * Parse a svg and return a Large sized {@link Drawable}.
      *
      * @param context    activity context
-     * @param resourceId resource to create drawable
+     * @param resourceId resource to create image.drawable
      * @return Drawable
      */
     public static Drawable getSectionResourceDrawable(Context context, int resourceId) {
@@ -37,7 +37,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * @param context                activity context
      * @param resourceId             resource to decode
      * @param channelBackgroundColor background color value
-     * @return circular drawable
+     * @return circular image.drawable
      */
     public static Drawable getSVGIconDrawable(
         Context context, int resourceId, int channelBackgroundColor) {
@@ -48,8 +48,8 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * Get a Circular Android Icon Drawable.
      *
      * @param context  activity context
-     * @param drawable source drawable
-     * @return circular drawable
+     * @param drawable source image.drawable
+     * @return circular image.drawable
      */
     public static Drawable getAndroidIconDrawable(Context context, Drawable drawable) {
         return getCircularDrawableImage(context, drawable, Color.LTGRAY);

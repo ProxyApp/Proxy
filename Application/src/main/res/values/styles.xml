@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--Base Theme-->
     <style name="Theme.Proxy.Base" parent="Theme.AppCompat.Light">
@@ -11,6 +11,9 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:colorEdgeEffect"
+              tools:targetApi="lollipop">@color/common_proxy_zoidberg
+        </item>
     </style>
 
 
@@ -24,6 +27,9 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:colorEdgeEffect"
+              tools:targetApi="lollipop">@color/common_proxy_zoidberg
+        </item>
     </style>
 
     <!--Used for activities that edit user info. Light text, dark background toolbar-->
@@ -36,6 +42,9 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:colorEdgeEffect"
+              tools:targetApi="lollipop">@color/common_proxy_zoidberg
+        </item>
     </style>
 
     <!--Used for the MainActivities custom style sliding tab view-->
@@ -67,6 +76,5 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="android:textStyle">bold</item>
     </style>
-
 
 </resources>

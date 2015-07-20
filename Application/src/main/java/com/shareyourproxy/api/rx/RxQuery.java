@@ -63,15 +63,19 @@ public class RxQuery {
             @Override
             public HashMap<String, Channel> call(User contact) {
                 HashMap<String, Channel> permissionedChannels = new HashMap<>();
-                for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
-                    for (Map.Entry<String, Contact> entryUser :
-                        entryGroup.getValue().contacts().entrySet()) {
-                        if (entryUser.getKey().equals(loggedInUserId)) {
-                            permissionedChannels.putAll(entryGroup.getValue().channels());
+                if (contact.groups() != null || contact.groups().size() == 0) {
+                    return permissionedChannels;
+                } else {
+                    for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
+                        for (Map.Entry<String, Contact> entryUser :
+                            entryGroup.getValue().contacts().entrySet()) {
+                            if (entryUser.getKey().equals(loggedInUserId)) {
+                                permissionedChannels.putAll(entryGroup.getValue().channels());
+                            }
                         }
                     }
+                    return permissionedChannels;
                 }
-                return new HashMap<>(permissionedChannels);
             }
         };
     }
@@ -155,7 +159,8 @@ public class RxQuery {
         };
     }
 
-    public static GroupContactsUpdatedEventCallback queryContactGroups(User user,
+    public static GroupContactsUpdatedEventCallback queryContactGroups(
+        User user,
         ArrayList<GroupEditContact> groupEditContact, final Contact selectedContact) {
         return Observable.from(groupEditContact).map(filterSelectedGroups())
             .filter(filterNullObject())

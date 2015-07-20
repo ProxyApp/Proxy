@@ -70,7 +70,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     /**
      * Return new {@link SearchFragment} instance.
      *
-     * @return fragment
+     * @return layouts.fragment
      */
     public static SearchFragment newInstance() {
         return new SearchFragment();
@@ -187,9 +187,9 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     }
 
     /**
-     * Return an SVG drawable icon for the back arrow.
+     * Return an SVG image.drawable icon for the back arrow.
      *
-     * @return back arrow drawable
+     * @return back arrow image.drawable
      */
     private Drawable getBackArrowDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_arrow_back,
@@ -197,9 +197,9 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     }
 
     /**
-     * Return an SVG drawable icon for the clear button.
+     * Return an SVG image.drawable icon for the clear button.
      *
-     * @return clear button drawable
+     * @return clear button image.drawable
      */
     private Drawable getClearSearchDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_clear,

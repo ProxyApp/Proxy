@@ -14,7 +14,7 @@ public class ContentDescriptionDrawable extends BitmapDrawable {
     private String _contentDescription = "";
 
     /**
-     * Create drawable from a bitmap, setting initial target density based on the display metrics of
+     * Create image.drawable from a bitmap, setting initial target density based on the display metrics of
      * the resources.
      *
      * @param res display metrics
@@ -36,7 +36,7 @@ public class ContentDescriptionDrawable extends BitmapDrawable {
     /**
      * Setter.
      *
-     * @param contentDescription description of drawable
+     * @param contentDescription description of image.drawable
      * @return this
      */
     public ContentDescriptionDrawable setContentDescription(String contentDescription) {

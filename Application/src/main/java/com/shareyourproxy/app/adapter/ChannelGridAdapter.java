@@ -36,6 +36,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     private final ItemClickListener _clickListener;
     private Callback<Channel> _sortedListCallback;
     private SortedList<Channel> _channels;
+    private boolean _needsRefresh = true;
 
     /**
      * Constructor for {@link ChannelGridAdapter}.
@@ -76,7 +77,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     }
 
     public void refreshChannels(HashMap<String, Channel> channels) {
-        updateChannels(channels);
+            updateChannels(channels);
     }
 
     public void addChannel(Channel channel) {
@@ -104,12 +105,21 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public void onInserted(int position, int count) {
+                    if(_needsRefresh){
+                        notifyDataSetChanged();
+                        _needsRefresh = false;
+                    }
                     notifyItemRangeInserted(position, count);
                 }
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(position, count);
+                    if(getItemCount() == 0){
+                        notifyDataSetChanged();
+                        _needsRefresh = true;
+                    }else {
+                        notifyItemRangeRemoved(position, count);
+                    }
                 }
 
                 @Override

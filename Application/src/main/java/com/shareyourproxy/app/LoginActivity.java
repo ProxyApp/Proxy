@@ -29,6 +29,7 @@ import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
@@ -39,6 +40,7 @@ import com.shareyourproxy.app.fragment.MainFragment;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -237,7 +239,17 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         //Create a new {@link User} with empty groups, contacts, and channels
         Id id = Id.builder().value(userUID).build();
         return User.create(id, firstName, lastName, email, profileURL, coverURL,
-            null, null, null, null);
+            null, getDefaultGroups(), null, null);
+    }
+
+    private HashMap<String, Group> getDefaultGroups() {
+        HashMap<String, Group> groups = new HashMap<>(3);
+        String[] groupLabels = getResources().getStringArray(R.array.default_groups);
+        for (String label : groupLabels) {
+            Group group = Group.create(label);
+            groups.put(group.id().value(), group);
+        }
+        return groups;
     }
 
     /**
@@ -278,7 +290,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 String errorMessage = s;
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
-                    if(_googleApiClient.isConnected()) {
+                    if (_googleApiClient.isConnected()) {
                         token = GoogleAuthUtil.getToken(LoginActivity.this, Plus.AccountApi
                             .getAccountName(_googleApiClient), scope);
                     }
@@ -301,8 +313,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                      * Google Play services is installed. */
                     Timber.e(GOOGLE_ERROR_AUTH + authEx.getMessage(), authEx);
                     errorMessage = GOOGLE_ERROR_AUTH + authEx.getMessage();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     Timber.e(GOOGLE_ERROR_AUTH + Log.getStackTraceString(e));
                 }
                 return new Pair<>(token, errorMessage);
@@ -455,7 +466,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         @Override
         public void onAuthenticated(AuthData authData) {
             Timber.i(provider + authData);
-            IntentLauncher.launchMainActivity(activity.get(), MainFragment.ARG_SELECT_CONTACTS_TAB);
+            IntentLauncher.launchMainActivity(
+                activity.get(), MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
             activity.get().finish();
         }
 

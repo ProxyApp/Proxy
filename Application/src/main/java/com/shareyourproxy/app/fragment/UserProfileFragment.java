@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -17,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -31,6 +33,7 @@ import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
@@ -50,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
@@ -90,6 +94,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Nullable
     @Bind(R.id.fragment_user_profile_header_background)
     protected FrameLayout userProfileBackground;
+    @BindColor(R.color.common_blue)
+    protected int _blue;
     private ChannelGridAdapter _adapter;
     private Target _target;
     private Target _backgroundTarget;
@@ -98,6 +104,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ArrayList<GroupEditContact> _contactGroups = new ArrayList<>();
+    private Channel _deletedChannel;
 
     /**
      * Empty Fragment Constructor.
@@ -108,7 +115,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     /**
      * Return new {@link UserProfileFragment} instance.
      *
-     * @return fragment
+     * @return layouts.fragment
      */
     public static UserProfileFragment newInstance() {
         return new UserProfileFragment();
@@ -322,6 +329,13 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             }
         });
         recyclerView.setLayoutManager(manager);
+        if(_isLoggedInUser){
+            emptyTextView.setText(getString(R.string.no_information_added));
+        }else {
+            emptyTextView.setText(getString(R.string.no_information_to_share,
+                _userContact.first()));
+        }
+        recyclerView.setEmptyView(emptyTextView);
         _adapter = ChannelGridAdapter.newInstance(channels, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
@@ -345,12 +359,12 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Override
     public void onResume() {
         super.onResume();
-        checkCompositButton();
+        checkCompositeButton();
         _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
             .subscribe(onNextEvent()));
     }
 
-    private void checkCompositButton() {
+    private void checkCompositeButton() {
         if (_subscriptions == null) {
             _subscriptions = new CompositeSubscription();
         }
@@ -415,10 +429,26 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
         _adapter.removeChannel(event.channel);
+        _deletedChannel = event.channel;
+        showSnackBar();
+    }
+
+    private void showSnackBar() {
+        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.undo_delete), Snackbar
+            .LENGTH_LONG);
+        snackbar.setAction(getString(R.string.undo), new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRxBus().post(new AddUserChannelCommand(
+                    getLoggedInUser(), _deletedChannel, null));
+            }
+        });
+        snackbar.setActionTextColor(_blue);
+        snackbar.show();
     }
 
     public void getSharedChannels() {
-        checkCompositButton();
+        checkCompositeButton();
         _subscriptions.add(bindFragment(this, queryPermissionedChannels(
             getActivity(), getLoggedInUser().id().value(), _userContact.id().value()))
             .subscribe(permissionedObserver()));
@@ -433,14 +463,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
             @Override
             public void onNext(HashMap<String, Channel> channels) {
-                if (channels.size() == 0) {
-                    emptyTextView.setText(getString(R.string.no_information_to_share,
-                        _userContact.first()));
-                    recyclerView.setEmptyView(emptyTextView);
-                    _adapter.notifyDataSetChanged();
-                } else {
-                    _adapter.refreshChannels(channels);
-                }
+                _adapter.refreshChannels(channels);
             }
         };
     }

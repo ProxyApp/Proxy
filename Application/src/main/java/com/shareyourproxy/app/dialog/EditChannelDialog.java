@@ -3,7 +3,6 @@ package com.shareyourproxy.app.dialog;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.PorterDuff;
@@ -24,6 +23,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
+import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
 import com.shareyourproxy.util.DebugUtils;
@@ -37,7 +37,7 @@ import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelIn
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Dialog fragment that handles editing a selected newChannel.
+ * Dialog layouts.fragment that handles editing a selected newChannel.
  */
 public class EditChannelDialog extends BaseDialogFragment {
     // Final
@@ -94,7 +94,6 @@ public class EditChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-
     private final OnClickListener _deleteClicked =
         new OnClickListener() {
             @Override
@@ -103,14 +102,17 @@ public class EditChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
+    private String _dialogTitle;
+    private String _channelAddressHint;
+    private String _channelLabelHint;
 
     public EditChannelDialog() {
     }
 
     /**
-     * Create a new instance of a {@link AddGroupDialog}.
+     * Create a new instance of a {@link EditChannelDialog}.
      *
-     * @return A {@link AddGroupDialog}
+     * @return A {@link EditChannelDialog}
      */
     public static EditChannelDialog newInstance(
         Channel channel) {
@@ -176,20 +178,24 @@ public class EditChannelDialog extends BaseDialogFragment {
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_channel, null, false);
         ButterKnife.bind(this, view);
-        editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
+        initializeDisplayValues();
+
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.dialog_editchannel_title)
+            .setTitle(_dialogTitle)
             .setView(view)
-            .setPositiveButton(R.string.common_save, _positiveClicked)
+            .setPositiveButton(R.string.save, _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
-            .setNeutralButton(R.string.common_delete, _deleteClicked)
+            .setNeutralButton(R.string.delete, _deleteClicked)
             .create();
+        //Override the dialog wrapping content and cancel dismiss on click outside
+        // of the dialog window
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        initializeEditText();
         return dialog;
     }
 
@@ -200,24 +206,66 @@ public class EditChannelDialog extends BaseDialogFragment {
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
-        initializeEditTextColors();
+    }
 
+    private void initializeDisplayValues() {
+        switch (_channel.channelType()) {
+            case Custom:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_custom);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_custom);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_custom);
+                break;
+            case Phone:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_phone);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_phone);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_phone);
+                break;
+            case SMS:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_sms);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_sms);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_sms);
+                break;
+            case Email:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_email);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_email);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_email);
+                break;
+            case Web:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_web);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_web);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_web);
+                break;
+            case Facebook:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_facebook);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_facebook);
+                _channelLabelHint = "";
+                break;
+            default:
+                _dialogTitle = getString(R.string.dialog_editchannel_title_default);
+                _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_default);
+                _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_default);
+                break;
+        }
     }
 
     /**
-     * Initialize values for EditText to switch color on in {@link AddGroupDialog#afterTextChanged}
+     * Initialize values for EditText to switch color.
      */
-    private void initializeEditTextColors() {
-        Context context = editTextActionAddress.getContext();
-
+    private void initializeEditText() {
+        editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         editTextActionAddress.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
         editTextActionAddress.setText(_channel.actionAddress());
+        floatLabelAddress.setHint(_channelAddressHint);
 
-        editTextLabel.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
-        editTextLabel.setText(_channel.label());
-
-        floatLabelAddress.setHint(context.getString(R.string.edit_channel_address));
-        floatLabelChannelLabel.setHint(context.getString(R.string.edit_channel_description));
+        if (_channel.channelType().equals(ChannelType.Facebook)) {
+            editTextLabel.setVisibility(View.GONE);
+            floatLabelChannelLabel.setVisibility(View.GONE);
+        }
+        else{
+            editTextLabel.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
+            editTextLabel.setText(_channel.label());
+            floatLabelChannelLabel.setHint(_channelLabelHint);
+        }
     }
 
     @Override

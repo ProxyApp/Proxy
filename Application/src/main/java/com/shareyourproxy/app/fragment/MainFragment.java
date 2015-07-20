@@ -131,7 +131,7 @@ public class MainFragment extends BaseFragment {
     private void initializeDrawer() {
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(getActivity(),
             drawerLayout,
-            toolbar, R.string.common_open, R.string.common_closed) {
+            toolbar, R.string.open, R.string.closed) {
 
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -185,7 +185,7 @@ public class MainFragment extends BaseFragment {
     private ContentDescriptionDrawable getUserDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_group,
             getLargeIconDimen(getActivity()), _unselectedColor)
-            .setContentDescription(getString(R.string.Contacts));
+            .setContentDescription(getString(R.string.contacts));
     }
 
     /**
@@ -196,7 +196,7 @@ public class MainFragment extends BaseFragment {
     private ContentDescriptionDrawable getGroupDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_groups,
             getLargeIconDimen(getActivity()), _unselectedColor)
-            .setContentDescription(getString(R.string.Groups));
+            .setContentDescription(getString(R.string.groups));
     }
 
     @Override

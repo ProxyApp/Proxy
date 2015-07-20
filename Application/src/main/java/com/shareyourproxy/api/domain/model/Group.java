@@ -29,6 +29,13 @@ public abstract class Group implements Parcelable {
             .contacts(null).build();
     }
 
+    public static Group create(String label) {
+        String groupId = UUID.randomUUID().toString();
+        Id id = Id.builder().value(groupId).build();
+        return builder().id(id).label(label).channels(null)
+            .contacts(null).build();
+    }
+
     public static Group copy(Group group, String newTitle, HashMap<String, Channel> channels) {
         return builder().id(group.id()).label(newTitle).channels(channels)
             .contacts(group.contacts()).build();

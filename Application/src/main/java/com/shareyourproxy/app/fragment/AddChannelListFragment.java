@@ -57,7 +57,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     /**
      * Return new Fragment instance.
      *
-     * @return fragment
+     * @return layouts.fragment
      */
     public static AddChannelListFragment newInstance() {
         return new AddChannelListFragment();

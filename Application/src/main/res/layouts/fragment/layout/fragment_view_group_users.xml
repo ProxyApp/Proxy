@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/fragment_view_group_users_toolbar"
+        android:id="@+id/fragment_contact_group_toolbar"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -17,7 +17,22 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"/>
 
     <com.shareyourproxy.app.adapter.BaseRecyclerView
-        android:id="@+id/fragment_view_group_users_recyclerview"
+        android:id="@+id/fragment_contact_group_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/fragment_contact_group_empty_textview"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:paddingStart="@dimen/common_margin_xxtiny"
+        android:paddingEnd="@dimen/common_margin_xxtiny"
+        android:paddingBottom="@dimen/common_rect_tiny"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/fragment_contact_group_empty_text"
+        android:textColor="@color/common_text_disabled"
+        android:visibility="gone"/>
 </LinearLayout>

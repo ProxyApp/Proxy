@@ -10,6 +10,7 @@ import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.service.GroupContactService;
 import com.shareyourproxy.api.service.MessageService;
+import com.shareyourproxy.api.service.SharedLinkService;
 import com.shareyourproxy.api.service.UserChannelService;
 import com.shareyourproxy.api.service.UserContactService;
 import com.shareyourproxy.api.service.UserGroupService;
@@ -63,6 +64,10 @@ public class RestClient {
 
     public static MessageService getMessageService() {
         return buildRestClient(buildGsonConverter()).create(MessageService.class);
+    }
+
+    public static SharedLinkService getSharedLinkService() {
+        return buildRestClient(buildGsonConverter()).create(SharedLinkService.class);
     }
 
     public static RestAdapter buildRestClient(Gson gson) {

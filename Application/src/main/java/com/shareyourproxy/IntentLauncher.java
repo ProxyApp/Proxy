@@ -33,10 +33,13 @@ public final class IntentLauncher {
      *
      * @param activity The context used to start this intent
      */
-    public static void launchMainActivity(Activity activity, int selectTab) {
+    public static void launchMainActivity(
+        Activity activity, int selectTab, boolean groupDeleted, Group group) {
         Intent intent = new Intent(Intents.ACTION_MAIN_VIEW).addFlags(Intent
             .FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(Constants.ARG_SELECTED_MAINFRAGMENT_TAB, selectTab);
+        intent.putExtra(Constants.ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, groupDeleted);
+        intent.putExtra(Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP, group);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
@@ -44,7 +47,7 @@ public final class IntentLauncher {
     /**
      * Launch the {@link LoginActivity}.
      *
-     * @param activity      The context used to start this intent
+     * @param activity The context used to start this intent
      */
     public static void launchLoginActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_LOGIN).addFlags(
@@ -80,7 +83,7 @@ public final class IntentLauncher {
      * Launch the {@link SearchActivity}.
      *
      * @param activity The context used to start this intent
-     * @param group group data
+     * @param group    group data
      */
     public static void launchViewGroupUsersActivity(Activity activity, Group group) {
         Intent intent = new Intent(Intents.ACTION_VIEW_GROUP_USERS);
@@ -178,7 +181,7 @@ public final class IntentLauncher {
     public static void launchFacebookIntent(Activity activity, String userId) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
 //        String mobileURI = "https://www.facebook.com/app_scoped_user_id/"+userId;
-        intent.setData(Uri.parse("https://www.facebook.com/"+userId));
+        intent.setData(Uri.parse("https://www.facebook.com/" + userId));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);

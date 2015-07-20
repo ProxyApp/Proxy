@@ -28,6 +28,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     private SortedList<Group> _groups;
     private ItemClickListener _listener;
     private Callback<Group> _sortedListCallback;
+    private boolean _needsRefresh = true;
 
     /**
      * Constructor for {@link GroupAdapter}.
@@ -42,7 +43,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         } else {
             _groups = new SortedList<>(Group.class, getSortedCallback(), 0);
         }
-        addGroups(groups);
+        refreshGroupData(groups);
         _listener = listener;
     }
 
@@ -70,13 +71,22 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public void onInserted(int position, int count) {
+                    if (_needsRefresh) {
+                        notifyDataSetChanged();
+                        _needsRefresh = false;
+                    }
                     notifyItemRangeInserted(position, count);
                     _recyclerView.smoothScrollToPosition(position);
                 }
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(position, count);
+                    if (getItemCount() == 0) {
+                        notifyDataSetChanged();
+                        _needsRefresh = true;
+                    } else {
+                        notifyItemRangeRemoved(position, count);
+                    }
                 }
 
                 @Override
@@ -149,9 +159,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param group the {@link Group} to add
      */
     public void addGroupData(@NonNull Group group) {
-        synchronized (GroupAdapter.class) {
-            _groups.add(group);
-        }
+        _groups.add(group);
     }
 
     public void updateGroupData(@NonNull HashMap<String, Group> groups) {
@@ -174,11 +182,11 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     public void refreshGroupData(HashMap<String, Group> groups) {
-        _groups.clear();
         addGroups(groups);
     }
 
     private void addGroups(HashMap<String, Group> groups) {
+        _groups.clear();
         _groups.beginBatchedUpdates();
         for (Map.Entry<String, Group> group : groups.entrySet()) {
             _groups.add(group.getValue());
