@@ -4,6 +4,8 @@ import android.os.Parcelable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
+import java.util.UUID;
+
 import auto.parcel.AutoParcel;
 
 /**
@@ -22,7 +24,8 @@ public abstract class SharedLink implements Parcelable {
      */
     @SuppressWarnings("unused")
     public static SharedLink create(User user, Group group) {
-        return builder().id(group.id()).user(user).group(group).build();
+        Id id = Id.create(UUID.randomUUID().toString());
+        return builder().id(id).user(user).group(group).build();
     }
 
     /**
