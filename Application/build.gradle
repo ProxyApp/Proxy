@@ -70,9 +70,6 @@ android {
     def tracker_id = properties.getProperty('GA_TRACKER_ID', env_google_tracker)
     def env_firebase_endpoint = env["FIREBASE_ENDPOINT"]
     def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
-    def env_firebase_shared_endpoint = env["FIREBASE_SHARED_ENDPOINT"]
-    def firebase_shared_endpoint =
-            properties.getProperty('FIREBASE_SHARED_ENDPOINT', env_firebase_shared_endpoint)
     buildTypes {
         debug {
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
@@ -81,7 +78,6 @@ android {
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "false"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
             buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
-            buildConfigField "String", "FIREBASE_SHARED_ENDPOINT", firebase_shared_endpoint
         }
         release {
 //            minifyEnabled true
@@ -91,7 +87,6 @@ android {
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
             buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
-            buildConfigField "String", "FIREBASE_SHARED_ENDPOINT", firebase_shared_endpoint
 
             signingConfig signingConfigs.release
         }
