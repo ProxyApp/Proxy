@@ -10,6 +10,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
@@ -68,6 +69,9 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (_isLoggedInUser) {
+            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
+            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_open_in_browser));
+
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
         }
@@ -82,6 +86,10 @@ public class UserProfileActivity extends BaseActivity {
                 break;
             case R.id.menu_current_user_add_channel:
                 IntentLauncher.launchChannelListActivity(this);
+                break;
+            case R.id.menu_current_user_shared_links:
+                ShareLinkDialog.newInstance(getLoggedInUser().groups())
+                    .show(getSupportFragmentManager());
                 break;
             default:
                 Timber.e("Option item selected is unknown");

@@ -18,6 +18,7 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.observables.ConnectableObservable;
 
+import static com.shareyourproxy.api.RestClient.getSharedLinkService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
@@ -47,8 +48,8 @@ public class RxUserGroupSync {
             @Override
             public UserGroupAddedEventCallback call(UserGroupAddedEventCallback event) {
                 SharedLink link = SharedLink.create(event.user, event.group);
-                RestClient.getSharedLinkService()
-                    .addSharedLink(link.id().value(), link).subscribe();
+                getSharedLinkService()
+                    .addSharedLink(link.id(), link).subscribe();
                 return event;
             }
         };
@@ -71,7 +72,7 @@ public class RxUserGroupSync {
         return new Func1<UserGroupDeletedEventCallback, EventCallback>() {
             @Override
             public UserGroupDeletedEventCallback call(UserGroupDeletedEventCallback event) {
-                RestClient.getSharedLinkService()
+                getSharedLinkService()
                     .deleteSharedLink(event.group.id().value()).subscribe();
                 return event;
             }

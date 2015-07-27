@@ -12,6 +12,8 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,7 +23,6 @@ import butterknife.ButterKnife;
  */
 public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
     private ArrayList<GroupEditContact> _groups;
-    private boolean contactInGroup = false;
 
     private UserGroupsAdapter(ArrayList<GroupEditContact> groups) {
         _groups = groups;
@@ -29,6 +30,15 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
 
     public static UserGroupsAdapter newInstance(ArrayList<GroupEditContact> groups) {
         return new UserGroupsAdapter(groups);
+    }
+
+    public static UserGroupsAdapter newInstance(HashMap<String, Group> groups) {
+        ArrayList<GroupEditContact> groupEditContacts = new ArrayList<>(groups.size());
+        for(Map.Entry<String, Group> group : groups.entrySet()){
+            GroupEditContact newEntry = new GroupEditContact(group.getValue(), false);
+            groupEditContacts.add(newEntry);
+        }
+        return new UserGroupsAdapter(groupEditContacts);
     }
 
     @Override
@@ -45,7 +55,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
 
     private void bindContentView(ContentViewHolder holder, int position) {
         holder.checkedTextView.setText(getDataItem(position).getGroup().label());
-        holder.checkedTextView.setChecked(getDataItem(position).hasContact());
+        holder.checkedTextView.setChecked(getDataItem(position).isChecked());
     }
 
     @Override
@@ -69,19 +79,6 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     @Override
     public void onItemLongClick(View view, int position) {
 
-    }
-
-    public boolean contactInGroup() {
-        return isContactInGroup();
-    }
-
-    private boolean isContactInGroup() {
-        for(GroupEditContact group: _groups){
-            if(group.hasContact()){
-                return true;
-            }
-        }
-        return false;
     }
 
     public ArrayList<GroupEditContact> getDataArray() {

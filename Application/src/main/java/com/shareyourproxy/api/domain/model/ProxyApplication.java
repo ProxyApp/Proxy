@@ -186,10 +186,7 @@ public class ProxyApplication extends Application {
                         ArrayList<EventCallback> events =
                             resultData.getParcelableArrayList(
                                 CommandIntentService.ARG_RESULT_BASE_EVENTS);
-                        /** Querying logged in user with Realm.refresh() in RxQuery is 50/50
-                         * correct when editing known user data. Addition of new data or deletion
-                         * of known data works.
-                         */
+
                         User realmUser = queryUser(
                             ProxyApplication.this, _currentUser.id().value());
                         updateUser(realmUser);

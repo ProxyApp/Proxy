@@ -53,7 +53,7 @@ public class RxGroupChannelSync {
             public GroupChannelsUpdatedEventCallback call(GroupChannelsUpdatedEventCallback event) {
                 SharedLink link = SharedLink.create(event.user, event.group);
                 RestClient.getSharedLinkService()
-                    .addSharedLink(link.id().value(), link).subscribe();
+                    .addSharedLink(link.id(), link).subscribe();
                 return event;
             }
         };

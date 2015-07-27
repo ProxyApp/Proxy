@@ -18,8 +18,8 @@ android {
     // Version Info
     def versionMajor = 0
     def versionMinor = 1
-    def versionPatch = 1
-    def versionBuild = 6 // bump for dogfood builds, public betas, etc.
+    def versionPatch = 2
+    def versionBuild = 0 // bump for dogfood builds, public betas, etc.
     
     defaultConfig {
         minSdkVersion 17
