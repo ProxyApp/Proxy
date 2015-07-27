@@ -173,7 +173,7 @@ public class RxQuery {
         return new Func1<GroupEditContact, Group>() {
             @Override
             public Group call(GroupEditContact editContact) {
-                return editContact.hasContact() ? editContact.getGroup() : null;
+                return editContact.isChecked() ? editContact.getGroup() : null;
             }
         };
     }

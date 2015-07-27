@@ -24,11 +24,11 @@ public class GroupEditContact implements Parcelable {
     private final static java.lang.ClassLoader CL = GroupEditContact.class.getClassLoader();
 
     private Group _group;
-    private boolean _hasContact;
+    private boolean _isChecked;
 
-    public GroupEditContact(Group group, boolean hasContact) {
+    public GroupEditContact(Group group, boolean isChecked) {
         _group = group;
-        _hasContact = hasContact;
+        _isChecked = isChecked;
     }
 
     private GroupEditContact(Parcel in) {
@@ -47,12 +47,12 @@ public class GroupEditContact implements Parcelable {
         _group = group;
     }
 
-    public boolean hasContact() {
-        return _hasContact;
+    public boolean isChecked() {
+        return _isChecked;
     }
 
     public void setHasContact(boolean hasContact) {
-        _hasContact = hasContact;
+        _isChecked = hasContact;
     }
 
     @Override
@@ -63,6 +63,6 @@ public class GroupEditContact implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(_group);
-        dest.writeValue(_hasContact);
+        dest.writeValue(_isChecked);
     }
 }

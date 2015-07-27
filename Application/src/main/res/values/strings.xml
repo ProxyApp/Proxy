@@ -45,7 +45,8 @@
     <string name="dialog_editchannel_hint_address_custom">Add Custom Channel Address</string>
 
     <string name="dialog_editchannel_hint_label_default">@string/edit_channel_description</string>
-    <string name="dialog_editchannel_hint_label_web">URL Description (e.g. Reddit, SoundCloud)</string>
+    <string name="dialog_editchannel_hint_label_web">URL Description (e.g. Reddit, SoundCloud)
+    </string>
     <string name="dialog_editchannel_hint_label_email">@string/email_label_type</string>
     <string name="dialog_editchannel_hint_label_sms">@string/sms_label_type</string>
     <string name="dialog_editchannel_hint_label_phone">@string/phone_label_type</string>
@@ -117,6 +118,7 @@
     <string name="shared_preferences_key">com.shareyourproxy.application.shared_preferences_key
     </string>
     <string name="oauth_error">Error retrieving token from Google OAuth</string>
+    <string name="shared_links">Shared links</string>
     <string name="about_license">Copyright 2015 Evan Denerley\n\nLicensed under the Apache License,
         Version 2.0 (the "License") you may not use this file except in compliance with the License.
         You may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n
@@ -131,6 +133,10 @@
     <string name="added_to_contacts">"%1$s added you to their contacts."</string>
     <string name="common_help">Help</string>
     <string name="save_realm_db">"Save Realm DB"</string>
+    <string name="share">"Share"</string>
+    <string name="dialog_sharelink_title">"Share group links"</string>
+    <string name="sharelink_message_beginning">"%1$s would like to share the following group channels with you:\n\n"</string>
+    <string name="sharelink_message_link">"https://app.shareyourproxy.com/#/public/%1$s"</string>
     <string-array name="drawer_settings">
         <item>@string/settings_profile</item>
         <item>@string/settings_about</item>
@@ -144,5 +150,6 @@
     </string-array>
     <string name="fragment_contact_main_empty_text">"You haven't added any contacts."</string>
     <string name="fragment_group_main_empty_text">"You haven't added any groups."</string>
-    <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."</string>
+    <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."
+    </string>
 </resources>

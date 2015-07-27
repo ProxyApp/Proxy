@@ -182,7 +182,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         _contactGroups.addAll(list);
         ArrayList<Group> selectedGroupsList = new ArrayList<>(list.size());
         for (GroupEditContact groupEditContact : list) {
-            if (groupEditContact.hasContact()) {
+            if (groupEditContact.isChecked()) {
                 selectedGroupsList.add(groupEditContact.getGroup());
             }
         }

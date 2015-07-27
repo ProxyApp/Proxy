@@ -47,7 +47,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    @Bind(R.id.fragment_user_groups_recyclerview)
+    @Bind(R.id.dialog_user_groups_recyclerview)
     protected BaseRecyclerView recyclerView;
     // Color
     @BindColor(R.color.common_text)

@@ -82,7 +82,7 @@ public class RxGroupContactSync {
                 ArrayList<Group> contactInGroup = new ArrayList<>();
                 for (GroupEditContact groupEditContact : groupEditContacts) {
                     String groupId = groupEditContact.getGroup().id().value();
-                    if (groupEditContact.hasContact()) {
+                    if (groupEditContact.isChecked()) {
                         groupHasContact = true;
                         user.groups().get(groupId).contacts().put(contactId, contact);
                         contactInGroup.add(user.groups().get(groupId));

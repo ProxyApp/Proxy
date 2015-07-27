@@ -24,8 +24,8 @@ public abstract class SharedLink implements Parcelable {
      */
     @SuppressWarnings("unused")
     public static SharedLink create(User user, Group group) {
-        Id id = Id.create(UUID.randomUUID().toString());
-        return builder().id(id).user(user).group(group).build();
+        String id = UUID.randomUUID().toString();
+        return builder().id(id).userId(user.id().value()).groupId(group.id().value()).build();
     }
 
     /**
@@ -42,21 +42,21 @@ public abstract class SharedLink implements Parcelable {
      *
      * @return name
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
      * Group to share.
      *
      * @return name
      */
-    public abstract Group group();
+    public abstract String groupId();
 
     /**
      * Shared Group's User.
      *
      * @return name
      */
-    public abstract User user();
+    public abstract String userId();
 
     @AutoParcel.Builder
     public interface Builder {
@@ -67,7 +67,7 @@ public abstract class SharedLink implements Parcelable {
          * @param id group id
          * @return builder
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
          * Set the group.
@@ -75,7 +75,7 @@ public abstract class SharedLink implements Parcelable {
          * @param group group object
          * @return builder
          */
-        Builder group(Group group);
+        Builder groupId(String group);
 
         /**
          * Set the shared links user.
@@ -83,7 +83,7 @@ public abstract class SharedLink implements Parcelable {
          * @param user of shared group
          * @return builder
          */
-        Builder user(User user);
+        Builder userId(String user);
 
         /**
          * BUILD.

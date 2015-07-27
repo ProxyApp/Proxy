@@ -35,4 +35,12 @@ public class Intents {
         intent.putExtra(ARG_LOGGEDIN_USER_ID, loggedInUserId);
         return intent;
     }
+
+    public static Intent getShareLinkIntent(String message) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message );
+        sendIntent.setType("text/plain");
+        return sendIntent;
+    }
 }
