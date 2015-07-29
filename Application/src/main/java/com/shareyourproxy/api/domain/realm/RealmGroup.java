@@ -12,8 +12,8 @@ public class RealmGroup extends RealmObject {
     @PrimaryKey
     private String id;
     private String label;
-    private RealmList<RealmChannel> channels;
-    private RealmList<RealmContact> contacts;
+    private RealmList<RealmString> channels;
+    private RealmList<RealmString> contacts;
 
 
     /**
@@ -57,7 +57,7 @@ public class RealmGroup extends RealmObject {
      *
      * @return newChannel permissions shared with this {@link RealmGroup}
      */
-    public RealmList<RealmChannel> getChannels() {
+    public RealmList<RealmString> getChannels() {
         return channels;
     }
 
@@ -66,7 +66,7 @@ public class RealmGroup extends RealmObject {
      *
      * @param channels group channels
      */
-    public void setChannels(RealmList<RealmChannel> channels) {
+    public void setChannels(RealmList<RealmString> channels) {
         this.channels = channels;
     }
 
@@ -75,7 +75,7 @@ public class RealmGroup extends RealmObject {
      *
      * @return contacts in this {@link RealmGroup}
      */
-    public RealmList<RealmContact> getContacts() {
+    public RealmList<RealmString> getContacts() {
         return contacts;
     }
 
@@ -84,7 +84,7 @@ public class RealmGroup extends RealmObject {
      *
      * @param contacts in this {@link RealmGroup}
      */
-    public void setContacts(RealmList<RealmContact> contacts) {
+    public void setContacts(RealmList<RealmString> contacts) {
         this.contacts = contacts;
     }
 

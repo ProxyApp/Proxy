@@ -42,4 +42,12 @@ public interface UserService {
     @PUT("/users/{id}.json")
     Observable<User> updateUser(@Path("id") String userId, @Body User user);
 
+    /**
+     * Save a user.
+     *
+     * @param userId   unique id for {@link User} table
+     */
+    @PUT("/users/{id}/version.json")
+    Observable<String> updateUserVersion(@Path("id") String userId,
+                                       @Body Integer version);
 }

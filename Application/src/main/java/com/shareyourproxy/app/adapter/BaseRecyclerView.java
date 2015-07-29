@@ -14,6 +14,7 @@ import android.view.View;
 public class BaseRecyclerView extends RecyclerView {
 
     private View _emptyView;
+    private View _loadingView;
     private SwipeRefreshLayout _swipeRefreshLayout;
 
     /**

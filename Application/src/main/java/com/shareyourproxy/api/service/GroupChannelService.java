@@ -2,9 +2,10 @@ package com.shareyourproxy.api.service;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 
-import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 
 import retrofit.http.Body;
@@ -32,7 +33,7 @@ public interface GroupChannelService {
      * @param userId unique id for {@link User} table
      */
     @PUT("/users/{userId}/groups/{groupId}/channels.json")
-    Observable<HashMap<String, Channel>> addGroupChannels(
+    Observable<SimpleEntry<String, Id>> addGroupChannel(
         @Path("userId") String userId, @Path("groupId") String groupId,
-        @Body ArrayList<Channel> channels);
+        @Body HashMap<String, Id> channels);
 }

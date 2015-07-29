@@ -4,13 +4,14 @@ import android.content.Context;
 import android.util.Pair;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCallback;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.observables.ConnectableObservable;
-import timber.log.Timber;
 
 import static com.shareyourproxy.api.RestClient.getUserContactService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
@@ -36,10 +36,10 @@ public class RxUserContactSync {
     }
 
     public static List<EventCallback> addUserContact(
-        Context context, User user, Contact contact) {
+        Context context, User user, String contactId) {
         return rx.Observable.zip(
-            saveRealmUserGroup(context, contact, user),
-            saveFirebaseUserGroup(context, user.id().value(), contact),
+            saveRealmUserContact(context, user, contactId),
+            saveFirebaseUserContact(user.id().value(), contactId),
             zipAddUserContact())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -47,47 +47,46 @@ public class RxUserContactSync {
     }
 
     public static List<EventCallback> deleteUserContact(
-        Context context, User user, Contact contact) {
+        Context context, User user, String contactId) {
         return rx.Observable.zip(
-            deleteRealmUserContact(context, contact, user),
-            deleteFirebaseUserContact(context, user.id().value(), contact),
+            deleteRealmUserContact(context, user, contactId),
+            deleteFirebaseUserContact(user.id().value(), contactId),
             zipDeleteUserContact())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static Func2<User, Contact, EventCallback> zipAddUserContact() {
-        return new Func2<User, Contact, EventCallback>() {
+    private static Func2<User, String, EventCallback> zipAddUserContact() {
+        return new Func2<User, String, EventCallback>() {
             @Override
-            public UserContactAddedEventCallback call(User user, Contact contact) {
-                return new UserContactAddedEventCallback(user, contact);
+            public UserContactAddedEventCallback call(User user, String contactId) {
+                return new UserContactAddedEventCallback(user, contactId);
             }
         };
     }
 
-    private static Func2<User, Contact, EventCallback> zipDeleteUserContact() {
-        return new Func2<User, Contact, EventCallback>() {
+    private static Func2<User, String, EventCallback> zipDeleteUserContact() {
+        return new Func2<User, String, EventCallback>() {
             @Override
-            public UserContactDeletedEventCallback call(User user, Contact contact) {
-                return new UserContactDeletedEventCallback(user, contact);
+            public UserContactDeletedEventCallback call(User user, String contactId) {
+                return new UserContactDeletedEventCallback(user, contactId);
             }
         };
     }
 
-    private static rx.Observable<User> saveRealmUserGroup(
-        Context context, Contact Contact, User user) {
-        return Observable.just(Contact)
+    private static rx.Observable<User> saveRealmUserContact(
+        Context context, User user, String contactId) {
+        return Observable.just(contactId)
             .map(addRealmUserContact(context, user));
     }
 
-    private static Func1<Contact, User> addRealmUserContact(
+    private static Func1<String, User> addRealmUserContact(
         final Context context, final User user) {
-        return new Func1<Contact, User>() {
+        return new Func1<String, User>() {
             @Override
-            public User call(Contact Contact) {
-                Timber.i("Contact Object: " + Contact.toString());
-                User newUser = UserFactory.addUserContact(user, Contact);
+            public User call(String contactId) {
+                User newUser = UserFactory.addUserContact(user, contactId);
                 updateRealmUser(context, newUser);
                 return newUser;
             }
@@ -95,65 +94,53 @@ public class RxUserContactSync {
     }
 
     private static rx.Observable<User> deleteRealmUserContact(
-        Context context, Contact contact, User user) {
-        return Observable.just(contact)
+        Context context, User user, String contactId) {
+        return Observable.just(contactId)
             .map(deleteRealmUserContact(context, user));
     }
 
-    private static Func1<Contact, User> deleteRealmUserContact(
+    private static Func1<String, User> deleteRealmUserContact(
         final Context context, final User user) {
-        return new Func1<Contact, User>() {
+        return new Func1<String, User>() {
             @Override
-            public User call(Contact Contact) {
-                Timber.i("Contact Object: " + Contact.toString());
-                User newUser = UserFactory.deleteUserContact(user, Contact);
+            public User call(String contactId) {
+                User newUser = UserFactory.deleteUserContact(user, contactId);
                 updateRealmUser(context, newUser);
                 return newUser;
             }
         };
     }
 
-    private static rx.Observable<Contact> saveFirebaseUserGroup(
-        Context context, String userId, Contact contact) {
-        return getUserContactService().addUserContact(userId, contact.id().value(), contact);
+    private static rx.Observable<String> saveFirebaseUserContact(String userId, String contactId) {
+        return getUserContactService().addUserContact(userId, contactId, Id.create(contactId));
     }
 
 
-    private static rx.Observable<Contact> deleteFirebaseUserContact(
-        Context context, String userId, Contact contact) {
-        //TODO:WHY DOES THIS NEED TO BE A CONNECTIBLE OBSERVABLE FLOW, WHY CANT IT BE LIKE SAVE?
-        Observable<Contact> deleteObserver = getUserContactService()
-            .deleteUserContact(userId, contact.id().value());
-        deleteObserver.subscribe(new JustObserver<Contact>() {
-            @Override
-            public void onError() {
-                Timber.e("error deleting user group");
-            }
+    private static rx.Observable<String> deleteFirebaseUserContact(
+        String userId, String contactId) {
 
-            @Override
-            public void onNext(Contact event) {
-                Timber.i("delete user group successful");
-            }
-        });
-        ConnectableObservable<Contact> connectableObservable = deleteObserver.publish();
+        Observable<String> deleteObserver = getUserContactService()
+            .deleteUserContact(userId, contactId);
+        deleteObserver.subscribe();
+        ConnectableObservable<String> connectableObservable = deleteObserver.publish();
 
-        return rx.Observable.merge(Observable.just(contact), connectableObservable)
+        return rx.Observable.merge(Observable.just(contactId), connectableObservable)
             .filter(filterNullContact());
     }
 
-    private static Func1<Contact, Boolean> filterNullContact() {
-        return new Func1<Contact, Boolean>() {
+    private static Func1<String, Boolean> filterNullContact() {
+        return new Func1<String, Boolean>() {
             @Override
-            public Boolean call(Contact contact) {
-                return contact != null;
+            public Boolean call(String contactId) {
+                return contactId != null;
             }
         };
     }
 
     public static List<EventCallback> checkContacts(
         final Context context, final User user,
-        HashMap<String, Contact> contacts, final HashMap<String, Group> userGroups) {
-        return Observable.from(contacts.entrySet())
+        ArrayList<String> contacts, final HashMap<String, Group> userGroups) {
+        return Observable.from(contacts)
             .map(findContactsToDelete(userGroups))
             .filter(filterMissingContacts())
             .map(unwrapPairedContact())
@@ -161,58 +148,55 @@ public class RxUserContactSync {
             .toList().toBlocking().single();
     }
 
-    private static Func1<Map.Entry<String,Contact>, Pair<Contact, Boolean>> findContactsToDelete(
+    private static Func1<String, Pair<String, Boolean>> findContactsToDelete(
         final HashMap<String, Group> userGroups) {
-        return new Func1<Map.Entry<String,Contact>, Pair<Contact, Boolean>>() {
+        return new Func1<String, Pair<String, Boolean>>() {
             @Override
-            public Pair<Contact, Boolean> call(Map.Entry<String, Contact> entryCheckContact) {
-                Contact checkContact = entryCheckContact.getValue();
+            public Pair<String, Boolean> call(String contactId) {
                 for (Map.Entry<String, Group> entryGroup : userGroups.entrySet()) {
                     Group group = entryGroup.getValue();
-                    HashMap<String, Contact> groupContacts = group.contacts();
+                    HashMap<String, Id> groupContacts = group.contacts();
                     if (groupContacts != null) {
-                        for (Map.Entry<String, Contact> entryGroupContact :
-                            groupContacts.entrySet()) {
-                            Contact groupContact = entryGroupContact.getValue();
-                            if (groupContact.id().value().equals(checkContact.id().value())) {
-                                return new Pair<>(checkContact, true);
+                        for (Map.Entry<String, Id> entryGroupContact : groupContacts.entrySet()) {
+                            if (entryGroupContact.getKey().equals(contactId)) {
+                                return new Pair<>(contactId, true);
                             }
                         }
-                        return new Pair<>(checkContact, false);
+                        return new Pair<>(contactId, false);
                     }
                 }
-                return new Pair<>(checkContact, false);
+                return new Pair<>(contactId, false);
             }
         };
     }
 
-    private static Func1<Pair<Contact, Boolean>, Boolean> filterMissingContacts() {
-        return new Func1<Pair<Contact, Boolean>, Boolean>() {
+    private static Func1<Pair<String, Boolean>, Boolean> filterMissingContacts() {
+        return new Func1<Pair<String, Boolean>, Boolean>() {
             @Override
-            public Boolean call(Pair<Contact, Boolean> contactPair) {
+            public Boolean call(Pair<String, Boolean> contactPair) {
                 // we only want contacts to remove... false means remove
                 return !contactPair.second;
             }
         };
     }
 
-    private static Func1<Pair<Contact, Boolean>, Contact> unwrapPairedContact() {
-        return new Func1<Pair<Contact, Boolean>, Contact>() {
+    private static Func1<Pair<String, Boolean>, String> unwrapPairedContact() {
+        return new Func1<Pair<String, Boolean>, String>() {
             @Override
-            public Contact call(Pair<Contact, Boolean> contact) {
+            public String call(Pair<String, Boolean> contact) {
                 return contact.first;
             }
         };
     }
 
-    private static Func1<Contact, Observable<EventCallback>> zipDeleteUserContact(
+    private static Func1<String, Observable<EventCallback>> zipDeleteUserContact(
         final Context context, final User user) {
-        return new Func1<Contact, Observable<EventCallback>>() {
+        return new Func1<String, Observable<EventCallback>>() {
             @Override
-            public Observable<EventCallback> call(Contact contact) {
+            public Observable<EventCallback> call(String contactId) {
                 return Observable.zip(
-                    deleteRealmUserContact(context, contact, user),
-                    deleteFirebaseUserContact(context, user.id().value(), contact),
+                    deleteRealmUserContact(context, user, contactId),
+                    deleteFirebaseUserContact(user.id().value(), contactId),
                     zipDeleteUserContact());
             }
         };

@@ -47,12 +47,12 @@ public class CommandIntentService extends IntentService {
             bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, events);
             result.send(Activity.RESULT_OK, bundle);
         } catch (Exception e) {
-            logError(result, e);
+            logError(intent, result, e);
         }
     }
     @DebugLog
-    private void logError(ResultReceiver result, Exception e) {
+    private void logError(Intent intent, ResultReceiver result, Exception e) {
         Timber.e(Log.getStackTraceString(e));
-        result.send(Activity.RESULT_CANCELED, null);
+        result.send(Activity.RESULT_CANCELED, intent.getExtras());
     }
 }

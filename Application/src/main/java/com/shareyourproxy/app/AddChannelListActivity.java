@@ -1,12 +1,17 @@
 package com.shareyourproxy.app;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.app.fragment.AddChannelListFragment;
+import com.shareyourproxy.app.fragment.BaseFragment;
+
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -15,7 +20,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  * Activity that displays a list of ChannelTypes to choose from.
@@ -33,9 +37,9 @@ public class AddChannelListActivity extends BaseActivity {
         ButterKnife.bind(this);
         initialize();
         if (savedInstanceState == null) {
+            BaseFragment fragment = AddChannelListFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_fragment_container,
-                    AddChannelListFragment.newInstance()).commit();
+                .replace(R.id.activity_fragment_container, fragment).commit();
         }
     }
 
@@ -66,26 +70,47 @@ public class AddChannelListActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof AddUserChannelCommand) {
-                        finishActivity();
+        initializeSubscriptions();
+    }
+
+    public void initializeSubscriptions() {
+        if (_subscriptions == null) {
+            _subscriptions = new CompositeSubscription();
+            _subscriptions.add( getRxBus().toObserverable()
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object event) {
+                        if (event instanceof AddUserChannelCommand) {
+                            finishActivity();
+                        }
                     }
-                }
-            }));
+                }));
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         _subscriptions.unsubscribe();
+        _subscriptions = null;
     }
 
     private void finishActivity() {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        initializeSubscriptions();
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null && fragments.size() > 0) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
+                }
+            }
+        }
     }
 }

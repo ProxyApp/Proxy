@@ -6,23 +6,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.rx.command.CheckUserContactsCommand;
+import com.shareyourproxy.api.domain.model.Id;
+import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
-import com.shareyourproxy.api.rx.event.SaveChannelsClicked;
 import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
-import timber.log.Timber;
 
+import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  * Add and remove newChannel permissions from a group.
@@ -63,7 +64,7 @@ public class GroupEditChannelActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(onNextEvent()));
     }
 
@@ -98,25 +99,17 @@ public class GroupEditChannelActivity extends BaseActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                break;
-            case R.id.menu_edit_group_channel_save:
-                getRxBus().post(new SaveChannelsClicked());
-                break;
-            default:
-                Timber.e("Option item selected is unknown");
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
-        getRxBus().post(new CheckUserContactsCommand(
-            getLoggedInUser(), event.group.contacts(), getLoggedInUser().groups()));
-        IntentLauncher.launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
+        ArrayList<String> contacts = new ArrayList<>();
+        if (event.group.contacts() != null) {
+            for (Map.Entry<String, Id> contactId : event.group.contacts().entrySet()) {
+                contacts.add(contactId.getKey());
+            }
+        }
+
+        getRxBus().post(new UpdateUserContactsCommand(
+            getLoggedInUser(), contacts, getLoggedInUser().groups()));
+        launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
         onBackPressed();
     }
 

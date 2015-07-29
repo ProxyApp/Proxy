@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/fragment_group_main_coordinator"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/fragment_group_main_swipe_refresh"
         android:layout_width="match_parent"
@@ -24,6 +27,7 @@
         app:backgroundTint="@color/common_proxy_zoidberg"
         app:borderWidth="0dp"
         app:fabSize="normal"
+        app:layout_anchorGravity="bottom|right|end"
         app:rippleColor="@color/common_red_light"/>
 
     <TextView
@@ -31,11 +35,10 @@
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/common_rect_tiny"
         android:layout_gravity="center"
         android:gravity="center"
+        android:paddingBottom="@dimen/common_rect_tiny"
         android:text="@string/fragment_group_main_empty_text"
         android:textColor="@color/common_text_disabled"
         android:visibility="gone"/>
-
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

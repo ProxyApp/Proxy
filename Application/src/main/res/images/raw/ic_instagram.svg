@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="288 378 36 36" xml:space="preserve">
+<g>
+	<g id="Instagram_1_">
+		<g id="Instagram">
+			<path id="Head" fill="#895A4D" d="M319.5,378h-27c-2.5,0-4.5,2-4.5,4.5v9h36v-9C324,380,322,378,319.5,378z"/>
+			<path id="Red_x5F_Stripes" fill="#FF3939" d="M290.2,378.7v12.8h2.2V378C291.7,378,290.9,378.2,290.2,378.7z"/>
+			<rect id="Yellow_x5F_Stripes" x="292.5" y="378" fill="#FED049" width="2.2" height="13.5"/>
+			<rect id="Green_x5F_Stripes" x="294.8" y="378" fill="#10DD76" width="2.2" height="13.5"/>
+			<rect id="Blue_x5F_Stripes" x="297" y="378" fill="#5FCCFF" width="2.2" height="13.5"/>
+			<circle id="Lens_1_" fill="#162838" cx="317.2" cy="384.8" r="3.4"/>
+			<circle id="Lens_x5F_Outer" fill="#2C4356" cx="317.2" cy="384.8" r="1.7"/>
+			<circle id="Lens_x5F_Inside" fill="#47637A" cx="317.2" cy="384.8" r="0.6"/>
+			<path id="Body" fill="#E5E0DC" d="M288,391.5v18c0,2.5,2,4.5,4.5,4.5h27c2.5,0,4.5-2,4.5-4.5v-18H288z"/>
+			<g id="Shadow">
+				<polygon fill="#75483D" points="315.8,391.5 313.2,388.8 313.2,391.5 				"/>
+				<path fill="#D0CBC5" d="M310.5,391.5l-11.7,11.7l10.8,10.8h9.9c2.5,0,4.5-2,4.5-4.5v-9.8l-8.2-8.2H310.5z"/>
+			</g>
+			<circle id="Lens" fill="#DCD7D3" cx="306" cy="396" r="10.1"/>
+			<circle id="Inside_x5F_Lens" fill="#162838" cx="306" cy="396" r="7.9"/>
+			<circle id="_x32_nd_Inner_Circle" fill="#2C4356" cx="306" cy="396" r="4.5"/>
+			<circle id="Middle_Circle" fill="#162838" cx="306" cy="396" r="2.2"/>
+			<circle id="Reflection" fill="#47637A" cx="308.8" cy="393.2" r="1.7"/>
+		</g>
+	</g>
+</g>
+</svg>

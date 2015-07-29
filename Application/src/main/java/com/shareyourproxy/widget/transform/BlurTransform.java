@@ -29,7 +29,8 @@ public class BlurTransform implements Transformation {
 
     @Override
     public Bitmap transform(Bitmap source) {
-        return ViewUtils.getBlurBitmapImage(_context, source);
+//        return ViewUtils.getBlurBitmapImage(_context, source);
+        return ViewUtils.getCircularBitmapImage(source);
     }
 
     @Override

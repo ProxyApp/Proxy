@@ -12,9 +12,7 @@ public class RealmChannel extends RealmObject {
     @PrimaryKey
     private String id;
     private String label;
-    private String packageName;
     private String actionAddress;
-    private RealmChannelSection channelSection;
     private RealmChannelType channelType;
 
     /**
@@ -53,42 +51,6 @@ public class RealmChannel extends RealmObject {
         this.label = label;
     }
 
-    /**
-     * Getter.
-     *
-     * @return URI of the application to be called
-     */
-    public String getPackageName() {
-        return packageName;
-    }
-
-    /**
-     * Setter.
-     *
-     * @param packageName app packageName
-     */
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    /**
-     * Getter.
-     *
-     * @return channelSection of the application
-     */
-    public RealmChannelSection getChannelSection() {
-        return channelSection;
-    }
-
-    /**
-     * Setter.
-     *
-     * @param channelSection of intent
-     */
-    public void setChannelSection(RealmChannelSection channelSection) {
-        this.channelSection = channelSection;
-    }
-
     public RealmChannelType getChannelType() {
         return channelType;
     }
@@ -98,7 +60,8 @@ public class RealmChannel extends RealmObject {
     }
 
     /**
-     * @return
+     * Getter.
+     * @return action address
      */
     public String getActionAddress() {
         return actionAddress;

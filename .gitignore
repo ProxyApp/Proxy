@@ -12,11 +12,7 @@ crashlytics.properties
 .classpath
 .project
 
-# Windows thumbnail db
-.DS_Store
-
-# IDEA/Android Studio project files, because
-# the project can be imported from settings.gradle
+# IDEA/Android Studio project files, because the project can be imported from settings.gradle
 .idea/
 *.iml
 
@@ -30,4 +26,3 @@ crashlytics.properties
 # Vim/kdiff files
 *.orig
 *.swp
-keys.xml

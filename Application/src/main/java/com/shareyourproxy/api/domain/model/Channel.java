@@ -1,7 +1,5 @@
 package com.shareyourproxy.api.domain.model;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Parcelable;
 
 import com.shareyourproxy.api.gson.AutoGson;
@@ -20,16 +18,12 @@ public abstract class Channel implements Parcelable {
      *
      * @param id             unique id
      * @param label          name of the newChannel
-     * @param packageName    Name of the channels package
-     * @param channelSection section divider category
      * @param channelType    newChannel intent type
      * @return Immutable newChannel
      */
     @SuppressWarnings("unused")
-    public static Channel create(Id id, String label, String packageName,
-        ChannelSection channelSection, ChannelType channelType, String actionAddress) {
-        return builder().id(id).label(label).packageName(packageName)
-            .channelSection(channelSection).channelType(channelType)
+    public static Channel create(Id id, String label, ChannelType channelType, String actionAddress) {
+        return builder().id(id).label(label).channelType(channelType)
             .actionAddress(actionAddress).build();
     }
 
@@ -55,20 +49,6 @@ public abstract class Channel implements Parcelable {
      * @return newChannel label
      */
     public abstract String label();
-
-    /**
-     * Get the name of the {@link Uri} {@link Intent}.
-     *
-     * @return uri
-     */
-    public abstract String packageName();
-
-    /**
-     * Get the channelSection, or section header for this {@link Channel}.
-     *
-     * @return header string
-     */
-    public abstract ChannelSection channelSection();
 
     /**
      * Channel image resource.
@@ -105,10 +85,6 @@ public abstract class Channel implements Parcelable {
          * @return label
          */
         Builder label(String label);
-
-        Builder packageName(String packageName);
-
-        Builder channelSection(ChannelSection channelSection);
 
         Builder channelType(ChannelType channelType);
 

@@ -1,7 +1,6 @@
 package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 
 import com.shareyourproxy.api.gson.AutoGson;
 
@@ -14,8 +13,8 @@ import auto.parcel.AutoParcel;
 @AutoGson(autoValueClass = AutoParcel_Message.class)
 public abstract class Message implements Parcelable {
 
-    public static Message create(Id id, Contact contact) {
-        return builder().id(id).contact(contact).build();
+    public static Message create(String id, String contactId, String first, String last) {
+        return builder().id(id).contactId(contactId).firstName(first).lastName(last).build();
     }
 
     /**
@@ -32,15 +31,28 @@ public abstract class Message implements Parcelable {
      *
      * @return id of message
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
-     * If you're receiving this message, you are the contact that a user added.
+     * If you're receiving this message, you are the contactId that a user added.
      *
-     * @return contact the user added
+     * @return contactId the user added
      */
-    @Nullable
-    public abstract Contact contact();
+    public abstract String contactId();
+
+    /**
+     * Contact first name.
+     *
+     * @return name
+     */
+    public abstract String firstName();
+
+    /**
+     * contact last name
+     *
+     * @return name
+     */
+    public abstract String lastName();
 
     /**
      * Message Builder.
@@ -54,15 +66,31 @@ public abstract class Message implements Parcelable {
          * @param id group unique groupId
          * @return group groupId
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
-         * Set the contact.
+         * Set the contactId
          *
-         * @param contact added to user
-         * @return contact
+         * @param contactId added to user
+         * @return contactId
          */
-        Builder contact(Contact contact);
+        Builder contactId(String contactId);
+
+        /**
+         * Set the contact first name
+         *
+         * @param firstName of user
+         * @return contact first name
+         */
+        Builder firstName(String firstName);
+
+        /**
+         * Set the contact last name
+         *
+         * @param lastName of user
+         * @return contact last name
+         */
+        Builder lastName(String lastName);
 
         /**
          * BUILD.

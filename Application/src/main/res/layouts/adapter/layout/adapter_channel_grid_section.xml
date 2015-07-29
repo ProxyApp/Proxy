@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/adapter_channel_grid_section_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/common_margin_small"
         android:contentDescription="@string/channel_section_image"/>

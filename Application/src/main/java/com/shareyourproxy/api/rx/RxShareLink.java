@@ -56,8 +56,7 @@ public class RxShareLink {
         return new Func1<List<SharedLink>, String>() {
             @Override
             public String call(List<SharedLink> sharedLinks) {
-                StringBuilder sb = new StringBuilder(
-                    context.getString(R.string.sharelink_message_beginning, user.first()));
+                StringBuilder sb = new StringBuilder();
                 for (SharedLink link : sharedLinks) {
                     sb.append(context.getString(
                         R.string.sharelink_message_link, link.id()));

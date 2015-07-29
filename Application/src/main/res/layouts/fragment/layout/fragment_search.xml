@@ -9,8 +9,8 @@
         android:id="@+id/fragment_search_bar_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_rect_small"
-        android:background="@android:color/white"
         android:gravity="center_vertical"
+        android:background="@android:color/white"
         android:orientation="horizontal">
         <ImageButton
             android:id="@+id/fragment_search_back_button"
@@ -54,5 +54,18 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/fragment_search_empty_textview"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:paddingBottom="@dimen/common_rect_huge"
+        android:text="@string/fragment_search_empty_text"
+        android:textColor="@color/common_text_disabled"
+        android:visibility="gone"/>
 
 </LinearLayout>

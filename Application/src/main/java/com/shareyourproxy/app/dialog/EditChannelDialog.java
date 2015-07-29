@@ -30,6 +30,7 @@ import com.shareyourproxy.util.DebugUtils;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnTextChanged;
 
@@ -51,7 +52,7 @@ public class EditChannelDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 hideSoftwareKeyboard(editTextActionAddress);
-                dialogInterface.dismiss();
+                dismiss();
             }
         };
     @Bind(R.id.dialog_channel_label_edittext)
@@ -67,6 +68,8 @@ public class EditChannelDialog extends BaseDialogFragment {
     protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
+    @BindString(R.string.required)
+    protected String _required;
     // Transient
     private Channel _channel;
     /**
@@ -79,27 +82,26 @@ public class EditChannelDialog extends BaseDialogFragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
-                    dispatchAddChannel();
-                    getDialog().dismiss();
+                    saveChannelAndExit();
                     return true;
                 }
                 return false;
             }
         };
-    private final OnClickListener _positiveClicked =
-        new OnClickListener() {
+    private final View.OnClickListener _positiveClicked =
+        new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dispatchAddChannel();
-                dialogInterface.dismiss();
+            public void onClick(View v) {
+                saveChannelAndExit();
             }
         };
     private final OnClickListener _deleteClicked =
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dispatchDeleteChannel();
-                dialogInterface.dismiss();
+                getRxBus().post(
+                    new DeleteUserChannelCommand(getLoggedInUser(), _channel));
+                dismiss();
             }
         };
     private String _dialogTitle;
@@ -125,21 +127,16 @@ public class EditChannelDialog extends BaseDialogFragment {
         return dialog;
     }
 
-    private void dispatchDeleteChannel() {
-        getRxBus().post(new DeleteUserChannelCommand(getLoggedInUser(), _channel));
-    }
-
     /**
      * Dispatch a Channel Added Event
      */
-    private void dispatchAddChannel() {
+    private void addUserChannel() {
         String actionContent = editTextActionAddress.getText().toString().trim();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
             Channel channel =
                 createModelInstance(_channel.id().value(), labelContent,
-                    _channel.channelType(), _channel.channelSection(),
-                    actionContent);
+                    _channel.channelType(), actionContent);
             getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
         }
     }
@@ -176,7 +173,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         View view = getActivity().getLayoutInflater()
-            .inflate(R.layout.dialog_channel, null, false);
+            .inflate(R.layout.dialog_add_channel, null, false);
         ButterKnife.bind(this, view);
         initializeDisplayValues();
 
@@ -184,7 +181,7 @@ public class EditChannelDialog extends BaseDialogFragment {
             R.style.Base_Theme_AppCompat_Light_Dialog)
             .setTitle(_dialogTitle)
             .setView(view)
-            .setPositiveButton(R.string.save, _positiveClicked)
+            .setPositiveButton(R.string.save, null)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .setNeutralButton(R.string.delete, _deleteClicked)
             .create();
@@ -206,6 +203,19 @@ public class EditChannelDialog extends BaseDialogFragment {
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
+        //Alert Dialogs dismiss by default because of an internal handler... this bypasses that.
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
+    }
+
+    public void saveChannelAndExit() {
+        boolean addressHasText = editTextActionAddress.getText().toString().trim().length() > 0;
+        if (!addressHasText) {
+            floatLabelAddress.setError(_required);
+        } else {
+            floatLabelAddress.setErrorEnabled(false);
+            addUserChannel();
+            dismiss();
+        }
     }
 
     private void initializeDisplayValues() {

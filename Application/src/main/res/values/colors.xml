@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Common brand colors-->
+    <color name="common_facebook">#3C5A99</color>
+    <color name="common_twitter">#55ACEE</color>
+    <color name="common_meerkat">#FFE200</color>
+    <color name="common_snapchat">#FFFA38</color>
+    <color name="common_spotify">#2FD565</color>
+    <color name="common_reddit">#CEE3F8</color>
+    <color name="common_linkedin">#0077B5</color>
+    <color name="common_fb_messenger">#0084FF</color>
+    <color name="common_hangouts">#0f9d58</color>
+    <color name="common_whatsapp">#4dc247</color>
+    <color name="common_yo">#9B59B6</color>
+    <color name="common_google_plus">#DF4B38</color>
+    <color name="common_address">#DA4A42</color>
+    <color name="common_tumblr">#314358</color>
+    <color name="common_ello">#000000</color>
+    <color name="common_instagram">#2A5B83</color>
+    <color name="common_venmo">#4997CF</color>
+    <color name="common_slack">#F0F0F0</color>
+    <color name="common_youtube">#e52d27</color>
+    <color name="common_github">#000000</color>
+    <color name="common_periscope">#3FA4C4</color>
+    <color name="common_medium">#000000</color>
+    <color name="common_soundcloud">#FC6520</color>
+    <color name="common_skype">#00AAF1</color>
+
     <!--material design guide lines-->
     <!--http://www.google.com/design/spec/style/color.html#color-color-palette-->
 
@@ -12,10 +38,6 @@
     <color name="common_proxy_light_primary">#424242</color>
     <color name="common_proxy_light_selected">#FFFFFF</color>
     <color name="common_proxy_light_disabled">#E0E0E0</color>
-    <color name="common_facebook">#3C5A99</color>
-
-
-
 
     <!--87 percent alpha for text-->
     <color name="common_text">#DE000000</color>

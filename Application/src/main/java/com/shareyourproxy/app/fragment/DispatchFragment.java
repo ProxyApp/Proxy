@@ -14,16 +14,22 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
+import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.MainActivity;
-import com.shareyourproxy.util.ViewUtils;
 
 import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static com.shareyourproxy.IntentLauncher.launchLoginActivity;
 import static com.shareyourproxy.util.ViewUtils.dpToPx;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * Dispatch Fragment to handle dispatching a {@link com.shareyourproxy.app.LoginActivity} or a
@@ -49,15 +55,15 @@ public class DispatchFragment extends BaseFragment {
             }
 
             if (user == null) {
-                IntentLauncher.launchLoginActivity(getActivity());
+                launchLoginActivity(getActivity());
+                getActivity().finish();
             } else {
                 setLoggedInUser(user);
-                IntentLauncher.launchMainActivity(getActivity(),
-                    MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+                getRxBus().post(new SyncAllUsersCommand(user.id().value()));
             }
-            getActivity().finish();
         }
     };
+    private CompositeSubscription _subscriptions;
 
     /**
      * Constructor.
@@ -85,13 +91,51 @@ public class DispatchFragment extends BaseFragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(getRxBus().toObserverable()
+            .subscribe(getRxBusObserver()));
+    }
+
+    public JustObserver<Object> getRxBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void onError() {
+            }
+
+            @Override
+            public void onNext(Object event) {
+                if (event instanceof SyncAllUsersSuccessEvent) {
+                    login();
+                } else if (event instanceof SyncAllUsersErrorEvent) {
+                    login();
+                }
+            }
+        };
+    }
+
+    private void login() {
+        IntentLauncher.launchMainActivity(getActivity(),
+            MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+        getActivity().finish();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        _subscriptions.unsubscribe();
+        _subscriptions = null;
+    }
+
     /**
      * Set the Logo image.drawable on this activities {@link ImageView}.
      */
     private void drawLogo() {
         ViewCompat.setLayerType(imageView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
         ViewCompat.setElevation(imageView, getElevation());
-        imageView.setImageDrawable(ViewUtils.svgToBitmapDrawable(getActivity(),
+        imageView.setImageDrawable(svgToBitmapDrawable(getActivity(),
             R.raw.ic_proxy_logo, (int) getResourceDimension(getActivity())));
     }
 

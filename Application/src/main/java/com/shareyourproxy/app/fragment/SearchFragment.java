@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
@@ -29,7 +30,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
-import rx.Observable;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -42,7 +42,6 @@ import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * Fragment to handle searching for {@link Contact}s.
@@ -57,6 +56,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     protected ImageView imageViewClearButton;
     @Bind(R.id.fragment_search_recyclerview)
     protected BaseRecyclerView recyclerView;
+    @Bind(R.id.fragment_search_empty_textview)
+    protected TextView emptyTextView;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
@@ -107,9 +108,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private JustObserver<HashMap<String, User>> getSearchObserver() {
         return new JustObserver<HashMap<String, User>>() {
             @Override
-            public void onError() {
-
-            }
+            public void onError(){}
 
             @Override
             public void onNext(HashMap<String, User> users) {
@@ -135,10 +134,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
-        _subscriptions = new CompositeSubscription();
-        Observable<HashMap<String, User>> _queryUsers = bindFragment(this, queryFilteredUsers(
-            getActivity(), getLoggedInUser().id().value()));
-        _subscriptions.add(_queryUsers.subscribe(getSearchObserver()));
         showSoftwareKeyboard(editText);
     }
 
@@ -147,6 +142,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setEmptyView(emptyTextView);
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
@@ -210,13 +206,16 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(onNextEvent()));
 
-        _subscriptions.add(bindFragment(this,
+        _subscriptions.add(queryFilteredUsers(
+            getActivity(), getLoggedInUser().id().value()).subscribe(getSearchObserver()));
+
+        _subscriptions.add(
             _textWatcherSubject.toObserverable().map(
-                searchUserString(getActivity(), getLoggedInUser().id().value())))
-            .subscribe(getSearchObserver()));
+                searchUserString(getActivity(), getLoggedInUser().id().value()))
+                .subscribe(getSearchObserver()));
     }
 
     private Action1<Object> onNextEvent() {

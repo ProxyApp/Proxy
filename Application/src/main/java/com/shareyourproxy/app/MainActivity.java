@@ -16,7 +16,6 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.fragment.DrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
@@ -26,7 +25,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
-import static rx.android.app.AppObservable.bindActivity;
 
 
 /**
@@ -47,10 +45,6 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                 .replace(R.id.activity_main_fragment_container, new MainFragment())
                 .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
                 .commit();
-        }
-        User loggedInUser = getLoggedInUser();
-        if (loggedInUser != null) {
-            getRxBus().post(new SyncAllUsersCommand(loggedInUser.id().value()));
         }
     }
 
@@ -76,10 +70,10 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
      */
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
         //if the user presses logout
-        if (getString(R.string.settings_profile).equals(event.message)) {
+        if (getString(R.string.profile).equals(event.message)) {
             User user = getLoggedInUser();
             IntentLauncher.launchUserProfileActivity(this, user, user.id().value());
-        } else if (getString(R.string.settings_logout).equals(event.message)) {
+        } else if (getString(R.string.logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {
                 setLoggedInUser(null);
@@ -93,11 +87,14 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
                     , Toast.LENGTH_SHORT).show();
                 _googleApiClient.connect();
             }
-        } else if (getString(R.string.settings_about).equals(event.message)) {
+        } else if (getString(R.string.about).equals(event.message)) {
             IntentLauncher.launchAboutActivity(this);
         }
-        else if(getString(R.string.settings_report_problem).equals(event.message)){
+        else if(getString(R.string.report_problem).equals(event.message)){
             IntentLauncher.launchEmailIntent(this, getString(R.string.contact_proxy));
+        }
+        else if(getString(R.string.invite_friend).equals(event.message)){
+            IntentLauncher.launchInviteFriendIntent(this);
         }
     }
 
@@ -111,7 +108,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())//
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {

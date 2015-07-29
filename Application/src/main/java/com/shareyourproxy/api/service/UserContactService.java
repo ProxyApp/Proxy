@@ -1,6 +1,7 @@
 package com.shareyourproxy.api.service;
 
 import com.shareyourproxy.api.domain.model.Contact;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 
 import retrofit.http.Body;
@@ -19,11 +20,11 @@ public interface UserContactService {
      * @param userId unique id for {@link User} table
      */
     @PUT("/users/{userId}/contacts/{contactId}.json")
-    Observable<Contact> addUserContact(
-        @Path("userId") String userId, @Path("contactId") String contactId, @Body Contact contact);
+    Observable<String> addUserContact(
+        @Path("userId") String userId, @Path("contactId") String contactId, @Body() Id contact);
 
     @DELETE("/users/{userId}/contacts/{contactId}.json")
-    Observable<Contact> deleteUserContact(
+    Observable<String> deleteUserContact(
         @Path("userId") String userId, @Path("contactId") String contactId);
 
 }

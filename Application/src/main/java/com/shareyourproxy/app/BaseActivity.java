@@ -9,8 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.shareyourproxy.Intents;
+import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
@@ -19,8 +19,6 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
-
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  * Base abstraction for all Activities to inherit from.
@@ -84,7 +82,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(onNextEvent()));
     }
 

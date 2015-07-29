@@ -46,6 +46,6 @@ public class AboutFragment extends BaseFragment {
     private void initialize() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.settings_about);
+        getSupportActionBar().setTitle(R.string.about);
     }
 }

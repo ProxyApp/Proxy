@@ -3,25 +3,46 @@ package com.shareyourproxy.api.domain.factory;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Channel.Builder;
-import com.shareyourproxy.api.domain.model.ChannelSection;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.realm.RealmChannel;
-import com.shareyourproxy.api.domain.realm.RealmChannelSection;
 import com.shareyourproxy.api.domain.realm.RealmChannelType;
+import com.shareyourproxy.api.domain.realm.RealmString;
 
 import java.util.HashMap;
 
 import io.realm.RealmList;
 
 import static com.shareyourproxy.api.domain.model.Channel.builder;
-import static com.shareyourproxy.api.domain.model.ChannelSection.General;
+import static com.shareyourproxy.api.domain.model.ChannelType.Address;
+import static com.shareyourproxy.api.domain.model.ChannelType.Ello;
 import static com.shareyourproxy.api.domain.model.ChannelType.Email;
+import static com.shareyourproxy.api.domain.model.ChannelType.FBMessenger;
 import static com.shareyourproxy.api.domain.model.ChannelType.Facebook;
+import static com.shareyourproxy.api.domain.model.ChannelType.Github;
+import static com.shareyourproxy.api.domain.model.ChannelType.Googleplus;
+import static com.shareyourproxy.api.domain.model.ChannelType.Hangouts;
+import static com.shareyourproxy.api.domain.model.ChannelType.Instagram;
+import static com.shareyourproxy.api.domain.model.ChannelType.Linkedin;
+import static com.shareyourproxy.api.domain.model.ChannelType.Medium;
+import static com.shareyourproxy.api.domain.model.ChannelType.Meerkat;
+import static com.shareyourproxy.api.domain.model.ChannelType.Periscope;
 import static com.shareyourproxy.api.domain.model.ChannelType.Phone;
+import static com.shareyourproxy.api.domain.model.ChannelType.Reddit;
 import static com.shareyourproxy.api.domain.model.ChannelType.SMS;
+import static com.shareyourproxy.api.domain.model.ChannelType.Skype;
+import static com.shareyourproxy.api.domain.model.ChannelType.Slack;
+import static com.shareyourproxy.api.domain.model.ChannelType.Snapchat;
+import static com.shareyourproxy.api.domain.model.ChannelType.Soundcloud;
+import static com.shareyourproxy.api.domain.model.ChannelType.Spotify;
+import static com.shareyourproxy.api.domain.model.ChannelType.Tumblr;
+import static com.shareyourproxy.api.domain.model.ChannelType.Twitter;
+import static com.shareyourproxy.api.domain.model.ChannelType.Venmo;
 import static com.shareyourproxy.api.domain.model.ChannelType.Web;
-import static com.shareyourproxy.api.domain.model.ChannelType.valueOf;
+import static com.shareyourproxy.api.domain.model.ChannelType.Whatsapp;
+import static com.shareyourproxy.api.domain.model.ChannelType.Yo;
+import static com.shareyourproxy.api.domain.model.ChannelType.Youtube;
+import static com.shareyourproxy.api.domain.model.ChannelType.valueOfLabel;
 
 
 /**
@@ -30,14 +51,12 @@ import static com.shareyourproxy.api.domain.model.ChannelType.valueOf;
 public class ChannelFactory {
 
     public static Channel createModelInstance(
-        String id, String label, ChannelType channelType, ChannelSection channelSection,
+        String id, String label, ChannelType channelType,
         String actionAddress) {
         Channel.Builder channel = Channel.builder();
         channel.id(Id.builder().value(id).build());
         channel.label(label);
-        channel.packageName(channelType.toString());
         channel.actionAddress(actionAddress);
-        channel.channelSection(channelSection);
         channel.channelType(channelType);
         return channel.build();
     }
@@ -46,33 +65,20 @@ public class ChannelFactory {
         Channel.Builder channel = Channel.builder();
         channel.id(Id.builder().value(copyChannel.id().value()).build());
         channel.label(copyChannel.label());
-        channel.packageName(copyChannel.packageName());
         channel.actionAddress(actionAddress);
-        channel.channelSection(copyChannel.channelSection());
         channel.channelType(copyChannel.channelType());
         return channel.build();
     }
 
     public static Channel createModelInstance(RealmChannel realmChannel) {
         return Channel.create(Id.builder().value(realmChannel.getId()).build(),
-            realmChannel.getLabel(), realmChannel.getPackageName(),
-            getModelChannelSection(realmChannel.getChannelSection()),
+            realmChannel.getLabel(),
             getModelChannelType(realmChannel.getChannelType()),
             realmChannel.getActionAddress());
     }
 
-    /**
-     * Convert {@link ChannelSection ) Enum into a {@link RealmChannelSection}.
-     *
-     * @param channelSection
-     * @return RealmChannelCategory
-     */
-    public static ChannelSection getModelChannelSection(RealmChannelSection section) {
-        return ChannelSection.valueOf(section.getLabel());
-    }
-
     public static ChannelType getModelChannelType(RealmChannelType channelType) {
-        return valueOf(channelType.getLabel());
+        return valueOfLabel(channelType.getLabel());
     }
 
     /**
@@ -84,8 +90,6 @@ public class ChannelFactory {
         Builder channel = builder();
         channel.id(Id.builder().value(Web.toString()).build());
         channel.label(Web.toString());
-        channel.packageName(Web.toString());
-        channel.channelSection(General);
         channel.channelType(Web);
         channel.actionAddress(Web.toString());
         return channel.build();
@@ -100,10 +104,330 @@ public class ChannelFactory {
         Builder channel = builder();
         channel.id(Id.builder().value(Facebook.toString()).build());
         channel.label(Facebook.toString());
-        channel.packageName(Facebook.toString());
-        channel.channelSection(General);
         channel.channelType(Facebook);
         channel.actionAddress(Facebook.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new twitter channel.
+     *
+     * @return twitter
+     */
+    public static Channel getTwitterChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Twitter.toString()).build());
+        channel.label(Twitter.toString());
+        channel.channelType(Twitter);
+        channel.actionAddress(Twitter.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new meerkat channel.
+     *
+     * @return meerkat
+     */
+    public static Channel getMeerkatChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Meerkat.toString()).build());
+        channel.label(Meerkat.toString());
+        channel.channelType(Meerkat);
+        channel.actionAddress(Meerkat.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new snapchat channel.
+     *
+     * @return snapchat
+     */
+    public static Channel getSnapchatChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Snapchat.toString()).build());
+        channel.label(Snapchat.toString());
+        channel.channelType(Snapchat);
+        channel.actionAddress(Snapchat.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new spotify channel.
+     *
+     * @return spotify
+     */
+    public static Channel getSpotifyChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Spotify.toString()).build());
+        channel.label(Spotify.toString());
+        channel.channelType(Spotify);
+        channel.actionAddress(Spotify.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new LinkedIn channel.
+     *
+     * @return LinkedIn
+     */
+    public static Channel getLinkedInChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Linkedin.toString()).build());
+        channel.label(Linkedin.toString());
+        channel.channelType(Linkedin);
+        channel.actionAddress(Linkedin.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new FB Messenger channel.
+     *
+     * @return FB Messenger
+     */
+    public static Channel getFBMessengerChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(FBMessenger.toString()).build());
+        channel.label(FBMessenger.toString());
+        channel.channelType(FBMessenger);
+        channel.actionAddress(FBMessenger.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Google Hangouts channel.
+     *
+     * @return Hangouts
+     */
+    public static Channel getHangoutsChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Hangouts.toString()).build());
+        channel.label(Hangouts.toString());
+        channel.channelType(Hangouts);
+        channel.actionAddress(Hangouts.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Whatsapp channel.
+     *
+     * @return Whatsapp
+     */
+    public static Channel getWhatsappChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Whatsapp.toString()).build());
+        channel.label(Whatsapp.toString());
+        channel.channelType(Whatsapp);
+        channel.actionAddress(Whatsapp.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Reddit channel.
+     *
+     * @return Reddit
+     */
+    public static Channel getRedditChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Reddit.toString()).build());
+        channel.label(Reddit.toString());
+        channel.channelType(Reddit);
+        channel.actionAddress(Reddit.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Yo channel.
+     *
+     * @return Yo
+     */
+    public static Channel getYoChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Yo.toString()).build());
+        channel.label(Yo.toString());
+        channel.channelType(Yo);
+        channel.actionAddress(Yo.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Google Plus channel.
+     *
+     * @return Google Plus
+     */
+    public static Channel getGooglePlusChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Googleplus.toString()).build());
+        channel.label(Googleplus.toString());
+        channel.channelType(Googleplus);
+        channel.actionAddress(Googleplus.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Github channel.
+     *
+     * @return Github
+     */
+    public static Channel getGithubChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Github.toString()).build());
+        channel.label(Github.toString());
+        channel.channelType(Github);
+        channel.actionAddress(Github.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Address channel.
+     *
+     * @return Address
+     */
+    public static Channel getAddressChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Address.toString()).build());
+        channel.label(Address.toString());
+        channel.channelType(Address);
+        channel.actionAddress(Address.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Slack channel.
+     *
+     * @return Slack
+     */
+    public static Channel getSlackChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Slack.toString()).build());
+        channel.label(Slack.toString());
+        channel.channelType(Slack);
+        channel.actionAddress(Slack.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Youtube channel.
+     *
+     * @return Youtube
+     */
+    public static Channel getYoutubeChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Youtube.toString()).build());
+        channel.label(Youtube.toString());
+        channel.channelType(Youtube);
+        channel.actionAddress(Youtube.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Instagram channel.
+     *
+     * @return Instagram
+     */
+    public static Channel getInstagramChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Instagram.toString()).build());
+        channel.label(Instagram.toString());
+        channel.channelType(Instagram);
+        channel.actionAddress(Instagram.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Tumblr channel.
+     *
+     * @return Tumblr
+     */
+    public static Channel getTumblrChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Tumblr.toString()).build());
+        channel.label(Tumblr.toString());
+        channel.channelType(Tumblr);
+        channel.actionAddress(Tumblr.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Ello channel.
+     *
+     * @return Ello
+     */
+    public static Channel getElloChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Ello.toString()).build());
+        channel.label(Ello.toString());
+        channel.channelType(Ello);
+        channel.actionAddress(Ello.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Venmo channel.
+     *
+     * @return Venmo
+     */
+    public static Channel getVenmoChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Venmo.toString()).build());
+        channel.label(Venmo.toString());
+        channel.channelType(Venmo);
+        channel.actionAddress(Venmo.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Periscope channel.
+     *
+     * @return Periscope
+     */
+    public static Channel getPeriscopeChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Periscope.toString()).build());
+        channel.label(Periscope.toString());
+        channel.channelType(Periscope);
+        channel.actionAddress(Periscope.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Medium channel.
+     *
+     * @return Medium
+     */
+    public static Channel getMediumChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Medium.toString()).build());
+        channel.label(Medium.toString());
+        channel.channelType(Medium);
+        channel.actionAddress(Medium.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new SoundCloud channel.
+     *
+     * @return SoundCloud
+     */
+    public static Channel getSoundCloudChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Soundcloud.toString()).build());
+        channel.label(Soundcloud.toString());
+        channel.channelType(Soundcloud);
+        channel.actionAddress(Soundcloud.toString());
+        return channel.build();
+    }
+
+    /**
+     * Get a new Skype channel.
+     *
+     * @return Skype
+     */
+    public static Channel getSkypeChannel() {
+        Builder channel = builder();
+        channel.id(Id.builder().value(Skype.toString()).build());
+        channel.label(Skype.toString());
+        channel.channelType(Skype);
+        channel.actionAddress(Skype.toString());
         return channel.build();
     }
 
@@ -116,8 +440,6 @@ public class ChannelFactory {
         Builder channel = builder();
         channel.id(Id.builder().value(Email.toString()).build());
         channel.label(Email.toString());
-        channel.packageName(Email.toString());
-        channel.channelSection(General);
         channel.channelType(Email);
         channel.actionAddress(Email.toString());
         return channel.build();
@@ -132,8 +454,6 @@ public class ChannelFactory {
         Builder channel = builder();
         channel.id(Id.builder().value(SMS.toString()).build());
         channel.label(SMS.toString());
-        channel.packageName(SMS.toString());
-        channel.channelSection(General);
         channel.channelType(SMS);
         channel.actionAddress(SMS.toString());
         return channel.build();
@@ -148,8 +468,6 @@ public class ChannelFactory {
         Builder channel = builder();
         channel.id(Id.builder().value(Phone.toString()).build());
         channel.label(Phone.toString());
-        channel.packageName(Phone.toString());
-        channel.channelSection(General);
         channel.channelType(Phone);
         channel.actionAddress(Phone.toString());
         return channel.build();
@@ -166,6 +484,23 @@ public class ChannelFactory {
             HashMap<String, Channel> channels = new HashMap<>(realmChannels.size());
             for (RealmChannel realmChannel : realmChannels) {
                 channels.put(realmChannel.getId(), createModelInstance(realmChannel));
+            }
+            return channels;
+        }
+        return null;
+    }
+
+    /**
+     * Return a RealmList of Contact ids from a user
+     *
+     * @param realmChannels to get channels from
+     * @return RealmList of Contacts
+     */
+    public static HashMap<String, Id> getModelChannelList(RealmList<RealmString> realmChannels) {
+        if (realmChannels != null) {
+            HashMap<String, Id> channels = new HashMap<>(realmChannels.size());
+            for (RealmString realmChannel : realmChannels) {
+                channels.put(realmChannel.getValue(), Id.create(realmChannel.getValue()));
             }
             return channels;
         }

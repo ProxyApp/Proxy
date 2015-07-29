@@ -2,7 +2,6 @@ package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
 
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 
@@ -14,11 +13,11 @@ import java.util.List;
 public class GroupContactsUpdatedEventCallback extends UserEventCallback {
 
     public final List<Group> contactGroups;
-    public final Contact contact;
+    public final String contactId;
 
-    public GroupContactsUpdatedEventCallback(User user, Contact contact, List<Group> groups) {
+    public GroupContactsUpdatedEventCallback(User user, String contactId, List<Group> groups) {
         super(user);
-        this.contact = contact;
+        this.contactId = contactId;
         this.contactGroups = groups;
     }
 
@@ -29,7 +28,7 @@ public class GroupContactsUpdatedEventCallback extends UserEventCallback {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(contact);
+        dest.writeValue(contactId);
         dest.writeValue(contactGroups);
     }
 }

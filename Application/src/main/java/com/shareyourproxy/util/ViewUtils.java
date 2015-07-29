@@ -17,9 +17,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import timber.log.Timber;
@@ -35,7 +33,6 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.pm.PackageManager.NameNotFoundException;
 import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
-import static android.support.v8.renderscript.Element.U8_4;
 
 /**
  * Utility class for view functions.
@@ -118,13 +115,14 @@ public class ViewUtils {
             source.getWidth(), source.getHeight(), source.getConfig());
         Canvas canvas = new Canvas(bitmap);
         canvas.drawBitmap(source, null, getDstFromSource(source), null);
-        canvas.drawARGB(120,0,0,0);
+        canvas.drawARGB(120, 0, 0, 0);
         source.recycle();
         return bitmap;
     }
 
     /**
      * Return destination bitmap size from source bitmap dimensions.
+     *
      * @param source bitmap
      * @return Rectangle dimensions
      */
@@ -138,19 +136,19 @@ public class ViewUtils {
      * @param source Bitmap to blur
      * @return the circular bitmap resource
      */
-    public static Bitmap getBlurBitmapImage(Context context, Bitmap source) {
-        final RenderScript rs = RenderScript.create(context);
-        final Allocation input = Allocation.createFromBitmap(
-            rs, source, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
-        final Allocation output = Allocation.createTyped(rs, input.getType());
-        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, U8_4(rs));
-        script.setRadius(12f);
-        script.setInput(input);
-        script.forEach(output);
-        output.copyTo(source);
-        rs.destroy();
-        return source;
-    }
+//    public static Bitmap getBlurBitmapImage(Context context, Bitmap source) {
+//        final RenderScript rs = RenderScript.create(context);
+//        final Allocation input = Allocation.createFromBitmap(
+//            rs, source, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+//        final Allocation output = Allocation.createTyped(rs, input.getType());
+//        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, U8_4(rs));
+//        script.setRadius(12f);
+//        script.setInput(input);
+//        script.forEach(output);
+//        output.copyTo(source);
+//        rs.destroy();
+//        return source;
+//    }
 
     /**
      * Paint a circular bitmap.
@@ -216,19 +214,21 @@ public class ViewUtils {
      * @return the circular bitmap resource
      */
     public static Drawable getCircularDrawableImage(
-        Context context, int resourceId, int backgroundColor) {
+        Context context, int resourceId, ChannelType channelType, int backgroundColor) {
         ShapeDrawable background = new ShapeDrawable(new OvalShape());
         background.setColorFilter(backgroundColor, SRC);
 
         int backgroundRadius = context.getResources()
-            .getDimensionPixelSize(R.dimen.common_margin_medium) * 2;
+            .getDimensionPixelSize(R.dimen.common_margin_xhuge);
+
         background.setIntrinsicWidth(backgroundRadius);
         background.setIntrinsicHeight(backgroundRadius);
 
         BitmapDrawable source = svgToBitmapDrawable(context, resourceId,
-            backgroundRadius / 2, Color.WHITE);
+            backgroundRadius, channelType.getResColor());
 
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
+
         int inset = backgroundRadius / 2;
         layerDrawable.setLayerInset(1, inset, inset, inset, inset);
         return layerDrawable;
@@ -272,8 +272,9 @@ public class ViewUtils {
 
     /**
      * Use the DrawablCompat lib to tin a source image.drawable.
+     *
      * @param source image.drawable to tint
-     * @param color of tint
+     * @param color  of tint
      * @return unwrapped tinted image.drawable
      */
     public static Drawable tintDrawableCompat(Drawable source, int color) {
@@ -298,7 +299,8 @@ public class ViewUtils {
         Drawable drawable = null;
         try {
             SVG svg = SVG.getFromResource(res, resourceId);
-            Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Bitmap bmp = Bitmap.createBitmap(
+                res.getDisplayMetrics(), size + 16, size + 16, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             svg.renderToCanvas(canvas);
 

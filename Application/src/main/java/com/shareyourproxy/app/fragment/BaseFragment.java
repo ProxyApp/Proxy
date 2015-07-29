@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
-import com.shareyourproxy.api.domain.model.ProxyApplication;
+import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;

@@ -14,6 +14,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.GroupEditChannel;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.util.ObjectUtils;
 
@@ -23,12 +24,9 @@ import java.util.Map;
 
 import butterknife.Bind;
 
-import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.getActivityIcon;
 
 public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
-    //    private static final int TYPE_SECTION_HEADER = 0;
     public static final int TYPE_LIST_ITEM = 1;
     private ItemClickListener _clickListener;
     private Callback<GroupEditChannel> _sortedListCallback;
@@ -37,7 +35,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
     public GroupEditChannelAdapter(
         ItemClickListener listener, HashMap<String, Channel> userChannels,
-        HashMap<String, Channel> groupChannels) {
+        HashMap<String, Id> groupChannels) {
         _clickListener = listener;
         _channels = new SortedList<>(
             GroupEditChannel.class, getSortedCallback(), userChannels.size());
@@ -46,12 +44,12 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
     public static GroupEditChannelAdapter newInstance(
         ItemClickListener listener, HashMap<String, Channel> userChannels,
-        HashMap<String, Channel> groupChannels) {
+        HashMap<String, Id> groupChannels) {
         return new GroupEditChannelAdapter(listener, userChannels, groupChannels);
     }
 
     private void updateChannels(
-        HashMap<String, Channel> userChannels, HashMap<String, Channel> groupChannels) {
+        HashMap<String, Channel> userChannels, HashMap<String, Id> groupChannels) {
         if (userChannels != null) {
             ArrayList<GroupEditChannel> groupEditChannels = new ArrayList<>();
             for (Map.Entry<String, Channel> userChannel : userChannels.entrySet()) {
@@ -67,9 +65,9 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    private boolean channelInGroup(Channel userChannel, HashMap<String, Channel> groupChannels) {
+    private boolean channelInGroup(Channel userChannel, HashMap<String, Id> groupChannels) {
         if (groupChannels != null) {
-            for (Map.Entry<String, Channel> groupChannel : groupChannels.entrySet()) {
+            for (Map.Entry<String, Id> groupChannel : groupChannels.entrySet()) {
                 if (groupChannel.getKey().equals(userChannel.id().value())) {
                     return true;
                 }
@@ -129,13 +127,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         return _sortedListCallback;
     }
 
-    public boolean isSectionHeader(int position) {
-        return position == 0;
-    }
-
     @Override
     public int getItemViewType(int position) {
-//        return position == 0 ? TYPE_SECTION_HEADER : TYPE_LIST_ITEM;
         return TYPE_LIST_ITEM;
     }
 
@@ -146,28 +139,15 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//        if (isSectionHeader(viewType)) {
-//            View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.adapter_edit_group_list_section, parent, false);
-//            return SectionHeaderViewHolder.newInstance(view, _clickListener);
-//        } else {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_edit_group_item, parent, false);
         return ItemViewHolder.newInstance(view, _clickListener);
-//        }
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-//        if (holder instanceof SectionHeaderViewHolder) {
-//            bindSectionViewData(
-//                (SectionHeaderViewHolder) holder, getItemData(position));
-//        } else if (holder instanceof ItemViewHolder) {
         bindItemViewData(
             (ItemViewHolder) holder, getItemData(position));
-//        } else {
-//            Timber.e("Invalid ViewHolder");
-//        }
     }
 
     public GroupEditChannel getItemData(int position) {
@@ -177,14 +157,10 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     private void bindItemViewData(ItemViewHolder holder, GroupEditChannel editChannel) {
         Context context = holder._view.getContext();
         ChannelType channelType = editChannel.getChannel().channelType();
-        if (channelType.equals(Custom)) {
-            holder.itemImage.setImageDrawable(getAndroidIconDrawable(
-                context, getActivityIcon(context, editChannel.getChannel().packageName())));
-        } else {
             holder.itemImage.setImageDrawable(
-                getSVGIconDrawable(context, editChannel.getChannel().channelType().getResId(),
+                getSVGIconDrawable(context, editChannel.getChannel(),
                     getChannelBackgroundColor(context, channelType)));
-        }
+
         holder.itemLabel.setText(editChannel.getChannel().label());
         holder.itemSwitch.setChecked(editChannel.inGroup());
         holder.itemSwitch.setOnClickListener(switchListener(holder));
@@ -200,32 +176,9 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         };
     }
 
-    public HashMap<String, Channel> getSelectedChannels() {
+    public HashMap<String, Id> getSelectedChannels() {
         return RxGroupChannelSync.getSelectedChannels(_channels);
     }
-
-//    private void bindSectionViewData(
-//        SectionHeaderViewHolder holder,
-//        GroupEditChannel sectionData) {
-//        String lbl = sectionData.getChannel().channelSection().getLabel();
-//        holder.sectionLabel.setText(lbl);
-//    }
-
-
-//    public static final class SectionHeaderViewHolder extends BaseViewHolder {
-//        @Bind(R.id.adapter_edit_group_list_section_label)
-//        protected TextView sectionLabel;
-//
-//        private SectionHeaderViewHolder(View view, ItemClickListener itemClickListener) {
-//            super(view, itemClickListener);
-//        }
-//
-//        public static SectionHeaderViewHolder newInstance(
-//            View view, ItemClickListener itemClickListener) {
-//            return new SectionHeaderViewHolder(view, itemClickListener);
-//        }
-//    }
-
 
     public static final class ItemViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_edit_group_list_item_switch)
