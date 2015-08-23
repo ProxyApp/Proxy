@@ -9,8 +9,12 @@ import com.shareyourproxy.api.gson.AutoGson;
 import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.service.GroupContactService;
+import com.shareyourproxy.api.service.InstagramAuthService;
+import com.shareyourproxy.api.service.InstagramUserService;
 import com.shareyourproxy.api.service.MessageService;
 import com.shareyourproxy.api.service.SharedLinkService;
+import com.shareyourproxy.api.service.SpotifyAuthService;
+import com.shareyourproxy.api.service.SpotifyUserService;
 import com.shareyourproxy.api.service.UserChannelService;
 import com.shareyourproxy.api.service.UserContactService;
 import com.shareyourproxy.api.service.UserGroupService;
@@ -27,6 +31,11 @@ import retrofit.converter.GsonConverter;
  * Rest client for users.
  */
 public class RestClient {
+
+    //    public static final String INSTAGRAM_URL = "https://api.instagram.com/v1";
+    public static final String SPOTIFY_URL = "https://api.spotify.com/v1";
+    public static final String SPOTIFY_AUTH_URL = "https://accounts.spotify.com/api";
+    public static final String INSTAGRAM_AUTH_URL = "https://api.instagram.com/oauth/";
 
     /**
      * Constructor.
@@ -70,12 +79,55 @@ public class RestClient {
         return buildRestClient(buildGsonConverter()).create(SharedLinkService.class);
     }
 
+    public static InstagramAuthService getInstagramAuthService() {
+        return buildInstagramAuthClient(buildGsonConverter()).create(InstagramAuthService.class);
+    }
+
+    public static SpotifyUserService getSpotifyUserService() {
+        return buildSpotifyUserClient(buildGsonConverter()).create(SpotifyUserService.class);
+    }
+
+    public static SpotifyAuthService getSpotifyAuthService() {
+        return buildSpotifyAuthClient(buildGsonConverter()).create(SpotifyAuthService.class);
+    }
+
+    public static InstagramUserService getInstagramUserService() {
+        return buildRestClient(buildGsonConverter()).create(InstagramUserService.class);
+    }
+
     public static RestAdapter buildRestClient(Gson gson) {
 
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
             .setClient(new OkClient(getClient()))
             .setEndpoint(BuildConfig.FIREBASE_ENDPOINT)
+            .setConverter(new GsonConverter(gson))
+            .build();
+    }
+
+    public static RestAdapter buildInstagramAuthClient(Gson gson) {
+        return new RestAdapter.Builder()
+            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setClient(new OkClient(getClient()))
+            .setEndpoint(INSTAGRAM_AUTH_URL)
+            .setConverter(new GsonConverter(gson))
+            .build();
+    }
+
+    public static RestAdapter buildSpotifyUserClient(Gson gson) {
+        return new RestAdapter.Builder()
+            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setClient(new OkClient(getClient()))
+            .setEndpoint(SPOTIFY_URL)
+            .setConverter(new GsonConverter(gson))
+            .build();
+    }
+
+    public static RestAdapter buildSpotifyAuthClient(Gson gson) {
+        return new RestAdapter.Builder()
+            .setLogLevel(RestAdapter.LogLevel.FULL)
+            .setClient(new OkClient(getClient()))
+            .setEndpoint(SPOTIFY_AUTH_URL)
             .setConverter(new GsonConverter(gson))
             .build();
     }

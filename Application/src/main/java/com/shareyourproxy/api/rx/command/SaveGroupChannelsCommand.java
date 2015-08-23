@@ -4,8 +4,8 @@ import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
@@ -35,11 +35,11 @@ public class SaveGroupChannelsCommand extends BaseCommand {
     public final User user;
     public final String newTitle;
     public final Group group;
-    public final HashMap<String, Channel> channels;
+    public final HashMap<String, Id> channels;
 
 
     public SaveGroupChannelsCommand(
-        User user, String newTitle, Group group, HashMap<String, Channel> channels) {
+        User user, String newTitle, Group group, HashMap<String, Id> channels) {
         super(SaveGroupChannelsCommand.class.getPackage().getName(),
             SaveGroupChannelsCommand.class.getName());
         this.user = user;
@@ -50,7 +50,7 @@ public class SaveGroupChannelsCommand extends BaseCommand {
 
     private SaveGroupChannelsCommand(Parcel in) {
         this((User) in.readValue(CL), (String) in.readValue(CL),
-            (Group) in.readValue(CL), (HashMap<String, Channel>) in.readValue(CL));
+            (Group) in.readValue(CL), (HashMap<String, Id>) in.readValue(CL));
     }
 
     @Override

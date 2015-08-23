@@ -7,16 +7,17 @@
     <string name="dialog_addgroup_title">Add Group</string>
     <string name="dialog_addchannel_title_default">Add Channel</string>
     <string name="dialog_addchannel_title_web">Add URL</string>
-    <string name="dialog_addchannel_title_facebook">Add Facebook</string>
-    <string name="dialog_addchannel_title_email">Add Email</string>
-    <string name="dialog_addchannel_title_sms">Add SMS Address</string>
-    <string name="dialog_addchannel_title_phone">Add Phone Address</string>
-    <string name="dialog_addchannel_title_custom">Add Custom Channel</string>
+    <string name="dialog_addchannel_title_add_blank">Add %1$s</string>
 
     <string name="dialog_addchannel_hint_address_default">@string/edit_channel_address</string>
     <string name="dialog_addchannel_hint_address_web">URL (Do not include http://)</string>
     <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
-    <string name="dialog_addchannel_hint_address_facebook">Facebook Handle</string>
+    <string name="dialog_addchannel_hint_address_blank_handle">%1$s Handle</string>
+    <string name="dialog_addchannel_hint_address_blank_username">%1$s Username</string>
+    <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
+    </string>
+    <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)
+    </string>
     <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
     <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
     <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
@@ -27,6 +28,7 @@
     <string name="dialog_addchannel_hint_label_sms">@string/sms_label_type</string>
     <string name="dialog_addchannel_hint_label_phone">@string/phone_label_type</string>
     <string name="dialog_addchannel_hint_label_custom">Custom Channel Label</string>
+    <string name="dialog_addchannel_hint_label_blank_label">Label</string>
 
     <string name="dialog_editchannel_title_default">Edit Channel</string>
     <string name="dialog_editchannel_title_web">Edit URL</string>
@@ -53,9 +55,9 @@
     <string name="dialog_editchannel_hint_label_custom">Custom Channel Label</string>
 
     <string name="web_label_type">URL Description (e.g. Reddit, SoundCloud)</string>
-    <string name="sms_label_type">SMS Type (e.g. google voice, cell)</string>
-    <string name="phone_label_type">Phone Label (e.g. home, ice)</string>
-    <string name="email_label_type">Email Type (e.g. Email Business)</string>
+    <string name="sms_label_type">Label (e.g. google voice, cell)</string>
+    <string name="phone_label_type">Label (e.g. home, ice)</string>
+    <string name="email_label_type">Label (e.g. Email Business)</string>
 
     <string name="phone_number">Phone Number</string>
     <string name="email_address">Email Address</string>
@@ -65,17 +67,23 @@
     <string name="signed_in_as">Signed in as:</string>
     <string name="play_services_error">Play Services Error</string>
     <string name="configuration_error">Configuration onError</string>
-    <string name="settings_profile">Profile</string>
-    <string name="settings_about">About</string>
-    <string name="settings_logout">Logout</string>
-    <string name="settings_report_problem">Report Issue</string>
+    <string name="profile">Profile</string>
+    <string name="type">Type</string>
+    <string name="required">Required</string>
+    <string name="reddit_linktype_profile">/u/%1$s</string>
+    <string name="reddit_linktype_subreddit">/r/%1$s</string>
+    <string name="subreddit">Subreddit</string>
+    <string name="about">About</string>
+    <string name="logout">Logout</string>
+    <string name="report_problem">Report Issue</string>
+    <string name="invite_friend">Invite Friend</string>
     <string name="activity_login_title">proxy</string>
     <string name="notifications">Notifications</string>
     <string name="favorites">Favorites</string>
     <string name="contacts">Contacts</string>
     <string name="groups">Groups</string>
     <string name="search">Search</string>
-    <string name="snackbar_group_removed">Group Removed</string>
+    <string name="group_removed">Group Removed</string>
     <string name="action_menu_back_from_search">back from search</string>
     <string name="login_error_failed_connection">Failed to create a connection.</string>
     <string name="login_error_retrieving_user">Error retrieving user from Google</string>
@@ -129,25 +137,27 @@
     </string>
     <string name="no_information_to_share">%1$s isn\'t sharing any content with you yet.</string>
     <string name="no_information_added">You haven\'t added any channels.</string>
-    <string name="facebook">Facebook</string>
     <string name="added_to_contacts">"%1$s added you to their contacts."</string>
     <string name="common_help">Help</string>
     <string name="save_realm_db">"Save Realm DB"</string>
     <string name="share">"Share"</string>
     <string name="dialog_sharelink_title">"Share group links"</string>
-    <string name="sharelink_message_beginning">"%1$s would like to share the following group channels with you:\n\n"</string>
+    <string name="sharelink_message_beginning">"%1$s would like to share the following group
+        channels with you:\n\n"
+    </string>
     <string name="sharelink_message_link">"https://app.shareyourproxy.com/#/public/%1$s"</string>
     <string-array name="drawer_settings">
-        <item>@string/settings_profile</item>
-        <item>@string/settings_about</item>
-        <item>@string/settings_logout</item>
-        <item>@string/settings_report_problem</item>
+        <item>@string/profile</item>
+        <item>@string/invite_friend</item>
+        <item>@string/report_problem</item>
+        <item>@string/logout</item>
     </string-array>
     <string-array name="default_groups">
         <item>@string/family</item>
         <item>@string/friends</item>
         <item>@string/coworkers</item>
     </string-array>
+    <string name="fragment_search_empty_text">"No search results."</string>
     <string name="fragment_contact_main_empty_text">"You haven't added any contacts."</string>
     <string name="fragment_group_main_empty_text">"You haven't added any groups."</string>
     <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."

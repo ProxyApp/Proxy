@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxGroupContactSync;
@@ -32,27 +31,27 @@ public class SaveGroupContactsCommand extends BaseCommand {
         SaveGroupContactsCommand.class.getClassLoader();
 
     public final ArrayList<GroupEditContact> groups;
-    public final Contact contact;
+    public final String contactId;
     public final User user;
 
     public SaveGroupContactsCommand(
-        User user, ArrayList<GroupEditContact> groups, Contact contact) {
+        User user, ArrayList<GroupEditContact> groups, String contactId) {
         super(SaveGroupContactsCommand.class.getPackage().getName(),
             SaveGroupContactsCommand.class.getName());
         this.user = user;
         this.groups = groups;
-        this.contact = contact;
+        this.contactId = contactId;
     }
 
     private SaveGroupContactsCommand(Parcel in) {
         this((User) in.readValue(CL), (ArrayList<GroupEditContact>) in.readValue(CL),
-            (Contact) in.readValue(CL));
+            (String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
         return RxGroupContactSync
-            .updateGroupContacts(service, user, groups, contact);
+            .updateGroupContacts(service, user, groups, contactId);
     }
 
     @Override
@@ -64,7 +63,7 @@ public class SaveGroupContactsCommand extends BaseCommand {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(user);
         dest.writeValue(groups);
-        dest.writeValue(contact);
+        dest.writeValue(contactId);
     }
 
 }

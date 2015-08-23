@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_gravity="center"
+    android:layout_marginEnd="@dimen/common_margin_large"
+    android:layout_marginStart="@dimen/common_margin_large"
+    android:orientation="vertical"
+    android:paddingEnd="@dimen/common_margin_small"
+    android:paddingStart="@dimen/common_margin_small"
+    android:paddingTop="@dimen/common_margin_xxtiny">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_reddit_channel_label_floatlabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:hintTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
+
+        <EditText
+            android:id="@+id/dialog_reddit_channel_label_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:paddingBottom="@dimen/common_margin_xxtiny"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/common_text"
+            android:textColorHint="@color/common_text_disabled"
+            android:textIsSelectable="true"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/dialog_reddit_channel_action_address_floatlabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/common_margin_large"
+        app:hintTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
+
+        <EditText
+            android:id="@+id/dialog_reddit_channel_action_address_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:paddingBottom="@dimen/common_margin_xxtiny"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/common_text"
+            android:textColorHint="@color/common_text_disabled"
+            android:textIsSelectable="true"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:id="@+id/dialog_reddit_channel_linktype_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/common_margin_xxxtiny"
+        android:layout_marginTop="@dimen/common_margin_large"
+        android:text="@string/type"
+        android:textColor="@color/common_text_disabled"/>
+
+    <RadioGroup
+        android:id="@+id/dialog_reddit_channel_linktype_radiogroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/common_margin_xxtiny">
+        <RadioButton
+            android:id="@+id/dialog_reddit_channel_radiobutton_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/profile"
+            android:theme="@style/Widget.Proxy.RadioButton"/>
+        <RadioButton
+            android:id="@+id/dialog_reddit_channel_radiobutton_subreddit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subreddit"
+            android:theme="@style/Widget.Proxy.RadioButton"/>
+    </RadioGroup>
+
+</LinearLayout>

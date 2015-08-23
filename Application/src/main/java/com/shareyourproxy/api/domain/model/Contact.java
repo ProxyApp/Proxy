@@ -62,14 +62,14 @@ public abstract class Contact implements Parcelable {
     public abstract String last();
 
     /**
-     * Get contact profile image.
+     * Get contactId profile image.
      *
      * @return profile image
      */
     public abstract String profileURL();
 
     /**
-     * Get contact cover image.
+     * Get contactId cover image.
      *
      * @return profile image
      */
@@ -77,7 +77,7 @@ public abstract class Contact implements Parcelable {
     public abstract String coverURL();
 
     /**
-     * Get the list of channels a contact has.
+     * Get the list of channels a contactId has.
      *
      * @return list of group's channels
      */
@@ -134,7 +134,7 @@ public abstract class Contact implements Parcelable {
         /**
          * Set group channels.
          *
-         * @param channels contact channels
+         * @param channels contactId channels
          * @return channels
          */
         @Nullable

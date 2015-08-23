@@ -16,7 +16,7 @@ public class RealmContact extends RealmObject {
     private String profileURL;
 
     private String coverURL;
-    private RealmList<RealmChannel> channels;
+    private RealmList<RealmString> channels;
 
     /**
      * Getter.
@@ -73,7 +73,7 @@ public class RealmContact extends RealmObject {
      *
      * @return Contact's newChannel permissions
      */
-    public RealmList<RealmChannel> getChannels() {
+    public RealmList<RealmString> getChannels() {
         return channels;
     }
 
@@ -82,7 +82,7 @@ public class RealmContact extends RealmObject {
      *
      * @param channels list
      */
-    public void setChannels(RealmList<RealmChannel> channels) {
+    public void setChannels(RealmList<RealmString> channels) {
         this.channels = channels;
     }
 

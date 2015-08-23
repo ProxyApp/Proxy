@@ -7,10 +7,10 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
-        android:name=".api.domain.model.ProxyApplication"
+        android:name=".ProxyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_proxy"
         android:label="@string/app_name"
@@ -101,7 +101,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".api.domain.model.NotificationService">
+        <service android:name=".api.NotificationService">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -119,5 +119,7 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>
+        <meta-data android:name="io.fabric.ApiKey"
+                   android:value="1f1b5adb7bfa3bbc852c4757ea0fd56bd64c79ea"/>
     </application>
 </manifest>

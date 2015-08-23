@@ -5,12 +5,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
-import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
@@ -19,8 +17,35 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.IntentLauncher.launchAddressIntent;
+import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
+import static com.shareyourproxy.IntentLauncher.launchElloIntent;
+import static com.shareyourproxy.IntentLauncher.launchEmailIntent;
+import static com.shareyourproxy.IntentLauncher.launchFBMessengerIntent;
+import static com.shareyourproxy.IntentLauncher.launchFacebookIntent;
+import static com.shareyourproxy.IntentLauncher.launchGithubIntent;
+import static com.shareyourproxy.IntentLauncher.launchGooglePlusIntent;
+import static com.shareyourproxy.IntentLauncher.launchHangoutsIntent;
+import static com.shareyourproxy.IntentLauncher.launchInstagramIntent;
+import static com.shareyourproxy.IntentLauncher.launchLinkedInIntent;
+import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.IntentLauncher.launchMediumIntent;
+import static com.shareyourproxy.IntentLauncher.launchMeerkatIntent;
+import static com.shareyourproxy.IntentLauncher.launchPhoneIntent;
+import static com.shareyourproxy.IntentLauncher.launchRedditIntent;
+import static com.shareyourproxy.IntentLauncher.launchSMSIntent;
+import static com.shareyourproxy.IntentLauncher.launchSkypeIntent;
+import static com.shareyourproxy.IntentLauncher.launchSnapChatIntent;
+import static com.shareyourproxy.IntentLauncher.launchSoundCloudIntent;
+import static com.shareyourproxy.IntentLauncher.launchSpotifyIntent;
+import static com.shareyourproxy.IntentLauncher.launchTumblrIntent;
+import static com.shareyourproxy.IntentLauncher.launchTwitterIntent;
+import static com.shareyourproxy.IntentLauncher.launchVenmoIntent;
+import static com.shareyourproxy.IntentLauncher.launchWebIntent;
+import static com.shareyourproxy.IntentLauncher.launchWhatsAppIntent;
+import static com.shareyourproxy.IntentLauncher.launchYoIntent;
+import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  * Activity that handles displaying a {@link User} profile.
@@ -37,7 +62,7 @@ public class UserProfileActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
         //if we launched from a notification go back to the MainActivity explicitly
         if (this.isTaskRoot()) {
-            IntentLauncher.launchMainActivity(
+            launchMainActivity(
                 this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
         }
     }
@@ -69,8 +94,11 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (_isLoggedInUser) {
-            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
-            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_open_in_browser));
+            /**
+             * Hidden feature
+             */
+//            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
+//            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
 
             MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
             addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
@@ -85,12 +113,12 @@ public class UserProfileActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.menu_current_user_add_channel:
-                IntentLauncher.launchChannelListActivity(this);
+                launchChannelListActivity(this);
                 break;
-            case R.id.menu_current_user_shared_links:
-                ShareLinkDialog.newInstance(getLoggedInUser().groups())
-                    .show(getSupportFragmentManager());
-                break;
+//            case R.id.menu_current_user_shared_links:
+//                ShareLinkDialog.newInstance(getLoggedInUser().groups())
+//                    .show(getSupportFragmentManager());
+//                break;
             default:
                 Timber.e("Option item selected is unknown");
         }
@@ -102,7 +130,7 @@ public class UserProfileActivity extends BaseActivity {
         super.onResume();
         Timber.i("onResume");
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -129,21 +157,90 @@ public class UserProfileActivity extends BaseActivity {
         String actionAddress = event.channel.actionAddress();
         switch (channelType) {
             case Phone:
-                IntentLauncher.launchPhoneIntent(this, actionAddress);
+                launchPhoneIntent(this, actionAddress);
                 break;
             case SMS:
-                IntentLauncher.launchSMSIntent(this, actionAddress);
+                launchSMSIntent(this, actionAddress);
                 break;
             case Email:
-                IntentLauncher.launchEmailIntent(this, actionAddress);
+                launchEmailIntent(this, actionAddress);
                 break;
             case Web:
-                IntentLauncher.launchWebIntent(this, actionAddress);
+                launchWebIntent(this, actionAddress);
                 break;
             case Facebook:
-                IntentLauncher.launchFacebookIntent(this, actionAddress);
+                launchFacebookIntent(this, actionAddress);
+                break;
+            case Twitter:
+                launchTwitterIntent(this, actionAddress);
+                break;
+            case Meerkat:
+                launchMeerkatIntent(this, actionAddress);
+                break;
+            case Snapchat:
+                launchSnapChatIntent(this, actionAddress);
+                break;
+            case Spotify:
+                launchSpotifyIntent(this, actionAddress);
+                break;
+            case Reddit:
+                launchRedditIntent(this, actionAddress);
+                break;
+            case Linkedin:
+                launchLinkedInIntent(this, actionAddress);
+                break;
+            case FBMessenger:
+                launchFBMessengerIntent(this, actionAddress);
+                break;
+            case Googleplus:
+                launchGooglePlusIntent(this, actionAddress);
+                break;
+            case Github:
+                launchGithubIntent(this, actionAddress);
+                break;
+            case Address:
+                launchAddressIntent(this, actionAddress);
+                break;
+            case Youtube:
+                launchYoutubeIntent(this, actionAddress);
+                break;
+            case Instagram:
+                launchInstagramIntent(this, actionAddress);
+                break;
+            case Tumblr:
+                launchTumblrIntent(this, actionAddress);
+                break;
+            case Ello:
+                launchElloIntent(this, actionAddress);
+                break;
+            case Venmo:
+                launchVenmoIntent(this, actionAddress);
+                break;
+            case Medium:
+                launchMediumIntent(this, actionAddress);
+                break;
+            case Soundcloud:
+                launchSoundCloudIntent(this, actionAddress);
+                break;
+            case Skype:
+                launchSkypeIntent(this, actionAddress);
+                break;
+            case Yo:
+                launchYoIntent(this, actionAddress);
                 break;
             case Custom:
+                break;
+            case Slack:
+                break;
+            case Hangouts:
+                launchHangoutsIntent(this, actionAddress);
+                break;
+            case Whatsapp:
+                launchWhatsAppIntent(this, actionAddress);
+                break;
+            case Periscope:
+                break;
+            default:
                 break;
         }
     }

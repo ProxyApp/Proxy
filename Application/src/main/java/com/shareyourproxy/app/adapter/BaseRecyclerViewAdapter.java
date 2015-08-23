@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 
 import static com.shareyourproxy.util.ViewUtils.getCircularDrawableImage;
@@ -14,7 +15,7 @@ import static com.shareyourproxy.util.ViewUtils.getSectionIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * Created by Evan on 5/5/15.
+ * Base abstraction for all recycler adapters.
  */
 public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
@@ -35,13 +36,14 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * Get a Circular SVG Drawable.
      *
      * @param context                activity context
-     * @param resourceId             resource to decode
+     * @param channel                resources
      * @param channelBackgroundColor background color value
      * @return circular image.drawable
      */
     public static Drawable getSVGIconDrawable(
-        Context context, int resourceId, int channelBackgroundColor) {
-        return getCircularDrawableImage(context, resourceId, channelBackgroundColor);
+        Context context, Channel channel, int channelBackgroundColor) {
+        return getCircularDrawableImage(context, channel.channelType().getResId(),
+            channel.channelType(), channelBackgroundColor);
     }
 
     /**
@@ -70,6 +72,52 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
                 return res.getColor(R.color.common_text_secondary);
             case Facebook:
                 return res.getColor(R.color.common_facebook);
+            case Twitter:
+                return res.getColor(R.color.common_twitter);
+            case Meerkat:
+                return res.getColor(R.color.common_meerkat);
+            case Snapchat:
+                return res.getColor(R.color.common_snapchat);
+            case Spotify:
+                return res.getColor(R.color.common_spotify);
+            case Reddit:
+                return res.getColor(R.color.common_reddit);
+            case Linkedin:
+                return res.getColor(R.color.common_linkedin);
+            case FBMessenger:
+                return res.getColor(R.color.common_fb_messenger);
+            case Hangouts:
+                return res.getColor(R.color.common_hangouts);
+            case Whatsapp:
+                return res.getColor(R.color.common_whatsapp);
+            case Yo:
+                return res.getColor(R.color.common_yo);
+            case Googleplus:
+                return res.getColor(R.color.common_google_plus);
+            case Github:
+                return res.getColor(R.color.common_github);
+            case Address:
+                return res.getColor(R.color.common_address);
+            case Slack:
+                return res.getColor(R.color.common_slack);
+            case Youtube:
+                return res.getColor(R.color.common_youtube);
+            case Instagram:
+                return res.getColor(R.color.common_instagram);
+            case Tumblr:
+                return res.getColor(R.color.common_tumblr);
+            case Ello:
+                return res.getColor(R.color.common_ello);
+            case Venmo:
+                return res.getColor(R.color.common_venmo);
+            case Periscope:
+                return res.getColor(R.color.common_periscope);
+            case Medium:
+                return res.getColor(R.color.common_medium);
+            case Soundcloud:
+                return res.getColor(R.color.common_soundcloud);
+            case Skype:
+                return res.getColor(R.color.common_skype);
             default:
                 return res.getColor(R.color.common_text_secondary);
         }

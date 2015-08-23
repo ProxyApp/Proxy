@@ -25,7 +25,7 @@ public class DebugUtils {
         return klass.getSimpleName();
     }
 
-    public static void showBroToast(Activity activity, String message){
+    public static void showBroToast(Activity activity, String message) {
         Toast.makeText(activity, message + " Bro", Toast.LENGTH_SHORT).show();
     }
 }

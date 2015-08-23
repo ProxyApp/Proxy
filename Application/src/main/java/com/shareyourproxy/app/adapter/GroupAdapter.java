@@ -188,8 +188,10 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     private void addGroups(HashMap<String, Group> groups) {
         _groups.clear();
         _groups.beginBatchedUpdates();
-        for (Map.Entry<String, Group> group : groups.entrySet()) {
-            _groups.add(group.getValue());
+        if (groups != null) {
+            for (Map.Entry<String, Group> group : groups.entrySet()) {
+                _groups.add(group.getValue());
+            }
         }
         _groups.endBatchedUpdates();
     }

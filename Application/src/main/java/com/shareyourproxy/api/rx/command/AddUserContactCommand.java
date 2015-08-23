@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserContactSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
@@ -28,22 +27,22 @@ public class AddUserContactCommand extends BaseCommand {
     };
     private final static java.lang.ClassLoader CL = AddUserContactCommand.class.getClassLoader();
     private final User user;
-    private final Contact contact;
+    private final String contactId;
 
-    public AddUserContactCommand(User user, Contact contact) {
+    public AddUserContactCommand(User user, String contactId) {
         super(AddUserContactCommand.class.getPackage().getName(),
             AddUserContactCommand.class.getName());
         this.user = user;
-        this.contact = contact;
+        this.contactId = contactId;
     }
 
     private AddUserContactCommand(Parcel in) {
-        this((User) in.readValue(CL), (Contact) in.readValue(CL));
+        this((User) in.readValue(CL), (String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserContactSync.addUserContact(service, user, contact);
+        return RxUserContactSync.addUserContact(service, user, contactId);
     }
 
     @Override
@@ -54,6 +53,6 @@ public class AddUserContactCommand extends BaseCommand {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(user);
-        dest.writeValue(contact);
+        dest.writeValue(contactId);
     }
 }

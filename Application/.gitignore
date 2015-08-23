@@ -1,23 +1,17 @@
-
 # generated files
 build/
 *.apk
 
-# IDEA/Android Studio project files, because
-# the project can be imported from settings.gradle
+# IDEA/Android Studio project files, because the project can be imported from settings.gradle
 .idea
 *.iml
 
 # Local configuration file (sdk path, etc)
 local.properties
 crashlytics.properties
+keys.xml
+fabric.properties
 
 # Eclipse project files
 .classpath
 .project
-
-# Windows thumbnail db
-.DS_Store
-
-# No Api Keys for Github
-keys.xml

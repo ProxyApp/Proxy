@@ -24,11 +24,11 @@ public class RealmUser extends RealmObject {
     @Nullable
     private RealmList<RealmChannel> channels;
     @Nullable
-    private RealmList<RealmContact> contacts;
+    private RealmList<RealmString> contacts;
     @Nullable
     private RealmList<RealmGroup> groups;
     @Nullable
-    private RealmList<RealmMessage> messages;
+    private int version;
 
     /**
      * Getter.
@@ -172,7 +172,7 @@ public class RealmUser extends RealmObject {
      * @return users contacts
      */
     @Nullable
-    public RealmList<RealmContact> getContacts() {
+    public RealmList<RealmString> getContacts() {
         return contacts;
     }
 
@@ -181,7 +181,7 @@ public class RealmUser extends RealmObject {
      *
      * @param contacts list
      */
-    public void setContacts(@Nullable RealmList<RealmContact> contacts) {
+    public void setContacts(@Nullable RealmList<RealmString> contacts) {
         this.contacts = contacts;
     }
 
@@ -205,12 +205,11 @@ public class RealmUser extends RealmObject {
     }
 
     @Nullable
-    public RealmList<RealmMessage> getMessages() {
-        return messages;
+    public int getVersion() {
+        return version;
     }
 
-    public void setMessages(@Nullable RealmList<RealmMessage> messages) {
-        this.messages = messages;
+    public void setVersion(int version) {
+        this.version = version;
     }
-
 }

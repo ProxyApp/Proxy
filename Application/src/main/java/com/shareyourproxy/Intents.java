@@ -18,10 +18,13 @@ public class Intents {
     public static final String ACTION_SEARCH_VIEW = "com.shareyourproxy.intent.action.SEARCH";
     public static final String ACTION_ADD_CHANNEL_LIST_VIEW =
         "com.shareyourproxy.intent.action.ADD_CHANNEL_LIST";
-    public static final String ACTION_USER_PROFILE = "com.shareyourproxy.intent.action.USER_PROFILE";
-    public static final String ACTION_EDIT_GROUP_CHANNEL = "com.shareyourproxy.intent.action.EDIT_GROUP";
-    public static final String ACTION_VIEW_GROUP_USERS = "com.shareyourproxy.intent.action.VIEW_GROUP_USERS";
-    public static final String ACTION_VIEW_ABOUT= "com.shareyourproxy.intent.action.VIEW_ABOUT";
+    public static final String ACTION_USER_PROFILE = "com.shareyourproxy.intent.action" +
+        ".USER_PROFILE";
+    public static final String ACTION_EDIT_GROUP_CHANNEL = "com.shareyourproxy.intent.action" +
+        ".EDIT_GROUP";
+    public static final String ACTION_VIEW_GROUP_USERS = "com.shareyourproxy.intent.action" +
+        ".VIEW_GROUP_USERS";
+    public static final String ACTION_VIEW_ABOUT = "com.shareyourproxy.intent.action.VIEW_ABOUT";
 
     /**
      * Private constructor.
@@ -39,7 +42,7 @@ public class Intents {
     public static Intent getShareLinkIntent(String message) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, message );
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
         sendIntent.setType("text/plain");
         return sendIntent;
     }

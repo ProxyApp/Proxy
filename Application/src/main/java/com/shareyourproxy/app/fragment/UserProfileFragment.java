@@ -17,6 +17,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCall
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.ChannelGridAdapter;
+import com.shareyourproxy.app.adapter.ViewChannelAdapter;
 import com.shareyourproxy.app.dialog.EditChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
 import com.shareyourproxy.widget.transform.AlphaTransform;
@@ -62,14 +63,12 @@ import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.api.RestClient.getUserService;
-import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.app.adapter.ChannelGridAdapter.VIEW_TYPE_SECTION;
+import static com.shareyourproxy.app.adapter.ViewChannelAdapter.VIEW_TYPE_SECTION;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
@@ -96,7 +95,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     protected FrameLayout userProfileBackground;
     @BindColor(R.color.common_blue)
     protected int _blue;
-    private ChannelGridAdapter _adapter;
+    private ViewChannelAdapter _adapter;
     private Target _target;
     private Target _backgroundTarget;
     private PaletteAsyncListener _paletteListener;
@@ -178,7 +177,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         _contactGroups.clear();
         //creates group edit contacts array
         List<GroupEditContact> list = queryContactGroups(
-            getLoggedInUser(), createModelContact(_userContact));
+            getLoggedInUser(), _userContact);
         _contactGroups.addAll(list);
         ArrayList<Group> selectedGroupsList = new ArrayList<>(list.size());
         for (GroupEditContact groupEditContact : list) {
@@ -195,12 +194,32 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private void initializeActionBar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setToolbarTitle();
+        getSupportActionBar().setTitle("");
+    }
+
+    private void setToolbarTitle() {
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
         if (collapsingToolbarLayout != null) {
             collapsingToolbarLayout.setTitle(title);
+            collapsingToolbarLayout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
+            for (int i = 0; i < collapsingToolbarLayout.getChildCount(); i++) {
+                View childView = collapsingToolbarLayout.getChildAt(i);
+                if (!childView.isClickable()) {
+                    childView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            return true;
+                        }
+                    });
+                }
+            }
         }
-        getSupportActionBar().setTitle("");
-
     }
 
     private void initializeHeader() {
@@ -329,14 +348,14 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             }
         });
         recyclerView.setLayoutManager(manager);
-        if(_isLoggedInUser){
+        if (_isLoggedInUser) {
             emptyTextView.setText(getString(R.string.no_information_added));
-        }else {
+        } else {
             emptyTextView.setText(getString(R.string.no_information_to_share,
                 _userContact.first()));
         }
         recyclerView.setEmptyView(emptyTextView);
-        _adapter = ChannelGridAdapter.newInstance(channels, this);
+        _adapter = ViewChannelAdapter.newInstance(channels, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -360,7 +379,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     public void onResume() {
         super.onResume();
         checkCompositeButton();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(onNextEvent()));
     }
 
@@ -439,8 +458,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         snackbar.setAction(getString(R.string.undo), new OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRxBus().post(new AddUserChannelCommand(
-                    getLoggedInUser(), _deletedChannel, null));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), _deletedChannel));
             }
         });
         snackbar.setActionTextColor(_blue);
@@ -449,8 +467,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     public void getSharedChannels() {
         checkCompositeButton();
-        _subscriptions.add(bindFragment(this, queryPermissionedChannels(
-            getActivity(), getLoggedInUser().id().value(), _userContact.id().value()))
+        _subscriptions.add(queryPermissionedChannels(
+            getActivity(), getLoggedInUser().id().value(), _userContact.id().value())
             .subscribe(permissionedObserver()));
     }
 
@@ -463,7 +481,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
             @Override
             public void onNext(HashMap<String, Channel> channels) {
-                _adapter.refreshChannels(channels);
+                _adapter.updateChannels(channels);
             }
         };
     }

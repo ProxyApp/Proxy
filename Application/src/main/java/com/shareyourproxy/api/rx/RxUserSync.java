@@ -3,12 +3,13 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import java.util.Map;
 import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserService;
-import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
@@ -56,19 +56,17 @@ public class RxUserSync {
             @Override
             public HashMap<String, User> call(HashMap<String, User> users) {
                 User loggedInUser = users.get(loggedInUserId);
-                //for every loggedInUserContact
-                for (Map.Entry<String, Contact> contactEntry : loggedInUser.contacts().entrySet()) {
-                    Contact contact = contactEntry.getValue();
-                    String contactId = contact.id().value();
-                    //if that contact is in any logged in user group, update it
+                //for every loggedInUser Contact
+                for (Map.Entry<String, Id> contactId : loggedInUser.contacts().entrySet()) {
+                    //if that contactId is in any logged in user group, update it
                     for (Map.Entry<String, Group> groupEntry : loggedInUser.groups().entrySet()) {
                         Group group = groupEntry.getValue();
-                        HashMap<String, Contact> groupContacts = group.contacts();
-                        if (groupContacts.containsKey(contactId)){
-                            group.contacts().put(contactId, contact);
+                        HashMap<String, Id> groupContacts = group.contacts();
+                        if (groupContacts.containsKey(contactId.getKey())) {
+                            group.contacts().put(contactId.getKey(), Id.create(contactId.getKey()));
                         }
-                        loggedInUser.contacts().put(contactId, createModelContact(users.get
-                            (contactId)));
+                        loggedInUser.contacts().put(contactId.getKey(), Id.create(contactId
+                            .getKey()));
                     }
                 }
                 users.put(loggedInUserId, loggedInUser);
@@ -125,6 +123,7 @@ public class RxUserSync {
                 ArrayList<EventCallback> list = new ArrayList<>();
                 list.add(usersCallback);
                 list.add(loggedInUserCallback);
+                list.add(new SyncAllUsersSuccessEvent());
                 return list;
             }
         };

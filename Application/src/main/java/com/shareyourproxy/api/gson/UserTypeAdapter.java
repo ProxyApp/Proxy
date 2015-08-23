@@ -6,12 +6,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.shareyourproxy.api.domain.model.Channel;
-import com.shareyourproxy.api.domain.model.ChannelSection;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
-import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
 
 import java.io.IOException;
@@ -46,9 +43,8 @@ public class UserTypeAdapter extends TypeAdapter<User> {
     public User read(JsonReader reader) throws IOException {
         User.Builder user = User.builder();
         HashMap<String, Channel> channels = new HashMap<>();
-        HashMap<String, Contact> contacts = new HashMap<>();
+        HashMap<String, Id> contacts = new HashMap<>();
         HashMap<String, Group> groups = new HashMap<>();
-        HashMap<String, Message> messages = new HashMap<>();
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
@@ -81,6 +77,9 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                         case "groups":
                             checkGroupsArray(reader, groups);
                             break;
+                        case "version":
+                            user.version(reader.nextInt());
+                            break;
                         default:
                             reader.skipValue();
                             break;
@@ -101,7 +100,6 @@ public class UserTypeAdapter extends TypeAdapter<User> {
             user.channels(channels);
             user.contacts(contacts);
             user.groups(groups);
-            user.messages(messages);
             return user.build();
         }
         return null;
@@ -124,6 +122,51 @@ public class UserTypeAdapter extends TypeAdapter<User> {
             reader.endObject();
         } else if (reader.peek() == JsonToken.STRING) {
             res = reader.nextString();
+        } else if (reader.peek() == JsonToken.NAME) {
+            res = reader.nextName();
+        }
+
+        if (res == null) {
+            throw new IOException("Invalid Json");
+        } else {
+            return Id.builder().value(res).build();
+        }
+    }
+
+    public Id readContactId(JsonReader reader) throws IOException {
+        String res = null;
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+                    reader.beginObject();
+                    switch (reader.nextName()) {
+                        case "id":
+                            res = readId(reader).value();
+                            break;
+                        default:
+                            reader.skipValue();
+                            break;
+                    }
+                } else if (reader.peek() == JsonToken.NAME) {
+                    switch (reader.nextName()) {
+                        case "id":
+                            res = readId(reader).value();
+                            break;
+                        case "value":
+                            res = reader.nextString();
+                            break;
+                        default:
+                            reader.skipValue();
+                            break;
+                    }
+                }
+            }
+            reader.endObject();
+        } else if (reader.peek() == JsonToken.STRING) {
+            res = reader.nextString();
+        } else if (reader.peek() == JsonToken.NAME) {
+            res = reader.nextName();
         }
 
         if (res == null) {
@@ -154,12 +197,6 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                 case "label":
                     channel.label(reader.nextString());
                     break;
-                case "packageName":
-                    channel.packageName(reader.nextString());
-                    break;
-                case "channelSection":
-                    channel.channelSection(ChannelSection.valueOf(reader.nextString()));
-                    break;
                 case "channelType":
                     channel.channelType(ChannelType.valueOf(reader.nextString()));
                     break;
@@ -167,67 +204,12 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                     channel.actionAddress(reader.nextString());
                     break;
                 default:
-                    Timber.e("Skipped: " + reader.getPath());
                     reader.skipValue();
                     break;
             }
         }
         reader.endObject();
         return channel.build();
-    }
-
-    /**
-     * Parse a Contact.
-     *
-     * @param reader JSON
-     * @return User Contact
-     * @throws IOException cant read
-     */
-    public Contact readContact(JsonReader reader) throws IOException {
-        Contact.Builder contact = Contact.builder();
-        HashMap<String, Channel> channels = new HashMap<>();
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            if (reader.peek() == JsonToken.NULL) {
-                reader.nextNull();
-            } else if (reader.peek() == JsonToken.NAME) {
-                switch (reader.nextName()) {
-                    case "id":
-                        contact.id(readId(reader));
-                        break;
-                    case "first":
-                        contact.first(reader.nextString());
-                        break;
-                    case "last":
-                        contact.last(reader.nextString());
-                        break;
-                    case "profileURL":
-                        contact.profileURL(reader.nextString());
-                        break;
-                    case "coverURL":
-                        contact.coverURL(readCoverURL(reader));
-                        break;
-                    case "channels":
-                        checkChannelArray(reader, channels);
-                        break;
-                    default:
-                        reader.skipValue();
-                        break;
-                }
-            } else if (reader.peek() == JsonToken.STRING) {
-                Timber.e(reader.nextString());
-                contact.coverURL(readCoverURL(reader));
-            } else if (reader.peek() == JsonToken.NULL) {
-                return null;
-            } else {
-                Timber.e("readContact onError");
-                throw new IOException("Invalid Json");
-            }
-        }
-        reader.endObject();
-        contact.channels(channels);
-        return contact.build();
     }
 
     public String readCoverURL(JsonReader reader) throws IOException {
@@ -251,8 +233,8 @@ public class UserTypeAdapter extends TypeAdapter<User> {
      */
     public Group readGroup(JsonReader reader) throws IOException {
         Group.Builder group = Group.builder();
-        HashMap<String, Channel> channels = new HashMap<>();
-        HashMap<String, Contact> contacts = new HashMap<>();
+        HashMap<String, Id> channels = new HashMap<>();
+        HashMap<String, Id> contacts = new HashMap<>();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -264,7 +246,7 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                     group.label(reader.nextString());
                     break;
                 case "channels":
-                    checkChannelArray(reader, channels);
+                    checkGroupChannelArray(reader, channels);
                     break;
                 case "contacts":
                     checkContactsArray(reader, contacts);
@@ -280,45 +262,51 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         return group.build();
     }
 
-    private Message readMessage(JsonReader reader) throws IOException {
-        Message.Builder message = Message.builder();
-        Contact.Builder contact = Contact.builder();
-        HashMap<String, Channel> channels = new HashMap<>();
-        if (reader.peek() == JsonToken.NULL) {
-            reader.nextNull();
-        } else if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+    private void checkGroupChannelArray(JsonReader reader, HashMap<String, Id> channels)
+        throws IOException {
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
-                switch (reader.nextName()) {
-                    case "id":
-                        Id id = readId(reader);
-                        message.id(id);
-                        contact.id(id);
-                        break;
-                    case "first":
-                        contact.first(reader.nextString());
-                        break;
-                    case "last":
-                        contact.last(reader.nextString());
-                        break;
-                    case "profileURL":
-                        contact.profileURL(reader.nextString());
-                        break;
-                    case "channels":
-                        checkChannelArray(reader, channels);
-                        contact.channels(channels);
-                        break;
-                    default:
-                        reader.skipValue();
-                        break;
+                if (reader.peek() == JsonToken.NAME) {
+                    String id = reader.nextName();
+                    channels.put(id, Id.create(id));
+                } else if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        switch (reader.nextName()) {
+                            case "id":
+                                String id = readId(reader).value();
+                                channels.put(id, Id.create(id));
+                                break;
+                            default:
+                                reader.skipValue();
+                                break;
+                        }
+                    }
+                    reader.endObject();
                 }
             }
             reader.endObject();
-            message.contact(contact.build());
-            return message.build();
+        } else {
+            Timber.e("checkChannelArray onError expected:" +
+                reader.peek().toString());
+            throw new IOException("Invalid Json");
         }
-        Timber.e("Invalid Message");
-        return null;
+    }
+
+    private void checkContactsArray(JsonReader reader, HashMap<String, Id> contacts)
+        throws IOException {
+        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                Id id = readContactId(reader);
+                contacts.put(id.value(), id);
+            }
+            reader.endObject();
+        } else {
+            Timber.e("checkContactArray onError");
+            throw new IOException("Invalid Json");
+        }
     }
 
     private void checkChannelArray(JsonReader reader, HashMap<String, Channel> channels)
@@ -329,42 +317,9 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                 channels.put(reader.nextName(), readChannel(reader));
             }
             reader.endObject();
-        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                Channel channel = readChannel(reader);
-                channels.put(channel.id().value(), channel);
-            }
-            reader.endArray();
         } else {
             Timber.e("checkChannelArray onError expected:" +
                 reader.peek().toString());
-            throw new IOException("Invalid Json");
-        }
-    }
-
-    private void checkContactsArray(JsonReader reader, HashMap<String, Contact> contacts)
-        throws IOException {
-        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-            reader.beginObject();
-            while (reader.hasNext()) {
-                contacts.put(reader.nextName(), readContact(reader));
-            }
-            reader.endObject();
-        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
-            reader.beginArray();
-            while (reader.hasNext()) {
-
-                if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                    Contact contact = readContact(reader);
-                    contacts.put(contact.id().value(), contact);
-                } else {
-                    contacts.put(reader.nextName(), readContact(reader));
-                }
-            }
-            reader.endArray();
-        } else {
-            Timber.e("checkContactArray onError");
             throw new IOException("Invalid Json");
         }
     }
@@ -377,35 +332,9 @@ public class UserTypeAdapter extends TypeAdapter<User> {
                 groups.put(reader.nextName(), readGroup(reader));
             }
             reader.endObject();
-        } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                    Group group = readGroup(reader);
-                    groups.put(group.id().value(), group);
-                } else {
-                    groups.put(reader.nextName(), readGroup(reader));
-                }
-            }
-            reader.endArray();
         } else {
             Timber.i("Reader Error: " + reader.peek().toString());
             Timber.e("checkGroupsArray onError");
-            throw new IOException("Invalid Json");
-        }
-    }
-
-    private void checkMessagesArray(JsonReader reader, HashMap<String, Message> messages)
-        throws IOException {
-        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-            reader.beginObject();
-            while (reader.hasNext()) {
-                messages.put(reader.nextName(), readMessage(reader));
-            }
-            reader.endObject();
-        } else {
-            Timber.i("Reader Error: " + reader.peek().toString());
-            Timber.e("checkMessageArray onError");
             throw new IOException("Invalid Json");
         }
     }

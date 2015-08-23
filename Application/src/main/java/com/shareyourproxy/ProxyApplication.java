@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.domain.model;
+package com.shareyourproxy;
 
 import android.app.Activity;
 import android.app.Application;
@@ -13,29 +13,35 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.FacebookSdk;
 import com.firebase.client.Firebase;
 import com.google.android.gms.analytics.GoogleAnalytics;
-import com.shareyourproxy.BuildConfig;
-import com.shareyourproxy.Constants;
-import com.shareyourproxy.R;
 import com.shareyourproxy.api.CommandIntentService;
+import com.shareyourproxy.api.NotificationService;
+import com.shareyourproxy.api.aidl.INotificationService;
+import com.shareyourproxy.api.domain.model.Message;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserMessageCommand;
 import com.shareyourproxy.api.rx.command.BaseCommand;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserEventCallback;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -46,7 +52,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import timber.log.Timber;
 
-import static com.shareyourproxy.api.domain.factory.ContactFactory.createModelContact;
+import static com.shareyourproxy.api.CommandIntentService.ARG_COMMAND_CLASS;
 import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 import static com.shareyourproxy.api.rx.RxQuery.queryUser;
 
@@ -94,14 +100,22 @@ public class ProxyApplication extends Application {
         initializeBuildConfig();
         _sharedPreferences = getSharedPreferences(
             getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
+
         Firebase.setAndroidContext(this);
         FacebookSdk.sdkInitialize(this);
+        MultiDex.install(this);
+
+        TwitterAuthConfig authConfig =
+            new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
+        Fabric.with(this, new Twitter(authConfig));
         _bus.toObserverable().subscribe(getRequest());
+
         RealmConfiguration config = new RealmConfiguration.Builder(this)
             .deleteRealmIfMigrationNeeded()
             .schemaVersion(BuildConfig.VERSION_CODE)
             .build();
         Realm.setDefaultConfiguration(config);
+
         initializeNotificationService();
     }
 
@@ -142,7 +156,7 @@ public class ProxyApplication extends Application {
                 Timber.i("Checking for notifications, attempt:" + timesCalled.intValue());
                 try {
                     List<Notification> notifications =
-                        _notificationService.getNotifications((AutoParcel_User) _currentUser);
+                        _notificationService.getNotifications(_currentUser.id().value());
                     if (notifications != null && notifications.size() > 0) {
                         for (Notification notification : notifications) {
                             _notificationManager.notify(notification.hashCode(), notification);
@@ -170,14 +184,15 @@ public class ProxyApplication extends Application {
     }
 
     private void userContactAddedEvent(UserContactAddedEventCallback event) {
-        baseCommandEvent(new AddUserMessageCommand(event.contact.id().value(),
-            Message.create(event.user.id(), createModelContact(event.user))));
+        baseCommandEvent(new AddUserMessageCommand(event.contactId,
+            Message.create(UUID.randomUUID().toString(), event.user.id().value(),
+                event.user.first(), event.user.last())));
     }
 
     private void baseCommandEvent(BaseCommand event) {
         Timber.i("BaseCommand:" + event);
         Intent intent = new Intent(ProxyApplication.this, CommandIntentService.class);
-        intent.putExtra(CommandIntentService.ARG_COMMAND_CLASS, event);
+        intent.putExtra(ARG_COMMAND_CLASS, event);
         intent.putExtra(
             CommandIntentService.ARG_RESULT_RECEIVER, new ResultReceiver(null) {
                 @Override
@@ -191,17 +206,13 @@ public class ProxyApplication extends Application {
                             ProxyApplication.this, _currentUser.id().value());
                         updateUser(realmUser);
                         for (EventCallback event : events) {
-                            if (event instanceof UserEventCallback) {
-                                /**
-                                 * Event Callback data below is always the correct user.
-                                 */
-                                Boolean isEqual = ((UserEventCallback) event).user
-                                    .equals(realmUser);
-                                Timber.e("IS REALM USER EQUAL TO EVENTCALLBACK:" +
-                                    isEqual.toString());
-                            }
                             Timber.i("EventCallback:" + event);
                             getRxBus().post(event);
+                        }
+                    } else if (resultCode == Activity.RESULT_CANCELED) {
+                        BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
+                        if (command instanceof SyncAllUsersCommand) {
+                            getRxBus().post(new SyncAllUsersErrorEvent());
                         }
                     } else {
                         Timber.e("Error receiving result");

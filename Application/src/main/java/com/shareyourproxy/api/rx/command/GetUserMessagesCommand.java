@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 
-import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxMessageSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
@@ -16,32 +15,32 @@ public class GetUserMessagesCommand extends BaseCommand {
 
     public static final Creator<GetUserMessagesCommand> CREATOR =
         new Creator<GetUserMessagesCommand>() {
-        @Override
-        public GetUserMessagesCommand createFromParcel(Parcel in) {
-            return new GetUserMessagesCommand(in);
-        }
+            @Override
+            public GetUserMessagesCommand createFromParcel(Parcel in) {
+                return new GetUserMessagesCommand(in);
+            }
 
-        @Override
-        public GetUserMessagesCommand[] newArray(int size) {
-            return new GetUserMessagesCommand[size];
-        }
-    };
+            @Override
+            public GetUserMessagesCommand[] newArray(int size) {
+                return new GetUserMessagesCommand[size];
+            }
+        };
     private final static java.lang.ClassLoader CL = GetUserMessagesCommand.class.getClassLoader();
-    private final User user;
+    private final String userId;
 
-    public GetUserMessagesCommand(User user) {
+    public GetUserMessagesCommand(String userId) {
         super(GetUserMessagesCommand.class.getPackage().getName(),
             GetUserMessagesCommand.class.getName());
-        this.user = user;
+        this.userId = userId;
     }
 
     private GetUserMessagesCommand(Parcel in) {
-        this((User) in.readValue(CL));
+        this((String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxMessageSync.getFirebaseMessages(service, user);
+        return RxMessageSync.getFirebaseMessages(service, userId);
     }
 
     @Override

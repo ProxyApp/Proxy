@@ -26,15 +26,18 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Cover.CoverPhoto;
 import com.shareyourproxy.BuildConfig;
-import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserCommand;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -50,7 +53,9 @@ import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static rx.android.app.AppObservable.bindActivity;
+import static com.shareyourproxy.BuildConfig.VERSION_CODE;
+import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+
 
 /**
  * Activity to log in with google account.
@@ -69,14 +74,13 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     @Bind(R.id.activity_login_sign_in_button)
     protected SignInButton signInButton;
     // Transient
-    private final AuthResultHandler _authResultHandler = new AuthResultHandler(
-        new WeakReference<>(this), PROVIDER_GOOGLE, signInButton);
     private Firebase _firebaseRef;
     private boolean _googleIntentInProgress = false;
     private GoogleApiClient _googleApiClient;
     private PendingIntent _signInIntent;
     private int _signInError;
     private CompositeSubscription _subscriptions;
+    private AuthResultHandler _authResultHandler;
 
     /**
      * Return log in onError dialog based on the type of onError.
@@ -114,6 +118,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
 
         _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
         _googleApiClient = buildGoogleApiClient();
+        _authResultHandler = new AuthResultHandler(
+            new WeakReference<>(this), getRxBus(), signInButton);
     }
 
     /**
@@ -143,18 +149,33 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindActivity(this, getRxBus().toObserverable())
-            .subscribe(new JustObserver<Object>() {
-                @Override
-                public void onError() {
-                    showErrorDialog(LoginActivity.this, getString(R.string.rx_eventbus_error));
-                    signInButton.setEnabled(true);
-                }
+        _subscriptions.add(getRxBus().toObserverable()
+            .subscribe(getRxBusObserver()));
+    }
 
-                @Override
-                public void onNext(Object event) {
+    public JustObserver<Object> getRxBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void onError() {
+                showErrorDialog(LoginActivity.this, getString(R.string.rx_eventbus_error));
+                signInButton.setEnabled(true);
+            }
+
+            @Override
+            public void onNext(Object event) {
+                if (event instanceof SyncAllUsersSuccessEvent) {
+                    login();
+                } else if (event instanceof SyncAllUsersErrorEvent) {
+                    login();
                 }
-            }));
+            }
+        };
+    }
+
+    public void login() {
+        launchMainActivity(LoginActivity.this,
+            MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+        finish();
     }
 
     @Override
@@ -188,23 +209,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
             RestClient.getUserService().getUser(userId)
                 .compose(RxHelper.<User>applySchedulers())
-                .subscribe(new JustObserver<User>() {
-                    @Override
-                    public void onError() {
-                        showErrorDialog(
-                            LoginActivity.this, getString(R.string.retrofit_general_error));
-                        signInButton.setEnabled(true);
-                    }
-
-                    @Override
-                    public void onNext(User user) {
-                        if (user == null) {
-                            addUserToDatabase(createUserFromGoogle());
-                        } else {
-                            updateUser(user);
-                        }
-                    }
-                });
+                .subscribe(getUserObserver());
         } else {
             showErrorDialog(this, getString(R.string.login_error_retrieving_user));
             signInButton.setEnabled(true);
@@ -212,6 +217,26 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                 _googleApiClient.disconnect();
             }
         }
+    }
+
+    private JustObserver<User> getUserObserver() {
+        return new JustObserver<User>() {
+            @Override
+            public void onError() {
+                showErrorDialog(
+                    LoginActivity.this, getString(R.string.retrofit_general_error));
+                signInButton.setEnabled(true);
+            }
+
+            @Override
+            public void onNext(User user) {
+                if (user == null) {
+                    addUserToDatabase(createUserFromGoogle());
+                } else {
+                    updateUser(user);
+                }
+            }
+        };
     }
 
     /**
@@ -239,7 +264,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         //Create a new {@link User} with empty groups, contacts, and channels
         Id id = Id.builder().value(userUID).build();
         return User.create(id, firstName, lastName, email, profileURL, coverURL,
-            null, getDefaultGroups(), null, null);
+            null, getDefaultGroups(), null, VERSION_CODE);
     }
 
     private HashMap<String, Group> getDefaultGroups() {
@@ -282,7 +307,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * Get the authentication token from google plus so we can log into firebase.
      */
     private void getGoogleOAuthTokenAndLogin() {
-
         Observable.just("").map(new Func1<String, Pair<String, String>>() {
             @Override
             public Pair<String, String> call(String s) {
@@ -320,24 +344,28 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             }
         })
             .compose(RxHelper.<Pair<String, String>>applySchedulers())
-            .subscribe(new JustObserver<Pair<String, String>>() {
-                @Override
-                public void onError() {
-                    showErrorDialog(LoginActivity.this, getString(R.string.oauth_error));
-                }
+            .subscribe(getErrorMessageObserver());
+    }
 
-                @Override
-                public void onNext(Pair<String, String> values) {
-                    String token = values.first;
-                    String errorMessage = values.second;
-                    if (token != null) {
-                    /* Successfully got OAuth token, now login with Google */
-                        _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
-                    } else if (errorMessage != null) {
-                        showErrorDialog(LoginActivity.this, errorMessage);
-                    }
+    private JustObserver<Pair<String, String>> getErrorMessageObserver() {
+        return new JustObserver<Pair<String, String>>() {
+            @Override
+            public void onError() {
+                showErrorDialog(LoginActivity.this, getString(R.string.oauth_error));
+            }
+
+            @Override
+            public void onNext(Pair<String, String> values) {
+                String token = values.first;
+                String errorMessage = values.second;
+                if (token != null) {
+                /* Successfully got OAuth token, now login with Google */
+                    _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
+                } else if (errorMessage != null) {
+                    showErrorDialog(LoginActivity.this, errorMessage);
                 }
-            });
+            }
+        };
     }
 
     /* onConnectionFailed is called when our Activity could not connect to Google
@@ -447,28 +475,27 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      */
     private static class AuthResultHandler implements Firebase.AuthResultHandler {
         private final WeakReference<LoginActivity> activity;
-        private final String provider;
+        private final RxBusDriver rxBus;
         private final SignInButton signInButton;
 
         /**
          * Constructor.
          *
          * @param activity context
-         * @param provider auth provider
          */
         public AuthResultHandler(
-            WeakReference<LoginActivity> activity, String provider, SignInButton signInButton) {
-            this.provider = provider;
+            WeakReference<LoginActivity> activity, RxBusDriver rxBus, SignInButton signInButton) {
             this.activity = activity;
+            this.rxBus = rxBus;
             this.signInButton = signInButton;
         }
 
         @Override
         public void onAuthenticated(AuthData authData) {
-            Timber.i(provider + authData);
-            IntentLauncher.launchMainActivity(
-                activity.get(), MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
-            activity.get().finish();
+            String uid = authData.getUid();
+            RestClient.getUserService()
+                .updateUserVersion(uid, BuildConfig.VERSION_CODE).subscribe();
+            rxBus.post(new SyncAllUsersCommand(uid));
         }
 
         @Override

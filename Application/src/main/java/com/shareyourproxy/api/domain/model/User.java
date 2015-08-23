@@ -29,16 +29,16 @@ public abstract class User implements Parcelable {
      * @param channels   user channels
      * @param groups     user contactGroups
      * @param contacts   user contacts
-     * @param messages   user messages
+     * @param version    user apk version
      * @return the entered user data
      */
     public static User create(
         Id id, String firstName, String lastName, String email, String profileURL,
         String coverURL, HashMap<String, Channel> channels, HashMap<String, Group> groups,
-        HashMap<String, Contact> contacts, HashMap<String, Message> messages) {
+        HashMap<String, Id> contacts, int version) {
         return builder().id(id).first(firstName).last(lastName).email(email)
             .profileURL(profileURL).coverURL(coverURL).channels(channels)
-            .groups(groups).contacts(contacts).messages(messages).build();
+            .groups(groups).contacts(contacts).version(version).build();
     }
 
     /**
@@ -47,11 +47,6 @@ public abstract class User implements Parcelable {
      * @return this User.
      */
     public static Builder builder() {
-        // The subclass AutoParcel_PackagelessValueType is created by the annotation processor
-        // that is triggered by the presence of the @AutoParcel annotation. It has a constructor
-        // for each of the abstract getter methods here, in order. The constructor stashes the
-        // values here in private final fields, and each method is implemented to return the
-        // value of the corresponding field.
         return new AutoParcel_User.Builder();
     }
 
@@ -90,6 +85,7 @@ public abstract class User implements Parcelable {
      *
      * @return profile image
      */
+    @Nullable
     public abstract String profileURL();
 
     /**
@@ -114,7 +110,7 @@ public abstract class User implements Parcelable {
      * @return contacts
      */
     @Nullable
-    public abstract HashMap<String, Contact> contacts();
+    public abstract HashMap<String, Id> contacts();
 
     /**
      * Get users contactGroups.
@@ -125,26 +121,25 @@ public abstract class User implements Parcelable {
     public abstract HashMap<String, Group> groups();
 
     /**
-     * Get users messages.
+     * Get users apk version
      *
-     * @return messages
+     * @return apk code
      */
     @Nullable
-    public abstract HashMap<String, Message> messages();
+    public abstract Integer version();
 
     /**
      * Validation conditions.
      */
     @AutoParcel.Validate
     public void validate() {
-        if (first().length() == 0 || last() == null) {
+        if (first().length() == 0) {
             throw new IllegalStateException("Need a valid first name");
         }
-        if (last().length() == 0 || last() == null) {
+        if (last().length() == 0) {
             throw new IllegalStateException("Need a valid last name");
         }
     }
-
 
     /**
      * User Builder.
@@ -155,7 +150,7 @@ public abstract class User implements Parcelable {
         /**
          * Set user id.
          *
-         * @param id user unqiue id
+         * @param id user unique id
          * @return user id
          */
         Builder id(Id id);
@@ -182,6 +177,7 @@ public abstract class User implements Parcelable {
          * @param email this email
          * @return email string
          */
+        @Nullable
         Builder email(String email);
 
         /**
@@ -208,7 +204,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Contact}
          */
         @Nullable
-        Builder contacts(HashMap<String, Contact> contacts);
+        Builder contacts(HashMap<String, Id> contacts);
 
         /**
          * Set this {@link User}s {@link Group}s
@@ -229,13 +225,13 @@ public abstract class User implements Parcelable {
         Builder channels(HashMap<String, Channel> channels);
 
         /**
-         * Set this {@link User}s {@link Message}s
+         * Set this users apk version
          *
-         * @param messages user messages
-         * @return List {@link Channel}
+         * @param version user apk version
+         * @return version of build
          */
         @Nullable
-        Builder messages(HashMap<String, Message> messages);
+        Builder version(Integer version);
 
         /**
          * BUILD.

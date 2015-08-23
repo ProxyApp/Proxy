@@ -9,13 +9,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import com.shareyourproxy.app.adapter.ContactAdapter;
+import com.shareyourproxy.app.adapter.UserAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,9 +23,9 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
+import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.util.DebugUtils.showBroToast;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * Fragment to display a contactGroups contacts.
@@ -38,7 +37,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_contact_group_empty_textview)
     protected TextView emptyTextView;
-    private ContactAdapter _adapter;
+    private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -70,7 +69,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -134,15 +133,16 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     private void initializeRecyclerView() {
         recyclerView.setEmptyView(emptyTextView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ContactAdapter.newInstance(getGroupArg().contacts(), this);
+        _adapter = UserAdapter.newInstance(this);
+        _adapter.refreshUserList(queryUserContacts(
+            getActivity(), getGroupArg().contacts()));
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(
-            UserFactory.createModelUser(_adapter.getItemData(position))));
+        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
     }
 
     @Override

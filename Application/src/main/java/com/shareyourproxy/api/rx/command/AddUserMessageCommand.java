@@ -14,7 +14,8 @@ import java.util.List;
  * Created by Evan on 6/18/15.
  */
 public class AddUserMessageCommand extends BaseCommand {
-    public static final Creator<AddUserMessageCommand> CREATOR = new Creator<AddUserMessageCommand>() {
+    public static final Creator<AddUserMessageCommand> CREATOR = new
+        Creator<AddUserMessageCommand>() {
         @Override
         public AddUserMessageCommand createFromParcel(Parcel in) {
             return new AddUserMessageCommand(in);
@@ -25,8 +26,8 @@ public class AddUserMessageCommand extends BaseCommand {
             return new AddUserMessageCommand[size];
         }
     };
-    public final Message message;
     private final static java.lang.ClassLoader CL = AddUserMessageCommand.class.getClassLoader();
+    public final Message message;
     public final String userId;
 
     /**

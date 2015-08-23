@@ -42,13 +42,22 @@ public class AddUserChannelCommand extends BaseCommand {
         this.oldChannel = oldChannel;
     }
 
+    public AddUserChannelCommand(
+        @NonNull User user, @NonNull Channel newChannel) {
+        super(AddUserChannelCommand.class.getPackage().getName(),
+            AddUserChannelCommand.class.getName());
+        this.user = user;
+        this.newChannel = newChannel;
+        this.oldChannel = null;
+    }
+
     private AddUserChannelCommand(Parcel in) {
         this((User) in.readValue(CL), (Channel) in.readValue(CL), (Channel) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserChannelSync.addUserChannel(service, user, oldChannel, newChannel);
+        return RxUserChannelSync.saveUserChannel(service, user, oldChannel, newChannel);
     }
 
     @Override

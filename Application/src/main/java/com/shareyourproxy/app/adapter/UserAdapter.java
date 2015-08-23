@@ -31,6 +31,7 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     //Persisted User Array Data
     private SortedList<User> _users;
     private SortedList.Callback<User> _sortedListCallback;
+    private boolean _needsRefresh = true;
 
     public UserAdapter(ItemClickListener listener) {
         _clickListener = listener;
@@ -62,12 +63,21 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public void onInserted(int position, int count) {
+                    if (_needsRefresh) {
+                        notifyDataSetChanged();
+                        _needsRefresh = false;
+                    }
                     notifyItemRangeInserted(position, count);
                 }
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(position, count);
+                    if (getItemCount() == 0) {
+                        notifyDataSetChanged();
+                        _needsRefresh = true;
+                    } else {
+                        notifyItemRangeRemoved(position, count);
+                    }
                 }
 
                 @Override

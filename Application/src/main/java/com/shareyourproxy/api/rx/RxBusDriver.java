@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx;
 
-import com.shareyourproxy.api.domain.model.ProxyApplication;
+import com.shareyourproxy.ProxyApplication;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -29,7 +29,7 @@ public class RxBusDriver {
     }
 
     public Observable<Object> toObserverable() {
-        return _rxBus;
+        return _rxBus.compose(RxHelper.applySchedulers());
     }
 
     /**

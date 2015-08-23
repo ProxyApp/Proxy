@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Show an Apache License.
@@ -46,6 +46,6 @@ public class AboutFragment extends BaseFragment {
     private void initialize() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.settings_about);
+        getSupportActionBar().setTitle(R.string.about);
     }
 }

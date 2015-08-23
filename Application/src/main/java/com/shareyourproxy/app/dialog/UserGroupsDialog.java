@@ -15,8 +15,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.factory.ContactFactory;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
@@ -32,7 +30,7 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 /**
- * This Dialog provides a toggle selection to add a User contact to the logged in User's various
+ * This Dialog provides a toggle selection to add a User contactId to the logged in User's various
  * saved groups.
  */
 public class UserGroupsDialog extends BaseDialogFragment {
@@ -71,7 +69,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
      * Create a new instance of a {@link UserGroupsDialog}.
      *
      * @param groups logged in user groups
-     * @param user   this is actually the contact of the logged in user
+     * @param user   this is actually the contactId of the logged in user
      * @return A {@link UserGroupsDialog}
      */
     public static UserGroupsDialog newInstance(
@@ -89,15 +87,14 @@ public class UserGroupsDialog extends BaseDialogFragment {
 
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
-        Contact contact = ContactFactory.createModelContact(user);
         getRxBus().post(new SaveGroupContactsCommand(
-            getLoggedInUser(), _adapter.getDataArray(), contact));
+            getLoggedInUser(), _adapter.getDataArray(), user.id().value()));
     }
 
     /**
-     * Get the logged in user's contact.
+     * Get the logged in user's contactId.
      *
-     * @return contact
+     * @return contactId
      */
     private User getUserArg() {
         return getArguments().getParcelable(ARG_USER);

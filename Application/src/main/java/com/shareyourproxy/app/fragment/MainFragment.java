@@ -25,8 +25,8 @@ import com.shareyourproxy.widget.ContentDescriptionDrawable;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
@@ -37,6 +37,8 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class MainFragment extends BaseFragment {
 
+    public static final int ARG_SELECT_CONTACTS_TAB = 0;
+    public static final int ARG_SELECT_GROUP_TAB = 1;
     @Bind(R.id.include_toolbar)
     protected Toolbar toolbar;
     @Bind(R.id.activity_main_drawer_layout)
@@ -48,8 +50,6 @@ public class MainFragment extends BaseFragment {
     private List<Fragment> _fragmentArray;
     private int _selectedColor;
     private int _unselectedColor;
-    public static final int ARG_SELECT_CONTACTS_TAB = 0;
-    public static final int ARG_SELECT_GROUP_TAB = 1;
 
     @Override
     public View onCreateView(

@@ -16,7 +16,7 @@ public abstract class Id implements Parcelable {
     /**
      * User Constructor.
      *
-     * @param id        user unique ID
+     * @param id user unique ID
      * @return the entered user data
      */
     public static Id create(String id) {

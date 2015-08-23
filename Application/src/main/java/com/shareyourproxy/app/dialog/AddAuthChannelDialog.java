@@ -36,9 +36,9 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 /**
  * Update a facebook intent with user input data.
  */
-public class AddFacebookChannelDialog extends BaseDialogFragment {
-    private static final String ARG_CHANNEL = "AddFacebookChannelDialog.Channel";
-    private static final String TAG = getSimpleName(AddFacebookChannelDialog.class);
+public class AddAuthChannelDialog extends BaseDialogFragment {
+    private static final String ARG_CHANNEL = "AddAuthChannelDialog.Channel";
+    private static final String TAG = getSimpleName(AddAuthChannelDialog.class);
     private final DialogInterface.OnClickListener _helpClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -46,7 +46,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
                 IntentLauncher.launchFacebookHelpIntent(getActivity());
             }
         };
-    @Bind(R.id.dialog_channel_facebook_action_address_edittext)
+    @Bind(R.id.dialog_channel_auth_action_address_edittext)
     protected EditText editTextActionAddress;
     private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
@@ -56,7 +56,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    @Bind(R.id.dialog_channel_facebook_action_address_floatlabel)
+    @Bind(R.id.dialog_channel_auth_action_address_floatlabel)
     protected TextInputLayout floatLabelAddress;
     @BindColor(R.color.common_text)
     protected int _textColor;
@@ -92,16 +92,16 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
         };
 
     /**
-     * Create a new instance of a {@link AddFacebookChannelDialog}.
+     * Create a new instance of a {@link AddAuthChannelDialog}.
      *
-     * @return A {@link AddFacebookChannelDialog
+     * @return A {@link AddAuthChannelDialog
      */
-    public static AddFacebookChannelDialog newInstance(Channel channel) {
+    public static AddAuthChannelDialog newInstance(Channel channel) {
         //Bundle arguments
         Bundle bundle = new Bundle();
         bundle.putParcelable(ARG_CHANNEL, channel);
         //create dialog instance
-        AddFacebookChannelDialog dialog = new AddFacebookChannelDialog();
+        AddAuthChannelDialog dialog = new AddAuthChannelDialog();
         dialog.setArguments(bundle);
         return dialog;
     }
@@ -114,7 +114,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
         if (!TextUtils.isEmpty(actionContent.trim())) {
             Channel channel =
                 createModelInstance(_channel, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, null));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
     }
 
@@ -124,7 +124,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
      *
      * @param editable the string entered in the {@link EditText}
      */
-    @OnTextChanged(value = R.id.dialog_channel_facebook_action_address_edittext,
+    @OnTextChanged(value = R.id.dialog_channel_auth_action_address_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void afterActionAddressChanged(Editable editable) {
         editTextActionAddress.getBackground().setColorFilter(
@@ -143,12 +143,13 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
     public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         View view = getActivity().getLayoutInflater()
-            .inflate(R.layout.dialog_channel_facebook, null, false);
+            .inflate(R.layout.dialog_auth_channel, null, false);
         ButterKnife.bind(this, view);
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
             R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.dialog_addchannel_title_facebook)
+            .setTitle(getString(
+                R.string.dialog_addchannel_title_add_blank, _channel.channelType().getLabel()))
             .setView(view)
             .setPositiveButton(getString(R.string.save), _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
@@ -163,7 +164,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
         initializeEditTextColors();
         return dialog;
     }
-    
+
     @Override
     public void onStart() {
         super.onStart();
@@ -179,7 +180,9 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
      */
     private void initializeEditTextColors() {
         editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-        floatLabelAddress.setHint(getString(R.string.dialog_addchannel_hint_address_facebook));
+        floatLabelAddress.setHint(getString(
+            R.string.dialog_addchannel_hint_address_blank_handle,
+            _channel.channelType().getLabel()));
     }
 
     @Override
@@ -194,7 +197,7 @@ public class AddFacebookChannelDialog extends BaseDialogFragment {
      * @param fragmentManager manager of fragments
      * @return this dialog
      */
-    public AddFacebookChannelDialog show(FragmentManager fragmentManager) {
+    public AddAuthChannelDialog show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);
         return this;
     }

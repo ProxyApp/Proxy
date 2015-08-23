@@ -34,7 +34,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
 
     public static UserGroupsAdapter newInstance(HashMap<String, Group> groups) {
         ArrayList<GroupEditContact> groupEditContacts = new ArrayList<>(groups.size());
-        for(Map.Entry<String, Group> group : groups.entrySet()){
+        for (Map.Entry<String, Group> group : groups.entrySet()) {
             GroupEditContact newEntry = new GroupEditContact(group.getValue(), false);
             groupEditContacts.add(newEntry);
         }

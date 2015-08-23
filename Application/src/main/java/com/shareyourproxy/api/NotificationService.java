@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.domain.model;
+package com.shareyourproxy.api;
 
 import android.app.Notification;
 import android.app.Service;
@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.shareyourproxy.api.aidl.INotificationService;
 import com.shareyourproxy.api.rx.command.GetUserMessagesCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback;
@@ -21,9 +22,9 @@ import timber.log.Timber;
 public class NotificationService extends Service {
     private final INotificationService.Stub _binder = new INotificationService.Stub() {
         @Override
-        public ArrayList<Notification> getNotifications(AutoParcel_User user)
+        public ArrayList<Notification> getNotifications(String userId)
             throws RemoteException {
-            List<EventCallback> event = new GetUserMessagesCommand(user).execute
+            List<EventCallback> event = new GetUserMessagesCommand(userId).execute
                 (NotificationService.this);
             EventCallback eventData = event.get(0);
 
@@ -31,11 +32,11 @@ public class NotificationService extends Service {
                 ArrayList<Notification> notifications =
                     ((UserMessagesDownloadedEventCallback) eventData).notifications;
                 if (notifications != null) {
-                    Timber.e("Message Downloaded");
+                    Timber.i("Message Downloaded");
                     return notifications;
                 }
             }
-            Timber.e("No Message");
+            Timber.i("No Messages");
             return new ArrayList<>();
         }
     };

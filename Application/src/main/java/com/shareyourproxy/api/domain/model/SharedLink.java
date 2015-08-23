@@ -18,7 +18,7 @@ public abstract class SharedLink implements Parcelable {
     /**
      * Create a new Contact.
      *
-     * @param user of shared content
+     * @param user  of shared content
      * @param group to share
      * @return shared link
      */

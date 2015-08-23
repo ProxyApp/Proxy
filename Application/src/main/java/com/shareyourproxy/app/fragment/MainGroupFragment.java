@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,8 @@ import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.GroupAdapter;
@@ -42,13 +45,14 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
  */
 public class MainGroupFragment
     extends BaseFragment implements ItemClickListener {
+    @Bind(R.id.fragment_group_main_coordinator)
+    protected CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_group_main_recyclerview)
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_group_main_fab_group)
@@ -67,7 +71,6 @@ public class MainGroupFragment
                 @Override
                 public void run() {
                     getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
@@ -98,11 +101,6 @@ public class MainGroupFragment
         IntentLauncher.launchGroupEditChannelActivity(getActivity(), Group.createBlank());
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
     public void checkGroupDeleted(Activity activity) {
         Boolean groupDeleted = activity.getIntent().getExtras().getBoolean(Constants
             .ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, false);
@@ -113,8 +111,8 @@ public class MainGroupFragment
     }
 
     private void showSnackBar(final Group group) {
-        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.undo_delete), Snackbar
-            .LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(floatingActionButton, getString(R.string.undo_delete),
+            Snackbar.LENGTH_LONG);
         snackbar.setAction(getString(R.string.undo), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +131,7 @@ public class MainGroupFragment
         initializeSVG();
         initializeRecyclerView();
         initializeSwipeRefresh();
+        checkGroupDeleted(getActivity());
         return rootView;
     }
 
@@ -156,9 +155,8 @@ public class MainGroupFragment
     @Override
     public void onResume() {
         super.onResume();
-        checkGroupDeleted(getActivity());
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())//
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -168,6 +166,12 @@ public class MainGroupFragment
                         updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
                     } else if (event instanceof GroupChannelsUpdatedEventCallback) {
                         groupAdded((GroupChannelsUpdatedEventCallback) event);
+                    } else if (event instanceof SyncAllUsersCommand) {
+                        swipeRefreshLayout.setRefreshing(true);
+                    } else if (event instanceof SyncAllUsersSuccessEvent) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    } else if (event instanceof SyncAllUsersErrorEvent) {
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }
             }));
@@ -221,7 +225,7 @@ public class MainGroupFragment
      * @return Group List
      */
     private HashMap<String, Group> getGroupData() {
-        if (getLoggedInUser().groups() != null) {
+        if (getLoggedInUser() != null) {
             return getLoggedInUser().groups();
         } else {
             return null;

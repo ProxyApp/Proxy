@@ -18,21 +18,34 @@ import com.facebook.login.LoginResult;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
+import com.shareyourproxy.app.adapter.AddChannelAdapter;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.ChannelAdapter;
+import com.shareyourproxy.app.dialog.AddAuthChannelDialog;
 import com.shareyourproxy.app.dialog.AddChannelDialog;
-import com.shareyourproxy.app.dialog.AddFacebookChannelDialog;
+import com.shareyourproxy.app.dialog.AddRedditChannelDialog;
+import com.shareyourproxy.app.dialog.ErrorDialog;
+import com.shareyourproxy.app.dialog.InstagramAuthDialog;
+import com.shareyourproxy.app.dialog.SpotifyAuthDialog;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
+import static com.shareyourproxy.api.domain.model.ChannelType.Facebook;
+import static com.shareyourproxy.api.domain.model.ChannelType.Twitter;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 /**
@@ -40,9 +53,13 @@ import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
  */
 public class AddChannelListFragment extends BaseFragment implements ItemClickListener {
 
+    public static final String TWITTER_LOGIN_ERROR = "Twitter Login Error";
+    public static final String TWITTER_ERROR = "Error authenticating with Twitter.";
     @Bind(R.id.fragment_channel_list_recyclerview)
     protected BaseRecyclerView recyclerView;
-    private ChannelAdapter _adapter;
+    @Bind(R.id.fragment_user_profile_twitter)
+    protected TwitterLoginButton twitterLoginButton;
+    private AddChannelAdapter _adapter;
     private CallbackManager _callbackManager;
     private LoginManager _loginManager;
     private Channel _clickedChannel;
@@ -92,10 +109,9 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                             try {
                                 String id = object.getString("id");
                                 Channel channel = createModelInstance(
-                                    id, getString(R.string.facebook), _clickedChannel.channelType(),
-                                    _clickedChannel.channelSection(), "");
+                                    id, Facebook.toString(), _clickedChannel.channelType(), "");
 
-                                AddFacebookChannelDialog
+                                AddAuthChannelDialog
                                     .newInstance(channel).show(getFragmentManager());
                             } catch (JSONException e) {
                                 Timber.e(Log.getStackTraceString(e));
@@ -125,7 +141,30 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
      */
     private void initialize() {
         initializeFaceBookLogin();
+        initializeTwitterLogin();
         initializeRecyclerView();
+    }
+
+    private void initializeTwitterLogin() {
+        twitterLoginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                String id = String.valueOf(result.data.getUserId());
+                String handle = result.data.getUserName();
+
+                Channel channel = createModelInstance(
+                    id, Twitter.toString(), _clickedChannel.channelType(), handle);
+
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Timber.e(Log.getStackTraceString(exception));
+                ErrorDialog.newInstance(TWITTER_LOGIN_ERROR,
+                    TWITTER_ERROR).show(getActivity().getSupportFragmentManager());
+            }
+        });
     }
 
     /**
@@ -133,7 +172,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ChannelAdapter.newInstance(this);
+        _adapter = AddChannelAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
     }
@@ -143,13 +182,72 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
         _clickedChannel = _adapter.getItemData(position);
         ChannelType channelType = _clickedChannel.channelType();
 
-        if (channelType.equals(ChannelType.Facebook)) {
-            _loginManager.logInWithReadPermissions(
-                this, Arrays.asList("public_profile", "user_friends"));
-        } else {
-            AddChannelDialog.newInstance(
-                _clickedChannel.channelType(), _clickedChannel.channelSection())
-                .show(getActivity().getSupportFragmentManager());
+
+        switch (channelType) {
+
+            case Custom:
+            case Phone:
+            case SMS:
+            case Email:
+            case Web:
+            case Meerkat:
+            case Snapchat:
+            case Linkedin:
+            case FBMessenger:
+            case Hangouts:
+            case Whatsapp:
+            case Yo:
+            case Googleplus:
+            case Github:
+            case Address:
+            case Slack:
+            case Youtube:
+            case Tumblr:
+            case Ello:
+            case Venmo:
+            case Periscope:
+            case Medium:
+            case Soundcloud:
+            case Skype:
+                AddChannelDialog.newInstance(
+                    _clickedChannel.channelType())
+                    .show(getActivity().getSupportFragmentManager());
+                break;
+            case Facebook:
+                _loginManager.logInWithReadPermissions(
+                    this, Arrays.asList("public_profile", "user_friends"));
+                break;
+            case Twitter:
+                try {
+                    getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
+                    twitterLoginButton.performClick();
+                } catch (Exception e) {
+                    Channel channel = createModelInstance(UUID.randomUUID().toString(),
+                        Twitter.toString(), _clickedChannel.channelType(), "");
+                    AddAuthChannelDialog.newInstance(channel)
+                        .show(getActivity().getSupportFragmentManager());
+                }
+                break;
+            case Reddit:
+                AddRedditChannelDialog.newInstance(_clickedChannel.channelType())
+                    .show(getActivity().getSupportFragmentManager());
+                break;
+            case Instagram:
+                InstagramAuthDialog.newInstance().show(getFragmentManager());
+                break;
+            case Spotify:
+                SpotifyAuthDialog.newInstance().show(getFragmentManager());
+//                AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder
+// (CLIENT_ID,
+//                    AuthenticationResponse.Type.TOKEN,
+//                    REDIRECT_URI);
+//                builder.setScopes(new String[]{"user-read-private", "streaming"})
+//                AuthenticationRequest request = builder.build();
+//
+//                AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+                break;
+            default:
+                break;
         }
     }
 
@@ -168,6 +266,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         _callbackManager.onActivityResult(requestCode, resultCode, data);
+        twitterLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
 }

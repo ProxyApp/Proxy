@@ -15,28 +15,28 @@ import java.util.List;
 /**
  * Created by Evan on 7/8/15.
  */
-public class AddUserGroupsChannelCommand extends BaseCommand{
+public class AddUserGroupsChannelCommand extends BaseCommand {
     public static final Parcelable.Creator<AddUserGroupsChannelCommand> CREATOR =
         new Parcelable.Creator<AddUserGroupsChannelCommand>() {
-        @Override
-        public AddUserGroupsChannelCommand createFromParcel(Parcel in) {
-            return new AddUserGroupsChannelCommand(in);
-        }
+            @Override
+            public AddUserGroupsChannelCommand createFromParcel(Parcel in) {
+                return new AddUserGroupsChannelCommand(in);
+            }
 
-        @Override
-        public AddUserGroupsChannelCommand[] newArray(int size) {
-            return new AddUserGroupsChannelCommand[size];
-        }
-    };
-    public final Channel channel;
-    public final User user;
+            @Override
+            public AddUserGroupsChannelCommand[] newArray(int size) {
+                return new AddUserGroupsChannelCommand[size];
+            }
+        };
     private final static java.lang.ClassLoader CL =
         AddUserGroupsChannelCommand.class.getClassLoader();
+    public final Channel channel;
+    public final User user;
 
     /**
      * Public constructor.
      *
-     * @param user  logged in user
+     * @param user    logged in user
      * @param channel this events group
      */
     public AddUserGroupsChannelCommand(@NonNull User user, @NonNull Channel channel) {

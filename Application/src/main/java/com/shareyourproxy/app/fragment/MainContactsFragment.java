@@ -12,16 +12,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.factory.UserFactory;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.ContactAdapter;
-
-import java.util.HashMap;
+import com.shareyourproxy.app.adapter.UserAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -29,9 +27,9 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
+import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.DebugUtils.showBroToast;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * A recyclerView of Favorite {@link User}s.
@@ -50,12 +48,11 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                 @Override
                 public void run() {
                     getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
     };
-    private ContactAdapter _adapter;
+    private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -103,13 +100,9 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        HashMap<String, Contact> contacts = null;
-        if (getLoggedInUser() != null) {
-            contacts = getLoggedInUser().contacts();
-        }
         recyclerView.setEmptyView(emptyTextView);
         recyclerView.setSwipeRefreshLayout(swipeRefreshLayout);
-        _adapter = ContactAdapter.newInstance(contacts, this);
+        _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -119,7 +112,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(bindFragment(this, getRxBus().toObserverable())
+        _subscriptions.add(getRxBus().toObserverable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -127,12 +120,19 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                         onUserSelected((UserSelectedEvent) event);
                     } else if (event instanceof LoggedInUserUpdatedEventCallback) {
                         userUpdated((LoggedInUserUpdatedEventCallback) event);
+                    } else if (event instanceof SyncAllUsersCommand) {
+                        swipeRefreshLayout.setRefreshing(true);
+                    } else if (event instanceof SyncAllUsersSuccessEvent) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    } else if (event instanceof SyncAllUsersErrorEvent) {
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }
             }));
         User loggedInUser = getLoggedInUser();
         if (getLoggedInUser() != null) {
-            _adapter.updateContactsList(loggedInUser.contacts());
+            _adapter.refreshUserList(
+                queryUserContacts(getActivity(), loggedInUser.contacts()));
         }
     }
 
@@ -145,13 +145,13 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     }
 
     private void userUpdated(LoggedInUserUpdatedEventCallback event) {
-        _adapter.updateContactsList(event.user.contacts());
+        _adapter.refreshUserList(
+            queryUserContacts(getActivity(), event.user.contacts()));
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(
-            UserFactory.createModelUser(_adapter.getItemData(position))));
+        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
     }
 
     @Override

@@ -22,15 +22,12 @@ import java.util.Map;
 
 import butterknife.Bind;
 
-import static com.shareyourproxy.api.domain.model.ChannelSection.General;
-import static com.shareyourproxy.api.domain.model.ChannelType.Custom;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.getActivityIcon;
 
 /**
  * Adapter for a users profile and their {@link Channel} package permissions.
  */
-public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
+public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int VIEW_TYPE_SECTION = 1;
     public static final int VIEW_TYPE_CONTENT = 2;
     private final ItemClickListener _clickListener;
@@ -39,11 +36,11 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     private boolean _needsRefresh = true;
 
     /**
-     * Constructor for {@link ChannelGridAdapter}.
+     * Constructor for {@link ViewChannelAdapter}.
      *
      * @param listener click listener
      */
-    private ChannelGridAdapter(HashMap<String, Channel> channels, ItemClickListener listener) {
+    private ViewChannelAdapter(HashMap<String, Channel> channels, ItemClickListener listener) {
         _clickListener = listener;
         if (channels != null) {
             _channels = new SortedList<>(
@@ -56,16 +53,16 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     }
 
     /**
-     * Create a newInstance of a {@link ChannelGridAdapter} with blank data.
+     * Create a newInstance of a {@link ViewChannelAdapter} with blank data.
      *
-     * @return an {@link ChannelGridAdapter} with no data
+     * @return an {@link ViewChannelAdapter} with no data
      */
-    public static ChannelGridAdapter newInstance(
+    public static ViewChannelAdapter newInstance(
         HashMap<String, Channel> channels, ItemClickListener listener) {
-        return new ChannelGridAdapter(channels, listener);
+        return new ViewChannelAdapter(channels, listener);
     }
 
-    private void updateChannels(HashMap<String, Channel> channels) {
+    public void updateChannels(HashMap<String, Channel> channels) {
         if (channels != null) {
             _channels.beginBatchedUpdates();
             _channels.clear();
@@ -74,10 +71,6 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
             }
             _channels.endBatchedUpdates();
         }
-    }
-
-    public void refreshChannels(HashMap<String, Channel> channels) {
-            updateChannels(channels);
     }
 
     public void addChannel(Channel channel) {
@@ -105,7 +98,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public void onInserted(int position, int count) {
-                    if(_needsRefresh){
+                    if (_needsRefresh) {
                         notifyDataSetChanged();
                         _needsRefresh = false;
                     }
@@ -114,10 +107,10 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    if(getItemCount() == 0){
+                    if (getItemCount() == 0) {
                         notifyDataSetChanged();
                         _needsRefresh = true;
-                    }else {
+                    } else {
                         notifyItemRangeRemoved(position, count);
                     }
                 }
@@ -136,15 +129,12 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
                 public boolean areContentsTheSame(Channel item1, Channel item2) {
                     return (item1.id().value().equals(item2.id().value())
                         && item1.label().equals(item2.label())
-                        && item1.packageName().equals(item2.packageName())
-                        && item1.channelSection() == item2.channelSection()
                         && item1.channelType().equals(item2.channelType()));
                 }
 
                 @Override
                 public boolean areItemsTheSame(Channel item1, Channel item2) {
-                    return (item1.id().equals(item2.id())
-                        && item1.channelSection() == item2.channelSection());
+                    return item1.id().equals(item2.id());
                 }
             };
         }
@@ -165,11 +155,7 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        if (holder instanceof SectionViewHolder) {
-            bindSectionViewData((SectionViewHolder) holder);
-        } else if (holder instanceof ContentViewHolder) {
-            bindContentViewData((ContentViewHolder) holder, getItemData(position));
-        }
+        bindContentViewData((ContentViewHolder) holder, getItemData(position));
     }
 
     /**
@@ -182,28 +168,10 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
     private void bindContentViewData(ContentViewHolder holder, Channel channel) {
         Context context = holder._view.getContext();
         ChannelType channelType = channel.channelType();
-        if (channelType.equals(Custom)) {
-            holder.channelImage.setImageDrawable(getAndroidIconDrawable(
-                context, getActivityIcon(context, channel.packageName())));
-        } else {
-            holder.channelImage.setImageDrawable(
-                getSVGIconDrawable(
-                    context, channelType.getResId(),
-                    getChannelBackgroundColor(context, channelType)));
-        }
-        holder.channelName.setText(channel.label());
-    }
 
-    /**
-     * Set this {@link BaseViewHolder} underlying section data.
-     *
-     * @param holder {@link Channel} {@link BaseViewHolder}
-     */
-    private void bindSectionViewData(SectionViewHolder holder) {
-        Context context = holder._view.getContext();
-        holder.sectionName.setText(General.toString());
-        int resourceId = General.getResId();
-        holder.sectionImage.setImageDrawable(getSectionResourceDrawable(context, resourceId));
+        holder.channelImage.setImageDrawable(
+            getSVGIconDrawable(context, channel, getChannelBackgroundColor(context, channelType)));
+        holder.channelName.setText(channel.label());
     }
 
     @Override
@@ -223,38 +191,6 @@ public class ChannelGridAdapter extends BaseRecyclerViewAdapter {
 
     public void removeChannel(Channel channel) {
         _channels.remove(channel);
-    }
-
-    /**
-     * ViewHolder for the entered settings data.
-     */
-    public static final class SectionViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_channel_grid_section_image)
-        protected ImageView sectionImage;
-        @Bind(R.id.adapter_channel_grid_section_name)
-        protected TextView sectionName;
-
-        /**
-         * Constructor for the ItemViewHolder.
-         *
-         * @param itemClickListener click listener for this view
-         * @param view              the inflated view
-         */
-        private SectionViewHolder(View view, ItemClickListener itemClickListener) {
-            super(view, itemClickListener);
-        }
-
-        /**
-         * Create a new Instance of the ViewHolder.
-         *
-         * @param view              inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
-         * @param itemClickListener click listener for this view
-         * @return a ViewHolder instance
-         */
-        public static SectionViewHolder newInstance(
-            View view, ItemClickListener itemClickListener) {
-            return new SectionViewHolder(view, itemClickListener);
-        }
     }
 
     /**

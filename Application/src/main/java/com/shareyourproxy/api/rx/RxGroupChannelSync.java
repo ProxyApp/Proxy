@@ -9,6 +9,7 @@ import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupEditChannel;
+import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.SharedLink;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
@@ -38,7 +39,7 @@ public class RxGroupChannelSync {
         Context context, User user, Channel channel) {
         String channelId = channel.id().value();
         for (Map.Entry<String, Group> entryGroup : user.groups().entrySet()) {
-            entryGroup.getValue().channels().put(channelId, channel);
+            entryGroup.getValue().channels().put(channelId, Id.create(channelId));
         }
         return Observable.zip(
             saveRealmUserGroupChannels(context, user),
@@ -92,7 +93,7 @@ public class RxGroupChannelSync {
         return RestClient.getUserGroupService().updateUserGroups(userId, user.groups());
     }
 
-    public static HashMap<String, Channel> getSelectedChannels(
+    public static HashMap<String, Id> getSelectedChannels(
         SortedList<GroupEditChannel> channels) {
         return Observable.just(channels).map(getSelectedChannels()).toBlocking().single();
     }
@@ -100,7 +101,7 @@ public class RxGroupChannelSync {
 
     public static List<EventCallback> updateGroupChannels(
         Context context, User user, String newTitle, Group oldGroup,
-        HashMap<String, Channel> channels) {
+        HashMap<String, Id> channels) {
         return Observable.zip(
             saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
             saveFirebaseGroupChannels(user.id().value(), newTitle, oldGroup, channels),
@@ -109,17 +110,18 @@ public class RxGroupChannelSync {
             .toList().toBlocking().single();
     }
 
-    private static Func1<SortedList<GroupEditChannel>, HashMap<String, Channel>>
+    private static Func1<SortedList<GroupEditChannel>, HashMap<String, Id>>
     getSelectedChannels() {
-        return new Func1<SortedList<GroupEditChannel>, HashMap<String, Channel>>() {
+        return new Func1<SortedList<GroupEditChannel>, HashMap<String, Id>>() {
             @Override
-            public HashMap<String, Channel> call(SortedList<GroupEditChannel> groupEditChannels) {
-                HashMap<String, Channel> selectedChannels = new HashMap<>();
+            public HashMap<String, Id> call(SortedList<GroupEditChannel> groupEditChannels) {
+                HashMap<String, Id> selectedChannels = new HashMap<>();
                 for (int i = 0; i < groupEditChannels.size(); i++) {
                     GroupEditChannel editChannel = groupEditChannels.get(i);
                     if (editChannel.inGroup()) {
                         Channel channel = editChannel.getChannel();
-                        selectedChannels.put(channel.id().value(), channel);
+                        selectedChannels.put(channel.id().value(),
+                            Id.create(channel.id().value()));
                     }
                 }
                 return selectedChannels;
@@ -128,17 +130,17 @@ public class RxGroupChannelSync {
     }
 
     private static rx.Observable<Group> saveRealmGroupChannels(
-        Context context, User user, String newTitle, Group oldGroup, HashMap<String, Channel>
+        Context context, User user, String newTitle, Group oldGroup, HashMap<String, Id>
         channels) {
         return Observable.just(channels)
             .map(addRealmGroupChannels(context, user, newTitle, oldGroup));
     }
 
-    private static Func1<HashMap<String, Channel>, Group> addRealmGroupChannels(
+    private static Func1<HashMap<String, Id>, Group> addRealmGroupChannels(
         final Context context, final User user, final String newTitle, final Group oldGroup) {
-        return new Func1<HashMap<String, Channel>, Group>() {
+        return new Func1<HashMap<String, Id>, Group>() {
             @Override
-            public Group call(HashMap<String, Channel> channels) {
+            public Group call(HashMap<String, Id> channels) {
                 Group newGroup = GroupFactory.addGroupChannels(newTitle, oldGroup, channels);
                 User newUser = UserFactory.addUserGroup(user, newGroup);
                 updateRealmUser(context, newUser);
@@ -148,14 +150,14 @@ public class RxGroupChannelSync {
     }
 
     private static Observable<Group> saveFirebaseGroupChannels(
-        String userId, String newTitle, Group group, HashMap<String, Channel> channels) {
+        String userId, String newTitle, Group group, HashMap<String, Id> channels) {
         String groupId = group.id().value();
         return getUserGroupService()
             .addUserGroup(userId, groupId, Group.copy(group, newTitle, channels));
     }
 
     private static Func2<Group, Group, GroupChannelsUpdatedEventCallback> zipAddGroupChannels(
-        final User user, final HashMap<String, Channel> channels) {
+        final User user, final HashMap<String, Id> channels) {
         return new Func2<Group, Group, GroupChannelsUpdatedEventCallback>() {
             @Override
             public GroupChannelsUpdatedEventCallback call(Group group, Group group2) {

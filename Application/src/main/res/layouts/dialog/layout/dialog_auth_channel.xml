@@ -12,7 +12,7 @@
     android:paddingTop="@dimen/common_margin_xxtiny">
 
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/dialog_channel_facebook_action_address_floatlabel"
+        android:id="@+id/dialog_channel_auth_action_address_floatlabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/common_margin_small"
@@ -21,7 +21,7 @@
         app:hintTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
 
         <EditText
-            android:id="@+id/dialog_channel_facebook_action_address_edittext"
+            android:id="@+id/dialog_channel_auth_action_address_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"

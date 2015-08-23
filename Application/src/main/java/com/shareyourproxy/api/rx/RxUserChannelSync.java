@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
-import com.shareyourproxy.api.domain.factory.GroupFactory;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
@@ -18,7 +17,7 @@ import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserChannelService;
 import static com.shareyourproxy.api.RestClient.getUserGroupService;
-import static com.shareyourproxy.api.domain.factory.GroupFactory.addUserGroupsChannel;
+import static com.shareyourproxy.api.domain.factory.UserFactory.addUserChannel;
 import static com.shareyourproxy.api.rx.RxHelper.addRealmUser;
 
 
@@ -33,7 +32,7 @@ public class RxUserChannelSync {
     private RxUserChannelSync() {
     }
 
-    public static List<EventCallback> addUserChannel(
+    public static List<EventCallback> saveUserChannel(
         final Context context, final User oldUser, final Channel oldChannel,
         final Channel newChannel) {
         return Observable.just(oldUser)
@@ -54,8 +53,7 @@ public class RxUserChannelSync {
         return new Func1<User, User>() {
             @Override
             public User call(User oldUser) {
-                User newUser = UserFactory.addUserChannel(oldUser, newChannel);
-                newUser = addUserGroupsChannel(newUser, newChannel);
+                User newUser = addUserChannel(oldUser, newChannel);
                 return newUser;
             }
         };
@@ -104,7 +102,6 @@ public class RxUserChannelSync {
             @Override
             public User call(User oldUser) {
                 User newUser = UserFactory.deleteUserChannel(oldUser, channel);
-                GroupFactory.removeUserGroupsChannel(newUser, channel);
                 return newUser;
             }
         };

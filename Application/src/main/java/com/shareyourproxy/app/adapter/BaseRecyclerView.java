@@ -14,6 +14,7 @@ import android.view.View;
 public class BaseRecyclerView extends RecyclerView {
 
     private View _emptyView;
+    private View _loadingView;
     private SwipeRefreshLayout _swipeRefreshLayout;
 
     /**
@@ -94,7 +95,7 @@ public class BaseRecyclerView extends RecyclerView {
             boolean showEmptyView = getAdapter().getItemCount() == 0;
             _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
             setVisibility(showEmptyView ? GONE : VISIBLE);
-            if(_swipeRefreshLayout != null){
+            if (_swipeRefreshLayout != null) {
                 _swipeRefreshLayout.setVisibility(showEmptyView ? GONE : VISIBLE);
             }
         }

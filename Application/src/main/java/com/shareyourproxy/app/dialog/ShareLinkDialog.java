@@ -40,10 +40,6 @@ public class ShareLinkDialog extends BaseDialogFragment {
     private static final String ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group";
     private final DialogInterface.OnClickListener _negativeClicked =
         getNegOnClickListener();
-    private final DialogInterface.OnClickListener _positiveClicked =
-        getPosOnClickListener();
-    private UserGroupsAdapter _adapter;
-
     @Bind(R.id.dialog_sharelink_recyclerview)
     protected BaseRecyclerView recyclerView;
     @BindColor(R.color.common_text)
@@ -52,6 +48,9 @@ public class ShareLinkDialog extends BaseDialogFragment {
     protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
+    private UserGroupsAdapter _adapter;
+    private final DialogInterface.OnClickListener _positiveClicked =
+        getPosOnClickListener();
 
     /**
      * Create a new instance of a {@link AddChannelDialog}.
@@ -73,8 +72,8 @@ public class ShareLinkDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 ArrayList<GroupEditContact> groups = _adapter.getDataArray();
-                for(GroupEditContact checkedGroup : groups){
-                    if(checkedGroup.isChecked()){
+                for (GroupEditContact checkedGroup : groups) {
+                    if (checkedGroup.isChecked()) {
 
                     }
                 }
