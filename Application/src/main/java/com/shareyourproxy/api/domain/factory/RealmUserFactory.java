@@ -35,10 +35,9 @@ public class RealmUserFactory {
             realmUser.setChannels(getRealmChannels(user.channels()));
             realmUser.setContacts(getRealmContacts(user.contacts()));
             realmUser.setGroups(getRealmGroups(user.groups()));
-            if(user.version() == null) {
+            if (user.version() == null) {
                 realmUser.setVersion(0);
-            }
-            else{
+            } else {
                 realmUser.setVersion(user.version());
             }
         }

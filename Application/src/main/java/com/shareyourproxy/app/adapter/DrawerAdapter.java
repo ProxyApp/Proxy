@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;

@@ -108,7 +108,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private JustObserver<HashMap<String, User>> getSearchObserver() {
         return new JustObserver<HashMap<String, User>>() {
             @Override
-            public void onError(){}
+            public void onError() {
+            }
 
             @Override
             public void onNext(HashMap<String, User> users) {

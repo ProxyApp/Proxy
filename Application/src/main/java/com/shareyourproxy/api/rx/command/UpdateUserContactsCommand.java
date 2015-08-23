@@ -30,7 +30,8 @@ public class UpdateUserContactsCommand extends BaseCommand {
                 return new UpdateUserContactsCommand[size];
             }
         };
-    private final static java.lang.ClassLoader CL = UpdateUserContactsCommand.class.getClassLoader();
+    private final static java.lang.ClassLoader CL = UpdateUserContactsCommand.class
+        .getClassLoader();
     public final User user;
     public final ArrayList<String> contacts;
     public final HashMap<String, Group> userGroups;

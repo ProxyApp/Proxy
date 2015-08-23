@@ -41,7 +41,7 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
 
     public int getItemPosition() {
         int position = getLayoutPosition();
-        if(position < 0){
+        if (position < 0) {
             position = 0;
         }
         return position;

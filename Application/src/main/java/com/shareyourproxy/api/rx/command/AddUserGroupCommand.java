@@ -27,9 +27,9 @@ public class AddUserGroupCommand extends BaseCommand {
             return new AddUserGroupCommand[size];
         }
     };
+    private final static java.lang.ClassLoader CL = AddUserGroupCommand.class.getClassLoader();
     public final Group group;
     public final User user;
-    private final static java.lang.ClassLoader CL = AddUserGroupCommand.class.getClassLoader();
 
     /**
      * Public constructor.

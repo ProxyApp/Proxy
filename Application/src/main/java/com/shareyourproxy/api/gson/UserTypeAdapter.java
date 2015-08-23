@@ -267,11 +267,10 @@ public class UserTypeAdapter extends TypeAdapter<User> {
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
             reader.beginObject();
             while (reader.hasNext()) {
-                if(reader.peek() == JsonToken.NAME){
+                if (reader.peek() == JsonToken.NAME) {
                     String id = reader.nextName();
                     channels.put(id, Id.create(id));
-                }
-                else if(reader.peek() == JsonToken.BEGIN_OBJECT) {
+                } else if (reader.peek() == JsonToken.BEGIN_OBJECT) {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         switch (reader.nextName()) {

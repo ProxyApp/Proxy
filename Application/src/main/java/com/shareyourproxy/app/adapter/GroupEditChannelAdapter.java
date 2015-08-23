@@ -157,9 +157,9 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     private void bindItemViewData(ItemViewHolder holder, GroupEditChannel editChannel) {
         Context context = holder._view.getContext();
         ChannelType channelType = editChannel.getChannel().channelType();
-            holder.itemImage.setImageDrawable(
-                getSVGIconDrawable(context, editChannel.getChannel(),
-                    getChannelBackgroundColor(context, channelType)));
+        holder.itemImage.setImageDrawable(
+            getSVGIconDrawable(context, editChannel.getChannel(),
+                getChannelBackgroundColor(context, channelType)));
 
         holder.itemLabel.setText(editChannel.getChannel().label());
         holder.itemSwitch.setChecked(editChannel.inGroup());

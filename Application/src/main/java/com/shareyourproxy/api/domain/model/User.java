@@ -204,7 +204,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Contact}
          */
         @Nullable
-        Builder contacts(HashMap<String,Id> contacts);
+        Builder contacts(HashMap<String, Id> contacts);
 
         /**
          * Set this {@link User}s {@link Group}s

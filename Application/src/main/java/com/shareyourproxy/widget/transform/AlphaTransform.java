@@ -8,7 +8,7 @@ import com.squareup.picasso.Transformation;
 /**
  * Create a bitmap image.drawable with a transparent black background placed on top of it.
  */
-public class AlphaTransform implements Transformation{
+public class AlphaTransform implements Transformation {
 
     /**
      * Static new instance.

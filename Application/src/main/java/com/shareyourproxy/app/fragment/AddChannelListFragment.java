@@ -237,7 +237,8 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                 break;
             case Spotify:
                 SpotifyAuthDialog.newInstance().show(getFragmentManager());
-//                AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+//                AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder
+// (CLIENT_ID,
 //                    AuthenticationResponse.Type.TOKEN,
 //                    REDIRECT_URI);
 //                builder.setScopes(new String[]{"user-read-private", "streaming"})

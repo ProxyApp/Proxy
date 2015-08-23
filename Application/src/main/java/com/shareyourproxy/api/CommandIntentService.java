@@ -50,6 +50,7 @@ public class CommandIntentService extends IntentService {
             logError(intent, result, e);
         }
     }
+
     @DebugLog
     private void logError(Intent intent, ResultReceiver result, Exception e) {
         Timber.e(Log.getStackTraceString(e));

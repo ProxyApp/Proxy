@@ -131,26 +131,6 @@ public class ViewUtils {
     }
 
     /**
-     * Blur a bitmap with renderscript.
-     *
-     * @param source Bitmap to blur
-     * @return the circular bitmap resource
-     */
-//    public static Bitmap getBlurBitmapImage(Context context, Bitmap source) {
-//        final RenderScript rs = RenderScript.create(context);
-//        final Allocation input = Allocation.createFromBitmap(
-//            rs, source, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
-//        final Allocation output = Allocation.createTyped(rs, input.getType());
-//        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, U8_4(rs));
-//        script.setRadius(12f);
-//        script.setInput(input);
-//        script.forEach(output);
-//        output.copyTo(source);
-//        rs.destroy();
-//        return source;
-//    }
-
-    /**
      * Paint a circular bitmap.
      *
      * @param source Bitmap to crop

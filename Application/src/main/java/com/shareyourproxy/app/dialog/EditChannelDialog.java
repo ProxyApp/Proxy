@@ -270,8 +270,7 @@ public class EditChannelDialog extends BaseDialogFragment {
         if (_channel.channelType().equals(ChannelType.Facebook)) {
             editTextLabel.setVisibility(View.GONE);
             floatLabelChannelLabel.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             editTextLabel.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
             editTextLabel.setText(_channel.label());
             floatLabelChannelLabel.setHint(_channelLabelHint);

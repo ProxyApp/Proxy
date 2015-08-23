@@ -125,7 +125,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     @OnCheckedChanged(R.id.dialog_reddit_channel_radiobutton_subreddit)
     protected void onSubRedditChecked(boolean checked) {
         if (checked) {
-            _channelAddressHint=getString(R.string
+            _channelAddressHint = getString(R.string
                 .dialog_addchannel_hint_address_reddit_subreddit);
             floatLabelAddress.setHint(_channelAddressHint);
 

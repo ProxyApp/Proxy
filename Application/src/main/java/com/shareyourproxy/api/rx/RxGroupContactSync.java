@@ -57,7 +57,7 @@ public class RxGroupContactSync {
                 } else {
                     getUserContactService().deleteUserContact(userId, contactId).subscribe();
                 }
-                for(Group group : contactInGroup){
+                for (Group group : contactInGroup) {
                     getGroupContactService().addGroupContact(userId, group.id().value(), contactId,
                         Id.create(contactId)).subscribe();
                 }

@@ -18,16 +18,16 @@ public class DeleteUserChannelCommand extends BaseCommand {
 
     public static final Creator<DeleteUserChannelCommand> CREATOR =
         new Creator<DeleteUserChannelCommand>() {
-        @Override
-        public DeleteUserChannelCommand createFromParcel(Parcel in) {
-            return new DeleteUserChannelCommand(in);
-        }
+            @Override
+            public DeleteUserChannelCommand createFromParcel(Parcel in) {
+                return new DeleteUserChannelCommand(in);
+            }
 
-        @Override
-        public DeleteUserChannelCommand[] newArray(int size) {
-            return new DeleteUserChannelCommand[size];
-        }
-    };
+            @Override
+            public DeleteUserChannelCommand[] newArray(int size) {
+                return new DeleteUserChannelCommand[size];
+            }
+        };
     private final static java.lang.ClassLoader CL = DeleteUserChannelCommand.class.getClassLoader();
     public final Channel channel;
     public final User user;
@@ -42,10 +42,10 @@ public class DeleteUserChannelCommand extends BaseCommand {
     private DeleteUserChannelCommand(Parcel in) {
         this((User) in.readValue(CL), (Channel) in.readValue(CL));
     }
-    
+
     @Override
     public List<EventCallback> execute(Service service) {
-       return RxUserChannelSync.deleteChannel(service, user, channel);
+        return RxUserChannelSync.deleteChannel(service, user, channel);
     }
 
     @Override

@@ -45,7 +45,6 @@ public enum ChannelType {
     Skype(28, "Skype", R.raw.ic_skype, NO_COLOR);
 
 
-
     private final int weight;
     private final String label;
     private final int resId;
@@ -61,6 +60,17 @@ public enum ChannelType {
         this.label = label;
         this.resId = resId;
         this.resColor = resColor;
+    }
+
+    public static ChannelType valueOfLabel(String label) {
+        ChannelType[] values = ChannelType.values();
+        for (ChannelType value : values) {
+            if (value.getLabel().toLowerCase().equals(label.toLowerCase())) {
+                return value;
+            }
+        }
+        Timber.e("Bad ChannelType:" + label);
+        throw new IllegalArgumentException();
     }
 
     /**
@@ -92,17 +102,6 @@ public enum ChannelType {
     @Override
     public String toString() {
         return label;
-    }
-
-    public static ChannelType valueOfLabel(String label){
-        ChannelType[] values = ChannelType.values();
-        for (ChannelType value : values) {
-            if (value.getLabel().toLowerCase().equals(label.toLowerCase())) {
-                return value;
-            }
-        }
-        Timber.e("Bad ChannelType:"+ label);
-        throw new IllegalArgumentException();
     }
 
 }

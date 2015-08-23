@@ -85,11 +85,11 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
         _channels.addAll(channels);
     }
 
-        /**
-         * Create a newInstance of a {@link AddChannelAdapter} with blank data.
-         *
-         * @return an {@link AddChannelAdapter} with no data
-         */
+    /**
+     * Create a newInstance of a {@link AddChannelAdapter} with blank data.
+     *
+     * @return an {@link AddChannelAdapter} with no data
+     */
 
     public static AddChannelAdapter newInstance(
         ItemClickListener
@@ -183,9 +183,9 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
     private void bindItemViewData(ItemViewHolder holder, Channel channel) {
         Context context = holder._view.getContext();
         ChannelType channelType = channel.channelType();
-            holder.itemImage.setImageDrawable(
-                getSVGIconDrawable(context, channel,
-                    getChannelBackgroundColor(context, channelType)));
+        holder.itemImage.setImageDrawable(
+            getSVGIconDrawable(context, channel,
+                getChannelBackgroundColor(context, channelType)));
         holder.itemLabel.setText(ObjectUtils.capitalize(channel.label()));
     }
 

@@ -16,13 +16,14 @@ public abstract class Channel implements Parcelable {
     /**
      * Create a new {@link Channel}.
      *
-     * @param id             unique id
-     * @param label          name of the newChannel
-     * @param channelType    newChannel intent type
+     * @param id          unique id
+     * @param label       name of the newChannel
+     * @param channelType newChannel intent type
      * @return Immutable newChannel
      */
     @SuppressWarnings("unused")
-    public static Channel create(Id id, String label, ChannelType channelType, String actionAddress) {
+    public static Channel create(Id id, String label, ChannelType channelType, String
+        actionAddress) {
         return builder().id(id).label(label).channelType(channelType)
             .actionAddress(actionAddress).build();
     }

@@ -12,7 +12,7 @@ import rx.Observable;
  */
 public interface SpotifyUserService {
     @GET("/me/")
-    @Headers({"Accept: application/json","Content-Type: application/json",
-        "Authorization: Bearer {authToken}"})
+    @Headers({ "Accept: application/json", "Content-Type: application/json",
+        "Authorization: Bearer {authToken}" })
     Observable<SpotifyUser> getUser(@Header("authToken") String authToken);
 }

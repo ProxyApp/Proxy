@@ -83,7 +83,8 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                         String header = new String(Base64.encode(auth.getBytes(), Base64.DEFAULT));
 
                         RestClient.getSpotifyAuthService()
-                            .getAuth(SPOTIFY_CLIENT_ID,SPOTIFY_CLIENT_SECRET, "authorization_code", accessToken, WEBVIEW_REDIRECT)
+                            .getAuth(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET,
+                                "authorization_code", accessToken, WEBVIEW_REDIRECT)
                             .subscribe(authObserver());
                     }
                 }

@@ -209,14 +209,12 @@ public class ProxyApplication extends Application {
                             Timber.i("EventCallback:" + event);
                             getRxBus().post(event);
                         }
-                    }
-                    else if (resultCode == Activity.RESULT_CANCELED){
+                    } else if (resultCode == Activity.RESULT_CANCELED) {
                         BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
-                        if(command instanceof SyncAllUsersCommand){
+                        if (command instanceof SyncAllUsersCommand) {
                             getRxBus().post(new SyncAllUsersErrorEvent());
                         }
-                    }
-                    else {
+                    } else {
                         Timber.e("Error receiving result");
                     }
                 }

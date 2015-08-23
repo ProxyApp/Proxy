@@ -4,10 +4,10 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".UserProfileActivity">
     <!--<item-->
-        <!--android:id="@+id/menu_current_user_shared_links"-->
-        <!--android:orderInCategory="0"-->
-        <!--android:title="@string/shared_links"-->
-        <!--app:showAsAction="ifRoom"/>-->
+    <!--android:id="@+id/menu_current_user_shared_links"-->
+    <!--android:orderInCategory="0"-->
+    <!--android:title="@string/shared_links"-->
+    <!--app:showAsAction="ifRoom"/>-->
     <item
         android:id="@+id/menu_current_user_add_channel"
         android:orderInCategory="1"

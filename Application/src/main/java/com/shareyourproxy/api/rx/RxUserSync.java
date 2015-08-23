@@ -65,7 +65,8 @@ public class RxUserSync {
                         if (groupContacts.containsKey(contactId.getKey())) {
                             group.contacts().put(contactId.getKey(), Id.create(contactId.getKey()));
                         }
-                        loggedInUser.contacts().put(contactId.getKey(), Id.create(contactId.getKey()));
+                        loggedInUser.contacts().put(contactId.getKey(), Id.create(contactId
+                            .getKey()));
                     }
                 }
                 users.put(loggedInUserId, loggedInUser);

@@ -24,6 +24,12 @@ public class BaseFragment extends Fragment {
         return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
+    /**
+     * Set the logged in user.
+     */
+    public void setLoggedInUser(User user) {
+        ((BaseActivity) getActivity()).setLoggedInUser(user);
+    }
 
     /**
      * Get currently logged in {@link User} in this {@link ProxyApplication}.
@@ -32,14 +38,6 @@ public class BaseFragment extends Fragment {
      */
     public SharedPreferences getSharedPrefrences() {
         return ((BaseActivity) getActivity()).getSharedPreferences();
-    }
-
-    /**
-     * Set the logged in user.
-     *
-     */
-    public void setLoggedInUser(User user) {
-        ((BaseActivity) getActivity()).setLoggedInUser(user);
     }
 
     /**

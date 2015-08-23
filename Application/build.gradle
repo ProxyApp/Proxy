@@ -50,19 +50,19 @@ android {
     signingConfigs {
         release {
 //              Environment Variables
-                def env_keystore_password = env["KEYSTORE_PASSWORD"]
-                def env_key_alias = env["KEY_ALIAS"]
-                def env_key_password = env["KEY_PASSWORD"]
+            def env_keystore_password = env["KEYSTORE_PASSWORD"]
+            def env_key_alias = env["KEY_ALIAS"]
+            def env_key_password = env["KEY_PASSWORD"]
 //              Local build values
-                def keystore_password = properties.getProperty('KEYSTORE_PASSWORD',
-                        env_keystore_password)
-                def key_alias = properties.getProperty('KEY_ALIAS', env_key_alias)
-                def key_password = properties.getProperty('KEY_PASSWORD', env_key_password)
+            def keystore_password = properties.getProperty('KEYSTORE_PASSWORD',
+                    env_keystore_password)
+            def key_alias = properties.getProperty('KEY_ALIAS', env_key_alias)
+            def key_password = properties.getProperty('KEY_PASSWORD', env_key_password)
 //              Signed release commands
-                storeFile file("proxy.jks")
-                storePassword keystore_password
-                keyAlias key_alias
-                keyPassword key_password
+            storeFile file("proxy.jks")
+            storePassword keystore_password
+            keyAlias key_alias
+            keyPassword key_password
         }
     }
 

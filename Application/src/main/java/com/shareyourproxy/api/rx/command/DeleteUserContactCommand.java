@@ -15,16 +15,16 @@ import java.util.List;
 public class DeleteUserContactCommand extends BaseCommand {
     public static final Creator<DeleteUserContactCommand> CREATOR =
         new Creator<DeleteUserContactCommand>() {
-        @Override
-        public DeleteUserContactCommand createFromParcel(Parcel in) {
-            return new DeleteUserContactCommand(in);
-        }
+            @Override
+            public DeleteUserContactCommand createFromParcel(Parcel in) {
+                return new DeleteUserContactCommand(in);
+            }
 
-        @Override
-        public DeleteUserContactCommand[] newArray(int size) {
-            return new DeleteUserContactCommand[size];
-        }
-    };
+            @Override
+            public DeleteUserContactCommand[] newArray(int size) {
+                return new DeleteUserContactCommand[size];
+            }
+        };
     private final static java.lang.ClassLoader CL = DeleteUserContactCommand.class.getClassLoader();
     private final User user;
     private final String contactId;

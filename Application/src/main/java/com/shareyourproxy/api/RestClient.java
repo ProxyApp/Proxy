@@ -32,7 +32,7 @@ import retrofit.converter.GsonConverter;
  */
 public class RestClient {
 
-//    public static final String INSTAGRAM_URL = "https://api.instagram.com/v1";
+    //    public static final String INSTAGRAM_URL = "https://api.instagram.com/v1";
     public static final String SPOTIFY_URL = "https://api.spotify.com/v1";
     public static final String SPOTIFY_AUTH_URL = "https://accounts.spotify.com/api";
     public static final String INSTAGRAM_AUTH_URL = "https://api.instagram.com/oauth/";

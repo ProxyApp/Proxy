@@ -61,6 +61,7 @@ public class RealmChannel extends RealmObject {
 
     /**
      * Getter.
+     *
      * @return action address
      */
     public String getActionAddress() {

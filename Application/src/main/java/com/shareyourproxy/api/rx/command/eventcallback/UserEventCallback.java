@@ -9,7 +9,7 @@ import com.shareyourproxy.api.domain.model.User;
 /**
  * EventCallbacks that have a user update.
  */
-public abstract class UserEventCallback extends EventCallback implements Parcelable{
+public abstract class UserEventCallback extends EventCallback implements Parcelable {
     public final User user;
 
     public UserEventCallback(@NonNull User user) {

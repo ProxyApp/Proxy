@@ -27,7 +27,7 @@ public interface UserService {
     /**
      * Get a specific user.
      *
-     * @param userId   user unique identifier
+     * @param userId user unique identifier
      * @return user
      */
     @GET("/users/{id}.json")
@@ -36,8 +36,8 @@ public interface UserService {
     /**
      * Save a user.
      *
-     * @param userId   unique id for {@link User} table
-     * @param user     {@link User} data
+     * @param userId unique id for {@link User} table
+     * @param user   {@link User} data
      */
     @PUT("/users/{id}.json")
     Observable<User> updateUser(@Path("id") String userId, @Body User user);
@@ -45,9 +45,10 @@ public interface UserService {
     /**
      * Save a user.
      *
-     * @param userId   unique id for {@link User} table
+     * @param userId unique id for {@link User} table
      */
     @PUT("/users/{id}/version.json")
-    Observable<String> updateUserVersion(@Path("id") String userId,
-                                       @Body Integer version);
+    Observable<String> updateUserVersion(
+        @Path("id") String userId,
+        @Body Integer version);
 }

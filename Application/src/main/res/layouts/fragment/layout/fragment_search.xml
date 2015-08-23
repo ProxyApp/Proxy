@@ -9,8 +9,8 @@
         android:id="@+id/fragment_search_bar_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_rect_small"
-        android:gravity="center_vertical"
         android:background="@android:color/white"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
         <ImageButton
             android:id="@+id/fragment_search_back_button"

@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Show an Apache License.

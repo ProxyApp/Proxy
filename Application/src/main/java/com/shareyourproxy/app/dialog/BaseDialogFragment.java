@@ -15,8 +15,8 @@ public class BaseDialogFragment extends DialogFragment {
     /**
      * Sets the color of button input.
      *
-     * @param button        Button
-     * @param color integer value of color.
+     * @param button Button
+     * @param color  integer value of color.
      */
     public void setButtonTint(@NonNull Button button, int color) {
         button.setTextColor(color);

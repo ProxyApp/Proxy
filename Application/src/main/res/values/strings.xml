@@ -14,8 +14,10 @@
     <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
     <string name="dialog_addchannel_hint_address_blank_handle">%1$s Handle</string>
     <string name="dialog_addchannel_hint_address_blank_username">%1$s Username</string>
-    <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)</string>
-    <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)</string>
+    <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
+    </string>
+    <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)
+    </string>
     <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
     <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
     <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
@@ -140,7 +142,9 @@
     <string name="save_realm_db">"Save Realm DB"</string>
     <string name="share">"Share"</string>
     <string name="dialog_sharelink_title">"Share group links"</string>
-    <string name="sharelink_message_beginning">"%1$s would like to share the following group channels with you:\n\n"</string>
+    <string name="sharelink_message_beginning">"%1$s would like to share the following group
+        channels with you:\n\n"
+    </string>
     <string name="sharelink_message_link">"https://app.shareyourproxy.com/#/public/%1$s"</string>
     <string-array name="drawer_settings">
         <item>@string/profile</item>

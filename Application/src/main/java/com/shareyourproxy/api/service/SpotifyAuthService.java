@@ -15,7 +15,7 @@ import rx.Observable;
 public interface SpotifyAuthService {
     @FormUrlEncoded
     @POST("/token")
-    @Headers({"Authorization: Basic {authCode}"})
+    @Headers({ "Authorization: Basic {authCode}" })
     Observable<SpotifyAuthResponse> getAuth(
         @Header("authCode") String authHeader,
         @Field("grant_type") String grantType,

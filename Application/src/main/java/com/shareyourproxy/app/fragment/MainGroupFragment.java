@@ -166,7 +166,7 @@ public class MainGroupFragment
                         updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
                     } else if (event instanceof GroupChannelsUpdatedEventCallback) {
                         groupAdded((GroupChannelsUpdatedEventCallback) event);
-                    }else if (event instanceof SyncAllUsersCommand) {
+                    } else if (event instanceof SyncAllUsersCommand) {
                         swipeRefreshLayout.setRefreshing(true);
                     } else if (event instanceof SyncAllUsersSuccessEvent) {
                         swipeRefreshLayout.setRefreshing(false);

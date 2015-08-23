@@ -89,11 +89,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
             }
         } else if (getString(R.string.about).equals(event.message)) {
             IntentLauncher.launchAboutActivity(this);
-        }
-        else if(getString(R.string.report_problem).equals(event.message)){
+        } else if (getString(R.string.report_problem).equals(event.message)) {
             IntentLauncher.launchEmailIntent(this, getString(R.string.contact_proxy));
-        }
-        else if(getString(R.string.invite_friend).equals(event.message)){
+        } else if (getString(R.string.invite_friend).equals(event.message)) {
             IntentLauncher.launchInviteFriendIntent(this);
         }
     }
