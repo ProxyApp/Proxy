@@ -21,6 +21,7 @@ import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
+import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
@@ -29,6 +30,8 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  * Add and remove newChannel permissions from a group.
  */
 public class GroupEditChannelActivity extends BaseActivity {
+    public static final int ADD_GROUP = 0;
+    public static final int EDIT_GROUP = 1;
     // View
     @Bind(R.id.activity_toolbar)
     protected Toolbar toolbar;
@@ -55,9 +58,19 @@ public class GroupEditChannelActivity extends BaseActivity {
         }
     }
 
+    private int getAddOrEdit() {
+        return getIntent().getExtras().getInt(ARG_ADD_OR_EDIT, 0);
+    }
+
     private void initialize() {
-        buildToolbar(toolbar, getString(R.string.edit_group),
-            getMenuIconSecondary(this, R.raw.ic_clear));
+        if (getAddOrEdit() == ADD_GROUP){
+            buildToolbar(toolbar, getString(R.string.add_group),
+                getMenuIconSecondary(this, R.raw.ic_clear));
+        }
+        if(getAddOrEdit() == EDIT_GROUP){
+            buildToolbar(toolbar, getString(R.string.edit_group),
+                getMenuIconSecondary(this, R.raw.ic_clear));
+        }
     }
 
     @Override

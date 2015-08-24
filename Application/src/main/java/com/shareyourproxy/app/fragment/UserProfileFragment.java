@@ -3,17 +3,20 @@ package com.shareyourproxy.app.fragment;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,13 +65,15 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.app.adapter.ViewChannelAdapter.VIEW_TYPE_SECTION;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
+import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
@@ -76,7 +81,6 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
  */
 public class UserProfileFragment extends BaseFragment implements ItemClickListener {
 
-    public static final int SPAN_COUNT = 4;
     @Bind(R.id.fragment_user_profile_toolbar)
     protected Toolbar toolbar;
     @Bind(R.id.fragment_user_profile_recyclerview)
@@ -93,6 +97,12 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     @Nullable
     @Bind(R.id.fragment_user_profile_header_background)
     protected FrameLayout userProfileBackground;
+    @Bind(R.id.fragment_user_profile_fab)
+    protected FloatingActionButton floatingActionButton;
+    @OnClick(R.id.fragment_user_profile_fab)
+    public void onClick(){
+        launchChannelListActivity(getActivity());
+    }
     @BindColor(R.color.common_blue)
     protected int _blue;
     private ViewChannelAdapter _adapter;
@@ -162,6 +172,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
      * Initialize this fragments views.
      */
     private void initialize() {
+        initializeSVG();
         initializeActionBar();
         initializeHeader();
         if (!_isLoggedInUser) {
@@ -171,6 +182,16 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         } else {
             initializeRecyclerView(getLoggedInUser().channels());
         }
+    }
+
+    /**
+     * Set the content image of this {@link FloatingActionButton}
+     */
+    private void initializeSVG() {
+        Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
+            getLargeIconDimen(getActivity()), Color.WHITE);
+        floatingActionButton.setImageDrawable(drawable);
+        ViewCompat.setElevation(floatingActionButton, 10f);
     }
 
     private void getGroupEditContacts() {
@@ -339,15 +360,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView(HashMap<String, Channel> channels) {
-        final GridLayoutManager manager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                return (VIEW_TYPE_SECTION == _adapter.getItemViewType(position))
-                    ? manager.getSpanCount() : 1;
-            }
-        });
-        recyclerView.setLayoutManager(manager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (_isLoggedInUser) {
             emptyTextView.setText(getString(R.string.no_information_added));
         } else {

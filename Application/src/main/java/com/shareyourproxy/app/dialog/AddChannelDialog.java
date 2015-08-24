@@ -4,14 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,7 +30,6 @@ import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import butterknife.OnTextChanged;
 
 import static android.content.DialogInterface.OnClickListener;
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
@@ -126,26 +123,6 @@ public class AddChannelDialog extends BaseDialogFragment {
                 createModelInstance(id, labelContent, _channelType, actionContent);
             getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
-    }
-
-    /**
-     * If text is entered into the dialog {@link EditText}, change the background underline of the
-     * widget.
-     *
-     * @param editable the string entered in the {@link EditText}
-     */
-    @OnTextChanged(value = R.id.dialog_channel_action_address_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterActionAddressChanged(Editable editable) {
-        editTextActionAddress.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
-    }
-
-    @OnTextChanged(value = R.id.dialog_channel_label_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterLabelChanged(Editable editable) {
-        editTextLabel.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
@@ -272,7 +249,7 @@ public class AddChannelDialog extends BaseDialogFragment {
             case Whatsapp:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
-                    R.string.dialog_addchannel_hint_address_blank_handle, name);
+                    R.string.dialog_addchannel_hint_address_phone);
                 _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
                 break;
             case Yo:
@@ -376,9 +353,6 @@ public class AddChannelDialog extends BaseDialogFragment {
      * Initialize color and hints for edit text.
      */
     private void initializeEditTextColors() {
-        editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-        editTextLabel.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-
         floatLabelAddress.setHint(_channelAddressHint);
         floatLabelChannelLabel.setHint(_channelLabelHint);
     }

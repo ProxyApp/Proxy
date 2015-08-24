@@ -4,14 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,7 +31,6 @@ import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
-import butterknife.OnTextChanged;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
 import static com.shareyourproxy.util.DebugUtils.getSimpleName;
@@ -71,8 +68,6 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     protected RadioButton linkTypeSub;
     @BindColor(R.color.common_text)
     protected int _text;
-    @BindColor(R.color.common_divider)
-    protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
     @BindString(R.string.required)
@@ -177,26 +172,6 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
         }
     }
 
-    /**
-     * If text is entered into the dialog {@link EditText}, change the background underline of the
-     * widget.
-     *
-     * @param editable the string entered in the {@link EditText}
-     */
-    @OnTextChanged(value = R.id.dialog_reddit_channel_action_address_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterActionAddressChanged(Editable editable) {
-        editTextActionAddress.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
-    }
-
-    @OnTextChanged(value = R.id.dialog_reddit_channel_label_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterLabelChanged(Editable editable) {
-        editTextLabel.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -254,9 +229,6 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
      * Initialize color and hints for edit text.
      */
     private void initializeEditTextColors() {
-        editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-        editTextLabel.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
-
         floatLabelAddress.setHint(_channelAddressHint);
         floatLabelChannelLabel.setHint(_channelLabelHint);
     }

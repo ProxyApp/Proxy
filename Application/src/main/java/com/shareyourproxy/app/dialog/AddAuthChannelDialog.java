@@ -4,14 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,7 +25,6 @@ import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
-import butterknife.OnTextChanged;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
 import static com.shareyourproxy.util.DebugUtils.getSimpleName;
@@ -60,8 +57,6 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
     protected TextInputLayout floatLabelAddress;
     @BindColor(R.color.common_text)
     protected int _textColor;
-    @BindColor(R.color.common_divider)
-    protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
     private Channel _channel;
@@ -118,19 +113,6 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         }
     }
 
-    /**
-     * If text is entered into the dialog {@link EditText}, change the background underline of the
-     * widget.
-     *
-     * @param editable the string entered in the {@link EditText}
-     */
-    @OnTextChanged(value = R.id.dialog_channel_auth_action_address_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterActionAddressChanged(Editable editable) {
-        editTextActionAddress.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -179,7 +161,6 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
      * Initialize values for EditText to switch color on.
      */
     private void initializeEditTextColors() {
-        editTextActionAddress.getBackground().setColorFilter(_gray, PorterDuff.Mode.SRC_IN);
         floatLabelAddress.setHint(getString(
             R.string.dialog_addchannel_hint_address_blank_handle,
             _channel.channelType().getLabel()));

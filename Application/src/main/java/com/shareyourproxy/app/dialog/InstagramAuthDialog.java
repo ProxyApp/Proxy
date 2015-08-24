@@ -114,8 +114,7 @@ public class InstagramAuthDialog extends BaseDialogFragment {
             public void onNext(InstagramAuthResponse event) {
                 Timber.i(event.toString());
                 InstagramUser user = event.user();
-                Channel channel = ChannelFactory.createModelInstance(user.id(), ChannelType
-                        .Instagram.toString(),
+                Channel channel = ChannelFactory.createModelInstance(user.id(), "",
                     ChannelType.Instagram, user.username());
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
                 getDialog().dismiss();

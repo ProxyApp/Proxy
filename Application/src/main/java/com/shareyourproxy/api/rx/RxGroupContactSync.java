@@ -17,8 +17,7 @@ import java.util.List;
 import rx.Observable;
 import rx.functions.Func1;
 
-import static com.shareyourproxy.api.RestClient.getGroupContactService;
-import static com.shareyourproxy.api.RestClient.getUserContactService;
+import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
@@ -37,30 +36,20 @@ public class RxGroupContactSync {
         final ArrayList<GroupEditContact> editGroups, final String contactId) {
         return Observable.just(editGroups)
             .map(userUpdateContacts(user, contactId))
-            .map(saveUserToDB(context, contactId))
+            .map(saveUserToDB(context))
             .map(createGroupContactEvent(contactId))
             .toBlocking().single();
     }
 
     public static Func1<Pair<User, List<Group>>, Pair<User, List<Group>>> saveUserToDB(
-        final Context context, final String contactId) {
+        final Context context) {
         return new Func1<Pair<User, List<Group>>, Pair<User, List<Group>>>() {
             @Override
             public Pair<User, List<Group>> call(Pair<User, List<Group>> userListPair) {
                 User newUser = userListPair.first;
                 String userId = newUser.id().value();
-                List<Group> contactInGroup = userListPair.second;
                 updateRealmUser(context, newUser);
-                if (contactInGroup.size() > 0) {
-                    getUserContactService().addUserContact(userId, contactId, Id.create(contactId))
-                        .subscribe();
-                } else {
-                    getUserContactService().deleteUserContact(userId, contactId).subscribe();
-                }
-                for (Group group : contactInGroup) {
-                    getGroupContactService().addGroupContact(userId, group.id().value(), contactId,
-                        Id.create(contactId)).subscribe();
-                }
+                getUserService().updateUser(userId, newUser).subscribe();
                 return userListPair;
             }
         };

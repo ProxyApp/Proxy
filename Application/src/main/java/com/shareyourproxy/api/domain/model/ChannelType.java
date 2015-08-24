@@ -19,6 +19,7 @@ public enum ChannelType {
     SMS(2, "SMS", R.raw.ic_sms, WHITE),
     Email(3, "Email", R.raw.ic_email, WHITE),
     Web(4, "Web", R.raw.ic_link, WHITE),
+    URL(4, "URL", R.raw.ic_link, WHITE),
     Facebook(5, "Facebook", R.raw.ic_facebook, WHITE),
     Twitter(6, "Twitter", R.raw.ic_twitter, WHITE),
     Meerkat(7, "Meerkat", R.raw.ic_meerkat, NO_COLOR),

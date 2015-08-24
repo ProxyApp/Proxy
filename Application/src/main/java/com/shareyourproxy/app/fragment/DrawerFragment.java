@@ -64,8 +64,10 @@ public class DrawerFragment extends BaseFragment implements ItemClickListener {
 
     @Override
     public void onItemLongClick(View view, int position) {
-        Toast.makeText(getActivity(), _adapter.getSettingValue(position), Toast.LENGTH_SHORT)
-            .show();
+        String value = _adapter.getSettingValue(position);
+        if(!value.equals(DrawerAdapter.HEADER)) {
+            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT)
+                .show();
+        }
     }
-
 }

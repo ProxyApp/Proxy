@@ -16,6 +16,7 @@ public class Constants {
      */
     public static final String ARG_USER_SELECTED_PROFILE = "com.proxy.user_selected_profile";
     public static final String ARG_SELECTED_GROUP = "com.proxy.selected_group";
+    public static final String ARG_ADD_OR_EDIT = "com.proxy.add_or_edit";
     public static final String KEY_LOGGED_IN_USER = "com.shareyourproxy.key_logged_in_user";
     public static final String ARG_LOGGEDIN_USER_ID = "com.shareyourproxy.arg_logged_in_user_id";
     public static final String ARG_SELECTED_MAINFRAGMENT_TAB = "com.shareyourproxy" +

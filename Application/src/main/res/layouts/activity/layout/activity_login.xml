@@ -19,24 +19,20 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <TextView
+    <ImageView
         android:id="@+id/activity_login_title"
         style="@style/TextAppearance.AppCompat.Display3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/common_rect_large"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_rect_huge"
-        android:text="@string/activity_login_title"
-        android:textAllCaps="true"
-        android:textColor="@color/common_blue"
-        android:textStyle="bold"/>
+        android:contentDescription="@null"/>
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/activity_login_sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_rect_tiny"
         android:enabled="false"/>
 
 </LinearLayout>

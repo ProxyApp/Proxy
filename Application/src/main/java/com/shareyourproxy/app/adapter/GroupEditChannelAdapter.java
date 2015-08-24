@@ -1,11 +1,20 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.util.SortedList;
 import android.support.v7.util.SortedList.Callback;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -23,29 +32,60 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 
+import static com.shareyourproxy.app.GroupEditChannelActivity.ADD_GROUP;
+import static com.shareyourproxy.app.GroupEditChannelActivity.EDIT_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int TYPE_LIST_ITEM = 1;
+    public static final int TYPE_LIST_EDIT_TEXT = 2;
+    public static final int TYPE_LIST_DELETE = 3;
+    private final int _addOrEdit;
+    @BindColor(R.color.common_text_disabled)
+    protected int _gray;
     private ItemClickListener _clickListener;
     private Callback<GroupEditChannel> _sortedListCallback;
     private SortedList<GroupEditChannel> _channels;
-
+    private String _groupLabel;
+    private TextWatcher _textWatcher = getTextWatcher();
 
     public GroupEditChannelAdapter(
-        ItemClickListener listener, HashMap<String, Channel> userChannels,
-        HashMap<String, Id> groupChannels) {
+        ItemClickListener listener, String groupLabel, HashMap<String, Channel> userChannels,
+        HashMap<String, Id> groupChannels, int addOrEdit) {
         _clickListener = listener;
+        _groupLabel = groupLabel;
+        _addOrEdit = addOrEdit;
         _channels = new SortedList<>(
             GroupEditChannel.class, getSortedCallback(), userChannels.size());
         updateChannels(userChannels, groupChannels);
     }
 
     public static GroupEditChannelAdapter newInstance(
-        ItemClickListener listener, HashMap<String, Channel> userChannels,
-        HashMap<String, Id> groupChannels) {
-        return new GroupEditChannelAdapter(listener, userChannels, groupChannels);
+        ItemClickListener listener, String groupLabel, HashMap<String, Channel> userChannels,
+        HashMap<String, Id> groupChannels, int addOrEdit) {
+        return new GroupEditChannelAdapter(listener, groupLabel,
+            userChannels, groupChannels, addOrEdit);
+    }
+
+    private TextWatcher getTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                _groupLabel = s.toString();
+            }
+        };
     }
 
     private void updateChannels(
@@ -129,25 +169,66 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_LIST_ITEM;
+        if (position == 0) {
+            return TYPE_LIST_EDIT_TEXT;
+        } else if (_addOrEdit == EDIT_GROUP && position == getListSize() - 1) {
+            return TYPE_LIST_DELETE;
+        } else {
+            return TYPE_LIST_ITEM;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return _channels.size();
+        return getListSize();
+    }
+
+    /**
+     * We add addOrEdit to avoid a delete button on add(0) and require it on edit(1)
+     *
+     * @return list size
+     */
+    public int getListSize() {
+        return _channels.size() + 1 + _addOrEdit;
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.adapter_edit_group_item, parent, false);
-        return ItemViewHolder.newInstance(view, _clickListener);
+        if (viewType == TYPE_LIST_EDIT_TEXT) {
+            View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_edit_group_channel_header, parent, false);
+            return HeaderViewHolder.newInstance(view, _clickListener);
+        } else if (viewType == TYPE_LIST_DELETE) {
+            View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_edit_group_channel_footer, parent, false);
+            return FooterViewHolder.newInstance(view, _clickListener);
+        } else {
+            View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_edit_group_channel_item, parent, false);
+            return ItemViewHolder.newInstance(view, _clickListener);
+        }
+
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        bindItemViewData(
-            (ItemViewHolder) holder, getItemData(position));
+        if (holder.getItemViewType() == TYPE_LIST_EDIT_TEXT) {
+            bindHeaderViewData(
+                (HeaderViewHolder) holder);
+        } else if (holder.getItemViewType() == TYPE_LIST_ITEM
+            && (_addOrEdit == ADD_GROUP || (position != getItemCount() - 1))) {
+            bindItemViewData(
+                (ItemViewHolder) holder, getItemData(position - 1));
+        }
+    }
+
+    public String getGroupLabel(HeaderViewHolder viewHolder) {
+        return viewHolder.editText.getText().toString();
+    }
+
+    private void bindHeaderViewData(HeaderViewHolder holder) {
+        holder.editText.setText(_groupLabel);
+        holder.editText.addTextChangedListener(_textWatcher);
     }
 
     public GroupEditChannel getItemData(int position) {
@@ -161,9 +242,43 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
             getSVGIconDrawable(context, editChannel.getChannel(),
                 getChannelBackgroundColor(context, channelType)));
 
-        holder.itemLabel.setText(editChannel.getChannel().label());
+        String channelTypeString = editChannel.getChannel().channelType().getLabel();
+        String label = editChannel.getChannel().label();
+        String address = editChannel.getChannel().actionAddress();
+
+        SpannableStringBuilder sb = getSpannableStringBuilder(context, channelTypeString, label,
+            address);
+
+        holder.itemLabel.setText(sb);
         holder.itemSwitch.setChecked(editChannel.inGroup());
         holder.itemSwitch.setOnClickListener(switchListener(holder));
+    }
+
+    private SpannableStringBuilder getSpannableStringBuilder(
+        Context context, String
+        channelTypeString, String label, String address) {
+        SpannableStringBuilder sb;
+        int start;
+        int end;
+        if (label.length() > 0) {
+            sb = new SpannableStringBuilder(
+                context.getString(R.string.channel_view_item_content,
+                    channelTypeString, label, address));
+            start = channelTypeString.length() + label.length() + 3;
+            end = sb.length();
+            sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        } else {
+            sb = new SpannableStringBuilder(
+                context.getString(R.string.channel_view_item_content_no_label,
+                    channelTypeString, address));
+            start = channelTypeString.length();
+            end = sb.length();
+
+        }
+        sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
+            Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return sb;
     }
 
     private View.OnClickListener switchListener(final ItemViewHolder viewHolder) {
@@ -194,6 +309,36 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
         public static ItemViewHolder newInstance(View view, ItemClickListener itemClickListener) {
             return new ItemViewHolder(view, itemClickListener);
+        }
+
+    }
+
+    public static final class HeaderViewHolder extends BaseViewHolder {
+        @Bind(R.id.adapter_group_edit_channel_header_edittext)
+        protected EditText editText;
+        @Bind(R.id.adapter_group_edit_channel_header_floatlabel)
+        protected TextInputLayout textInputLayout;
+
+        private HeaderViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
+        }
+
+        public static HeaderViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new HeaderViewHolder(view, itemClickListener);
+        }
+
+    }
+
+    public static final class FooterViewHolder extends BaseViewHolder {
+        @Bind(R.id.adapter_group_edit_channel_footer_delete)
+        protected Button deleteButton;
+
+        private FooterViewHolder(View view, ItemClickListener itemClickListener) {
+            super(view, itemClickListener);
+        }
+
+        public static FooterViewHolder newInstance(View view, ItemClickListener itemClickListener) {
+            return new FooterViewHolder(view, itemClickListener);
         }
 
     }

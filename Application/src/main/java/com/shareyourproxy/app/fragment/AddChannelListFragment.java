@@ -44,8 +44,6 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.shareyourproxy.api.domain.model.ChannelType.Facebook;
-import static com.shareyourproxy.api.domain.model.ChannelType.Twitter;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 /**
@@ -109,7 +107,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                             try {
                                 String id = object.getString("id");
                                 Channel channel = createModelInstance(
-                                    id, Facebook.toString(), _clickedChannel.channelType(), "");
+                                    id, "", _clickedChannel.channelType(), "");
 
                                 AddAuthChannelDialog
                                     .newInstance(channel).show(getFragmentManager());
@@ -153,7 +151,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                 String handle = result.data.getUserName();
 
                 Channel channel = createModelInstance(
-                    id, Twitter.toString(), _clickedChannel.channelType(), handle);
+                    id, "", _clickedChannel.channelType(), handle);
 
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
             }
@@ -223,7 +221,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                     twitterLoginButton.performClick();
                 } catch (Exception e) {
                     Channel channel = createModelInstance(UUID.randomUUID().toString(),
-                        Twitter.toString(), _clickedChannel.channelType(), "");
+                        "", _clickedChannel.channelType(), "");
                     AddAuthChannelDialog.newInstance(channel)
                         .show(getActivity().getSupportFragmentManager());
                 }

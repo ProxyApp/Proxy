@@ -2,9 +2,14 @@ package com.shareyourproxy.app.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.v7.util.SortedList;
 import android.support.v7.util.SortedList.Callback;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
@@ -28,9 +34,11 @@ import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
  * Adapter for a users profile and their {@link Channel} package permissions.
  */
 public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
-    public static final int VIEW_TYPE_SECTION = 1;
     public static final int VIEW_TYPE_CONTENT = 2;
     private final ItemClickListener _clickListener;
+    @ColorInt
+    @BindColor(R.color.common_gray)
+    protected int _gray;
     private Callback<Channel> _sortedListCallback;
     private SortedList<Channel> _channels;
     private boolean _needsRefresh = true;
@@ -89,8 +97,10 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
                     int weight1 = item1.channelType().getWeight();
                     int weight2 = item2.channelType().getWeight();
                     int compareFirst = ObjectUtils.compare(weight1, weight2);
-                    if (compareFirst == 0) {
-                        return item1.label().compareTo(item2.label());
+                    if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
+                        String label1 = item1.channelType().getLabel();
+                        String label2 = item2.channelType().getLabel();
+                        return label1.compareTo(label2);
                     } else {
                         return compareFirst;
                     }
@@ -129,7 +139,8 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
                 public boolean areContentsTheSame(Channel item1, Channel item2) {
                     return (item1.id().value().equals(item2.id().value())
                         && item1.label().equals(item2.label())
-                        && item1.channelType().equals(item2.channelType()));
+                        && item1.channelType().equals(item2.channelType()))
+                        && item1.actionAddress().equals(item2.actionAddress());
                 }
 
                 @Override
@@ -149,7 +160,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.adapter_channel_grid_content, parent, false);
+            .inflate(R.layout.adapter_channel_view_content, parent, false);
         return ContentViewHolder.newInstance(view, _clickListener);
     }
 
@@ -168,10 +179,43 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
     private void bindContentViewData(ContentViewHolder holder, Channel channel) {
         Context context = holder._view.getContext();
         ChannelType channelType = channel.channelType();
+        String channelTypeString = channel.channelType().getLabel();
+        String label = channel.label();
+        String address = channel.actionAddress();
+
+        SpannableStringBuilder sb = getSpannableStringBuilder(context, channelTypeString, label,
+            address);
 
         holder.channelImage.setImageDrawable(
-            getSVGIconDrawable(context, channel, getChannelBackgroundColor(context, channelType)));
-        holder.channelName.setText(channel.label());
+            getSVGIconDrawable(context, channel,
+                getChannelBackgroundColor(context, channelType)));
+        holder.channelContentText.setText(sb);
+    }
+
+    private SpannableStringBuilder getSpannableStringBuilder(Context context, String
+        channelTypeString, String label, String address) {
+        SpannableStringBuilder sb;
+        int start;
+        int end;
+        if (label.length() > 0) {
+            sb = new SpannableStringBuilder(
+                context.getString(R.string.channel_view_item_content,
+                    channelTypeString, label, address));
+            start = channelTypeString.length() + label.length() + 3;
+            end = sb.length();
+            sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        } else {
+            sb = new SpannableStringBuilder(
+                context.getString(R.string.channel_view_item_content_no_label,
+                    channelTypeString, address));
+            start = channelTypeString.length();
+            end = sb.length();
+
+        }
+        sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
+            Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        return sb;
     }
 
     @Override
@@ -197,10 +241,10 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the entered settings data.
      */
     public static final class ContentViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_channel_grid_content_image)
+        @Bind(R.id.adapter_channel_view_content_image)
         protected ImageView channelImage;
-        @Bind(R.id.adapter_channel_grid_content_name)
-        protected TextView channelName;
+        @Bind(R.id.adapter_channel_view_content)
+        protected TextView channelContentText;
 
         /**
          * Constructor for the ItemViewHolder.

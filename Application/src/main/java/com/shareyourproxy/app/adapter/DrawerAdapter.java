@@ -28,7 +28,7 @@ import butterknife.Bind;
  * Adapter to handle creating a drawer with a User Header and User Settings.
  */
 public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String HEADER = "HEADER";
+    public static final String HEADER = "HEADER";
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
     private final User _currentUser;
@@ -113,20 +113,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder;
             Context context = viewHolder._view.getContext();
-            viewHolder.userName.setText(_currentUser.first() + " "
-                + _currentUser.last());
+            if (_currentUser != null) {
+                viewHolder.userName.setText(_currentUser.first() + " "
+                    + _currentUser.last());
 
-            if (_currentUser.profileURL() != null && !"".equals(_currentUser.profileURL())) {
-                Picasso.with(context).load(_currentUser.profileURL())
-                    .transform(CircleTransform.create())
-                    .placeholder(R.mipmap.ic_proxy)
-                    .into(getBitmapTargetView(viewHolder));
-            }
+                if (_currentUser.profileURL() != null && !_currentUser.profileURL().isEmpty()) {
+                    Picasso.with(context).load(_currentUser.profileURL())
+                        .transform(CircleTransform.create())
+                        .placeholder(R.mipmap.ic_proxy)
+                        .into(getBitmapTargetView(viewHolder));
+                }
 
-            if (_currentUser.coverURL() != null && !"".equals(_currentUser.coverURL())) {
-                Picasso.with(context).load(_currentUser.coverURL())
-                    .transform(AlphaTransform.create())
-                    .into(getBackgroundTarget(viewHolder));
+                if (_currentUser.coverURL() != null && !_currentUser.coverURL().isEmpty()) {
+                    Picasso.with(context).load(_currentUser.coverURL())
+                        .transform(AlphaTransform.create())
+                        .into(getBackgroundTarget(viewHolder));
+                }
             }
 
         } else {
