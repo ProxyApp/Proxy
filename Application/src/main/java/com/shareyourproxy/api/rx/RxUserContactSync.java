@@ -153,16 +153,19 @@ public class RxUserContactSync {
         return new Func1<String, Pair<String, Boolean>>() {
             @Override
             public Pair<String, Boolean> call(String contactId) {
-                for (Map.Entry<String, Group> entryGroup : userGroups.entrySet()) {
-                    Group group = entryGroup.getValue();
-                    HashMap<String, Id> groupContacts = group.contacts();
-                    if (groupContacts != null) {
-                        for (Map.Entry<String, Id> entryGroupContact : groupContacts.entrySet()) {
-                            if (entryGroupContact.getKey().equals(contactId)) {
-                                return new Pair<>(contactId, true);
+                if(userGroups != null) {
+                    for (Map.Entry<String, Group> entryGroup : userGroups.entrySet()) {
+                        Group group = entryGroup.getValue();
+                        HashMap<String, Id> groupContacts = group.contacts();
+                        if (groupContacts != null) {
+                            for (Map.Entry<String, Id> entryGroupContact : groupContacts.entrySet()) {
+
+                                if (entryGroupContact.getKey().equals(contactId)) {
+                                    return new Pair<>(contactId, true);
+                                }
                             }
+                            return new Pair<>(contactId, false);
                         }
-                        return new Pair<>(contactId, false);
                     }
                 }
                 return new Pair<>(contactId, false);

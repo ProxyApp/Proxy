@@ -3,32 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
-    android:layout_gravity="center"
-    android:layout_marginLeft="@dimen/common_margin_large"
-    android:layout_marginRight="@dimen/common_margin_large"
-    android:gravity="center"
-    android:paddingTop="@dimen/common_margin_xxtiny">
-
+    android:layout_height="match_parent"
+    android:theme="@style/Widget.Proxy.App.Dialog">
     <android.support.design.widget.TextInputLayout
-        android:id="@+id/dialog_addgroup_floatlabel"
+        android:id="@+id/adapter_group_edit_channel_header_floatlabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_margin_xxtiny"
         android:layout_marginEnd="@dimen/common_margin_small"
         android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginTop="@dimen/common_margin_tiny"
         app:hintTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
-
         <EditText
-            android:id="@+id/dialog_addgroup_edittext"
+            android:id="@+id/adapter_group_edit_channel_header_edittext"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="@string/add_group"
+            android:layout_marginBottom="@dimen/common_margin_xxtiny"
+            android:layout_marginTop="@dimen/common_margin_xxtiny"
+            android:hint="@string/group_name"
             android:inputType="textEmailAddress"
-            android:paddingBottom="@dimen/common_margin_xxtiny"
             android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:textColor="@color/common_text"
-            android:textColorHint="@color/common_text_disabled"/>
+            android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
 </FrameLayout>

@@ -5,14 +5,12 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,7 +30,6 @@ import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import butterknife.OnTextChanged;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
@@ -64,8 +61,6 @@ public class EditChannelDialog extends BaseDialogFragment {
     // Color
     @BindColor(R.color.common_text)
     protected int _textColor;
-    @BindColor(R.color.common_divider)
-    protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
     @BindString(R.string.required)
@@ -134,31 +129,18 @@ public class EditChannelDialog extends BaseDialogFragment {
         String actionContent = editTextActionAddress.getText().toString().trim();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
-            Channel channel =
-                createModelInstance(_channel.id().value(), labelContent,
+            Channel channel;
+            if (_channel.channelType().equals(ChannelType.Facebook)) {
+                channel = createModelInstance(_channel.id().value(), _channel.label(),
                     _channel.channelType(), actionContent);
-            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
+            } else {
+                channel =
+                    createModelInstance(_channel.id().value(), labelContent, _channel.channelType(),
+                        actionContent);
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
+            }
         }
-    }
-
-    /**
-     * If text is entered into the dialog {@link EditText}, change the background underline of the
-     * widget.
-     *
-     * @param editable the string entered in the {@link EditText}
-     */
-    @OnTextChanged(value = R.id.dialog_channel_action_address_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterActionAddressChanged(Editable editable) {
-        editTextActionAddress.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
-    }
-
-    @OnTextChanged(value = R.id.dialog_channel_label_edittext,
-        callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void afterLabelChanged(Editable editable) {
-        editTextLabel.getBackground().setColorFilter(
-            TextUtils.isEmpty(editable) ? _gray : _blue, PorterDuff.Mode.SRC_IN);
     }
 
     @Override
@@ -219,6 +201,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     }
 
     private void initializeDisplayValues() {
+        String label = _channel.channelType().getLabel();
         switch (_channel.channelType()) {
             case Custom:
                 _dialogTitle = getString(R.string.dialog_editchannel_title_custom);
@@ -226,32 +209,32 @@ public class EditChannelDialog extends BaseDialogFragment {
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_custom);
                 break;
             case Phone:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_phone);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_phone);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_phone);
                 break;
             case SMS:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_sms);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_sms);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_sms);
                 break;
             case Email:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_email);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_email);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_email);
                 break;
             case Web:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_web);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_web);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_web);
                 break;
             case Facebook:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_facebook);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_facebook);
                 _channelLabelHint = "";
                 break;
             default:
-                _dialogTitle = getString(R.string.dialog_editchannel_title_default);
+                _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_default);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_default);
                 break;
@@ -263,7 +246,6 @@ public class EditChannelDialog extends BaseDialogFragment {
      */
     private void initializeEditText() {
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
-        editTextActionAddress.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
         editTextActionAddress.setText(_channel.actionAddress());
         floatLabelAddress.setHint(_channelAddressHint);
 
@@ -271,7 +253,6 @@ public class EditChannelDialog extends BaseDialogFragment {
             editTextLabel.setVisibility(View.GONE);
             floatLabelChannelLabel.setVisibility(View.GONE);
         } else {
-            editTextLabel.getBackground().setColorFilter(_blue, PorterDuff.Mode.SRC_IN);
             editTextLabel.setText(_channel.label());
             floatLabelChannelLabel.setHint(_channelLabelHint);
         }

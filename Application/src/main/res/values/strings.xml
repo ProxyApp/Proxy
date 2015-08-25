@@ -4,7 +4,7 @@
     <string name="app_name">Proxy</string>
     <string name="contact_proxy">contact@shareyourproxy.com</string>
     <!--dialog-->
-    <string name="dialog_addgroup_title">Add Group</string>
+    <string name="add_group">Add Group</string>
     <string name="dialog_addchannel_title_default">Add Channel</string>
     <string name="dialog_addchannel_title_web">Add URL</string>
     <string name="dialog_addchannel_title_add_blank">Add %1$s</string>
@@ -31,11 +31,7 @@
     <string name="dialog_addchannel_hint_label_blank_label">Label</string>
 
     <string name="dialog_editchannel_title_default">Edit Channel</string>
-    <string name="dialog_editchannel_title_web">Edit URL</string>
-    <string name="dialog_editchannel_title_facebook">Edit facebook</string>
-    <string name="dialog_editchannel_title_email">Edit email</string>
-    <string name="dialog_editchannel_title_sms">Edit phone number for sms</string>
-    <string name="dialog_editchannel_title_phone">Edit phone number for calls</string>
+    <string name="dialog_editchannel_title_blank">Edit %1$s</string>
     <string name="dialog_editchannel_title_custom">Edit custom channel</string>
 
     <string name="dialog_editchannel_hint_address_default">@string/edit_channel_address</string>
@@ -78,12 +74,18 @@
     <string name="report_problem">Report Issue</string>
     <string name="invite_friend">Invite Friend</string>
     <string name="activity_login_title">proxy</string>
+    <string name="channel_view_item_content">%1$s\n%2$s - %3$s</string>
+    <string name="channel_view_item_content_no_label">%1$s\n%2$s</string>
     <string name="notifications">Notifications</string>
     <string name="favorites">Favorites</string>
     <string name="contacts">Contacts</string>
     <string name="groups">Groups</string>
     <string name="search">Search</string>
+    <string name="share_with">Share with</string>
     <string name="group_removed">Group Removed</string>
+    <string name="share_your_proxy">Share Your Proxy</string>
+    <string name="invite_friend_content">Join me on Proxy. Share all of your social profiles from
+        one place. www.shareyourproxy.com</string>
     <string name="action_menu_back_from_search">back from search</string>
     <string name="login_error_failed_connection">Failed to create a connection.</string>
     <string name="login_error_retrieving_user">Error retrieving user from Google</string>

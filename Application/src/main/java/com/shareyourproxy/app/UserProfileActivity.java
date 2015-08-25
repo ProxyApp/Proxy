@@ -18,7 +18,6 @@ import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.IntentLauncher.launchAddressIntent;
-import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.IntentLauncher.launchElloIntent;
 import static com.shareyourproxy.IntentLauncher.launchEmailIntent;
 import static com.shareyourproxy.IntentLauncher.launchFBMessengerIntent;
@@ -45,7 +44,6 @@ import static com.shareyourproxy.IntentLauncher.launchWebIntent;
 import static com.shareyourproxy.IntentLauncher.launchWhatsAppIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
-import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
  * Activity that handles displaying a {@link User} profile.
@@ -99,9 +97,6 @@ public class UserProfileActivity extends BaseActivity {
              */
 //            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
 //            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
-
-            MenuItem addButton = menu.findItem(R.id.menu_current_user_add_channel);
-            addButton.setIcon(getMenuIcon(this, R.raw.ic_add));
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -111,9 +106,6 @@ public class UserProfileActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                break;
-            case R.id.menu_current_user_add_channel:
-                launchChannelListActivity(this);
                 break;
 //            case R.id.menu_current_user_shared_links:
 //                ShareLinkDialog.newInstance(getLoggedInUser().groups())

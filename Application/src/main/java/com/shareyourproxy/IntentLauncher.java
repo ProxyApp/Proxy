@@ -13,6 +13,7 @@ import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserProfileActivity;
 
+import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 
@@ -166,9 +167,10 @@ public final class IntentLauncher {
         }
     }
 
-    public static void launchGroupEditChannelActivity(Activity activity, Group group) {
+    public static void launchGroupEditChannelActivity(Activity activity, Group group, int addOrEdit) {
         Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
         intent.putExtra(ARG_SELECTED_GROUP, group);
+        intent.putExtra(ARG_ADD_OR_EDIT, addOrEdit);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
@@ -195,15 +197,15 @@ public final class IntentLauncher {
      * @param activity context
      */
     public static void launchInviteFriendIntent(Activity activity) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:"));
+        Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(Intent.EXTRA_TEXT,
-            "Join me on Proxy. Share all of your social profiles from one place. " +
-                "www.shareyourproxy.com");
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Proxy Invite");
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+            activity.getString(R.string.share_your_proxy));
+        intent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.invite_friend_content));
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivity(intent);
+            activity.startActivity(Intent.createChooser(intent,
+                activity.getString(R.string.share_with)));
         }
     }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button
+    android:id="@+id/adapter_group_edit_channel_footer_delete"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/common_rect_small"
+    android:layout_gravity="center"
+    android:layout_marginStart="@dimen/common_margin_tiny"
+    android:layout_marginEnd="@dimen/common_margin_tiny"
+    android:layout_marginTop="@dimen/common_margin_tiny"
+    android:layout_marginBottom="@dimen/common_margin_small"
+    android:background="@color/common_red"
+    android:contentDescription="@null"
+    android:text="@string/delete"/>

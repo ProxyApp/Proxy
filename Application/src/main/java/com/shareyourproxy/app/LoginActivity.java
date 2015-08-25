@@ -1,12 +1,15 @@
 package com.shareyourproxy.app;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.ImageView;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -55,6 +58,8 @@ import timber.log.Timber;
 
 import static com.shareyourproxy.BuildConfig.VERSION_CODE;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.util.ViewUtils.dpToPx;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 
 /**
@@ -71,6 +76,8 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     private static final String SCOPE_EMAIL =
         "https://www.googleapis.com/auth/plus.profile.emails.read";
     // View
+    @Bind(R.id.activity_login_title)
+    protected ImageView proxyLogo;
     @Bind(R.id.activity_login_sign_in_button)
     protected SignInButton signInButton;
     // Transient
@@ -113,6 +120,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     private void initialize() {
+        initializeValues();
+        drawLogo();
+    }
+
+    private void initializeValues() {
         signInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_DARK);
         signInButton.setEnabled(true);
 
@@ -120,6 +132,35 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         _googleApiClient = buildGoogleApiClient();
         _authResultHandler = new AuthResultHandler(
             new WeakReference<>(this), getRxBus(), signInButton);
+    }
+
+    /**
+     * Set the Logo image.drawable on this activities {@link ImageView}.
+     */
+    private void drawLogo() {
+        ViewCompat.setLayerType(proxyLogo, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+        ViewCompat.setElevation(proxyLogo, getElevation());
+        proxyLogo.setImageDrawable(svgToBitmapDrawable(this,
+            R.raw.ic_proxy_logo_typed, (int) getResourceDimension(this)));
+    }
+
+    /**
+     * Get a big icon dimension size.
+     *
+     * @param activity context
+     * @return resource dimension
+     */
+    private float getResourceDimension(Activity activity) {
+        return dpToPx(activity.getResources(), R.dimen.common_svg_ultra_minor);
+    }
+
+    /**
+     * Get the elevation resource for FAB.
+     *
+     * @return diemnsion of elevation
+     */
+    private float getElevation() {
+        return dpToPx(getResources(), R.dimen.common_fab_elevation);
     }
 
     /**
@@ -137,12 +178,6 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .addScope(Plus.SCOPE_PLUS_LOGIN)
             .addScope(new Scope(SCOPE_EMAIL))
             .addScope(Plus.SCOPE_PLUS_PROFILE).build();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        _googleApiClient.connect();
     }
 
     @Override

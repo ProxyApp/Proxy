@@ -199,7 +199,7 @@ public class ViewUtils {
         background.setColorFilter(backgroundColor, SRC);
 
         int backgroundRadius = context.getResources()
-            .getDimensionPixelSize(R.dimen.common_margin_xhuge);
+            .getDimensionPixelSize(R.dimen.common_margin_huge);
 
         background.setIntrinsicWidth(backgroundRadius);
         background.setIntrinsicHeight(backgroundRadius);

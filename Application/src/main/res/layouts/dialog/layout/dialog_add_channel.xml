@@ -9,7 +9,8 @@
     android:layout_marginLeft="@dimen/common_margin_large"
     android:layout_marginRight="@dimen/common_margin_large"
     android:orientation="vertical"
-    android:paddingTop="@dimen/common_margin_xxtiny">
+    android:paddingTop="@dimen/common_margin_xxtiny"
+    android:theme="@style/Widget.Proxy.App.Dialog">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/dialog_channel_label_floatlabel"

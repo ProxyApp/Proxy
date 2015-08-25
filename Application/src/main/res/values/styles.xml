@@ -64,9 +64,12 @@
         <item name="android:textColor">@color/common_text</item>
     </style>
 
-    <style name="Widget.Proxy.App.Dialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="Widget.Proxy.App.Dialog" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@color/common_blue</item>
         <item name="android:textColorPrimary">@color/common_text</item>
         <item name="android:textColor">@color/common_text</item>
+        <item name="colorControlNormal">@color/common_text_disabled</item>
+        <item name="colorControlHighlight">@color/common_blue</item>
     </style>
 
     <style name="Widget.Proxy.EditText.FloatLabel" parent="android:TextAppearance.Small">

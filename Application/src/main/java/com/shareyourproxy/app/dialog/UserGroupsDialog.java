@@ -58,7 +58,6 @@ public class UserGroupsDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dispatchUpdatedUserGroups();
-                dialogInterface.dismiss();
             }
         };
 

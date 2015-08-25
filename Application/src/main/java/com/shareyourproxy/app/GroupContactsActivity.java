@@ -13,6 +13,7 @@ import com.shareyourproxy.app.fragment.GroupContactsFragment;
 
 import timber.log.Timber;
 
+import static com.shareyourproxy.app.GroupEditChannelActivity.EDIT_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 
 /**
@@ -57,7 +58,7 @@ public class GroupContactsActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.menu_group_contacts_edit_group:
-                IntentLauncher.launchGroupEditChannelActivity(this, getSelectedGroup());
+                IntentLauncher.launchGroupEditChannelActivity(this, getSelectedGroup(), EDIT_GROUP);
                 break;
             default:
                 Timber.e("Menu Item ID unknown");

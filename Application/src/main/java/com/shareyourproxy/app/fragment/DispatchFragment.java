@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.shareyourproxy.Constants;
-import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
@@ -28,6 +27,7 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.IntentLauncher.launchLoginActivity;
+import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.util.ViewUtils.dpToPx;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -117,7 +117,7 @@ public class DispatchFragment extends BaseFragment {
     }
 
     private void login() {
-        IntentLauncher.launchMainActivity(getActivity(),
+        launchMainActivity(getActivity(),
             MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
         getActivity().finish();
     }

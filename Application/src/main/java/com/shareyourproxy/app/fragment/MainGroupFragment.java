@@ -43,6 +43,7 @@ import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
+import static com.shareyourproxy.app.GroupEditChannelActivity.ADD_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -98,7 +99,8 @@ public class MainGroupFragment
      */
     @OnClick(R.id.fragment_group_main_fab_group)
     public void onClick() {
-        IntentLauncher.launchGroupEditChannelActivity(getActivity(), Group.createBlank());
+        IntentLauncher.launchGroupEditChannelActivity(
+            getActivity(), Group.createBlank(), ADD_GROUP);
     }
 
     public void checkGroupDeleted(Activity activity) {
@@ -144,7 +146,6 @@ public class MainGroupFragment
     /**
      * Set the content image of this {@link FloatingActionButton}
      */
-    @SuppressWarnings("NewApi")
     private void initializeSVG() {
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
             getLargeIconDimen(getActivity()), Color.WHITE);
