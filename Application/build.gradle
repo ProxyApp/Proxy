@@ -21,7 +21,7 @@ android {
     // Version Info
     def versionMajor = 0
     def versionMinor = 2
-    def versionPatch = 2
+    def versionPatch = 3
     def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
@@ -156,9 +156,9 @@ dependencies {
     //Local
     compile fileTree(dir: 'libs', include: '*.jar')
     //Google
-    compile 'com.google.android.gms:play-services-plus:7.8.0'
-    compile 'com.google.android.gms:play-services-analytics:7.8.0'
-    compile 'com.google.android.gms:play-services-identity:7.8.0'
+    compile 'com.google.android.gms:play-services-plus:+'
+    compile 'com.google.android.gms:play-services-analytics:+'
+    compile 'com.google.android.gms:play-services-identity:+'
     //Android
     compile 'com.android.support:design:+'
     compile 'com.android.support:support-v4:+'
@@ -173,7 +173,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:3.1.0'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
     //Third party
     compile 'com.facebook.android:facebook-android-sdk:4.1.0'
     compile 'com.github.frankiesardo:auto-parcel:0.3'
