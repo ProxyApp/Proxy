@@ -24,6 +24,7 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
+import com.shareyourproxy.api.rx.event.DialogCanceledEvent;
 import com.shareyourproxy.util.DebugUtils;
 
 import butterknife.Bind;
@@ -49,7 +50,7 @@ public class EditChannelDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 hideSoftwareKeyboard(editTextActionAddress);
-                dismiss();
+                getRxBus().post(new DialogCanceledEvent());
             }
         };
     @Bind(R.id.dialog_channel_label_edittext)
