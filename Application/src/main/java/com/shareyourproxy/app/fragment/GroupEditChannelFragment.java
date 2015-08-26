@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
@@ -23,9 +22,7 @@ import timber.log.Timber;
 import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.HeaderViewHolder;
 import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_DELETE;
-import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_ITEM;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 public class GroupEditChannelFragment extends BaseFragment implements ItemClickListener {
@@ -102,12 +99,6 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
         int viewType = _adapter.getItemViewType(position);
         if (viewType == TYPE_LIST_DELETE) {
             getRxBus().post(new DeleteUserGroupCommand(getLoggedInUser(), getSelectedGroup()));
-        } else if (viewType == TYPE_LIST_ITEM) {
-            Switch channelSwitch = ((GroupEditChannelAdapter.ItemViewHolder)
-                recyclerView.getChildViewHolder(view)).itemSwitch;
-            boolean toggle = !channelSwitch.isChecked();
-            channelSwitch.setChecked(toggle);
-            _adapter.getItemData(position).setInGroup(channelSwitch.isChecked());
         }
     }
 
@@ -118,10 +109,7 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
                 getActivity().onBackPressed();
                 break;
             case R.id.menu_edit_group_channel_save:
-                saveGroupChannels(
-                    _adapter.getGroupLabel(
-                        (HeaderViewHolder) recyclerView
-                            .getChildViewHolder(recyclerView.getChildAt(0))));
+                saveGroupChannels(_adapter.getGroupLabel());
                 break;
             default:
                 Timber.e("Option item selected is unknown");

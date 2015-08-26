@@ -14,8 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -33,6 +35,7 @@ import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import timber.log.Timber;
 
 import static com.shareyourproxy.app.GroupEditChannelActivity.ADD_GROUP;
 import static com.shareyourproxy.app.GroupEditChannelActivity.EDIT_GROUP;
@@ -222,8 +225,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    public String getGroupLabel(HeaderViewHolder viewHolder) {
-        return viewHolder.editText.getText().toString();
+    public String getGroupLabel() {
+        return _groupLabel;
     }
 
     private void bindHeaderViewData(HeaderViewHolder holder) {
@@ -249,9 +252,14 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         SpannableStringBuilder sb = getSpannableStringBuilder(context, channelTypeString, label,
             address);
 
+        View.OnClickListener clickListener = switchListener(holder);
+        CompoundButton.OnCheckedChangeListener checkedListener = checkedListener(holder);
+
         holder.itemLabel.setText(sb);
         holder.itemSwitch.setChecked(editChannel.inGroup());
-        holder.itemSwitch.setOnClickListener(switchListener(holder));
+
+        holder.container.setOnClickListener(clickListener);
+        holder.itemSwitch.setOnCheckedChangeListener(checkedListener);
     }
 
     private SpannableStringBuilder getSpannableStringBuilder(
@@ -285,8 +293,24 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _channels.get(viewHolder.getAdapterPosition())
-                    .setInGroup(((Switch) view).isChecked());
+                int position = viewHolder.getItemPosition() - 1;
+                Switch itemSwitch = viewHolder.itemSwitch;
+                Timber.i("position:" + position);
+
+                boolean toggle = !itemSwitch.isChecked();
+                itemSwitch.setChecked(toggle);
+            }
+        };
+    }
+
+    private CompoundButton.OnCheckedChangeListener checkedListener(final ItemViewHolder
+                                                                       viewHolder) {
+        return new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int position = viewHolder.getItemPosition() - 1;
+                _channels.get(position)
+                    .setInGroup(isChecked);
             }
         };
     }
@@ -296,6 +320,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public static final class ItemViewHolder extends BaseViewHolder {
+        @Bind(R.id.adapter_edit_group_list_item_container)
+        public RelativeLayout container;
         @Bind(R.id.adapter_edit_group_list_item_switch)
         public Switch itemSwitch;
         @Bind(R.id.adapter_edit_group_list_item_image)

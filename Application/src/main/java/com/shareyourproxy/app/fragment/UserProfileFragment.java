@@ -176,6 +176,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         initializeActionBar();
         initializeHeader();
         if (!_isLoggedInUser) {
+            floatingActionButton.setVisibility(View.GONE);
             getGroupEditContacts();
             initializeRecyclerView(null);
             getSharedChannels();
@@ -406,6 +407,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
+                setToolbarTitle();
                 if (event instanceof UserChannelAddedEventCallback) {
                     addUserChannel(((UserChannelAddedEventCallback) event));
                 } else if (event instanceof UserChannelDeletedEventCallback) {
