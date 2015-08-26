@@ -23,6 +23,9 @@ import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -36,33 +39,8 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  * {@link MainActivity} base off the current user.
  */
 public class DispatchFragment extends BaseFragment {
-    public static final int HOLD_ON_HALF_A_SECOND = 500;
     @Bind(R.id.fragment_dispatch_image)
     ImageView imageView;
-
-    Runnable loginRunnable = new Runnable() {
-        @Override
-        public void run() {
-            User user = null;
-            String jsonUser = getSharedPrefrences().getString(Constants.KEY_LOGGED_IN_USER, null);
-            if (jsonUser != null) {
-                try {
-                    user = UserTypeAdapter.newInstance()
-                        .fromJson(jsonUser);
-                } catch (IOException e) {
-                    Timber.e(Log.getStackTraceString(e));
-                }
-            }
-
-            if (user == null) {
-                launchLoginActivity(getActivity());
-                getActivity().finish();
-            } else {
-                setLoggedInUser(user);
-                getRxBus().post(new SyncAllUsersCommand(user.id().value()));
-            }
-        }
-    };
     private CompositeSubscription _subscriptions;
 
     /**
@@ -80,6 +58,39 @@ public class DispatchFragment extends BaseFragment {
         return new DispatchFragment();
     }
 
+    private Observable<User> loginObservable() {
+        return Observable.create(new Observable.OnSubscribe<User>() {
+            @Override
+            public void call(final Subscriber<? super User> subscriber) {
+                try {
+                    User user = null;
+                    String jsonUser = getSharedPrefrences().getString(Constants
+                        .KEY_LOGGED_IN_USER, null);
+                    if (jsonUser != null) {
+                        try {
+                            user = UserTypeAdapter.newInstance()
+                                .fromJson(jsonUser);
+                        } catch (IOException e) {
+                            Timber.e(Log.getStackTraceString(e));
+                        }
+                    }
+                    if (user == null) {
+                        launchLoginActivity(getActivity());
+                        getActivity().finish();
+                    } else {
+                        setLoggedInUser(user);
+                        getRxBus().post(new SyncAllUsersCommand(user.id().value()));
+                    }
+                    subscriber.onNext(user);
+                    subscriber.onCompleted();
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+            }
+
+        }).retry().subscribeOn(AndroidSchedulers.mainThread());
+    }
+
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container,
@@ -87,7 +98,6 @@ public class DispatchFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.fragment_dispatch, container, false);
         ButterKnife.bind(this, rootView);
         drawLogo();
-        rootView.postDelayed(loginRunnable, HOLD_ON_HALF_A_SECOND);
         return rootView;
     }
 
@@ -97,6 +107,20 @@ public class DispatchFragment extends BaseFragment {
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObserverable()
             .subscribe(getRxBusObserver()));
+        _subscriptions.add(loginObservable().subscribe(loginObserver()));
+    }
+
+    public JustObserver<User> loginObserver() {
+        return new JustObserver<User>() {
+            @Override
+            public void onError() {
+            }
+
+            @Override
+            public void onNext(User event) {
+
+            }
+        };
     }
 
     public JustObserver<Object> getRxBusObserver() {
