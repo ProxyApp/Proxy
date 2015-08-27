@@ -21,12 +21,12 @@ android {
     // Version Info
     def versionMajor = 0
     def versionMinor = 2
-    def versionPatch = 3
+    def versionPatch = 4
     def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         multiDexEnabled true

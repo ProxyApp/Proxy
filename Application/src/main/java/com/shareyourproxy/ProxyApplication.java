@@ -122,12 +122,14 @@ public class ProxyApplication extends Application {
     public void initializeBuildConfig() {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
-        } else if (BuildConfig.USE_GOOGLE_ANALYTICS) {
+        }
+        if (BuildConfig.USE_GOOGLE_ANALYTICS) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             analytics.newTracker(BuildConfig.GA_TRACKER_ID);
             analytics.enableAdvertisingIdCollection(true);
             analytics.enableAutoActivityReports(this);
-        } else if (BuildConfig.USE_CRASHLYTICS) {
+        }
+        if (BuildConfig.USE_CRASHLYTICS) {
             Fabric.with(this, new Crashlytics());
         }
     }
@@ -154,17 +156,19 @@ public class ProxyApplication extends Application {
             @Override
             public void onNext(Long timesCalled) {
                 Timber.i("Checking for notifications, attempt:" + timesCalled.intValue());
-                try {
-                    List<Notification> notifications =
-                        _notificationService.getNotifications(_currentUser.id().value());
-                    if (notifications != null && notifications.size() > 0) {
-                        for (Notification notification : notifications) {
-                            _notificationManager.notify(notification.hashCode(), notification);
+                if (_currentUser != null) {
+                    try {
+                        List<Notification> notifications =
+                            _notificationService.getNotifications(_currentUser.id().value());
+                        if (notifications != null && notifications.size() > 0) {
+                            for (Notification notification : notifications) {
+                                _notificationManager.notify(notification.hashCode(), notification);
+                            }
+                            deleteAllFirebaseMessages(_currentUser).subscribe();
                         }
-                        deleteAllFirebaseMessages(_currentUser).subscribe();
+                    } catch (RemoteException e) {
+                        Timber.e(Log.getStackTraceString(e));
                     }
-                } catch (RemoteException e) {
-                    Timber.e(Log.getStackTraceString(e));
                 }
             }
         };

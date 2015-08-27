@@ -235,7 +235,11 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public GroupEditChannel getItemData(int position) {
-        return _channels.get(position);
+        if (position < _channels.size()) {
+            return _channels.get(position);
+        } else {
+            return null;
+        }
     }
 
     private void bindItemViewData(ItemViewHolder holder, GroupEditChannel editChannel) {
@@ -303,8 +307,9 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         };
     }
 
-    private CompoundButton.OnCheckedChangeListener checkedListener(final ItemViewHolder
-                                                                       viewHolder) {
+    private CompoundButton.OnCheckedChangeListener checkedListener(
+        final ItemViewHolder
+            viewHolder) {
         return new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
