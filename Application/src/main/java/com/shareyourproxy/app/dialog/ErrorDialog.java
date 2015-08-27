@@ -37,7 +37,7 @@ public class ErrorDialog extends BaseDialogFragment {
      * @return this dialog
      */
     public static ErrorDialog newInstance(String title, String message) {
-        if (message == null || message.isEmpty()) {
+        if (message == null) {
             throw new IllegalArgumentException("message cannot be blank.");
         }
 

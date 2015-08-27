@@ -95,6 +95,9 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param message onError message
      */
     private static void showErrorDialog(BaseActivity activity, String message) {
+        if(message == null || message.trim().isEmpty()){
+            message = GOOGLE_ERROR_AUTH;
+        }
         ErrorDialog.newInstance(activity.getString(R.string.login_error), message)
             .show(activity.getSupportFragmentManager());
     }
@@ -176,6 +179,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .addOnConnectionFailedListener(this)
             .addApi(Plus.API, Plus.PlusOptions.builder().build())
             .addScope(Plus.SCOPE_PLUS_LOGIN)
+            .addScope(new Scope(Scopes.PLUS_ME))
             .addScope(new Scope(SCOPE_EMAIL))
             .addScope(Plus.SCOPE_PLUS_PROFILE).build();
     }
@@ -366,6 +370,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                         Intent recover = e.getIntent();
                         startActivityForResult(recover, REQUESTCODE_SIGN_IN);
                     }
+                    errorMessage = e.getMessage();
                 } catch (GoogleAuthException authEx) {
                     /* The call is not ever expected to succeed assuming you have already
                     verified that
@@ -374,6 +379,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     errorMessage = GOOGLE_ERROR_AUTH + authEx.getMessage();
                 } catch (Exception e) {
                     Timber.e(GOOGLE_ERROR_AUTH + Log.getStackTraceString(e));
+                    errorMessage = e.getMessage();
                 }
                 return new Pair<>(token, errorMessage);
             }
@@ -387,6 +393,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             @Override
             public void onError() {
                 showErrorDialog(LoginActivity.this, getString(R.string.oauth_error));
+                signInButton.setEnabled(true);
             }
 
             @Override
@@ -398,6 +405,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
                 } else if (errorMessage != null) {
                     showErrorDialog(LoginActivity.this, errorMessage);
+                    signInButton.setEnabled(true);
                 }
             }
         };
@@ -421,8 +429,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             String error = getString(R.string.login_error_api_unavailable);
             Timber.w(error);
             showErrorDialog(this, error);
+            signInButton.setEnabled(true);
         } else if (result.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
             showErrorDialog(this, getString(R.string.login_error_update_play_service));
+            signInButton.setEnabled(true);
         } else {
             // We do not have an intent in progress so we should store the latest
             // onError resolution intent for use when the sign in button is clicked.
@@ -477,6 +487,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
                     });
             } else {
                 showErrorDialog(this, getString(R.string.login_error_failed_connection));
+                signInButton.setEnabled(true);
                 if (_googleApiClient.isConnected()) {
                     _googleApiClient.disconnect();
                 }

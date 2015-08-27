@@ -210,13 +210,15 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         _subscriptions.add(getRxBus().toObserverable()
             .subscribe(onNextEvent()));
 
-        _subscriptions.add(queryFilteredUsers(
-            getActivity(), getLoggedInUser().id().value()).subscribe(getSearchObserver()));
-
-        _subscriptions.add(
-            _textWatcherSubject.toObserverable().map(
-                searchUserString(getActivity(), getLoggedInUser().id().value()))
-                .subscribe(getSearchObserver()));
+        User loggedInUser = getLoggedInUser();
+        if (loggedInUser != null) {
+            _subscriptions.add(queryFilteredUsers(
+                getActivity(), loggedInUser.id().value()).subscribe(getSearchObserver()));
+            _subscriptions.add(
+                _textWatcherSubject.toObserverable().map(
+                    searchUserString(getActivity(), loggedInUser.id().value()))
+                    .subscribe(getSearchObserver()));
+        }
     }
 
     private Action1<Object> onNextEvent() {

@@ -5,10 +5,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -25,7 +23,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -91,18 +88,10 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     protected Button groupButton;
     @Bind(R.id.fragment_user_profile_empty_textview)
     protected TextView emptyTextView;
-    @Nullable
     @Bind(R.id.fragment_user_profile_collapsing_toolbar)
     protected CollapsingToolbarLayout collapsingToolbarLayout;
-    @Nullable
-    @Bind(R.id.fragment_user_profile_header_background)
-    protected FrameLayout userProfileBackground;
     @Bind(R.id.fragment_user_profile_fab)
     protected FloatingActionButton floatingActionButton;
-    @OnClick(R.id.fragment_user_profile_fab)
-    public void onClick(){
-        launchChannelListActivity(getActivity());
-    }
     @BindColor(R.color.common_blue)
     protected int _blue;
     private ViewChannelAdapter _adapter;
@@ -128,6 +117,11 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
      */
     public static UserProfileFragment newInstance() {
         return new UserProfileFragment();
+    }
+
+    @OnClick(R.id.fragment_user_profile_fab)
+    public void onClick() {
+        launchChannelListActivity(getActivity());
     }
 
     @OnClick(R.id.fragment_user_profile_header_button)
@@ -222,24 +216,22 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
 
     private void setToolbarTitle() {
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
-        if (collapsingToolbarLayout != null) {
-            collapsingToolbarLayout.setTitle(title);
-            collapsingToolbarLayout.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return true;
-                }
-            });
-            for (int i = 0; i < collapsingToolbarLayout.getChildCount(); i++) {
-                View childView = collapsingToolbarLayout.getChildAt(i);
-                if (!childView.isClickable()) {
-                    childView.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View view, MotionEvent motionEvent) {
-                            return true;
-                        }
-                    });
-                }
+        collapsingToolbarLayout.setTitle(title);
+        collapsingToolbarLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+        for (int i = 0; i < collapsingToolbarLayout.getChildCount(); i++) {
+            View childView = collapsingToolbarLayout.getChildAt(i);
+            if (!childView.isClickable()) {
+                childView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent motionEvent) {
+                        return true;
+                    }
+                });
             }
         }
     }
@@ -273,10 +265,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
             _backgroundTarget = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    if (collapsingToolbarLayout != null) {
-                        collapsingToolbarLayout.setBackground(
-                            new BitmapDrawable(getResources(), bitmap));
-                    }
+                    collapsingToolbarLayout.setBackground(
+                        new BitmapDrawable(getResources(), bitmap));
                 }
 
                 @Override
@@ -339,17 +329,10 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
                         res.getColor(R.color.common_blue));
 
                     Integer color = palette.getVibrantColor(offColor);
-                    if (collapsingToolbarLayout == null) {
-                        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
-                        if (userProfileBackground != null) {
-                            userProfileBackground.setBackgroundColor(color);
-                        }
-                    } else {
-                        collapsingToolbarLayout.setContentScrimColor(color);
-                        collapsingToolbarLayout.setStatusBarScrimColor(color);
-                        if (_userContact.coverURL() == null || "".equals(_userContact.coverURL())) {
-                            collapsingToolbarLayout.setBackgroundColor(color);
-                        }
+                    collapsingToolbarLayout.setContentScrimColor(color);
+                    collapsingToolbarLayout.setStatusBarScrimColor(color);
+                    if (_userContact.coverURL() == null || "".equals(_userContact.coverURL())) {
+                        collapsingToolbarLayout.setBackgroundColor(color);
                     }
                 }
             };
