@@ -105,9 +105,6 @@ public class ProxyApplication extends Application {
         FacebookSdk.sdkInitialize(this);
         MultiDex.install(this);
 
-        TwitterAuthConfig authConfig =
-            new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
-        Fabric.with(this, new Twitter(authConfig));
         _bus.toObserverable().subscribe(getRequest());
 
         RealmConfiguration config = new RealmConfiguration.Builder(this)
@@ -129,8 +126,13 @@ public class ProxyApplication extends Application {
             analytics.enableAdvertisingIdCollection(true);
             analytics.enableAutoActivityReports(this);
         }
+        //Twitter and Crashlytics
+        TwitterAuthConfig authConfig =
+            new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
         if (BuildConfig.USE_CRASHLYTICS) {
-            Fabric.with(this, new Crashlytics());
+            Fabric.with(this, new Twitter(authConfig), new Crashlytics());
+        } else {
+            Fabric.with(this, new Twitter(authConfig));
         }
     }
 

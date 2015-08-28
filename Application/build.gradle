@@ -22,7 +22,7 @@ android {
     def versionMajor = 0
     def versionMinor = 2
     def versionPatch = 4
-    def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+    def versionBuild = 1 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
         minSdkVersion 17
@@ -83,8 +83,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "boolean", "USE_CRASHLYTICS", "false"
-            ext.enableCrashlytics = false
+            buildConfigField "boolean", "USE_CRASHLYTICS", "true"
+            ext.enableCrashlytics = true
             //disable google analytics
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "false"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
@@ -183,11 +183,11 @@ dependencies {
     compile 'io.reactivex:rxjava:1.0.13'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
-    compile('com.twitter.sdk.android:twitter:1.6.1@aar') {
+    compile('com.twitter.sdk.android:twitter:1.7.2@aar') {
         transitive = true;
     }
     //Bug Tracking
-    compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
 }

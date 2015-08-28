@@ -24,7 +24,6 @@ import rx.subscriptions.CompositeSubscription;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
-import static com.shareyourproxy.util.DebugUtils.showBroToast;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
 
 /**
@@ -147,7 +146,6 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
 
     @Override
     public void onItemLongClick(View view, int position) {
-        showBroToast(getActivity(), _adapter.getItemData(position).last());
     }
 
 }

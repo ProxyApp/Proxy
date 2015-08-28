@@ -37,7 +37,6 @@ import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryFilteredUsers;
 import static com.shareyourproxy.api.rx.RxQuery.searchUserString;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.DebugUtils.showBroToast;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
@@ -180,7 +179,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
     @Override
     public void onItemLongClick(View view, int position) {
-        showBroToast(getActivity(), _adapter.getItemData(position).last());
     }
 
     /**

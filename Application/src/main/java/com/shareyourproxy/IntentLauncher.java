@@ -501,7 +501,9 @@ public final class IntentLauncher {
         Intent intent = new Intent();
         intent.setPackage("com.whatsapp");
         intent.setData(Uri.parse("smsto:" + address));
-        activity.startActivity(intent);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        }
     }
 
     public static void launchWebIntent(Activity activity, String address) {

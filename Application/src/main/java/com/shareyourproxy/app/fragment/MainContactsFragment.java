@@ -29,7 +29,6 @@ import rx.subscriptions.CompositeSubscription;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.DebugUtils.showBroToast;
 
 /**
  * A recyclerView of Favorite {@link User}s.
@@ -101,7 +100,6 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setEmptyView(emptyTextView);
-        recyclerView.setSwipeRefreshLayout(swipeRefreshLayout);
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
@@ -156,7 +154,6 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
 
     @Override
     public void onItemLongClick(View view, int position) {
-        showBroToast(getActivity(), _adapter.getItemData(position).last());
     }
 
     /**
