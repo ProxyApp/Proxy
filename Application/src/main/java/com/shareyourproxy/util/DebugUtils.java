@@ -1,8 +1,5 @@
 package com.shareyourproxy.util;
 
-import android.app.Activity;
-import android.widget.Toast;
-
 /**
  * Utilities for Debug Builds.
  */
@@ -25,7 +22,7 @@ public class DebugUtils {
         return klass.getSimpleName();
     }
 
-    public static void showBroToast(Activity activity, String message) {
-        Toast.makeText(activity, message + " Bro", Toast.LENGTH_SHORT).show();
-    }
+//    public static void showBroToast(Activity activity, String message) {
+//        Toast.makeText(activity, message + " Bro", Toast.LENGTH_SHORT).show();
+//    }
 }

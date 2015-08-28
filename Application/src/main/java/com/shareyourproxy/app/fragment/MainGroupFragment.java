@@ -203,7 +203,6 @@ public class MainGroupFragment
      */
     private void initializeRecyclerView() {
         recyclerView.setEmptyView(emptyTextView);
-        recyclerView.setSwipeRefreshLayout(swipeRefreshLayout);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupAdapter.newInstance(recyclerView, getGroupData(), this);
         recyclerView.setAdapter(_adapter);

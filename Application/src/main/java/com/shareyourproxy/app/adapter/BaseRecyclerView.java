@@ -94,8 +94,8 @@ public class BaseRecyclerView extends RecyclerView {
         if (_emptyView != null && getAdapter() != null) {
             boolean showEmptyView = getAdapter().getItemCount() == 0;
             _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
-            setVisibility(showEmptyView ? GONE : VISIBLE);
             if (_swipeRefreshLayout != null) {
+                setVisibility(showEmptyView ? GONE : VISIBLE);
                 _swipeRefreshLayout.setVisibility(showEmptyView ? GONE : VISIBLE);
             }
         }
