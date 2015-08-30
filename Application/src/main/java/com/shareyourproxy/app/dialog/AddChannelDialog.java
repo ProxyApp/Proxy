@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 
 import static android.content.DialogInterface.OnClickListener;
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
+import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
@@ -97,6 +97,12 @@ public class AddChannelDialog extends BaseDialogFragment {
     private String _channelLabelHint;
 
     /**
+     * Constructor.
+     */
+    public AddChannelDialog() {
+    }
+
+    /**
      * Create a new instance of a {@link AddChannelDialog}.
      *
      * @return A {@link AddChannelDialog}
@@ -155,9 +161,6 @@ public class AddChannelDialog extends BaseDialogFragment {
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
-
-        // Setup Button Colors
-        initializeEditTextColors();
         return dialog;
     }
 
@@ -169,6 +172,9 @@ public class AddChannelDialog extends BaseDialogFragment {
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         //Alert Dialogs dismiss by default because of an internal handler... this bypasses that.
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
+        //Setup TextInput hints.
+        floatLabelAddress.setHint(_channelAddressHint);
+        floatLabelChannelLabel.setHint(_channelLabelHint);
     }
 
     public void saveChannelAndExit() {
@@ -347,14 +353,6 @@ public class AddChannelDialog extends BaseDialogFragment {
                 _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_default);
                 break;
         }
-    }
-
-    /**
-     * Initialize color and hints for edit text.
-     */
-    private void initializeEditTextColors() {
-        floatLabelAddress.setHint(_channelAddressHint);
-        floatLabelChannelLabel.setHint(_channelLabelHint);
     }
 
     @Override

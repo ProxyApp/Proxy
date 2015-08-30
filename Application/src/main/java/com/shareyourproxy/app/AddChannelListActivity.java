@@ -10,6 +10,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.app.fragment.AddChannelListFragment;
 import com.shareyourproxy.app.fragment.BaseFragment;
+import com.shareyourproxy.app.fragment.UserProfileFragment;
 
 import java.util.List;
 
@@ -22,7 +23,8 @@ import timber.log.Timber;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
- * Activity that displays a list of ChannelTypes to choose from.
+ * Activity that displays a list of Channels for a user to add to their {@link
+ * UserProfileFragment}.
  */
 public class AddChannelListActivity extends BaseActivity {
 
@@ -73,19 +75,22 @@ public class AddChannelListActivity extends BaseActivity {
         initializeSubscriptions();
     }
 
+    /**
+     * Create a composite subscription field to handle unsubscribing in onPause.
+     */
     public void initializeSubscriptions() {
         if (_subscriptions == null) {
             _subscriptions = new CompositeSubscription();
-            _subscriptions.add(getRxBus().toObserverable()
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object event) {
-                        if (event instanceof AddUserChannelCommand) {
-                            finishActivity();
-                        }
-                    }
-                }));
         }
+        _subscriptions.add(getRxBus().toObserverable()
+            .subscribe(new Action1<Object>() {
+                @Override
+                public void call(Object event) {
+                    if (event instanceof AddUserChannelCommand) {
+                        finishActivity();
+                    }
+                }
+            }));
     }
 
     @Override
@@ -95,6 +100,9 @@ public class AddChannelListActivity extends BaseActivity {
         _subscriptions = null;
     }
 
+    /**
+     * Finish activity and animate.
+     */
     private void finishActivity() {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);

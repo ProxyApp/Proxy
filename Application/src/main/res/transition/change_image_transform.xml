@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android">
+    <changeBounds>
+        <targets>
+            <target android:excludeId="@android:id/statusBarBackground"/>
+        </targets>
+    </changeBounds>
+    <changeTransform>
+        <targets>
+            <target android:excludeId="@android:id/statusBarBackground"/>
+        </targets>
+    </changeTransform>
+    <changeClipBounds>
+        <targets>
+            <target android:excludeId="@android:id/statusBarBackground"/>
+        </targets>
+    </changeClipBounds>
+    <fade>
+        <targets>
+            <target android:excludeId="@android:id/statusBarBackground"/>
+        </targets>
+    </fade>
+
+</transitionSet>

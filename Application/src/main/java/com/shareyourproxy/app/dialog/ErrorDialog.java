@@ -12,7 +12,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.event.LoginErrorDialogEvent;
 
 import static com.shareyourproxy.api.rx.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
+import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
 
 /**
  * Dialog to handle onError messaging during login.
@@ -25,9 +25,15 @@ public class ErrorDialog extends BaseDialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             getRxBus().post(new LoginErrorDialogEvent(DISMISS));
-            dialog.dismiss();
         }
     };
+
+    /**
+     * Constructor.
+     */
+    public ErrorDialog() {
+
+    }
 
     /**
      * Create a new dialog with a custom title and message body.
@@ -36,11 +42,7 @@ public class ErrorDialog extends BaseDialogFragment {
      * @param message body of dialog
      * @return this dialog
      */
-    public static ErrorDialog newInstance(String title, String message) {
-        if (message == null) {
-            throw new IllegalArgumentException("message cannot be blank.");
-        }
-
+    public static ErrorDialog newInstance(String title, @NonNull String message) {
         Bundle args = new Bundle();
         args.putString(ARG_TITLE, title);
         args.putString(ARG_MESSAGE, message);

@@ -8,10 +8,11 @@ import butterknife.ButterKnife;
 /**
  * ViewHolder for the entered view's data.
  */
-public class BaseViewHolder extends RecyclerView.ViewHolder
+public abstract class BaseViewHolder extends RecyclerView.ViewHolder
     implements View.OnClickListener, View.OnLongClickListener {
     protected View _view;
     private ItemClickListener _itemClickListener;
+    private ItemLongClickListener _itemLongClickListener;
 
     /**
      * Constructor for the holder.
@@ -24,18 +25,37 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
         ButterKnife.bind(this, view);
         _view = view;
         _view.setOnClickListener(this);
-        _view.setOnLongClickListener(this);
         _itemClickListener = clickListener;
+    }
+
+    /**
+     * Constructor for the holder.
+     *
+     * @param view          the inflated view
+     * @param clickListener ItemLongClickListener
+     */
+    protected BaseViewHolder(View view, ItemLongClickListener clickListener) {
+        super(view);
+        ButterKnife.bind(this, view);
+        _view = view;
+        _view.setOnClickListener(this);
+        _view.setOnLongClickListener(this);
+        _itemLongClickListener = clickListener;
     }
 
     @Override
     public void onClick(View v) {
-        _itemClickListener.onItemClick(v, getItemPosition());
+        if (_itemClickListener != null) {
+            _itemClickListener.onItemClick(v, getItemPosition());
+        }
+        if (_itemLongClickListener != null) {
+            _itemLongClickListener.onItemClick(v, getItemPosition());
+        }
     }
 
     @Override
     public boolean onLongClick(View v) {
-        _itemClickListener.onItemLongClick(v, getItemPosition());
+        _itemLongClickListener.onItemLongClick(v, getItemPosition());
         return true;
     }
 
@@ -59,6 +79,15 @@ public class BaseViewHolder extends RecyclerView.ViewHolder
          */
         void onItemClick(View view, int position);
 
+    }
+
+    public interface ItemLongClickListener extends ItemClickListener {
+        /**
+         * ItemLongClick event.
+         *
+         * @param view     clicked
+         * @param position in list
+         */
         void onItemLongClick(View view, int position);
     }
 }

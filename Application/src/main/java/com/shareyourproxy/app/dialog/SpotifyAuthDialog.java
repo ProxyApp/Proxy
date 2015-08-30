@@ -23,7 +23,7 @@ import com.shareyourproxy.api.domain.model.SpotifyAuthResponse;
 import com.shareyourproxy.api.domain.model.SpotifyUser;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
-import com.shareyourproxy.util.DebugUtils;
+import com.shareyourproxy.util.ObjectUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,9 +42,15 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
     /**
      * Created by Evan on 8/12/15.
      */
-    private static final String TAG = DebugUtils.getSimpleName(SpotifyAuthDialog.class);
+    private static final String TAG = ObjectUtils.getSimpleName(SpotifyAuthDialog.class);
     @Bind(R.id.dialog_webview_container)
     protected WebView webView;
+
+    /**
+     * Constructor.
+     */
+    public SpotifyAuthDialog(){
+    }
 
     public static SpotifyAuthDialog newInstance() {
         Bundle args = new Bundle();
@@ -89,16 +95,13 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                     }
                 }
             }
-
         });
 
         try {
             String url = SpotifyUser.requestOAuthUrl(
                 SPOTIFY_CLIENT_ID, WEBVIEW_REDIRECT);
-            webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setSaveFormData(false);
             webView.loadUrl(url);
-//            IntentLauncher.launchWebIntent(getActivity(), url);
         } catch (final Exception e) {
             Timber.e(getStackTraceString(e));
         }

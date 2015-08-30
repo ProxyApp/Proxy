@@ -17,7 +17,7 @@ import static com.shareyourproxy.app.GroupEditChannelActivity.EDIT_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 
 /**
- * Activity to display a groups associated contacts.
+ * Activity to display the contacts that a user has saved in a selected group.
  */
 public class GroupContactsActivity extends BaseActivity {
     @Override
@@ -47,6 +47,11 @@ public class GroupContactsActivity extends BaseActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * Get the group bundled in {@link IntentLauncher#launchEditGroupContactsActivity}.
+     *
+     * @return
+     */
     private Group getSelectedGroup() {
         return (Group) getIntent().getExtras().getParcelable(Constants.ARG_SELECTED_GROUP);
     }

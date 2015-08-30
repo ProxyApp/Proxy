@@ -40,4 +40,14 @@ public class ObjectUtils {
         }
         return String.valueOf(Character.toTitleCase(string.charAt(0))) + string.substring(1);
     }
+
+    /**
+     * Get a formatted TAG string.
+     *
+     * @param klass the class to copy a TAG for
+     * @return return the TAG String
+     */
+    public static String getSimpleName(Class klass) {
+        return klass.getSimpleName();
+    }
 }

@@ -101,7 +101,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".api.NotificationService">
+        <service android:name=".api.NotificationService"
+                 android:exported="false">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"/>

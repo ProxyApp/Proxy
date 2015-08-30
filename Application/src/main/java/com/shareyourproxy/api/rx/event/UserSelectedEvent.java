@@ -1,5 +1,7 @@
 package com.shareyourproxy.api.rx.event;
 
+import android.view.View;
+
 import com.shareyourproxy.api.domain.model.User;
 
 /**
@@ -8,13 +10,19 @@ import com.shareyourproxy.api.domain.model.User;
 public class UserSelectedEvent {
 
     public final User user;
+    public final View imageView;
+    public final View textView;
 
     /**
      * Constructor.
      *
-     * @param user that was selected
+     * @param user      that was selected
+     * @param imageView user image
+     * @param textView  user name label
      */
-    public UserSelectedEvent(User user) {
+    public UserSelectedEvent(View imageView, View textView, User user) {
         this.user = user;
+        this.imageView = imageView;
+        this.textView = textView;
     }
 }

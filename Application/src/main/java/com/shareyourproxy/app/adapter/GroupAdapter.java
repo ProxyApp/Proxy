@@ -162,15 +162,6 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         _groups.add(group);
     }
 
-    public void updateGroupData(@NonNull HashMap<String, Group> groups) {
-        _groups.beginBatchedUpdates();
-        _groups.clear();
-        for (Map.Entry<String, Group> group : groups.entrySet()) {
-            _groups.add(group.getValue());
-        }
-        _groups.endBatchedUpdates();
-    }
-
     /**
      * Get the desired {@link Group} based off its position in a list.
      *
@@ -181,11 +172,17 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return _groups.get(position);
     }
 
-    public void refreshGroupData(HashMap<String, Group> groups) {
-        addGroups(groups);
+    /**
+     * Get the desired {@link Group} based off its position in a list.
+     *
+     * @param position the position in the list
+     * @return the desired {@link Group}
+     */
+    public SortedList<Group> getGroupArray() {
+        return _groups;
     }
 
-    private void addGroups(HashMap<String, Group> groups) {
+    public void refreshGroupData(@NonNull HashMap<String, Group> groups) {
         _groups.clear();
         _groups.beginBatchedUpdates();
         if (groups != null) {

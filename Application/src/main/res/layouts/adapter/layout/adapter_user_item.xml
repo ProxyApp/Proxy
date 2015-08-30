@@ -16,6 +16,7 @@
         android:layout_marginBottom="@dimen/common_margin_xxtiny"
         android:layout_marginStart="@dimen/common_margin_xxtiny"
         android:layout_marginTop="@dimen/common_margin_xxtiny"
+        android:transitionName="@string/user_image"
         android:contentDescription="@string/user_image"/>
 
     <TextView
@@ -26,6 +27,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="@dimen/common_margin_small"
         android:layout_toEndOf="@id/adapter_user_image"
+        android:transitionName="@string/username"
         android:textColor="@color/common_text"/>
 
     <View

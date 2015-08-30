@@ -28,3 +28,22 @@
 -dontwarn com.fasterxml.jackson.databind.**
 -dontwarn rx.internal.**
 
+# retrofit specific
+-dontwarn com.squareup.okhttp.**
+-dontwarn com.google.appengine.api.urlfetch.**
+-dontwarn rx.**
+-dontwarn retrofit.**
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.squareup.okhttp.** { *; }
+-keep interface com.squareup.okhttp.** { *; }
+-keep class retrofit.** { *; }
+-keepclasseswithmembers class * {
+    @retrofit.http.* <methods>;
+}
+-dontwarn com.firebase.client.**
+-dontwarn com.google.android.gms.**
+-dontwarn com.twitter.sdk.android.core.**
+-dontwarn org.apache.**
+-keep class org.apache.http.**
+-keep interface org.apache.http.**

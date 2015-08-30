@@ -47,7 +47,7 @@ import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelIn
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 /**
- * Display a list of newChannel types for the user to add new newChannel information.
+ * Display a list of channel types for the user to add new channel information to their profile.
  */
 public class AddChannelListFragment extends BaseFragment implements ItemClickListener {
 
@@ -70,9 +70,9 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     }
 
     /**
-     * Return new Fragment instance.
+     * Return new fragment instance.
      *
-     * @return layouts.fragment
+     * @return AddChannelListFragment
      */
     public static AddChannelListFragment newInstance() {
         return new AddChannelListFragment();
@@ -88,12 +88,20 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
         return rootView;
     }
 
+    /**
+     * Initialize the facebook {@link ChannelType} callback manager.
+     */
     public void initializeFaceBookLogin() {
         _callbackManager = CallbackManager.Factory.create();
         _loginManager = LoginManager.getInstance();
         _loginManager.registerCallback(_callbackManager, _fbLoginCallback);
     }
 
+    /**
+     * Callback manager to handle success or error when OAuthing a facebook user.
+     *
+     * @return callback manager
+     */
     private FacebookCallback<LoginResult> getFBCallback() {
         return new FacebookCallback<LoginResult>() {
             @Override
@@ -143,6 +151,9 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
         initializeRecyclerView();
     }
 
+    /**
+     * Initialize a twitter login button with a callback to handle errors.
+     */
     private void initializeTwitterLogin() {
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
@@ -152,7 +163,6 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
 
                 Channel channel = createModelInstance(
                     id, "", _clickedChannel.channelType(), handle);
-
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
             }
 
@@ -166,7 +176,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     }
 
     /**
-     * Initialize a recyclerView with User data.
+     * Initialize a recyclerView with {@link Channel} data.
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -182,12 +192,12 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
 
 
         switch (channelType) {
-
             case Custom:
             case Phone:
             case SMS:
             case Email:
             case Web:
+            case URL:
             case Meerkat:
             case Snapchat:
             case Linkedin:
@@ -247,11 +257,6 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
-
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.shareyourproxy.app.fragment.AboutFragment;
 import timber.log.Timber;
 
 /**
- * Display an {@link AboutFragment} view.
+ * Display an {@link AboutFragment} that has an Apache II license for this project.
  */
 public class AboutActivity extends BaseActivity {
 

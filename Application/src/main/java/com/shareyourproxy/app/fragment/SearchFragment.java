@@ -5,28 +5,31 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxTextWatcherSubject;
+import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserAdapter;
+import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
+import butterknife.BindInt;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
@@ -43,10 +46,12 @@ import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * Fragment to handle searching for {@link Contact}s.
+ * Search for {@link User}s.
  */
 public class SearchFragment extends BaseFragment implements ItemClickListener {
 
+    @Bind(R.id.fragment_search_bar_container)
+    protected LinearLayout searchBarContainer;
     @Bind(R.id.fragment_search_back_button)
     protected ImageView imageViewBackButton;
     @Bind(R.id.fragment_search_edittext)
@@ -57,6 +62,10 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_search_empty_textview)
     protected TextView emptyTextView;
+    @Bind(R.id.fragment_search_empty_view_container)
+    protected LinearLayout emptyViewContainer;
+    @BindInt(android.R.integer.config_shortAnimTime)
+    protected int _animationDuration;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
@@ -68,12 +77,13 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     }
 
     /**
-     * Return new {@link SearchFragment} instance.
+     * Return a new instance for the parent {@link SearchActivity}.
      *
-     * @return layouts.fragment
+     * @return new {@link SearchFragment}
      */
     public static SearchFragment newInstance() {
-        return new SearchFragment();
+        SearchFragment search = new SearchFragment();
+        return search;
     }
 
     /**
@@ -85,8 +95,14 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         getActivity().onBackPressed();
     }
 
+    @OnClick(R.id.fragment_search_empty_button)
+    public void onClickInviteFriend() {
+        editText.setText("");
+        IntentLauncher.launchInviteFriendIntent(getActivity());
+    }
+
     /**
-     * Handle back button press in this fragments parent {@link SearchActivity}.
+     * Clear the search edit text and search for all users.
      */
     @OnClick(R.id.fragment_search_clear_button)
     public void onClickClear() {
@@ -102,19 +118,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void onSearchStringChanged(Editable editable) {
         _textWatcherSubject.post(editable.toString().trim());
-    }
-
-    private JustObserver<HashMap<String, User>> getSearchObserver() {
-        return new JustObserver<HashMap<String, User>>() {
-            @Override
-            public void onError() {
-            }
-
-            @Override
-            public void onNext(HashMap<String, User> users) {
-                _adapter.refreshUserList(users);
-            }
-        };
     }
 
     @Override
@@ -142,28 +145,12 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setEmptyView(emptyTextView);
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addOnScrollListener(getScrollListener());
-    }
-
-    private RecyclerView.OnScrollListener getScrollListener() {
-        return new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                hideSoftwareKeyboard(getView());
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-            }
-        };
+        recyclerView.addOnScrollListener(getDismissScrollListener());
+        recyclerView.setEmptyView(emptyViewContainer);
     }
 
     @Override
@@ -174,15 +161,14 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
+        UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
+        getRxBus().post(
+            new UserSelectedEvent(
+                holder.userImage,holder.userName, _adapter.getItemData(position)));
     }
 
     /**
-     * Return an SVG image.drawable icon for the back arrow.
+     * Return an SVG image drawable icon for the back arrow.
      *
      * @return back arrow image.drawable
      */
@@ -192,7 +178,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     }
 
     /**
-     * Return an SVG image.drawable icon for the clear button.
+     * Return an SVG image drawable icon for the clear button.
      *
      * @return clear button image.drawable
      */
@@ -219,12 +205,38 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         }
     }
 
+    /**
+     * Textwatcher Subject Observer. Refresh the user list based on a search query.
+     *
+     * @return search observer
+     */
+    private JustObserver<HashMap<String, User>> getSearchObserver() {
+        return new JustObserver<HashMap<String, User>>() {
+            @Override
+            public void onError() {
+            }
+
+            @Override
+            public void onNext(HashMap<String, User> users) {
+                _adapter.refreshUserList(users);
+            }
+        };
+    }
+
+    /**
+     * Observe the next event.
+     *
+     * @return next event observer
+     */
     private Action1<Object> onNextEvent() {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
                 if (event instanceof UserSelectedEvent) {
                     onUserSelected((UserSelectedEvent) event);
+                }
+                else if(event instanceof OnBackPressedEvent){
+                    imageViewClearButton.animate().alpha(0f).setDuration(_animationDuration);
                 }
             }
         };
@@ -235,15 +247,17 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         super.onPause();
         hideSoftwareKeyboard(getView());
         _subscriptions.unsubscribe();
+        _subscriptions = null;
     }
 
     /**
-     * User selected is this Fragments underlying recyclerView.Adapter.
+     * User selected, open their profile.
      *
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value(),
+            event.imageView, event.textView);
     }
 
 }

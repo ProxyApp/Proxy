@@ -42,7 +42,8 @@ android {
                            'src/main/res/layouts/fragment',
                            'src/main/res/layouts/dialog',
                            'src/main/res/layouts/adapter',
-                           'src/main/res/layouts/common'
+                           'src/main/res/layouts/common',
+                           'src/main/res/layouts/widget'
             ]
         }
     }
@@ -83,8 +84,11 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "boolean", "USE_CRASHLYTICS", "true"
-            ext.enableCrashlytics = true
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "boolean", "USE_CRASHLYTICS", "false"
+            ext.enableCrashlytics = false
             //disable google analytics
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "false"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
@@ -100,6 +104,7 @@ android {
         release {
 //            minifyEnabled true
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"

@@ -22,10 +22,20 @@ public class BaseDialogFragment extends DialogFragment {
         button.setTextColor(color);
     }
 
+    /**
+     * Get the currently logged in user.
+     *
+     * @return logged in user
+     */
     public User getLoggedInUser() {
         return ((BaseActivity) getActivity()).getLoggedInUser();
     }
 
+    /**
+     * Get this applications Observable event bus.
+     *
+     * @return
+     */
     public RxBusDriver getRxBus() {
         return ((BaseActivity) getActivity()).getRxBus();
     }

@@ -20,7 +20,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
-import com.shareyourproxy.util.DebugUtils;
+import com.shareyourproxy.util.ObjectUtils;
 import com.shareyourproxy.util.ViewUtils;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
  */
 public class UserGroupsDialog extends BaseDialogFragment {
 
-    private static final String TAG = DebugUtils.getSimpleName(UserGroupsDialog.class);
+    private static final String TAG = ObjectUtils.getSimpleName(UserGroupsDialog.class);
     private static final String ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList";
     private static final String ARG_USER = "com.shareyourproxy.app.dialog.User";
     private final OnClickListener _negativeClicked =
@@ -61,6 +61,9 @@ public class UserGroupsDialog extends BaseDialogFragment {
             }
         };
 
+    /**
+     * Constructor
+     */
     public UserGroupsDialog() {
     }
 
@@ -84,6 +87,9 @@ public class UserGroupsDialog extends BaseDialogFragment {
         return dialog;
     }
 
+    /**
+     * Issue a save group contacts command.
+     */
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
         getRxBus().post(new SaveGroupContactsCommand(
@@ -91,14 +97,19 @@ public class UserGroupsDialog extends BaseDialogFragment {
     }
 
     /**
-     * Get the logged in user's contactId.
+     * Get the logged in user
      *
-     * @return contactId
+     * @return user
      */
     private User getUserArg() {
         return getArguments().getParcelable(ARG_USER);
     }
 
+    /**
+     * get the groups bundled into this dialog fragment.
+     *
+     * @return selected groups
+     */
     private ArrayList<GroupEditContact> getCheckedGroups() {
         return getArguments().getParcelableArrayList(ARG_GROUPS);
     }
@@ -139,6 +150,9 @@ public class UserGroupsDialog extends BaseDialogFragment {
         initializeRecyclerView();
     }
 
+    /**
+     * Setup the group list UI.
+     */
     private void initializeRecyclerView() {
         _adapter = UserGroupsAdapter.newInstance(getCheckedGroups());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

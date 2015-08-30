@@ -63,7 +63,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 
 /**
- * Activity to log in with google account.
+ * Log in with a google plus account.
  */
 public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
@@ -95,7 +95,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
      * @param message onError message
      */
     private static void showErrorDialog(BaseActivity activity, String message) {
-        if(message == null || message.trim().isEmpty()){
+        if (message == null || message.trim().isEmpty()) {
             message = GOOGLE_ERROR_AUTH;
         }
         ErrorDialog.newInstance(activity.getString(R.string.login_error), message)
@@ -326,6 +326,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         getRxBus().post(new AddUserCommand(newUser));
     }
 
+    /**
+     * Set the logged in user, l
+     *
+     * @param user
+     */
     public void updateUser(User user) {
         setLoggedInUser(user);
         getGoogleOAuthTokenAndLogin();
@@ -333,7 +338,7 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     /**
-     * Get a photo url with a larger size than the defualt return value.
+     * Get a photo url with a larger size than the default return value.
      *
      * @param currentUser currently logged in user
      * @return photo url String
@@ -388,6 +393,11 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
             .subscribe(getErrorMessageObserver());
     }
 
+    /**
+     * Observer for Google Oauth. If a token is returned, auth and login. Else display an error.
+     *
+     * @return observer
+     */
     private JustObserver<Pair<String, String>> getErrorMessageObserver() {
         return new JustObserver<Pair<String, String>>() {
             @Override
@@ -411,9 +421,10 @@ public class LoginActivity extends BaseActivity implements ConnectionCallbacks,
         };
     }
 
-    /* onConnectionFailed is called when our Activity could not connect to Google
-     * Play services.  onConnectionFailed indicates that the user needs to select
-     * an account, grant permissions or resolve an onError in order to sign in.
+    /**
+     * onConnectionFailed is called when our Activity could not connect to Google Play services.
+     * onConnectionFailed indicates that the user needs to select an account, grant permissions or
+     * resolve an onError in order to sign in.
      */
     @Override
     public void onConnectionFailed(ConnectionResult result) {

@@ -76,11 +76,6 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
         group.setHasContact(text.isChecked());
     }
 
-    @Override
-    public void onItemLongClick(View view, int position) {
-
-    }
-
     public ArrayList<GroupEditContact> getDataArray() {
         return _groups;
     }

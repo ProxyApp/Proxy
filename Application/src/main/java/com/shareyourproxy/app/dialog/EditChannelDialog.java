@@ -25,7 +25,7 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
 import com.shareyourproxy.api.rx.event.DialogCanceledEvent;
-import com.shareyourproxy.util.DebugUtils;
+import com.shareyourproxy.util.ObjectUtils;
 
 import butterknife.Bind;
 import butterknife.BindColor;
@@ -36,12 +36,12 @@ import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelIn
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Dialog layouts.fragment that handles editing a selected newChannel.
+ * Dialog that handles editing a selected channel.
  */
 public class EditChannelDialog extends BaseDialogFragment {
     // Final
     private static final String ARG_CHANNEL = "EditChannelDialog.Channel";
-    private static final String TAG = DebugUtils.getSimpleName(AddChannelDialog.class);
+    private static final String TAG = ObjectUtils.getSimpleName(AddChannelDialog.class);
     // View
     @Bind(R.id.dialog_channel_action_address_edittext)
     protected EditText editTextActionAddress;
@@ -104,6 +104,9 @@ public class EditChannelDialog extends BaseDialogFragment {
     private String _channelAddressHint;
     private String _channelLabelHint;
 
+    /**
+     * Constructor.
+     */
     public EditChannelDialog() {
     }
 

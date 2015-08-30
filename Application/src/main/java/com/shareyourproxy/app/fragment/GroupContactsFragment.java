@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -8,13 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.UserAdapter;
+import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -27,7 +31,7 @@ import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
 
 /**
- * Fragment to display a contactGroups contacts.
+ * Display the {@link User} contacts added to the selected {@link Group}.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
     @Bind(R.id.fragment_contact_group_toolbar)
@@ -48,7 +52,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     /**
      * Return new Fragment instance.
      *
-     * @return layouts.fragment
+     * @return GroupContactsFragment
      */
     public static GroupContactsFragment newInstance() {
         return new GroupContactsFragment();
@@ -81,6 +85,12 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
             }));
     }
 
+    /**
+     * A Group has been edited in {@link GroupEditChannelFragment}. Update this fragments intent
+     * data and title.
+     *
+     * @param event group data
+     */
     private void channelsUpdated(GroupChannelsUpdatedEventCallback event) {
         getActivity().getIntent().putExtra(ARG_SELECTED_GROUP, event.group);
         getSupportActionBar().setTitle(capitalize(getGroupArg().label()));
@@ -100,14 +110,22 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     }
 
     /**
-     * User selected is this Fragments underlying recyclerView.Adapter.
+     * User selected from this groups contacts. Open that Users profile.
      *
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
+        launchUserProfileActivity(getActivity(), event.user,
+            getLoggedInUser().id().value(), event.imageView, event.textView);
     }
 
+    /**
+     * Get the group selected and bundled in this activities {@link
+     * IntentLauncher#launchEditGroupContactsActivity(Activity,
+     * Group)} call.
+     *
+     * @return selected group
+     */
     private Group getGroupArg() {
         return (Group) getActivity().getIntent().getExtras().getParcelable(ARG_SELECTED_GROUP);
     }
@@ -117,13 +135,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      */
     private void initialize() {
         initializeRecyclerView();
-        initializeToolbar();
-    }
-
-    private void initializeToolbar() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(capitalize(getGroupArg().label()));
+        buildToolbar(toolbar, capitalize(getGroupArg().label()), null);
     }
 
     /**
@@ -141,11 +153,10 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
+        UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
+        getRxBus().post(
+            new UserSelectedEvent(
+                holder.userImage, holder.userName, _adapter.getItemData(position)));
     }
 
 }
