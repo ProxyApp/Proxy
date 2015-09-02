@@ -3,16 +3,23 @@ package com.shareyourproxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
+import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.AddChannelListActivity;
+import com.shareyourproxy.app.GroupContactsActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserProfileActivity;
 
+import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.Intents.getUserProfileIntent;
@@ -57,6 +64,19 @@ public final class IntentLauncher {
      */
     public static void launchChannelListActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_ADD_CHANNEL_LIST_VIEW);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+    }
+
+    /**
+     * Launch the {@link GroupContactsActivity}.
+     *
+     * @param activity The context used to start this intent
+     * @param group    group data
+     */
+    public static void launchEditGroupContactsActivity(Activity activity, Group group) {
+        Intent intent = new Intent(Intents.ACTION_VIEW_GROUP_USERS);
+        intent.putExtra(ARG_SELECTED_GROUP, group);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
@@ -167,7 +187,9 @@ public final class IntentLauncher {
         }
     }
 
-    public static void launchGroupEditChannelActivity(Activity activity, Group group, int addOrEdit) {
+    public static void launchGroupEditChannelActivity(
+        Activity activity, Group group, int
+        addOrEdit) {
         Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
         intent.putExtra(ARG_SELECTED_GROUP, group);
         intent.putExtra(ARG_ADD_OR_EDIT, addOrEdit);
@@ -330,11 +352,32 @@ public final class IntentLauncher {
      * Launch the {@link SearchActivity}.
      *
      * @param activity The context used to start this intent
+     * @param textView
+     * @param menu
      */
-    public static void launchSearchActivity(Activity activity) {
+    public static void launchSearchActivity(
+        Activity activity, @NonNull View container, @NonNull View textView, @NonNull View menu) {
         Intent intent = new Intent(Intents.ACTION_SEARCH_VIEW);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+
+        ActivityOptionsCompat options = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Pair<View, String> pair1 = Pair.create(textView, textView.getTransitionName());
+            Pair<View, String> pair2 = Pair.create(menu, menu.getTransitionName());
+            Pair<View, String> pair3 = Pair.create(container, container.getTransitionName());
+            Pair<View, String> pair4 =
+                Pair.create(activity.findViewById(android.R.id.statusBarBackground),
+                Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
+            Pair<View, String> pair5 =
+                Pair.create(activity.findViewById(android.R.id.navigationBarBackground),
+                    Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME);
+
+            options = makeSceneTransitionAnimation(activity, pair1, pair2, pair3, pair4, pair5);
+        }
+        if (options != null) {
+            activity.startActivity(intent, options.toBundle());
+        } else {
+            activity.startActivity(intent);
+        }
     }
 
     /**
@@ -426,7 +469,7 @@ public final class IntentLauncher {
             intent.setData(
                 Uri.parse(
                     "http://www.tumblr" +
-                        ".com/open/app?referrer=mobile_banner&app_args=blog%3FblogName%3D"
+                        ".com/open/app?referrer=mobActivityCompat.postponeEnterTransition(this);ile_banner&app_args=blog%3FblogName%3D"
                         + userId + "%26page%3Dblog"));
         } catch (Exception e) {
             intent.setData(Uri.parse("http://" + userId + ".tumblr.com"));
@@ -464,6 +507,29 @@ public final class IntentLauncher {
     }
 
     /**
+     * Launch the {@link UserProfileActivity}.
+     *
+     * @param activity The context used to start this intent
+     * @param user     that was selected
+     */
+    public static void launchUserProfileActivity(
+        Activity activity, User user, String loggedInUserId, View profileImage, View userName) {
+        Intent intent = getUserProfileIntent(user, loggedInUserId);
+
+        ActivityOptionsCompat options = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Pair<View, String> pair1 = Pair.create(profileImage, profileImage.getTransitionName());
+            Pair<View, String> pair2 = Pair.create(userName, userName.getTransitionName());
+            options = makeSceneTransitionAnimation(activity, pair1);
+        }
+        if (options != null) {
+            activity.startActivity(intent, options.toBundle());
+        } else {
+            activity.startActivity(intent);
+        }
+    }
+
+    /**
      * View Venmo profile
      *
      * @param activity context
@@ -476,19 +542,6 @@ public final class IntentLauncher {
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
         }
-    }
-
-    /**
-     * Launch the {@link SearchActivity}.
-     *
-     * @param activity The context used to start this intent
-     * @param group    group data
-     */
-    public static void launchViewGroupUsersActivity(Activity activity, Group group) {
-        Intent intent = new Intent(Intents.ACTION_VIEW_GROUP_USERS);
-        intent.putExtra(ARG_SELECTED_GROUP, group);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
     /**

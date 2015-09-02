@@ -10,11 +10,10 @@ import android.graphics.drawable.BitmapDrawable;
  * android.support.design.widget.TabLayout}.
  */
 public class ContentDescriptionDrawable extends BitmapDrawable {
-
     private String _contentDescription = "";
 
     /**
-     * Create image.drawable from a bitmap, setting initial target density based on the display
+     * Create an image from a bitmap, setting initial target density based on the display
      * metrics of the resources.
      *
      * @param res display metrics

@@ -1,19 +1,24 @@
 package com.shareyourproxy.app.fragment;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
 
+import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
+
 /**
  * Base Fragment abstraction.
  */
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     /**
      * Get the logged in user.
@@ -57,8 +62,32 @@ public class BaseFragment extends Fragment {
         return ((BaseActivity) getActivity()).getSupportActionBar();
     }
 
-    public void setSupportActionBar(Toolbar toolbar) {
-        ((BaseActivity) getActivity()).setSupportActionBar(toolbar);
+    public void buildToolbar(Toolbar toolbar, String title, Drawable icon) {
+        ((BaseActivity) getActivity()).buildToolbar(toolbar, title, icon);
+    }
+
+    public void buildCustomToolbar(Toolbar toolbar, View customView) {
+        ((BaseActivity) getActivity()).buildCustomToolbar(toolbar, customView);
+    }
+
+    /**
+     * Get a scroll listener that dismisses the software keyboard on scroll.
+     *
+     * @return dismissable scroll listener.
+     */
+    protected RecyclerView.OnScrollListener getDismissScrollListener() {
+        return new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                hideSoftwareKeyboard(recyclerView);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        };
     }
 
 }

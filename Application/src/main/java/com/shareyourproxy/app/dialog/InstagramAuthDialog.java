@@ -22,7 +22,7 @@ import com.shareyourproxy.api.domain.model.InstagramAuthResponse;
 import com.shareyourproxy.api.domain.model.InstagramUser;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
-import com.shareyourproxy.util.DebugUtils;
+import com.shareyourproxy.util.ObjectUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,9 +37,16 @@ import static com.shareyourproxy.BuildConfig.WEBVIEW_REDIRECT;
  * Created by Evan on 8/12/15.
  */
 public class InstagramAuthDialog extends BaseDialogFragment {
-    private static final String TAG = DebugUtils.getSimpleName(InstagramAuthDialog.class);
+    private static final String TAG = ObjectUtils.getSimpleName(InstagramAuthDialog.class);
     @Bind(R.id.dialog_webview_container)
     protected WebView webView;
+
+    /**
+     * Constructor.
+     */
+    public InstagramAuthDialog() {
+
+    }
 
     public static InstagramAuthDialog newInstance() {
         Bundle args = new Bundle();
@@ -84,7 +91,6 @@ public class InstagramAuthDialog extends BaseDialogFragment {
         });
 
         try {
-            webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setSaveFormData(false);
             webView.loadUrl(InstagramUser.requestOAuthUrl(
                 INSTAGRAM_APP_ID, WEBVIEW_REDIRECT));

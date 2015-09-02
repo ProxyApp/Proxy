@@ -30,6 +30,7 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  * Add and remove newChannel permissions from a group.
  */
 public class GroupEditChannelActivity extends BaseActivity {
+
     public static final int ADD_GROUP = 0;
     public static final int EDIT_GROUP = 1;
     // View
@@ -63,11 +64,11 @@ public class GroupEditChannelActivity extends BaseActivity {
     }
 
     private void initialize() {
-        if (getAddOrEdit() == ADD_GROUP){
+        if (getAddOrEdit() == ADD_GROUP) {
             buildToolbar(toolbar, getString(R.string.add_group),
                 getMenuIconSecondary(this, R.raw.ic_clear));
         }
-        if(getAddOrEdit() == EDIT_GROUP){
+        if (getAddOrEdit() == EDIT_GROUP) {
             buildToolbar(toolbar, getString(R.string.edit_group),
                 getMenuIconSecondary(this, R.raw.ic_clear));
         }

@@ -35,7 +35,7 @@ import static com.shareyourproxy.util.ViewUtils.dpToPx;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * Dispatch Fragment to handle dispatching a {@link com.shareyourproxy.app.LoginActivity} or a
+ * Handle dispatching a {@link com.shareyourproxy.app.LoginActivity} or a
  * {@link MainActivity} base off the current user.
  */
 public class DispatchFragment extends BaseFragment {

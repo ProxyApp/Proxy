@@ -3,6 +3,7 @@ package com.shareyourproxy;
 import android.content.Intent;
 
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.app.UserProfileActivity;
 
 import static com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
@@ -32,6 +33,13 @@ public class Intents {
     private Intents() {
     }
 
+    /**
+     * Get intent to launch {@link UserProfileActivity}.
+     *
+     * @param user           profile to view
+     * @param loggedInUserId logged in user id
+     * @return user profile intent
+     */
     public static Intent getUserProfileIntent(User user, String loggedInUserId) {
         Intent intent = new Intent(ACTION_USER_PROFILE);
         intent.putExtra(ARG_USER_SELECTED_PROFILE, user);
@@ -39,6 +47,12 @@ public class Intents {
         return intent;
     }
 
+    /**
+     * Get an Intent for plain text http link.
+     *
+     * @param message http link
+     * @return share link intent
+     */
     public static Intent getShareLinkIntent(String message) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);

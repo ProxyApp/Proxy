@@ -1,9 +1,7 @@
 package com.shareyourproxy.app;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -15,6 +13,7 @@ import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.fragment.DrawerFragment;
@@ -24,11 +23,10 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
-
 
 /**
- * The {@link MainActivity} filled with {@link Contact}s.
+ * The main landing point after loggin in. This is tabbed activity with {@link Contact}s and {@link
+ * Group}s.
  */
 public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     OnConnectionFailedListener {
@@ -41,9 +39,11 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         setContentView(R.layout.activity_main);
         _googleApiClient = buildGoogleApiClient();
         if (savedInstanceState == null) {
+            MainFragment mainFragment = MainFragment.newInstance();
+            DrawerFragment drawerFragment = DrawerFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MainFragment())
-                .replace(R.id.activity_main_drawer_fragment_container, new DrawerFragment())
+                .replace(R.id.activity_main_fragment_container, mainFragment)
+                .replace(R.id.activity_main_drawer_fragment_container, drawerFragment)
                 .commit();
         }
     }
@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     /**
-     * {@link SelectDrawerItemEvent}.
+     * {@link SelectDrawerItemEvent}. When a drawer item is selected, call a proper event flow.
      *
      * @param event data
      */
@@ -76,12 +76,7 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         } else if (getString(R.string.logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {
-                setLoggedInUser(null);
-                Plus.AccountApi.clearDefaultAccount(_googleApiClient);
-                IntentLauncher.launchLoginActivity(this);
-                deleteRealm();
-                getSharedPreferences().edit().remove(Constants.KEY_LOGGED_IN_USER).commit();
-                finish();
+                clearValuesAndLogout();
             } else {
                 Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
                     , Toast.LENGTH_SHORT).show();
@@ -94,6 +89,18 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
         } else if (getString(R.string.invite_friend).equals(event.message)) {
             IntentLauncher.launchInviteFriendIntent(this);
         }
+    }
+
+    /**
+     * Clear saved user data and finish this activity.
+     */
+    public void clearValuesAndLogout() {
+        setLoggedInUser(null);
+        Plus.AccountApi.clearDefaultAccount(_googleApiClient);
+        IntentLauncher.launchLoginActivity(this);
+        deleteRealm();
+        getSharedPreferences().edit().remove(Constants.KEY_LOGGED_IN_USER).commit();
+        finish();
     }
 
     @Override
@@ -132,32 +139,12 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks,
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_activity_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem search = menu.findItem(R.id.menu_main_search);
-        // Add Icons to the menu items before they are displayed
-        search.setIcon(getMenuIconDark(this, R.raw.ic_search));
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_main_search:
-                IntentLauncher.launchSearchActivity(this);
-                break;
-            default:
-                Timber.e("Menu Item ID unknown");
-                break;
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        try {
+            return super.dispatchTouchEvent(ev);
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     @Override

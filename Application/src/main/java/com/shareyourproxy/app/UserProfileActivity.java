@@ -1,14 +1,17 @@
 package com.shareyourproxy.app;
 
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
@@ -44,6 +47,7 @@ import static com.shareyourproxy.IntentLauncher.launchWebIntent;
 import static com.shareyourproxy.IntentLauncher.launchWhatsAppIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
+import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
  * Activity that handles displaying a {@link User} profile.
@@ -56,8 +60,7 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
+        ActivityCompat.finishAfterTransition(this);
         //if we launched from a notification go back to the MainActivity explicitly
         if (this.isTaskRoot()) {
             launchMainActivity(
@@ -92,11 +95,8 @@ public class UserProfileActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (_isLoggedInUser) {
-            /**
-             * Hidden feature
-             */
-//            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
-//            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
+            MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
+            sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -107,10 +107,10 @@ public class UserProfileActivity extends BaseActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-//            case R.id.menu_current_user_shared_links:
-//                ShareLinkDialog.newInstance(getLoggedInUser().groups())
-//                    .show(getSupportFragmentManager());
-//                break;
+            case R.id.menu_current_user_shared_links:
+                ShareLinkDialog.newInstance(getLoggedInUser().groups())
+                    .show(getSupportFragmentManager());
+                break;
             default:
                 Timber.e("Option item selected is unknown");
         }
@@ -139,6 +139,15 @@ public class UserProfileActivity extends BaseActivity {
         _subscriptions.unsubscribe();
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        try {
+            return super.dispatchTouchEvent(ev);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Handle channel selected events to launch the correct android process.
      *
@@ -158,6 +167,7 @@ public class UserProfileActivity extends BaseActivity {
                 launchEmailIntent(this, actionAddress);
                 break;
             case Web:
+            case URL:
                 launchWebIntent(this, actionAddress);
                 break;
             case Facebook:

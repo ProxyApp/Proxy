@@ -133,10 +133,12 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         Context context = holder._view.getContext();
         holder.userName.setText(joinWithSpace(new String[]{ user.first(),
             user.last() }));
-        Picasso.with(context).load(user.profileURL())
-            .placeholder(R.mipmap.ic_proxy)
-            .transform(new CircleTransform())
-            .into(holder.userImage);
+        if (user.profileURL() != null) {
+            Picasso.with(context).load(user.profileURL())
+                .placeholder(R.mipmap.ic_proxy)
+                .transform(new CircleTransform())
+                .into(holder.userImage);
+        }
     }
 
     @Override
@@ -166,12 +168,12 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     /**
      * ViewHolder for the entered {@link User} data.
      */
-    protected static class UserViewHolder extends BaseViewHolder {
+    public static class UserViewHolder extends BaseViewHolder {
 
         @Bind(R.id.adapter_user_name)
-        protected TextView userName;
+        public TextView userName;
         @Bind(R.id.adapter_user_image)
-        protected ImageView userImage;
+        public ImageView userImage;
 
         /**
          * Constructor for the holder.

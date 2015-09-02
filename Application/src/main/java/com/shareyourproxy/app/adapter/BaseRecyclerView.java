@@ -2,7 +2,6 @@ package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
@@ -15,7 +14,7 @@ public class BaseRecyclerView extends RecyclerView {
 
     private View _emptyView;
     private View _loadingView;
-    private SwipeRefreshLayout _swipeRefreshLayout;
+    private boolean _hideRecyclerView = true;
 
     /**
      * Observer to monitor if we have an empty dataset.
@@ -69,11 +68,6 @@ public class BaseRecyclerView extends RecyclerView {
         _emptyView.setVisibility(View.GONE);
     }
 
-    public void setSwipeRefreshLayout(@NonNull SwipeRefreshLayout swipeRefreshLayout) {
-        _swipeRefreshLayout = swipeRefreshLayout;
-        _swipeRefreshLayout.setVisibility(View.VISIBLE);
-    }
-
     @Override
     public void setAdapter(RecyclerView.Adapter adapter) {
         if (getAdapter() != null) {
@@ -86,6 +80,9 @@ public class BaseRecyclerView extends RecyclerView {
         updateEmptyView();
     }
 
+    public void hideRecyclerView(boolean hideRecyclerView) {
+        _hideRecyclerView = hideRecyclerView;
+    }
 
     /**
      * Show or hide the empty view.
@@ -94,10 +91,7 @@ public class BaseRecyclerView extends RecyclerView {
         if (_emptyView != null && getAdapter() != null) {
             boolean showEmptyView = getAdapter().getItemCount() == 0;
             _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
-            if (_swipeRefreshLayout != null) {
-                setVisibility(showEmptyView ? GONE : VISIBLE);
-                _swipeRefreshLayout.setVisibility(showEmptyView ? GONE : VISIBLE);
-            }
+            setVisibility(showEmptyView && _hideRecyclerView ? GONE : VISIBLE);
         }
     }
 }

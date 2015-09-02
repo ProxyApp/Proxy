@@ -11,6 +11,10 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:colorEdgeEffect"
               tools:targetApi="lollipop">@color/common_proxy_zoidberg
         </item>
@@ -25,6 +29,10 @@
         <item name="android:textColorPrimary">@color/common_text</item>
         <item name="android:textColorSecondary">@color/common_proxy_dark_selected</item>
         <item name="android:textColorHint">@color/common_text_disabled</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:colorEdgeEffect"
@@ -40,10 +48,13 @@
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
         <item name="android:textColorSecondary">@color/common_text_secondary_inverse</item>
         <item name="android:textColorHint">@color/common_text_disabled</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_proxy_zoidberg
+        <item name="android:colorEdgeEffect" tools:targetApi="lollipop">@color/common_proxy_zoidberg
         </item>
     </style>
 

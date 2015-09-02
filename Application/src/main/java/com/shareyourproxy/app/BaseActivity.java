@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import com.shareyourproxy.Intents;
 import com.shareyourproxy.ProxyApplication;
@@ -14,6 +15,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
+import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -21,9 +23,9 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
- * Base abstraction for all Activities to inherit from.
+ * Base abstraction for all activities to inherit from.
  */
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     private CompositeSubscription _subscriptions;
 
@@ -46,9 +48,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Get currently logged in {@link User} in this {@link ProxyApplication}.
+     * Get the common shared preferences used to save a copy of the logged in user.
      *
-     * @return logged in user
+     * @return common shared preferences
      */
     public SharedPreferences getSharedPreferences() {
         return ((ProxyApplication) getApplication()).getSharedPreferences();
@@ -59,18 +61,34 @@ public class BaseActivity extends AppCompatActivity {
             user.id().value().equals(getLoggedInUser().id().value());
     }
 
+    /**
+     * Get a {@link rx.Observable} to use as an event bus for messages.
+     *
+     * @return Rx bus observable
+     */
     public RxBusDriver getRxBus() {
         return ((ProxyApplication) getApplication()).getRxBus();
     }
 
-    protected void buildToolbar(Toolbar toolbar, String title, Drawable icon) {
+    public void buildToolbar(Toolbar toolbar, String title, Drawable icon) {
         setSupportActionBar(toolbar);
         ActionBar bar = getSupportActionBar();
         bar.setTitle(title);
         bar.setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(icon);
+        bar.setHomeAsUpIndicator(icon);
     }
 
+    public void buildCustomToolbar(Toolbar toolbar, View customView) {
+        toolbar.removeAllViews();
+        toolbar.addView(customView);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+    /**
+     * Function to delete the main realm configuration.
+     */
     protected void deleteRealm() {
         Realm realm = Realm.getDefaultInstance();
         RealmConfiguration config = realm.getConfiguration();
@@ -93,19 +111,35 @@ public class BaseActivity extends AppCompatActivity {
         _subscriptions = null;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        getRxBus().post(new OnBackPressedEvent());
+    }
+
     private Action1<Object> onNextEvent() {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
                 if (event instanceof ShareLinkEvent) {
-                    Intent sendIntent =
-                        Intents.getShareLinkIntent(((ShareLinkEvent) event).message);
-
-                    startActivity(
-                        Intent.createChooser(
-                            sendIntent, getString(R.string.dialog_sharelink_title)));
+                    launchShareLinkIntent((ShareLinkEvent) event);
                 }
             }
         };
+    }
+
+    /**
+     * Launch an Intent chooser dialog for a Proxy User to select a method of sharing a profile
+     * link. The link is an http address to a User's group channels.
+     *
+     * @param event message data, http link
+     */
+    public void launchShareLinkIntent(ShareLinkEvent event) {
+        Intent sendIntent =
+            Intents.getShareLinkIntent(event.message);
+
+        startActivity(
+            Intent.createChooser(
+                sendIntent, getString(R.string.dialog_sharelink_title)));
     }
 }

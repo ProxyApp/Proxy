@@ -1,39 +1,44 @@
 package com.shareyourproxy.app.fragment;
 
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.OnTabSelectedListener;
 import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.shareyourproxy.Constants;
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.event.SearchClickedEvent;
+import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.util.ViewUtils;
+import com.shareyourproxy.widget.ContactSearchLayout;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * {@link Fragment} to handle adding a {@link MainContactsFragment} and {@link MainGroupFragment} to
- * this {@link MainFragment#slidingTabLayout}.
+ * Add a {@link MainContactsFragment} and {@link MainGroupFragment} to this fragment's {@link
+ * MainFragment#slidingTabLayout}.
  */
 public class MainFragment extends BaseFragment {
 
@@ -47,9 +52,30 @@ public class MainFragment extends BaseFragment {
     protected ViewPager viewPager;
     @Bind(R.id.fragment_main_sliding_tabs)
     protected TabLayout slidingTabLayout;
+    @Bind(R.id.fragment_main_coordinator_layout)
+    protected CoordinatorLayout coordinatorLayout;
+    @BindColor(R.color.common_proxy_dark_selected)
+    protected int _selectedColor;
+    @BindColor(R.color.common_proxy_dark_disabled)
+    protected int _unselectedColor;
     private List<Fragment> _fragmentArray;
-    private int _selectedColor;
-    private int _unselectedColor;
+    private CompositeSubscription _subscriptions;
+    private ContactSearchLayout _contactSearchLayout;
+
+    /**
+     * Constructor.
+     */
+    public MainFragment() {
+    }
+
+    /**
+     * Create a new instance of this fragment for the parent {@link MainActivity}.
+     *
+     * @return main fragment
+     */
+    public static MainFragment newInstance() {
+        return new MainFragment();
+    }
 
     @Override
     public View onCreateView(
@@ -60,28 +86,53 @@ public class MainFragment extends BaseFragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        _subscriptions = new CompositeSubscription();
+        _subscriptions.add(getRxBus().toObserverable().subscribe(getObserver()));
+
+    }
+
+    public JustObserver<Object> getObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void onError() {
+
+            }
+
+            @Override
+            public void onNext(Object event) {
+                if (event instanceof SearchClickedEvent) {
+                    IntentLauncher.launchSearchActivity(
+                        getActivity(),_contactSearchLayout.getContainerView(), _contactSearchLayout.getSearchTextView(),
+                        _contactSearchLayout.getMenuImageView());
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        _subscriptions.unsubscribe();
+        _subscriptions = null;
+    }
+
     /**
      * Initialize this fragments data and {@link TabLayout}.
      */
     private void initialize() {
-        initializeResources();
-        initializeToolbar();
+        _contactSearchLayout = new ContactSearchLayout(getActivity(), getRxBus(), drawerLayout);
+        buildCustomToolbar(toolbar, _contactSearchLayout);
         initializeFragments();
         initializeTabs();
-        initializeDrawer();
     }
 
-    private void initializeResources() {
-        Resources res = getResources();
-        _unselectedColor = res.getColor(R.color.common_proxy_dark_disabled);
-        _selectedColor = res.getColor(R.color.common_proxy_dark_selected);
-    }
-
-    private void initializeToolbar() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
-    }
-
+    /**
+     * Initialize this fragments tabs and their icons. Select the default tab based input intent
+     * data from user action.
+     */
     private void initializeTabs() {
         ContentDescriptionDrawable userDrawable = getUserDrawable();
         String userDescription = userDrawable.getContentDescription();
@@ -100,11 +151,16 @@ public class MainFragment extends BaseFragment {
         slidingTabLayout.setTabMode(TabLayout.MODE_FIXED);
         slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
-        //set the selected tab
+        //set the defualt selected tab
         slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
             .getInt(Constants.ARG_SELECTED_MAINFRAGMENT_TAB)).select();
     }
 
+    /**
+     * Get a tab selection listener that tints tab drawables correctly.
+     *
+     * @return OnTabSelectedListener
+     */
     private OnTabSelectedListener getOnTabSelectedListener() {
         return new OnTabSelectedListener() {
             @Override
@@ -123,30 +179,6 @@ public class MainFragment extends BaseFragment {
 
             }
         };
-    }
-
-    /**
-     * Initialize this activity's drawer view.
-     */
-    private void initializeDrawer() {
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(getActivity(),
-            drawerLayout,
-            toolbar, R.string.open, R.string.closed) {
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-        };
-        drawerLayout.setDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-        ViewCompat.setElevation(drawerLayout, getResources().getDimension(R.dimen
-            .common_drawer_elevation));
     }
 
     /**

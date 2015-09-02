@@ -1,7 +1,6 @@
 package com.shareyourproxy.util;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -17,6 +16,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,16 +30,14 @@ import com.shareyourproxy.widget.ContentDescriptionDrawable;
 import timber.log.Timber;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.content.pm.PackageManager.NameNotFoundException;
 import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
+import static android.support.v4.content.ContextCompat.getColor;
 
 /**
  * Utility class for view functions.
  */
 public class ViewUtils {
-
-    public static final int NO_COLOR = Integer.MIN_VALUE;
 
     /**
      * Private Constructor
@@ -84,12 +82,6 @@ public class ViewUtils {
      */
     public static float dpToPx(Resources res, int resId) {
         return res.getDimension(resId) / res.getDisplayMetrics().density;
-    }
-
-    public static int getSectionIconDimen(Context context) {
-        Resources res = context.getResources();
-        return (int) (res.getDimension(R.dimen.common_rect_small)
-            / res.getDisplayMetrics().density);
     }
 
     /**
@@ -148,7 +140,6 @@ public class ViewUtils {
      * @return the circular bitmap resource
      */
     public static Bitmap getCircularBitmapImage(Bitmap source, int backgroundColor) {
-
         int size = Math.min(source.getWidth(), source.getHeight());
 
         int x = (source.getWidth() - size) / 2;
@@ -206,7 +197,6 @@ public class ViewUtils {
 
         BitmapDrawable source = svgToBitmapDrawable(context, resourceId,
             backgroundRadius, channelType.getResColor());
-
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
 
         int inset = backgroundRadius / 2;
@@ -218,7 +208,7 @@ public class ViewUtils {
      * Paint a circular bitmap.
      *
      * @param context         activity context
-     * @param source          image.drawable
+     * @param source          drawable source
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
@@ -247,7 +237,7 @@ public class ViewUtils {
      * @return parsed image.drawable
      */
     public static Drawable svgToBitmapDrawable(Context context, int resourceId, int size) {
-        return svgToBitmapDrawable(context, resourceId, size, NO_COLOR);
+        return svgToBitmapDrawable(context, resourceId, size, null);
     }
 
     /**
@@ -274,18 +264,20 @@ public class ViewUtils {
      * @return parsed image.drawable
      */
     public static ContentDescriptionDrawable svgToBitmapDrawable(
-        Context context, int resourceId, int size, int color) {
+        Context context, int resourceId, int size, Integer color) {
         Resources res = context.getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
         Drawable drawable = null;
         try {
             SVG svg = SVG.getFromResource(res, resourceId);
-            Bitmap bmp = Bitmap.createBitmap(
-                res.getDisplayMetrics(), size + 16, size + 16, Bitmap.Config.ARGB_8888);
+            int densitySize = (int) (size + 16f + .5f);
+
+            Bitmap bmp = Bitmap.createBitmap(dm, densitySize, densitySize, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             svg.renderToCanvas(canvas);
 
             drawable = DrawableCompat.wrap(new ContentDescriptionDrawable(res, bmp));
-            if (color != NO_COLOR) {
+            if (color != null) {
                 DrawableCompat.setTint(drawable, color);
                 DrawableCompat.setTintMode(drawable, SRC_IN);
             }
@@ -296,25 +288,6 @@ public class ViewUtils {
     }
 
     /**
-     * Get the icon for the specified Activity Intent.
-     *
-     * @param context     activity context
-     * @param packageName name of the activity to find an image for
-     * @return activity image.drawable
-     */
-    public static Drawable getActivityIcon(Context context, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        Drawable icon;
-        try {
-            icon = pm.getApplicationIcon(packageName);
-        } catch (NameNotFoundException e) {
-            icon = pm.getDefaultActivityIcon();
-            Timber.w("componentName not found, using generic app icon");
-        }
-        return icon;
-    }
-
-    /**
      * Return a new Drawable of the entered resource icon.
      *
      * @param resId icon resource id
@@ -322,7 +295,7 @@ public class ViewUtils {
      */
     public static ContentDescriptionDrawable getMenuIconDark(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
-            context.getResources().getColor(R.color.common_proxy_dark_selected));
+            getColor(context, R.color.common_proxy_dark_selected));
     }
 
     /**
@@ -333,7 +306,7 @@ public class ViewUtils {
      */
     public static ContentDescriptionDrawable getMenuIcon(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
-            context.getResources().getColor(R.color.common_text_inverse));
+            getColor(context, R.color.common_text_inverse));
     }
 
     /**
@@ -344,7 +317,7 @@ public class ViewUtils {
      */
     public static ContentDescriptionDrawable getMenuIconSecondary(Context context, int resId) {
         return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
-            context.getResources().getColor(R.color.common_text_secondary_inverse));
+            getColor(context, R.color.common_text_secondary_inverse));
     }
 
 }

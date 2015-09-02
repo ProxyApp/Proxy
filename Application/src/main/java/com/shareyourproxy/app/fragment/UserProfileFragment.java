@@ -1,13 +1,13 @@
 package com.shareyourproxy.app.fragment;
 
-import android.app.Activity;
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
@@ -18,7 +18,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -39,7 +38,9 @@ import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEvent
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.app.UserProfileActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.app.adapter.ViewChannelAdapter;
 import com.shareyourproxy.app.dialog.EditChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
@@ -66,7 +67,6 @@ import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
-import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
@@ -76,7 +76,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
  * Contact's to be added to be observed and added to groups logged in user groups.
  */
-public class UserProfileFragment extends BaseFragment implements ItemClickListener {
+public class UserProfileFragment extends BaseFragment implements ItemLongClickListener {
 
     @Bind(R.id.fragment_user_profile_toolbar)
     protected Toolbar toolbar;
@@ -92,6 +92,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     protected CollapsingToolbarLayout collapsingToolbarLayout;
     @Bind(R.id.fragment_user_profile_fab)
     protected FloatingActionButton floatingActionButton;
+    @Bind(R.id.fragment_user_profile_coordinator_layout)
+    protected CoordinatorLayout coordinatorLayout;
     @BindColor(R.color.common_blue)
     protected int _blue;
     private ViewChannelAdapter _adapter;
@@ -111,7 +113,7 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     /**
-     * Return new {@link UserProfileFragment} instance.
+     * Return new instance for parent {@link UserProfileActivity}.
      *
      * @return layouts.fragment
      */
@@ -130,10 +132,11 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        _userContact = activity.getIntent().getExtras().getParcelable(ARG_USER_SELECTED_PROFILE);
-        String loggedInUserId = activity.getIntent().getExtras()
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        _userContact = getActivity().getIntent().getExtras().getParcelable
+            (ARG_USER_SELECTED_PROFILE);
+        String loggedInUserId = getActivity().getIntent().getExtras()
             .getString(Constants.ARG_LOGGEDIN_USER_ID);
         _isLoggedInUser = isLoggedInUser(_userContact);
         if (getLoggedInUser() == null) {
@@ -166,8 +169,8 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
      * Initialize this fragments views.
      */
     private void initialize() {
+        setToolbarTitle();
         initializeSVG();
-        initializeActionBar();
         initializeHeader();
         if (!_isLoggedInUser) {
             floatingActionButton.setVisibility(View.GONE);
@@ -204,36 +207,10 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         updateGroupButtonText(selectedGroupsList);
     }
 
-    /**
-     * Initialize this view.
-     */
-    private void initializeActionBar() {
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setToolbarTitle();
-        getSupportActionBar().setTitle("");
-    }
-
     private void setToolbarTitle() {
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
+        buildToolbar(toolbar, title, null);
         collapsingToolbarLayout.setTitle(title);
-        collapsingToolbarLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-        for (int i = 0; i < collapsingToolbarLayout.getChildCount(); i++) {
-            View childView = collapsingToolbarLayout.getChildAt(i);
-            if (!childView.isClickable()) {
-                childView.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-                        return true;
-                    }
-                });
-            }
-        }
     }
 
     private void initializeHeader() {
@@ -324,11 +301,9 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
         if (_paletteListener == null) {
             _paletteListener = new PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
-                    Resources res = getActivity().getResources();
-                    Integer offColor = palette.getMutedColor(
-                        res.getColor(R.color.common_blue));
-
+                    Integer offColor = palette.getMutedColor(_blue);
                     Integer color = palette.getVibrantColor(offColor);
+
                     collapsingToolbarLayout.setContentScrimColor(color);
                     collapsingToolbarLayout.setStatusBarScrimColor(color);
                     if (_userContact.coverURL() == null || "".equals(_userContact.coverURL())) {
@@ -453,14 +428,23 @@ public class UserProfileFragment extends BaseFragment implements ItemClickListen
     private void showSnackBar() {
         Snackbar snackbar = Snackbar.make(getView(), getString(R.string.undo_delete), Snackbar
             .LENGTH_LONG);
-        snackbar.setAction(getString(R.string.undo), new OnClickListener() {
+        snackbar.setAction(getString(R.string.undo), getAddChannelClickListener());
+        snackbar.setActionTextColor(_blue);
+        snackbar.show();
+    }
+
+    /**
+     * Get a click listener to add a deleted channel.
+     *
+     * @return click listener
+     */
+    private OnClickListener getAddChannelClickListener() {
+        return new OnClickListener() {
             @Override
             public void onClick(View v) {
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), _deletedChannel));
             }
-        });
-        snackbar.setActionTextColor(_blue);
-        snackbar.show();
+        };
     }
 
     public void getSharedChannels() {

@@ -10,9 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.command.DeleteUserGroupCommand;
 import com.shareyourproxy.api.rx.command.SaveGroupChannelsCommand;
+import com.shareyourproxy.app.GroupEditChannelActivity;
 import com.shareyourproxy.app.adapter.GroupEditChannelAdapter;
 
 import butterknife.Bind;
@@ -23,8 +25,11 @@ import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_DELETE;
-import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
+/**
+ * Display a {@link Group}s {@link Channel}s and whether they are in our out of the groups
+ * permissions.
+ */
 public class GroupEditChannelFragment extends BaseFragment implements ItemClickListener {
 
     @Bind(R.id.fragment_group_edit_channel_recyclerview)
@@ -32,9 +37,17 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
 
     private GroupEditChannelAdapter _adapter;
 
+    /**
+     * Constructor.
+     */
     public GroupEditChannelFragment() {
     }
 
+    /**
+     * Create a new instance of this fragment for the parent {@link GroupEditChannelActivity}.
+     *
+     * @return GroupEditChannelFragment
+     */
     public static GroupEditChannelFragment newInstance() {
         return new GroupEditChannelFragment();
     }
@@ -53,6 +66,11 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
         return rootView;
     }
 
+    /**
+     * Save and go back.
+     *
+     * @param groupLabel updated group name
+     */
     private void saveGroupChannels(String groupLabel) {
         getRxBus().post(new SaveGroupChannelsCommand(
             getLoggedInUser(), groupLabel, getSelectedGroup(),
@@ -65,6 +83,9 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
         super.onPause();
     }
 
+    /**
+     * Initialize the channel and group data.
+     */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupEditChannelAdapter.newInstance(this, getSelectedGroup().label(),
@@ -72,26 +93,18 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addOnScrollListener(getScrollListener());
+        recyclerView.addOnScrollListener(getDismissScrollListener());
     }
 
+    /**
+     * Check whether this fragment is adding a new group(0) or editing a saved group(1).
+     *
+     * @return {@link GroupEditChannelActivity#ADD_GROUP} {@link
+     * GroupEditChannelActivity#EDIT_GROUP}
+     * constants.
+     */
     private int getAddOrEdit() {
         return getActivity().getIntent().getExtras().getInt(ARG_ADD_OR_EDIT, 0);
-    }
-
-    private RecyclerView.OnScrollListener getScrollListener() {
-        return new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                hideSoftwareKeyboard(getView());
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        };
     }
 
     @Override
@@ -115,10 +128,6 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
                 Timber.e("Option item selected is unknown");
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
     }
 
     @Override

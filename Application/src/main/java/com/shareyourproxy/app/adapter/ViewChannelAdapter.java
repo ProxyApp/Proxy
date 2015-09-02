@@ -20,6 +20,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.util.ObjectUtils;
 
 import java.util.HashMap;
@@ -28,14 +29,12 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.BindColor;
 
-import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-
 /**
  * Adapter for a users profile and their {@link Channel} package permissions.
  */
 public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int VIEW_TYPE_CONTENT = 2;
-    private final ItemClickListener _clickListener;
+    private final ItemLongClickListener _clickListener;
     @ColorInt
     @BindColor(R.color.common_gray)
     protected int _gray;
@@ -48,7 +47,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      *
      * @param listener click listener
      */
-    private ViewChannelAdapter(HashMap<String, Channel> channels, ItemClickListener listener) {
+    private ViewChannelAdapter(HashMap<String, Channel> channels, ItemLongClickListener listener) {
         _clickListener = listener;
         if (channels != null) {
             _channels = new SortedList<>(
@@ -66,7 +65,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      * @return an {@link ViewChannelAdapter} with no data
      */
     public static ViewChannelAdapter newInstance(
-        HashMap<String, Channel> channels, ItemClickListener listener) {
+        HashMap<String, Channel> channels, ItemLongClickListener listener) {
         return new ViewChannelAdapter(channels, listener);
     }
 
@@ -252,7 +251,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
          * @param itemClickListener click listener for this view
          * @param view              the inflated view
          */
-        private ContentViewHolder(View view, ItemClickListener itemClickListener) {
+        private ContentViewHolder(View view, ItemLongClickListener itemClickListener) {
             super(view, itemClickListener);
         }
 
@@ -264,7 +263,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
          * @return a ViewHolder instance
          */
         public static ContentViewHolder newInstance(
-            View view, ItemClickListener itemClickListener) {
+            View view, ItemLongClickListener itemClickListener) {
             return new ContentViewHolder(view, itemClickListener);
         }
     }

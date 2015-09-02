@@ -107,15 +107,18 @@
     <string name="channel_section_image">channel channelSection image</string>
     <string name="drawer_header_image">drawer header image</string>
     <string name="user_image">user image</string>
+    <string name="username">username</string>
     <string name="proxy_logo">Proxy logo</string>
     <string name="add">Add</string>
     <string name="dial">Dial</string>
     <string name="edit_group">Edit Group</string>
     <string name="group_name">Group name</string>
     <string name="edit_groups">Edit groups</string>
+    <string name="menu">Menu</string>
     <string name="in_blank_groups">%1$s groups</string>
     <string name="add_channel">Add Channel</string>
     <string name="delete">Delete</string>
+    <string name="search_for_people">Search for people</string>
     <string name="edit_channel_description">Edit channel description</string>
     <string name="edit_channel_address">Edit channel address</string>
     <string name="dialog_edit_user_groups">Select groups for</string>
@@ -164,4 +167,7 @@
     <string name="fragment_group_main_empty_text">"You haven't added any groups."</string>
     <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."
     </string>
+    <string name="hamburger">"Hamburger"</string>
+    <string name="search_textview">"search_textview"</string>
+    <string name="search_container">"search_container"</string>
 </resources>

@@ -2,6 +2,7 @@ package com.shareyourproxy.app.fragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,6 +21,7 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserAdapter;
+import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -46,7 +48,10 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
             recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
+                    User user = getLoggedInUser();
+                    if (user != null) {
+                        getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
+                    }
                 }
             });
         }
@@ -100,6 +105,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setEmptyView(emptyTextView);
+        recyclerView.hideRecyclerView(false);
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
@@ -127,11 +133,16 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                     }
                 }
             }));
-        User loggedInUser = getLoggedInUser();
-        if (getLoggedInUser() != null) {
+        refreshUserData(getLoggedInUser());
+    }
+
+    /**
+     * Refresh user data.
+     * @param user contacts to refresh
+     */
+    public void refreshUserData(@NonNull User user) {
             _adapter.refreshUserList(
-                queryUserContacts(getActivity(), loggedInUser.contacts()));
-        }
+                queryUserContacts(getActivity(), user.contacts()));
     }
 
     @Override
@@ -139,29 +150,29 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         super.onPause();
         _subscriptions.unsubscribe();
         _subscriptions = null;
+        //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.setRefreshing(false);
     }
 
     private void userUpdated(LoggedInUserUpdatedEventCallback event) {
-        _adapter.refreshUserList(
-            queryUserContacts(getActivity(), event.user.contacts()));
+        refreshUserData(event.user);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new UserSelectedEvent(_adapter.getItemData(position)));
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
+       UserViewHolder  holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
+        getRxBus().post(
+            new UserSelectedEvent(
+                holder.userImage,holder.userName, _adapter.getItemData(position)));
     }
 
     /**
-     * User selected is this Fragments underlying recyclerView.Adapter.
+     * User selected, launch that contacts profile.
      *
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value());
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value(),
+            event.imageView, event.textView);
     }
 }

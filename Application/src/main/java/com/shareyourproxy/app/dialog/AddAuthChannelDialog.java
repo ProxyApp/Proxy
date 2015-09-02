@@ -27,11 +27,11 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
+import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
- * Update a facebook intent with user input data.
+ * Add a channel that requires OAuth.
  */
 public class AddAuthChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL = "AddAuthChannelDialog.Channel";
@@ -71,7 +71,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
                     addUserChannel();
-                    getDialog().dismiss();
+                    dismiss();
                     return true;
                 }
                 return false;
@@ -82,9 +82,14 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 addUserChannel();
-                dialogInterface.dismiss();
             }
         };
+
+    /**
+     * Constructor.
+     */
+    public AddAuthChannelDialog() {
+    }
 
     /**
      * Create a new instance of a {@link AddAuthChannelDialog}.
@@ -143,7 +148,6 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
-        initializeEditTextColors();
         return dialog;
     }
 
@@ -155,12 +159,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
-    }
-
-    /**
-     * Initialize values for EditText to switch color on.
-     */
-    private void initializeEditTextColors() {
+        // Set TextInput hint
         floatLabelAddress.setHint(getString(
             R.string.dialog_addchannel_hint_address_blank_handle,
             _channel.channelType().getLabel()));

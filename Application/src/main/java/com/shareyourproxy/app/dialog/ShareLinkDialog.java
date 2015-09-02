@@ -16,20 +16,18 @@ import android.view.WindowManager;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
 import com.shareyourproxy.api.rx.command.GenerateShareLinkCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
-import com.shareyourproxy.util.ViewUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
 
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
+import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
+import static com.shareyourproxy.util.ViewUtils.dpToPx;
 
 /**
  * Share links to group channels in your web profile.
@@ -53,6 +51,12 @@ public class ShareLinkDialog extends BaseDialogFragment {
         getPosOnClickListener();
 
     /**
+     * Constructor.
+     */
+    public ShareLinkDialog(){
+    }
+
+    /**
      * Create a new instance of a {@link AddChannelDialog}.
      *
      * @return A {@link AddChannelDialog}
@@ -71,14 +75,8 @@ public class ShareLinkDialog extends BaseDialogFragment {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ArrayList<GroupEditContact> groups = _adapter.getDataArray();
-                for (GroupEditContact checkedGroup : groups) {
-                    if (checkedGroup.isChecked()) {
-
-                    }
-                }
-                getRxBus().post(new GenerateShareLinkCommand(getLoggedInUser(), groups));
-                dialogInterface.dismiss();
+                getRxBus().post(new GenerateShareLinkCommand(getLoggedInUser(),
+                    _adapter.getDataArray()));
             }
         };
     }
@@ -139,7 +137,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
         recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();
         ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
-        lp.height = (int) ViewUtils.dpToPx(getResources(), R.dimen.user_groups_dialog_height);
+        lp.height = (int) dpToPx(getResources(), R.dimen.user_groups_dialog_height);
         recyclerView.setLayoutParams(lp);
     }
 

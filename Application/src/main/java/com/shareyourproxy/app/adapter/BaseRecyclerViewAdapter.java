@@ -1,8 +1,6 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 
@@ -10,28 +8,13 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 
+import static android.support.v4.content.ContextCompat.getColor;
 import static com.shareyourproxy.util.ViewUtils.getCircularDrawableImage;
-import static com.shareyourproxy.util.ViewUtils.getSectionIconDimen;
-import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * Base abstraction for all recycler adapters.
  */
 public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHolder> {
-
-    /**
-     * Parse a svg and return a Large sized {@link Drawable}.
-     *
-     * @param context    activity context
-     * @param resourceId resource to create image.drawable
-     * @return Drawable
-     */
-    public static Drawable getSectionResourceDrawable(Context context, int resourceId) {
-        Resources res = context.getResources();
-        return svgToBitmapDrawable(context, resourceId,
-            getSectionIconDimen(context), res.getColor(R.color.common_text));
-    }
-
     /**
      * Get a Circular SVG Drawable.
      *
@@ -47,79 +30,74 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
     }
 
     /**
-     * Get a Circular Android Icon Drawable.
+     * Get a channel background color based on it's ChannelType.
      *
-     * @param context  activity context
-     * @param drawable source image.drawable
-     * @return circular image.drawable
+     * @param context     resrouces
+     * @param channelType to switch on
+     * @return color int
      */
-    public static Drawable getAndroidIconDrawable(Context context, Drawable drawable) {
-        return getCircularDrawableImage(context, drawable, Color.LTGRAY);
-    }
-
     public static int getChannelBackgroundColor(Context context, ChannelType channelType) {
-        Resources res = context.getResources();
         switch (channelType) {
             case Custom:
-                return res.getColor(R.color.common_text_secondary);
+                return getColor(context, R.color.common_text_secondary);
             case Phone:
-                return res.getColor(R.color.common_indigo);
+                return getColor(context, R.color.common_indigo);
             case SMS:
-                return res.getColor(R.color.common_light_blue);
+                return getColor(context, R.color.common_light_blue);
             case Email:
-                return res.getColor(R.color.common_red);
+                return getColor(context, R.color.common_red);
             case Web:
-                return res.getColor(R.color.common_text_secondary);
+                return getColor(context, R.color.common_text_secondary);
             case Facebook:
-                return res.getColor(R.color.common_facebook);
+                return getColor(context, R.color.common_facebook);
             case Twitter:
-                return res.getColor(R.color.common_twitter);
+                return getColor(context, R.color.common_twitter);
             case Meerkat:
-                return res.getColor(R.color.common_meerkat);
+                return getColor(context, R.color.common_meerkat);
             case Snapchat:
-                return res.getColor(R.color.common_snapchat);
+                return getColor(context, R.color.common_snapchat);
             case Spotify:
-                return res.getColor(R.color.common_spotify);
+                return getColor(context, R.color.common_spotify);
             case Reddit:
-                return res.getColor(R.color.common_reddit);
+                return getColor(context, R.color.common_reddit);
             case Linkedin:
-                return res.getColor(R.color.common_linkedin);
+                return getColor(context, R.color.common_linkedin);
             case FBMessenger:
-                return res.getColor(R.color.common_fb_messenger);
+                return getColor(context, R.color.common_fb_messenger);
             case Hangouts:
-                return res.getColor(R.color.common_hangouts);
+                return getColor(context, R.color.common_hangouts);
             case Whatsapp:
-                return res.getColor(R.color.common_whatsapp);
+                return getColor(context, R.color.common_whatsapp);
             case Yo:
-                return res.getColor(R.color.common_yo);
+                return getColor(context, R.color.common_yo);
             case Googleplus:
-                return res.getColor(R.color.common_google_plus);
+                return getColor(context, R.color.common_google_plus);
             case Github:
-                return res.getColor(R.color.common_github);
+                return getColor(context, R.color.common_github);
             case Address:
-                return res.getColor(R.color.common_address);
+                return getColor(context, R.color.common_address);
             case Slack:
-                return res.getColor(R.color.common_slack);
+                return getColor(context, R.color.common_slack);
             case Youtube:
-                return res.getColor(R.color.common_youtube);
+                return getColor(context, R.color.common_youtube);
             case Instagram:
-                return res.getColor(R.color.common_instagram);
+                return getColor(context, R.color.common_instagram);
             case Tumblr:
-                return res.getColor(R.color.common_tumblr);
+                return getColor(context, R.color.common_tumblr);
             case Ello:
-                return res.getColor(R.color.common_ello);
+                return getColor(context, R.color.common_ello);
             case Venmo:
-                return res.getColor(R.color.common_venmo);
+                return getColor(context, R.color.common_venmo);
             case Periscope:
-                return res.getColor(R.color.common_periscope);
+                return getColor(context, R.color.common_periscope);
             case Medium:
-                return res.getColor(R.color.common_medium);
+                return getColor(context, R.color.common_medium);
             case Soundcloud:
-                return res.getColor(R.color.common_soundcloud);
+                return getColor(context, R.color.common_soundcloud);
             case Skype:
-                return res.getColor(R.color.common_skype);
+                return getColor(context, R.color.common_skype);
             default:
-                return res.getColor(R.color.common_text_secondary);
+                return getColor(context, R.color.common_text_secondary);
         }
 
     }

@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
-import static com.shareyourproxy.util.DebugUtils.getSimpleName;
+import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
@@ -102,6 +102,11 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     private String _channelAddressHint;
     private String _channelLabelHint;
 
+    /**
+     * Constructor.
+     */
+    public AddRedditChannelDialog(){
+    }
     /**
      * Create a new instance of a {@link AddRedditChannelDialog}.
      *

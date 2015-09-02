@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -12,7 +11,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,12 +46,10 @@ import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * {@link Fragment} that handles displaying a list of {@link Group}s in a {@link RecyclerView}.
+ * Displaying a list of {@link User} {@link Group}s.
  */
 public class MainGroupFragment
     extends BaseFragment implements ItemClickListener {
-    @Bind(R.id.fragment_group_main_coordinator)
-    protected CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_group_main_recyclerview)
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_group_main_fab_group)
@@ -71,7 +67,10 @@ public class MainGroupFragment
             recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
+                    User user = getLoggedInUser();
+                    if (user != null) {
+                        getRxBus().post(new SyncAllUsersCommand(user.id().value()));
+                    }
                 }
             });
         }
@@ -103,6 +102,12 @@ public class MainGroupFragment
             getActivity(), Group.createBlank(), ADD_GROUP);
     }
 
+    /**
+     * Check if there was a group deleted from the {@link GroupEditChannelFragment#onItemClick
+     * (View, int)})}
+     *
+     * @param activity to get intent data from
+     */
     public void checkGroupDeleted(Activity activity) {
         Boolean groupDeleted = activity.getIntent().getExtras().getBoolean(Constants
             .ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, false);
@@ -112,6 +117,12 @@ public class MainGroupFragment
         }
     }
 
+    /**
+     * Build a {@link Snackbar} and show it. This {@link Snackbar} reverses the action of deleting a
+     * {@link User} {@link Group}.
+     *
+     * @param group deleted
+     */
     private void showSnackBar(final Group group) {
         Snackbar snackbar = Snackbar.make(floatingActionButton, getString(R.string.undo_delete),
             Snackbar.LENGTH_LONG);
@@ -130,11 +141,18 @@ public class MainGroupFragment
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
         ButterKnife.bind(this, rootView);
+        initialize();
+        return rootView;
+    }
+
+    /**
+     * Initialize this fragments UI.
+     */
+    public void initialize() {
         initializeSVG();
         initializeRecyclerView();
         initializeSwipeRefresh();
         checkGroupDeleted(getActivity());
-        return rootView;
     }
 
     @Override
@@ -144,7 +162,7 @@ public class MainGroupFragment
     }
 
     /**
-     * Set the content image of this {@link FloatingActionButton}
+     * Set the content image of this fragment's {@link FloatingActionButton}
      */
     private void initializeSVG() {
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
@@ -162,11 +180,11 @@ public class MainGroupFragment
                 @Override
                 public void call(Object event) {
                     if (event instanceof UserGroupAddedEventCallback) {
-                        groupAdded((UserGroupAddedEventCallback) event);
+                        updateGroups(((UserGroupAddedEventCallback) event).group);
+                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
+                        updateGroups(((GroupChannelsUpdatedEventCallback) event).group);
                     } else if (event instanceof LoggedInUserUpdatedEventCallback) {
                         updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
-                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
-                        groupAdded((GroupChannelsUpdatedEventCallback) event);
                     } else if (event instanceof SyncAllUsersCommand) {
                         swipeRefreshLayout.setRefreshing(true);
                     } else if (event instanceof SyncAllUsersSuccessEvent) {
@@ -176,33 +194,41 @@ public class MainGroupFragment
                     }
                 }
             }));
-        User user = getLoggedInUser();
-        if (user != null && user.groups().size() > 0) {
-            _adapter.updateGroupData(user.groups());
-        }
     }
 
+    /**
+     * Add a new group.
+     *
+     * @param group to add
+     */
+    public void updateGroups(Group group) {
+        _adapter.addGroupData(group);
+    }
+
+    /**
+     * update all groups.
+     *
+     * @param groups to add
+     */
     public void updateGroups(HashMap<String, Group> groups) {
         _adapter.refreshGroupData(groups);
-    }
-
-    private void groupAdded(GroupChannelsUpdatedEventCallback event) {
-        _adapter.addGroupData(event.group);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         _subscriptions.unsubscribe();
+        _subscriptions = null;
         //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
-     * Initialize this fragments {@link Group} data and {@link RecyclerView}.
+     * Initialize this fragments {@link Group} data and {@link BaseRecyclerView}.
      */
     private void initializeRecyclerView() {
         recyclerView.setEmptyView(emptyTextView);
+        recyclerView.hideRecyclerView(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupAdapter.newInstance(recyclerView, getGroupData(), this);
         recyclerView.setAdapter(_adapter);
@@ -232,23 +258,10 @@ public class MainGroupFragment
         }
     }
 
-    /**
-     * {@link UserGroupAddedEventCallback}
-     *
-     * @param event group
-     */
-    public void groupAdded(UserGroupAddedEventCallback event) {
-        _adapter.addGroupData(event.group);
-    }
-
     @Override
     public void onItemClick(View view, int position) {
         Group group = _adapter.getGroupData(position);
-        IntentLauncher.launchViewGroupUsersActivity(getActivity(), group);
+        IntentLauncher.launchEditGroupContactsActivity(getActivity(), group);
     }
 
-    @Override
-    public void onItemLongClick(View view, int position) {
-
-    }
 }
