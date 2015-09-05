@@ -25,6 +25,7 @@ import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserAdapter;
 import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import java.util.HashMap;
 
@@ -41,6 +42,7 @@ import static com.shareyourproxy.api.rx.RxQuery.queryFilteredUsers;
 import static com.shareyourproxy.api.rx.RxQuery.searchUserString;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
+import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
@@ -144,6 +146,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
+        emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
+            null, getSexBotDrawable(), null, null);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
@@ -151,6 +155,16 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(getDismissScrollListener());
         recyclerView.setEmptyView(emptyViewContainer);
+    }
+
+    /**
+     * Parse a svg and return a null screen sized {@link ContentDescriptionDrawable} .
+     *
+     * @return Drawable with a contentDescription
+     */
+    private Drawable getSexBotDrawable() {
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_sexbot,
+            getNullScreenIconDimen(getActivity()));
     }
 
     @Override
@@ -191,7 +205,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
 
         User loggedInUser = getLoggedInUser();
@@ -213,12 +227,13 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private JustObserver<HashMap<String, User>> getSearchObserver() {
         return new JustObserver<HashMap<String, User>>() {
             @Override
-            public void onError() {
+            public void success(HashMap<String, User> users) {
+                _adapter.refreshUserList(users);
             }
 
             @Override
-            public void onNext(HashMap<String, User> users) {
-                _adapter.refreshUserList(users);
+            public void error(Throwable e) {
+
             }
         };
     }

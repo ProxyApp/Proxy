@@ -75,8 +75,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                getRxBus().post(new GenerateShareLinkCommand(getLoggedInUser(),
-                    _adapter.getDataArray()));
+                getRxBus().post(new GenerateShareLinkCommand(getRxBus(), _adapter.getDataArray()));
             }
         };
     }

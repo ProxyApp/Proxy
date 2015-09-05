@@ -1,21 +1,25 @@
 package com.shareyourproxy.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.Intents;
 import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
-import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
+import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -27,6 +31,8 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
+    public static final String SCOPE_EMAIL =
+        "https://www.googleapis.com/auth/plus.profile.emails.read";
     private CompositeSubscription _subscriptions;
 
     /**
@@ -45,6 +51,24 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     public void setLoggedInUser(User user) {
         ((ProxyApplication) getApplication()).setCurrentUser(user);
+    }
+
+    /**
+     * This prevents the Android status bar and navigation bar from flashing during a transition
+     * animation bundled in {@link IntentLauncher#launchSearchActivity(Activity, View, View, View)}
+     * and {@link IntentLauncher#launchUserProfileActivity(Activity, User, String, View, View)}.
+     */
+    public void preventStatusBarFlash(final Activity activity) {
+        ActivityCompat.postponeEnterTransition(activity);
+        final View decor = activity.getWindow().getDecorView();
+        decor.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                decor.getViewTreeObserver().removeOnPreDrawListener(this);
+                ActivityCompat.startPostponedEnterTransition(activity);
+                return true;
+            }
+        });
     }
 
     /**
@@ -100,7 +124,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
     }
 
@@ -134,7 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      *
      * @param event message data, http link
      */
-    public void launchShareLinkIntent(ShareLinkEvent event) {
+    private void launchShareLinkIntent(ShareLinkEvent event) {
         Intent sendIntent =
             Intents.getShareLinkIntent(event.message);
 
@@ -142,4 +166,5 @@ public abstract class BaseActivity extends AppCompatActivity {
             Intent.createChooser(
                 sendIntent, getString(R.string.dialog_sharelink_title)));
     }
+
 }

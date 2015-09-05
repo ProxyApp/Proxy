@@ -42,8 +42,9 @@ public class RxUserSync {
      * @param loggedInUserId to identify the logged in user
      * @return {@link UsersDownloadedEventCallback} to rxBus
      */
-    public static List<EventCallback> syncAllUsers(Context context, String loggedInUserId) {
-        return getFirebaseUsers()
+    public static List<EventCallback> syncAllUsers(
+        Context context, RxBusDriver rxBus, String loggedInUserId) {
+        return getFirebaseUsers(context, rxBus)
             .map(updateLoggedInUser(loggedInUserId))
             .map(saveRealmUsers(context))
             .map(usersDownloaded(loggedInUserId))
@@ -76,8 +77,9 @@ public class RxUserSync {
 
     }
 
-    private static rx.Observable<HashMap<String, User>> getFirebaseUsers() {
-        return getUserService().listUsers();
+    private static rx.Observable<HashMap<String, User>> getFirebaseUsers(
+        Context context, RxBusDriver rxBus) {
+        return getUserService(context, rxBus).listUsers();
     }
 
     private static Func1<HashMap<String, User>, HashMap<String, User>>
@@ -101,8 +103,9 @@ public class RxUserSync {
         };
     }
 
-    public static List<EventCallback> saveUser(Context context, User newUser) {
-        return RestClient.getUserService().updateUser(newUser.id().value(),
+    public static List<EventCallback> saveUser(
+        Context context, RxBusDriver rxBus, User newUser) {
+        return RestClient.getUserService(context, rxBus).updateUser(newUser.id().value(),
             newUser)
             .map(saveRealmUser(context))
             .toList()

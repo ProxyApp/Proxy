@@ -6,7 +6,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.shareyourproxy.api.aidl.INotificationService;
+import com.shareyourproxy.INotificationService;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.GetUserMessagesCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback;
@@ -22,10 +23,10 @@ import timber.log.Timber;
 public class NotificationService extends Service {
     private final INotificationService.Stub _binder = new INotificationService.Stub() {
         @Override
-        public ArrayList<Notification> getNotifications(String userId)
+        public ArrayList<Notification> getNotifications(RxBusDriver rxBus, String userId)
             throws RemoteException {
-            List<EventCallback> event = new GetUserMessagesCommand(userId).execute
-                (NotificationService.this);
+            List<EventCallback> event = new GetUserMessagesCommand(rxBus,userId)
+                .execute(NotificationService.this);
             EventCallback eventData = event.get(0);
 
             if (eventData != null) {

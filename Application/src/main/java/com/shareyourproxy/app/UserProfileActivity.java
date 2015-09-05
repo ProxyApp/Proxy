@@ -72,11 +72,19 @@ public class UserProfileActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+        preventStatusBarFlash(this);
+        setIsLoggedInUser();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_user_profile_container,
                     UserProfileFragment.newInstance()).commit();
         }
+    }
+
+    /**
+     * Initialize _isLoggedInUser field.
+     */
+    private void setIsLoggedInUser() {
         User userContact = getIntent().getExtras().getParcelable
             (ARG_USER_SELECTED_PROFILE);
         _isLoggedInUser = isLoggedInUser(userContact);
@@ -122,7 +130,7 @@ public class UserProfileActivity extends BaseActivity {
         super.onResume();
         Timber.i("onResume");
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {

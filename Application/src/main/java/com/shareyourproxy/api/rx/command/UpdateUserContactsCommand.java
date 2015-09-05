@@ -7,15 +7,17 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxUserContactSync;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.shareyourproxy.api.rx.RxUserContactSync.checkContacts;
+
 /**
- * Created by Evan on 6/16/15.
+ * Update a user's contacts.
  */
 public class UpdateUserContactsCommand extends BaseCommand {
     public static final Parcelable.Creator<UpdateUserContactsCommand> CREATOR =
@@ -37,31 +39,23 @@ public class UpdateUserContactsCommand extends BaseCommand {
     public final HashMap<String, Group> userGroups;
 
     public UpdateUserContactsCommand(
-        @NonNull User user, @NonNull ArrayList<String> contacts,
+        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull ArrayList<String> contacts,
         @NonNull HashMap<String, Group> userGroups) {
         super(UpdateUserContactsCommand.class.getPackage().getName(),
-            UpdateUserContactsCommand.class.getName());
+            UpdateUserContactsCommand.class.getName(), rxBus);
         this.user = user;
         this.contacts = contacts;
         this.userGroups = userGroups;
     }
 
-    public UpdateUserContactsCommand(BaseCommand command) {
-        super(UpdateUserContactsCommand.class.getPackage().getName(),
-            UpdateUserContactsCommand.class.getName());
-        this.user = ((UpdateUserContactsCommand) command).user;
-        this.contacts = ((UpdateUserContactsCommand) command).contacts;
-        this.userGroups = ((UpdateUserContactsCommand) command).userGroups;
-    }
-
     private UpdateUserContactsCommand(Parcel in) {
-        this((User) in.readValue(CL), (ArrayList<String>) in.readValue(CL),
-            (HashMap<String, Group>) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL),
+            (ArrayList<String>) in.readValue(CL), (HashMap<String, Group>) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserContactSync.checkContacts(service, user, contacts, userGroups);
+        return checkContacts(service, rxBus, user, contacts, userGroups);
     }
 
     @Override
@@ -71,6 +65,7 @@ public class UpdateUserContactsCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(contacts);
         dest.writeValue(userGroups);

@@ -114,7 +114,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         if (!TextUtils.isEmpty(actionContent.trim())) {
             Channel channel =
                 createModelInstance(_channel, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+            getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
         }
     }
 

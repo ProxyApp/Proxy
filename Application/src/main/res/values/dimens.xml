@@ -27,8 +27,9 @@
     <dimen name="common_svg_small">@dimen/common_margin_medium</dimen>
     <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
+    <dimen name="common_svg_null_screen">600dp</dimen>
     <dimen name="common_svg_ultra_minor">720dp</dimen>
     <dimen name="common_svg_ultra">1080dp</dimen>
-    <dimen name="user_groups_dialog_height">600dp</dimen>
+    <dimen name="user_groups_dialog_height">653dp</dimen>
     <dimen name="fragment_userprofile_header_background_size">300dp</dimen>
 </resources>

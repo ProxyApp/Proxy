@@ -90,24 +90,25 @@ public class MainFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable().subscribe(getObserver()));
+        _subscriptions.add(getRxBus().toObservable().subscribe(getObserver()));
 
     }
 
     public JustObserver<Object> getObserver() {
         return new JustObserver<Object>() {
             @Override
-            public void onError() {
-
+            public void success(Object event) {
+                if (event instanceof SearchClickedEvent) {
+                    IntentLauncher.launchSearchActivity(
+                        getActivity(),_contactSearchLayout.getContainerView(),
+                        _contactSearchLayout.getSearchTextView(),
+                        _contactSearchLayout.getMenuImageView());
+                }
             }
 
             @Override
-            public void onNext(Object event) {
-                if (event instanceof SearchClickedEvent) {
-                    IntentLauncher.launchSearchActivity(
-                        getActivity(),_contactSearchLayout.getContainerView(), _contactSearchLayout.getSearchTextView(),
-                        _contactSearchLayout.getMenuImageView());
-                }
+            public void error(Throwable e) {
+
             }
         };
     }
@@ -153,7 +154,7 @@ public class MainFragment extends BaseFragment {
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
         //set the defualt selected tab
         slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
-            .getInt(Constants.ARG_SELECTED_MAINFRAGMENT_TAB)).select();
+            .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB)).select();
     }
 
     /**

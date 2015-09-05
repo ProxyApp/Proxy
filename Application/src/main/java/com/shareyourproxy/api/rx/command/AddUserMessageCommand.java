@@ -5,10 +5,12 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Message;
-import com.shareyourproxy.api.rx.RxMessageSync;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
+
+import static com.shareyourproxy.api.rx.RxMessageSync.saveFirebaseMessage;
 
 /**
  * Created by Evan on 6/18/15.
@@ -16,16 +18,16 @@ import java.util.List;
 public class AddUserMessageCommand extends BaseCommand {
     public static final Creator<AddUserMessageCommand> CREATOR = new
         Creator<AddUserMessageCommand>() {
-        @Override
-        public AddUserMessageCommand createFromParcel(Parcel in) {
-            return new AddUserMessageCommand(in);
-        }
+            @Override
+            public AddUserMessageCommand createFromParcel(Parcel in) {
+                return new AddUserMessageCommand(in);
+            }
 
-        @Override
-        public AddUserMessageCommand[] newArray(int size) {
-            return new AddUserMessageCommand[size];
-        }
-    };
+            @Override
+            public AddUserMessageCommand[] newArray(int size) {
+                return new AddUserMessageCommand[size];
+            }
+        };
     private final static java.lang.ClassLoader CL = AddUserMessageCommand.class.getClassLoader();
     public final Message message;
     public final String userId;
@@ -33,22 +35,23 @@ public class AddUserMessageCommand extends BaseCommand {
     /**
      * Public constructor.
      *
-     * @param message
+     * @param message to send
      */
-    public AddUserMessageCommand(@NonNull String userId, @NonNull Message message) {
+    public AddUserMessageCommand(
+        @NonNull RxBusDriver rxBus, @NonNull String userId, @NonNull Message message) {
         super(AddUserMessageCommand.class.getPackage().getName(),
-            AddUserMessageCommand.class.getName());
+            AddUserMessageCommand.class.getName(), rxBus);
         this.message = message;
         this.userId = userId;
     }
 
     private AddUserMessageCommand(Parcel in) {
-        this((String) in.readValue(CL), (Message) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (String) in.readValue(CL), (Message) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxMessageSync.saveFirebaseMessage(userId, message);
+        return saveFirebaseMessage(service, rxBus, userId, message);
     }
 
     @Override
@@ -58,6 +61,7 @@ public class AddUserMessageCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(userId);
         dest.writeValue(message);
     }

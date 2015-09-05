@@ -88,7 +88,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                         String auth = SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET;
                         String header = new String(Base64.encode(auth.getBytes(), Base64.DEFAULT));
 
-                        RestClient.getSpotifyAuthService()
+                        RestClient.getSpotifyAuthService(getActivity(), getRxBus())
                             .getAuth(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET,
                                 "authorization_code", accessToken, WEBVIEW_REDIRECT)
                             .subscribe(authObserver());
@@ -119,16 +119,17 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
 
     public JustObserver<SpotifyAuthResponse> authObserver() {
         return new JustObserver<SpotifyAuthResponse>() {
-            @Override
-            public void onError() {
 
+            @Override
+            public void success(SpotifyAuthResponse event) {
+                Timber.i(event.toString());
+                RestClient.getSpotifyUserService(getActivity(), getRxBus()).getUser(event.access_token())
+                    .subscribe(getUserObserver());
             }
 
             @Override
-            public void onNext(SpotifyAuthResponse event) {
-                Timber.i(event.toString());
-                RestClient.getSpotifyUserService().getUser(event.access_token())
-                    .subscribe(getUserObserver());
+            public void error(Throwable e) {
+
             }
         };
     }
@@ -136,18 +137,18 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
     public JustObserver<SpotifyUser> getUserObserver() {
         return new JustObserver<SpotifyUser>() {
             @Override
-            public void onError() {
-
-            }
-
-            @Override
-            public void onNext(SpotifyUser event) {
+            public void success(SpotifyUser event) {
                 Timber.i(event.toString());
                 Channel channel = ChannelFactory.createModelInstance(event.id(), ChannelType
                         .Spotify.toString(),
                     ChannelType.Spotify, event.id());
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
                 getDialog().dismiss();
+            }
+
+            @Override
+            public void error(Throwable e) {
+
             }
         };
     }

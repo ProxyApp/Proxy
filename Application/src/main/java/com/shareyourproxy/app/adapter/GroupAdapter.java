@@ -172,16 +172,6 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         return _groups.get(position);
     }
 
-    /**
-     * Get the desired {@link Group} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link Group}
-     */
-    public SortedList<Group> getGroupArray() {
-        return _groups;
-    }
-
     public void refreshGroupData(@NonNull HashMap<String, Group> groups) {
         _groups.clear();
         _groups.beginBatchedUpdates();

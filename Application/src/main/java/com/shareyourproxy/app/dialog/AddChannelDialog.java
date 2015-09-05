@@ -127,7 +127,7 @@ public class AddChannelDialog extends BaseDialogFragment {
             String id = UUID.randomUUID().toString();
             Channel channel =
                 createModelInstance(id, labelContent, _channelType, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+            getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
         }
     }
 

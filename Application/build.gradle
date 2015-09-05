@@ -16,7 +16,7 @@ def env_twitter_secret = env["TWITTER_SECRET"]
 def twitter_secret = properties.getProperty('TWITTER_SECRET', env_twitter_secret)
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.0'
+    buildToolsVersion '23.0.1'
 
     // Version Info
     def versionMajor = 0
@@ -34,7 +34,6 @@ android {
 
     sourceSets {
         main {
-            aidl.srcDirs = ['src/main/java/com/shareyourproxy/api/aidl']
             res.srcDirs = ['src/main/res',
                            'src/main/res/images',
                            'src/main/res/layouts',
@@ -181,7 +180,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     //Third party
     compile 'com.facebook.android:facebook-android-sdk:4.1.0'
-    compile 'com.github.frankiesardo:auto-parcel:0.3'
+    compile 'com.github.frankiesardo:auto-parcel:0.3.1'
     apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
     compile 'io.realm:realm-android:0.82.1'
     compile 'com.firebase:firebase-client-android:2.3.0'

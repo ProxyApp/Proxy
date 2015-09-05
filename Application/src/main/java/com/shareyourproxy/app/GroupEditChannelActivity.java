@@ -1,6 +1,7 @@
 package com.shareyourproxy.app;
 
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,6 +14,8 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCall
 import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -30,7 +33,6 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  * Add and remove newChannel permissions from a group.
  */
 public class GroupEditChannelActivity extends BaseActivity {
-
     public static final int ADD_GROUP = 0;
     public static final int EDIT_GROUP = 1;
     // View
@@ -78,7 +80,7 @@ public class GroupEditChannelActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
     }
 
@@ -121,10 +123,15 @@ public class GroupEditChannelActivity extends BaseActivity {
             }
         }
 
-        getRxBus().post(new UpdateUserContactsCommand(
+        getRxBus().post(new UpdateUserContactsCommand(getRxBus(),
             getLoggedInUser(), contacts, getLoggedInUser().groups()));
         launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
         onBackPressed();
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(value = { ADD_GROUP, EDIT_GROUP })
+    public @interface EventType {
     }
 
 }

@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
@@ -169,7 +169,7 @@ public class RxQuery {
         return users;
     }
 
-    public static List<GroupEditContact> queryContactGroups(
+    public static List<GroupToggle> queryContactGroups(
         @NonNull final User user, final User selectedContact) {
         return Observable.from(user.groups().entrySet())
             .map(mapContacts(selectedContact))
@@ -177,37 +177,37 @@ public class RxQuery {
             .toBlocking().single();
     }
 
-    private static Func1<Map.Entry<String, Group>, GroupEditContact> mapContacts(
+    private static Func1<Map.Entry<String, Group>, GroupToggle> mapContacts(
         final User selectedContact) {
-        return new Func1<Map.Entry<String, Group>, GroupEditContact>() {
+        return new Func1<Map.Entry<String, Group>, GroupToggle>() {
             @Override
-            public GroupEditContact call(Map.Entry<String, Group> groupEntry) {
+            public GroupToggle call(Map.Entry<String, Group> groupEntry) {
                 Group group = groupEntry.getValue();
                 String contactId = selectedContact.id().value();
                 HashMap<String, Id> contacts = group.contacts();
                 if (contacts != null &&
                     group.contacts().containsKey(contactId)) {
-                    return new GroupEditContact(group, true);
+                    return new GroupToggle(group, true);
                 }
-                return new GroupEditContact(group, false);
+                return new GroupToggle(group, false);
             }
         };
     }
 
     public static GroupContactsUpdatedEventCallback queryContactGroups(
         User user,
-        ArrayList<GroupEditContact> groupEditContact, final String contactId) {
-        return Observable.from(groupEditContact).map(filterSelectedGroups())
+        ArrayList<GroupToggle> groupToggle, final String contactId) {
+        return Observable.from(groupToggle).map(filterSelectedGroups())
             .filter(filterNullObject())
             .toList()
             .map(packageGroupContacts(user, contactId))
             .toBlocking().single();
     }
 
-    private static Func1<GroupEditContact, Group> filterSelectedGroups() {
-        return new Func1<GroupEditContact, Group>() {
+    private static Func1<GroupToggle, Group> filterSelectedGroups() {
+        return new Func1<GroupToggle, Group>() {
             @Override
-            public Group call(GroupEditContact editContact) {
+            public Group call(GroupToggle editContact) {
                 return editContact.isChecked() ? editContact.getGroup() : null;
             }
         };

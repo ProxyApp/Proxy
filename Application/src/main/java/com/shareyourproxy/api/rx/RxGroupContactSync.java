@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Pair;
 
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
@@ -19,6 +19,7 @@ import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
+import static java.util.Arrays.asList;
 
 /**
  * Update Group contacts and User contacts when they've been added or removed to any groups.
@@ -32,39 +33,39 @@ public class RxGroupContactSync {
     }
 
     public static List<EventCallback> updateGroupContacts(
-        final Context context, final User user,
-        final ArrayList<GroupEditContact> editGroups, final String contactId) {
+        final Context context, RxBusDriver rxBus, final User user,
+        final ArrayList<GroupToggle> editGroups, final String contactId) {
         return Observable.just(editGroups)
             .map(userUpdateContacts(user, contactId))
-            .map(saveUserToDB(context))
+            .map(saveUserToDB(context, rxBus))
             .map(createGroupContactEvent(contactId))
             .toBlocking().single();
     }
 
     public static Func1<Pair<User, List<Group>>, Pair<User, List<Group>>> saveUserToDB(
-        final Context context) {
+        final Context context, final RxBusDriver rxBus) {
         return new Func1<Pair<User, List<Group>>, Pair<User, List<Group>>>() {
             @Override
             public Pair<User, List<Group>> call(Pair<User, List<Group>> userListPair) {
                 User newUser = userListPair.first;
                 String userId = newUser.id().value();
                 updateRealmUser(context, newUser);
-                getUserService().updateUser(userId, newUser).subscribe();
+                getUserService(context, rxBus).updateUser(userId, newUser).subscribe();
                 return userListPair;
             }
         };
     }
 
-    private static Func1<ArrayList<GroupEditContact>, Pair<User, List<Group>>> userUpdateContacts(
+    private static Func1<ArrayList<GroupToggle>, Pair<User, List<Group>>> userUpdateContacts(
         final User user, final String contactId) {
-        return new Func1<ArrayList<GroupEditContact>, Pair<User, List<Group>>>() {
+        return new Func1<ArrayList<GroupToggle>, Pair<User, List<Group>>>() {
             @Override
-            public Pair<User, List<Group>> call(ArrayList<GroupEditContact> groupEditContacts) {
+            public Pair<User, List<Group>> call(ArrayList<GroupToggle> groupToggles) {
                 boolean groupHasContact = false;
                 ArrayList<Group> contactInGroup = new ArrayList<>();
-                for (GroupEditContact groupEditContact : groupEditContacts) {
-                    String groupId = groupEditContact.getGroup().id().value();
-                    if (groupEditContact.isChecked()) {
+                for (GroupToggle groupToggle : groupToggles) {
+                    String groupId = groupToggle.getGroup().id().value();
+                    if (groupToggle.isChecked()) {
                         groupHasContact = true;
                         user.groups().get(groupId).contacts().put(contactId, Id.create(contactId));
                         contactInGroup.add(user.groups().get(groupId));
@@ -82,16 +83,15 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<Pair<User, List<Group>>, List<EventCallback>> createGroupContactEvent(
-        final String contactId) {
+    private static Func1<Pair<User, List<Group>>, List<EventCallback>>
+    createGroupContactEvent(final String contactId) {
         return new Func1<Pair<User, List<Group>>, List<EventCallback>>() {
             @Override
             public List<EventCallback> call(Pair<User, List<Group>> groups) {
-                ArrayList<EventCallback> events = new ArrayList<>(2);
-                events.add(new UserContactAddedEventCallback(groups.first, contactId));
-                events.add(
-                    new GroupContactsUpdatedEventCallback(groups.first, contactId, groups.second));
-                return events;
+                return new ArrayList<EventCallback>(
+                    asList(new UserContactAddedEventCallback(groups.first, contactId),
+                        new GroupContactsUpdatedEventCallback(
+                            groups.first, contactId, groups.second)));
             }
         };
     }

@@ -72,9 +72,9 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
      * @param groupLabel updated group name
      */
     private void saveGroupChannels(String groupLabel) {
-        getRxBus().post(new SaveGroupChannelsCommand(
+        getRxBus().post(new SaveGroupChannelsCommand(getRxBus(),
             getLoggedInUser(), groupLabel, getSelectedGroup(),
-            _adapter.getSelectedChannels()));
+            _adapter.getSelectedChannels(), getAddOrEdit()));
         getActivity().onBackPressed();
     }
 
@@ -111,7 +111,8 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     public void onItemClick(View view, int position) {
         int viewType = _adapter.getItemViewType(position);
         if (viewType == TYPE_LIST_DELETE) {
-            getRxBus().post(new DeleteUserGroupCommand(getLoggedInUser(), getSelectedGroup()));
+            getRxBus().post(new DeleteUserGroupCommand(getRxBus(),
+                getLoggedInUser(), getSelectedGroup()));
         }
     }
 

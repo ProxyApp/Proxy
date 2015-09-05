@@ -2,12 +2,15 @@ package com.shareyourproxy.api.rx.command;
 
 import android.app.Service;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxUserContactSync;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
+
+import static com.shareyourproxy.api.rx.RxUserContactSync.addUserContact;
 
 /**
  * Created by Evan on 6/8/15.
@@ -29,20 +32,21 @@ public class AddUserContactCommand extends BaseCommand {
     private final User user;
     private final String contactId;
 
-    public AddUserContactCommand(User user, String contactId) {
+    public AddUserContactCommand(
+        @NonNull RxBusDriver rxBus, User user, String contactId) {
         super(AddUserContactCommand.class.getPackage().getName(),
-            AddUserContactCommand.class.getName());
+            AddUserContactCommand.class.getName(), rxBus);
         this.user = user;
         this.contactId = contactId;
     }
 
     private AddUserContactCommand(Parcel in) {
-        this((User) in.readValue(CL), (String) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL), (String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserContactSync.addUserContact(service, user, contactId);
+        return addUserContact(service, rxBus, user, contactId);
     }
 
     @Override
@@ -52,6 +56,7 @@ public class AddUserContactCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(contactId);
     }

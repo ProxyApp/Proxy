@@ -6,13 +6,14 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxUserGroupSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
 
 /**
- * Created by Evan on 6/8/15.
+ * Delete a group associated with a User.
  */
 public class DeleteUserGroupCommand extends BaseCommand {
     public static final Creator<DeleteUserGroupCommand> CREATOR =
@@ -37,20 +38,21 @@ public class DeleteUserGroupCommand extends BaseCommand {
      * @param user  logged in user
      * @param group this events group
      */
-    public DeleteUserGroupCommand(@NonNull User user, @NonNull Group group) {
+    public DeleteUserGroupCommand(
+        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull Group group) {
         super(DeleteUserGroupCommand.class.getPackage().getName(),
-            DeleteUserGroupCommand.class.getName());
+            DeleteUserGroupCommand.class.getName(),rxBus);
         this.user = user;
         this.group = group;
     }
 
     private DeleteUserGroupCommand(Parcel in) {
-        this((User) in.readValue(CL), (Group) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL), (Group) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserGroupSync.deleteUserGroup(service, user, group);
+        return RxUserGroupSync.deleteUserGroup(service, rxBus, user, group);
     }
 
     @Override
@@ -60,6 +62,7 @@ public class DeleteUserGroupCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(group);
     }

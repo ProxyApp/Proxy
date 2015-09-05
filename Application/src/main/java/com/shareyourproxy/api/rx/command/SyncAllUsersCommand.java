@@ -3,7 +3,9 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxUserSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
@@ -31,19 +33,20 @@ public class SyncAllUsersCommand extends BaseCommand {
         SyncAllUsersCommand.class.getClassLoader();
     public final String userId;
 
-    public SyncAllUsersCommand(String userId) {
+    public SyncAllUsersCommand(
+        @NonNull RxBusDriver rxBus, String userId) {
         super(SyncAllUsersCommand.class.getPackage().getName(),
-            SyncAllUsersCommand.class.getName());
+            SyncAllUsersCommand.class.getName(), rxBus);
         this.userId = userId;
     }
 
     private SyncAllUsersCommand(Parcel in) {
-        this((String) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserSync.syncAllUsers(service, userId);
+        return RxUserSync.syncAllUsers(service, rxBus, userId);
     }
 
     @Override
@@ -53,6 +56,7 @@ public class SyncAllUsersCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(userId);
     }
 }

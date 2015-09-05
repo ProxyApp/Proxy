@@ -96,8 +96,8 @@ public class EditChannelDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getRxBus().post(
-                    new DeleteUserChannelCommand(getLoggedInUser(), _channel));
-                dismiss();
+                    new DeleteUserChannelCommand(getRxBus(), getLoggedInUser(), _channel));
+                dialogInterface.dismiss();
             }
         };
     private String _dialogTitle;
@@ -137,12 +137,14 @@ public class EditChannelDialog extends BaseDialogFragment {
             if (_channel.channelType().equals(ChannelType.Facebook)) {
                 channel = createModelInstance(_channel.id().value(), _channel.label(),
                     _channel.channelType(), actionContent);
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
+                    channel, _channel));
             } else {
                 channel =
                     createModelInstance(_channel.id().value(), labelContent, _channel.channelType(),
                         actionContent);
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
+                    channel, _channel));
             }
         }
     }

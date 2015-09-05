@@ -2,5 +2,6 @@
 <com.shareyourproxy.app.adapter.BaseRecyclerView
     android:id="@+id/dialog_user_groups_recyclerview"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/common_margin_xxtiny"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

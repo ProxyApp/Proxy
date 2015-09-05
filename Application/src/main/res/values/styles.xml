@@ -14,6 +14,8 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:colorEdgeEffect"
               tools:targetApi="lollipop">@color/common_proxy_zoidberg
@@ -32,6 +34,8 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -51,6 +55,8 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

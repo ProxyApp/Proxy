@@ -1,6 +1,7 @@
 package com.shareyourproxy.app.fragment;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -19,16 +20,21 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.UserAdapter;
 import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
+import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
+import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * Display the {@link User} contacts added to the selected {@link Group}.
@@ -40,6 +46,8 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_contact_group_empty_textview)
     protected TextView emptyTextView;
+    @BindString(R.string.fragment_contact_group_empty_text)
+    protected String emptyTextMessage;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
@@ -72,7 +80,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -142,13 +150,30 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
-        recyclerView.setEmptyView(emptyTextView);
+        initializeEmptyView();
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = UserAdapter.newInstance(this);
         _adapter.refreshUserList(queryUserContacts(
             getActivity(), getGroupArg().contacts()));
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
+    }
+
+    private void initializeEmptyView() {
+        emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
+            null, getFishDrawable(), null, null);
+        emptyTextView.setText(fromHtml(emptyTextMessage));
+        recyclerView.setEmptyView(emptyTextView);
+    }
+
+    /**
+     * Parse a svg and return a null screen sized {@link ContentDescriptionDrawable} .
+     *
+     * @return Drawable with a contentDescription
+     */
+    private Drawable getFishDrawable() {
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_fish,
+            getNullScreenIconDimen(getActivity()));
     }
 
     @Override

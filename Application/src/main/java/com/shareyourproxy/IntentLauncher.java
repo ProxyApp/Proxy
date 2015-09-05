@@ -36,6 +36,10 @@ public final class IntentLauncher {
     private IntentLauncher() {
     }
 
+    /**
+     * Launch an Apache II License
+     * @param activity context
+     */
     public static void launchAboutActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_VIEW_ABOUT);
         activity.startActivity(intent);
@@ -187,9 +191,15 @@ public final class IntentLauncher {
         }
     }
 
+    /**
+     * Add a new group or edit a selected group and it's channels.
+     *
+     * @param activity context
+     * @param group selected
+     * @param addOrEdit are we adding or editing the group
+     */
     public static void launchGroupEditChannelActivity(
-        Activity activity, Group group, int
-        addOrEdit) {
+        Activity activity, Group group, int addOrEdit) {
         Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
         intent.putExtra(ARG_SELECTED_GROUP, group);
         intent.putExtra(ARG_ADD_OR_EDIT, addOrEdit);
@@ -281,7 +291,7 @@ public final class IntentLauncher {
         Activity activity, int selectTab, boolean groupDeleted, Group group) {
         Intent intent = new Intent(Intents.ACTION_MAIN_VIEW).addFlags(Intent
             .FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(Constants.ARG_SELECTED_MAINFRAGMENT_TAB, selectTab);
+        intent.putExtra(Constants.ARG_MAINFRAGMENT_SELECTED_TAB, selectTab);
         intent.putExtra(Constants.ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, groupDeleted);
         intent.putExtra(Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP, group);
         activity.startActivity(intent);
@@ -352,32 +362,33 @@ public final class IntentLauncher {
      * Launch the {@link SearchActivity}.
      *
      * @param activity The context used to start this intent
-     * @param textView
-     * @param menu
+     * @param textView search textview to animate
+     * @param menu     hamburger icon to animate
      */
     public static void launchSearchActivity(
         Activity activity, @NonNull View container, @NonNull View textView, @NonNull View menu) {
         Intent intent = new Intent(Intents.ACTION_SEARCH_VIEW);
 
-        ActivityOptionsCompat options = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            View statusbar = activity.findViewById(android.R.id.statusBarBackground);
+            View actionbar = activity.findViewById(android.R.id.navigationBarBackground);
+
             Pair<View, String> pair1 = Pair.create(textView, textView.getTransitionName());
             Pair<View, String> pair2 = Pair.create(menu, menu.getTransitionName());
             Pair<View, String> pair3 = Pair.create(container, container.getTransitionName());
-            Pair<View, String> pair4 =
-                Pair.create(activity.findViewById(android.R.id.statusBarBackground),
-                Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
-            Pair<View, String> pair5 =
-                Pair.create(activity.findViewById(android.R.id.navigationBarBackground),
-                    Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME);
 
-            options = makeSceneTransitionAnimation(activity, pair1, pair2, pair3, pair4, pair5);
-        }
-        if (options != null) {
+            Pair<View, String> pair4 =
+                Pair.create(statusbar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
+            Pair<View, String> pair5 =
+                Pair.create(actionbar, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME);
+
+            ActivityOptionsCompat options = makeSceneTransitionAnimation(activity, pair1, pair2,
+                pair3, pair4, pair5);
             activity.startActivity(intent, options.toBundle());
         } else {
             activity.startActivity(intent);
         }
+
     }
 
     /**
@@ -469,7 +480,8 @@ public final class IntentLauncher {
             intent.setData(
                 Uri.parse(
                     "http://www.tumblr" +
-                        ".com/open/app?referrer=mobActivityCompat.postponeEnterTransition(this);ile_banner&app_args=blog%3FblogName%3D"
+                        ".com/open/app?referrer=mobActivityCompat.postponeEnterTransition(this);" +
+                        "ile_banner&app_args=blog%3FblogName%3D"
                         + userId + "%26page%3Dblog"));
         } catch (Exception e) {
             intent.setData(Uri.parse("http://" + userId + ".tumblr.com"));
@@ -516,13 +528,19 @@ public final class IntentLauncher {
         Activity activity, User user, String loggedInUserId, View profileImage, View userName) {
         Intent intent = getUserProfileIntent(user, loggedInUserId);
 
-        ActivityOptionsCompat options = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            View statusbar = activity.findViewById(android.R.id.statusBarBackground);
+            View actionbar = activity.findViewById(android.R.id.navigationBarBackground);
+
             Pair<View, String> pair1 = Pair.create(profileImage, profileImage.getTransitionName());
             Pair<View, String> pair2 = Pair.create(userName, userName.getTransitionName());
-            options = makeSceneTransitionAnimation(activity, pair1);
-        }
-        if (options != null) {
+            Pair<View, String> pair3 =
+                Pair.create(statusbar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
+            Pair<View, String> pair4 =
+                Pair.create(actionbar, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME);
+
+            ActivityOptionsCompat options = makeSceneTransitionAnimation(
+                activity, pair1, pair2, pair3, pair4);
             activity.startActivity(intent, options.toBundle());
         } else {
             activity.startActivity(intent);
@@ -559,6 +577,12 @@ public final class IntentLauncher {
         }
     }
 
+    /**
+     * Launch a general web link.
+     *
+     * @param activity context
+     * @param address  http address
+     */
     public static void launchWebIntent(Activity activity, String address) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http:" + address));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
