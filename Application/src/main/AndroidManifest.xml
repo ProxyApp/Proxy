@@ -102,6 +102,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".app.IntroductionActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.INTRODUCTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <service android:name=".api.NotificationService"
                  android:exported="false">
             <intent-filter>

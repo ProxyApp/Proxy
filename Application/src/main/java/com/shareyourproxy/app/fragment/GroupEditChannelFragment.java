@@ -131,9 +131,4 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
 }

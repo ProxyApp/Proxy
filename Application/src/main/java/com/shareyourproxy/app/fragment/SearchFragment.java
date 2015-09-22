@@ -168,12 +168,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
-    @Override
     public void onItemClick(View view, int position) {
         UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
         getRxBus().post(

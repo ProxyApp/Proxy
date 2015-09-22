@@ -111,12 +111,6 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
         _subscriptions = null;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     /**
      * User selected from this groups contacts. Open that Users profile.
      *

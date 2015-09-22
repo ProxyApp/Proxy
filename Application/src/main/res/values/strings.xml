@@ -73,6 +73,7 @@
     <string name="logout">Logout</string>
     <string name="report_problem">Report Issue</string>
     <string name="invite_friend">Invite Friend</string>
+    <string name="tour">Tour</string>
     <string name="activity_login_title">proxy</string>
     <string name="channel_view_item_content">%1$s\n%2$s - %3$s</string>
     <string name="channel_view_item_content_no_label">%1$s\n%2$s</string>
@@ -155,6 +156,7 @@
         <item>@string/profile</item>
         <item>@string/invite_friend</item>
         <item>@string/report_problem</item>
+        <item>@string/tour</item>
         <item>@string/logout</item>
     </string-array>
     <string-array name="default_groups">
@@ -175,4 +177,17 @@
     <string name="search_textview">search_textview</string>
     <string name="search_container">search_container</string>
     <string name="select_groups_for_channel">Select groups that can see this channel</string>
+    <string name="slide_one_title">Your whole story\n</string>
+    <string name="slide_one_body">Collect all your profiles in one place. Manage your digital
+        footprint easily.
+    </string>
+    <string name="slide_two_title">You control your privacy\n</string>
+    <string name="slide_two_body">Add people to groups to manage what they can see. Easily control
+        what you share publicly.
+    </string>
+    <string name="slide_three_title">Share your profile\n</string>
+    <string name="slide_three_body">
+        Get a URL for your profile and choose what it shows. Send it to friends or put it in your
+        email signature.
+    </string>
 </resources>

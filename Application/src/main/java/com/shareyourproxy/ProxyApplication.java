@@ -94,8 +94,8 @@ public class ProxyApplication extends Application {
 
     @Override
     public void onCreate() {
-        super.onCreate();
         initialize();
+        super.onCreate();
     }
 
     public void initialize() {

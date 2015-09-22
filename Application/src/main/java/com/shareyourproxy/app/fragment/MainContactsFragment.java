@@ -106,12 +106,6 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
             R.color.common_text, R.color.common_blue, R.color.common_green);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     /**
      * Initialize a recyclerView with User data.
      */

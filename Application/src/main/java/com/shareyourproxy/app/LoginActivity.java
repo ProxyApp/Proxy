@@ -5,9 +5,10 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
@@ -34,12 +35,15 @@ import com.shareyourproxy.app.fragment.MainFragment;
 import java.util.HashMap;
 
 import butterknife.Bind;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.BuildConfig.VERSION_CODE;
+import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
+import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.util.ViewUtils.dpToPx;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
@@ -52,9 +56,11 @@ public class LoginActivity extends GoogleApiActivity {
 
     // View
     @Bind(R.id.activity_login_title)
-    protected ImageView proxyLogo;
+    TextView proxyLogo;
     @Bind(R.id.activity_login_sign_in_button)
-    protected SignInButton signInButton;
+    SignInButton signInButton;
+    @BindDimen(R.dimen.common_rect_tiny)
+    int margin;
     // Transient
     private PendingIntent _signInIntent;
     private int _signInError;
@@ -95,10 +101,9 @@ public class LoginActivity extends GoogleApiActivity {
      * Set the Logo image.drawable on this activities {@link ImageView}.
      */
     private void drawLogo() {
-        ViewCompat.setLayerType(proxyLogo, ViewCompat.LAYER_TYPE_SOFTWARE, null);
-        ViewCompat.setElevation(proxyLogo, getElevation());
-        proxyLogo.setImageDrawable(svgToBitmapDrawable(this,
-            R.raw.ic_proxy_logo_typed, (int) getResourceDimension(this)));
+        Drawable draw = svgToBitmapDrawable(this,
+            R.raw.ic_proxy_logo_typed, (int) getResourceDimension(this));
+        proxyLogo.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null);
     }
 
     /**
@@ -109,15 +114,6 @@ public class LoginActivity extends GoogleApiActivity {
      */
     private float getResourceDimension(Activity activity) {
         return dpToPx(activity.getResources(), R.dimen.common_svg_ultra_minor);
-    }
-
-    /**
-     * Get the elevation resource for FAB.
-     *
-     * @return diemnsion of elevation
-     */
-    private float getElevation() {
-        return dpToPx(getResources(), R.dimen.common_fab_elevation);
     }
 
     @Override
@@ -148,8 +144,11 @@ public class LoginActivity extends GoogleApiActivity {
     }
 
     public void login() {
-        launchMainActivity(LoginActivity.this,
-            MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+        if (!getSharedPreferences().contains(KEY_PLAYED_INTRODUCTION)) {
+            launchIntroductionActivity(this);
+        } else {
+            launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+        }
         finish();
     }
 

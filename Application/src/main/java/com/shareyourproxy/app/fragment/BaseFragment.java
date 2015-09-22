@@ -15,6 +15,8 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
 
+import butterknife.ButterKnife;
+
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
@@ -99,4 +101,9 @@ public abstract class BaseFragment extends Fragment {
         Snackbar.make(coordinatorLayout, getString(R.string.changes_saved), Snackbar.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
 }

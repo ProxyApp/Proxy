@@ -260,12 +260,6 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         _callbackManager.onActivityResult(requestCode, resultCode, data);

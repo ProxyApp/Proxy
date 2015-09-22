@@ -232,13 +232,25 @@ public final class IntentLauncher {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setType("text/plain");
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+        intent.putExtra(Intent.EXTRA_SUBJECT,
             activity.getString(R.string.share_your_proxy));
         intent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.invite_friend_content));
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(Intent.createChooser(intent,
                 activity.getString(R.string.share_with)));
         }
+    }
+
+    /**
+     * Launch the {@link com.shareyourproxy.app.IntroductionActivity}.
+     *
+     * @param activity The context used to start this intent
+     */
+    public static void launchIntroductionActivity(Activity activity) {
+        Intent intent = new Intent(Intents.ACTION_INTRODUCTION).addFlags(Intent
+            .FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**

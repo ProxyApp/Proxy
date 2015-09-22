@@ -39,9 +39,4 @@ public class AboutFragment extends BaseFragment {
         return rootView;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
 }
