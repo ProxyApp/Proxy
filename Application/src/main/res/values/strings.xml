@@ -85,7 +85,8 @@
     <string name="group_removed">Group Removed</string>
     <string name="share_your_proxy">Share Your Proxy</string>
     <string name="invite_friend_content">Join me on Proxy. Share all of your social profiles from
-        one place. www.shareyourproxy.com</string>
+        one place. www.shareyourproxy.com
+    </string>
     <string name="action_menu_back_from_search">back from search</string>
     <string name="login_error_failed_connection">Failed to create a connection.</string>
     <string name="login_error_retrieving_user">Error retrieving user from Google</string>
@@ -99,6 +100,9 @@
     <string name="closed">closed</string>
     <string name="undo">undo</string>
     <string name="undo_delete">Undo Delete</string>
+    <string name="channel_added">Channel added</string>
+    <string name="group_added">Group added</string>
+    <string name="changes_saved">Changes saved</string>
     <string name="ok">OK</string>
     <string name="save">save</string>
     <string name="close">close</string>
@@ -128,29 +132,25 @@
     <string name="coworkers">Coworkers</string>
     <string name="rx_eventbus_error">Error processing event data</string>
     <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
-    <string name="shared_preferences_key">com.shareyourproxy.application.shared_preferences_key
-    </string>
     <string name="oauth_error">Error retrieving token from Google OAuth</string>
     <string name="shared_links">Shared links</string>
     <string name="about_license">Copyright 2015 Evan Denerley\n\nLicensed under the Apache License,
-        Version 2.0 (the "License") you may not use this file except in compliance with the License.
+        Version 2.0 (the “License”) you may not use this file except in compliance with the License.
         You may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n
         \nUnless required by applicable law or agreed to in writing, software distributed under the
-        License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+        License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
         either express or implied. See the License for the specific language governing permissions
         and limitations under the License.
     </string>
-    <string name="no_information_to_share">%1$s isn\'t sharing any content with you yet.</string>
-    <string name="no_information_added">You haven\'t added any channels.</string>
-    <string name="added_to_contacts">"%1$s added you to their contacts."</string>
+    <string name="added_to_contacts">%1$s added you to their contacts.</string>
     <string name="common_help">Help</string>
-    <string name="save_realm_db">"Save Realm DB"</string>
-    <string name="share">"Share"</string>
-    <string name="dialog_sharelink_title">"Share group links"</string>
-    <string name="sharelink_message_beginning">"%1$s would like to share the following group
-        channels with you:\n\n"
+    <string name="save_realm_db">Save Realm DB</string>
+    <string name="share">Share</string>
+    <string name="dialog_sharelink_title">Share group links</string>
+    <string name="sharelink_message_beginning">“%1$s would like to share the following group
+        channels with you:\n\n”
     </string>
-    <string name="sharelink_message_link">"https://app.shareyourproxy.com/#/public/%1$s"</string>
+    <string name="sharelink_message_link">https://app.shareyourproxy.com/#/public/%1$s</string>
     <string-array name="drawer_settings">
         <item>@string/profile</item>
         <item>@string/invite_friend</item>
@@ -162,12 +162,17 @@
         <item>@string/friends</item>
         <item>@string/coworkers</item>
     </string-array>
-    <string name="fragment_search_empty_text">"No search results."</string>
-    <string name="fragment_contact_main_empty_text">"You haven't added any contacts."</string>
-    <string name="fragment_group_main_empty_text">"You haven't added any groups."</string>
-    <string name="fragment_contact_group_empty_text">"You haven't added anyone to this group."
-    </string>
-    <string name="hamburger">"Hamburger"</string>
-    <string name="search_textview">"search_textview"</string>
-    <string name="search_container">"search_container"</string>
+    <string name="fragment_search_empty_text">No search results.</string>
+    <string name="fragment_contact_main_empty_text"><![CDATA[<b>No contacts</b><br>
+        Tap search to find people!]]></string>
+    <string name="fragment_contact_group_empty_text"><![CDATA[<b>Empty group</b><br>
+        You haven\'t added anyone to this group.]]></string>
+    <string name="fragment_userprofile_contact_empty_text"><![CDATA[<b>Nothing to show</b><br>
+    %1$s isn\'t sharing anything with you.]]></string>
+    <string name="fragment_userprofile_user_empty_text"><![CDATA[<b>Empty profile</b><br>
+    Tap <b>+</b> to add your social channels.]]></string>
+    <string name="hamburger">Hamburger</string>
+    <string name="search_textview">search_textview</string>
+    <string name="search_container">search_container</string>
+    <string name="select_groups_for_channel">Select groups that can see this channel</string>
 </resources>

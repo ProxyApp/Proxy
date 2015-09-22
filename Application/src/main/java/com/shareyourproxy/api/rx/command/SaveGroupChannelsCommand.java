@@ -3,18 +3,21 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxGroupChannelSync;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.HashMap;
 import java.util.List;
 
+import static com.shareyourproxy.api.rx.RxGroupChannelSync.updateGroupChannels;
+
 /**
- * Created by Evan on 6/11/15.
+ * Save channels associated with a group.
  */
 public class SaveGroupChannelsCommand extends BaseCommand {
     public static final Parcelable.Creator<SaveGroupChannelsCommand> CREATOR =
@@ -36,27 +39,32 @@ public class SaveGroupChannelsCommand extends BaseCommand {
     public final String newTitle;
     public final Group group;
     public final HashMap<String, Id> channels;
+    private final int addOrEdit;
 
 
     public SaveGroupChannelsCommand(
-        User user, String newTitle, Group group, HashMap<String, Id> channels) {
+        @NonNull RxBusDriver rxBus, User user, String newTitle, Group group,
+        HashMap<String, Id> channels, int addOrEdit) {
         super(SaveGroupChannelsCommand.class.getPackage().getName(),
-            SaveGroupChannelsCommand.class.getName());
+            SaveGroupChannelsCommand.class.getName(),rxBus);
         this.user = user;
         this.newTitle = newTitle;
         this.group = group;
         this.channels = channels;
+        this.addOrEdit = addOrEdit;
     }
 
     private SaveGroupChannelsCommand(Parcel in) {
-        this((User) in.readValue(CL), (String) in.readValue(CL),
-            (Group) in.readValue(CL), (HashMap<String, Id>) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL),
+            (User) in.readValue(CL), (String) in.readValue(CL),
+            (Group) in.readValue(CL), (HashMap<String, Id>) in.readValue(CL),
+            (int) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxGroupChannelSync
-            .updateGroupChannels(service, user, newTitle, group, channels);
+        return updateGroupChannels(service, rxBus, user, newTitle,
+                group, channels, addOrEdit);
     }
 
     @Override
@@ -66,10 +74,12 @@ public class SaveGroupChannelsCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest,flags);
         dest.writeValue(user);
         dest.writeValue(newTitle);
         dest.writeValue(group);
         dest.writeValue(channels);
+        dest.writeValue(addOrEdit);
     }
 
 }

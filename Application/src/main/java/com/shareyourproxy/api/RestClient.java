@@ -1,16 +1,19 @@
 package com.shareyourproxy.api;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.shareyourproxy.BuildConfig;
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.AutoGson;
 import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
-import com.shareyourproxy.api.service.GroupContactService;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.service.InstagramAuthService;
-import com.shareyourproxy.api.service.InstagramUserService;
 import com.shareyourproxy.api.service.MessageService;
 import com.shareyourproxy.api.service.SharedLinkService;
 import com.shareyourproxy.api.service.SpotifyAuthService;
@@ -48,85 +51,97 @@ public class RestClient {
      *
      * @return userService
      */
-    public static UserService getUserService() {
-        return buildRestClient(
-            buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
+    public static UserService getUserService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context,
+            rxBus, buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
                 UserTypeAdapter.newInstance()))
             .create(UserService.class);
     }
 
-    public static UserGroupService getUserGroupService() {
-        return buildRestClient(buildGsonConverter()).create(UserGroupService.class);
+    public static UserGroupService getUserGroupService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context, rxBus, buildGsonConverter())
+            .create(UserGroupService.class);
     }
 
-    public static UserChannelService getUserChannelService() {
-        return buildRestClient(buildGsonConverter()).create(UserChannelService.class);
+    public static UserChannelService getUserChannelService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context, rxBus, buildGsonConverter())
+            .create(UserChannelService.class);
     }
 
-    public static UserContactService getUserContactService() {
-        return buildRestClient(buildGsonConverter()).create(UserContactService.class);
+    public static UserContactService getUserContactService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context, rxBus, buildGsonConverter())
+            .create(UserContactService.class);
     }
 
-    public static GroupContactService getGroupContactService() {
-        return buildRestClient(buildGsonConverter()).create(GroupContactService.class);
+    public static MessageService getMessageService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context, rxBus, buildGsonConverter())
+            .create(MessageService.class);
     }
 
-    public static MessageService getMessageService() {
-        return buildRestClient(buildGsonConverter()).create(MessageService.class);
+    public static SharedLinkService getSharedLinkService(Context context, RxBusDriver rxBus) {
+        return buildRestClient(context, rxBus, buildGsonConverter())
+            .create(SharedLinkService.class);
     }
 
-    public static SharedLinkService getSharedLinkService() {
-        return buildRestClient(buildGsonConverter()).create(SharedLinkService.class);
+    public static InstagramAuthService getInstagramAuthService(Context context, RxBusDriver rxBus) {
+        return buildInstagramAuthClient(context, rxBus, buildGsonConverter())
+            .create(InstagramAuthService.class);
     }
 
-    public static InstagramAuthService getInstagramAuthService() {
-        return buildInstagramAuthClient(buildGsonConverter()).create(InstagramAuthService.class);
+    public static SpotifyUserService getSpotifyUserService(Context context, RxBusDriver rxBus) {
+        return buildSpotifyUserClient(context, rxBus, buildGsonConverter())
+            .create(SpotifyUserService.class);
     }
 
-    public static SpotifyUserService getSpotifyUserService() {
-        return buildSpotifyUserClient(buildGsonConverter()).create(SpotifyUserService.class);
+    public static SpotifyAuthService getSpotifyAuthService(Context context, RxBusDriver rxBus) {
+        return buildSpotifyAuthClient(context, rxBus, buildGsonConverter())
+            .create(SpotifyAuthService.class);
     }
 
-    public static SpotifyAuthService getSpotifyAuthService() {
-        return buildSpotifyAuthClient(buildGsonConverter()).create(SpotifyAuthService.class);
-    }
-
-    public static InstagramUserService getInstagramUserService() {
-        return buildRestClient(buildGsonConverter()).create(InstagramUserService.class);
-    }
-
-    public static RestAdapter buildRestClient(Gson gson) {
-
+    public static RestAdapter buildRestClient(
+        Context context, RxBusDriver rxBus, Gson gson) {
+        SharedPreferences sharedPrefs =
+            context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient()))
+            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
             .setEndpoint(BuildConfig.FIREBASE_ENDPOINT)
             .setConverter(new GsonConverter(gson))
+            .setRequestInterceptor(new FirebaseInterceptor(sharedPrefs))
             .build();
     }
 
-    public static RestAdapter buildInstagramAuthClient(Gson gson) {
+    public static RestAdapter buildInstagramAuthClient(Context context, RxBusDriver rxBus, Gson
+        gson) {
+        SharedPreferences sharedPrefs =
+            context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient()))
+            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
             .setEndpoint(INSTAGRAM_AUTH_URL)
             .setConverter(new GsonConverter(gson))
             .build();
     }
 
-    public static RestAdapter buildSpotifyUserClient(Gson gson) {
+    public static RestAdapter buildSpotifyUserClient(Context context, RxBusDriver rxBus, Gson
+        gson) {
+        SharedPreferences sharedPrefs =
+            context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient()))
+            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
             .setEndpoint(SPOTIFY_URL)
             .setConverter(new GsonConverter(gson))
             .build();
     }
 
-    public static RestAdapter buildSpotifyAuthClient(Gson gson) {
+    public static RestAdapter buildSpotifyAuthClient(Context context, RxBusDriver rxBus, Gson
+        gson) {
+        SharedPreferences sharedPrefs =
+            context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         return new RestAdapter.Builder()
             .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient()))
+            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
             .setEndpoint(SPOTIFY_AUTH_URL)
             .setConverter(new GsonConverter(gson))
             .build();
@@ -145,10 +160,11 @@ public class RestClient {
             .create();
     }
 
-    public static OkHttpClient getClient() {
+    public static OkHttpClient getClient(RxBusDriver rxBus, SharedPreferences sharedPrefs) {
         OkHttpClient client = new OkHttpClient();
-        client.setConnectTimeout(30, TimeUnit.SECONDS);
-        client.setReadTimeout(30, TimeUnit.SECONDS);
+        client.setConnectTimeout(10, TimeUnit.SECONDS);
+        client.setReadTimeout(10, TimeUnit.SECONDS);
+        client.setAuthenticator(new FirebaseAuthenticator(rxBus, sharedPrefs));
         return client;
     }
 }

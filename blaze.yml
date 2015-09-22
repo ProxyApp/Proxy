@@ -1,0 +1,25 @@
+functions:            #reusable boolean functions
+  - isLoggedIn():      auth.uid !== null
+  - isSameUser(id):    auth.uid === id
+  - createOnly():      next.exists() && !prev.exists()
+  - deleteOnly():      prev.exists() && !next.exists()
+  - createOrDelete():  createOnly() || deleteOnly()
+
+schema: {}
+
+access:
+  - location: /shared
+    read:  true
+    write: createOnly()
+
+  - location: /messages
+    read:  true
+    write: createOnly()
+
+  - location: /channels
+    read:  true
+    write: createOnly()
+
+  - location: /users/$id
+    read:     isLoggedIn()
+    write:    createOnly() && isSameUser($id)

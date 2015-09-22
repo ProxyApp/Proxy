@@ -163,7 +163,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
 
                 Channel channel = createModelInstance(
                     id, "", _clickedChannel.channelType(), handle);
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
             }
 
             @Override

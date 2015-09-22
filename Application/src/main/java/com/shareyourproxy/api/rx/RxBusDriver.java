@@ -1,5 +1,8 @@
 package com.shareyourproxy.api.rx;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.shareyourproxy.ProxyApplication;
 
 import rx.Observable;
@@ -13,9 +16,20 @@ import timber.log.Timber;
  * to easily send messages over this {@link PublishSubject} Bus.
  */
 @SuppressWarnings("unused")
-public class RxBusDriver {
+public class RxBusDriver implements Parcelable {
     private static final RxBusDriver DEFAULT_INSTANCE = new RxBusDriver();
-    private final Subject<Object, Object> _rxBus =
+    public static final Creator<RxBusDriver> CREATOR = new Creator<RxBusDriver>() {
+        @Override
+        public RxBusDriver createFromParcel(Parcel in) {
+            return DEFAULT_INSTANCE;
+        }
+
+        @Override
+        public RxBusDriver[] newArray(int size) {
+            return new RxBusDriver[size];
+        }
+    };
+    private static Subject<Object, Object> _rxBus =
         new SerializedSubject<>(PublishSubject.create());
 
     /**
@@ -28,8 +42,8 @@ public class RxBusDriver {
         return DEFAULT_INSTANCE;
     }
 
-    public Observable<Object> toObserverable() {
-        return _rxBus.compose(RxHelper.applySchedulers());
+    public Observable<Object> toObservable() {
+        return _rxBus.onBackpressureLatest().compose(RxHelper.applySchedulers());
     }
 
     /**
@@ -38,8 +52,17 @@ public class RxBusDriver {
      * @param event event object.
      */
     public void post(Object event) {
-        Timber.v("Event Posted: " + event.toString());
+        Timber.i("Event Posted: " + event.toString());
         _rxBus.onNext(event);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+    }
 }

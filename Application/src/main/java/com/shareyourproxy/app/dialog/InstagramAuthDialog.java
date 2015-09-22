@@ -81,7 +81,7 @@ public class InstagramAuthDialog extends BaseDialogFragment {
                     final String[] parts1 = fragment.split("code=");
                     final String accessToken = parts1[1];
 
-                    RestClient.getInstagramAuthService()
+                    RestClient.getInstagramAuthService(getActivity(), getRxBus())
                         .getAuth(INSTAGRAM_APP_ID, INSTAGRAM_APP_SECRET,
                             "authorization_code", WEBVIEW_REDIRECT, accessToken)
                         .subscribe(authObserver());
@@ -110,20 +110,19 @@ public class InstagramAuthDialog extends BaseDialogFragment {
 
     public JustObserver<InstagramAuthResponse> authObserver() {
         return new JustObserver<InstagramAuthResponse>() {
-
             @Override
-            public void onError() {
-
-            }
-
-            @Override
-            public void onNext(InstagramAuthResponse event) {
+            public void success(InstagramAuthResponse event) {
                 Timber.i(event.toString());
                 InstagramUser user = event.user();
                 Channel channel = ChannelFactory.createModelInstance(user.id(), "",
                     ChannelType.Instagram, user.username());
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
                 getDialog().dismiss();
+            }
+
+            @Override
+            public void error(Throwable e) {
+
             }
         };
     }

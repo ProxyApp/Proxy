@@ -43,7 +43,6 @@ public class ViewUtils {
      * Private Constructor
      */
     private ViewUtils() {
-
     }
 
     /**
@@ -93,6 +92,18 @@ public class ViewUtils {
     public static int getLargeIconDimen(Context context) {
         Resources res = context.getResources();
         return (int) (res.getDimension(R.dimen.common_svg_large)
+            / res.getDisplayMetrics().density);
+    }
+
+    /**
+     * Get the dimensions of a 48x48px.
+     *
+     * @param context this activities resources
+     * @return dimension
+     */
+    public static int getNullScreenIconDimen(Context context) {
+        Resources res = context.getResources();
+        return (int) (res.getDimension(R.dimen.common_svg_null_screen)
             / res.getDisplayMetrics().density);
     }
 
@@ -150,7 +161,9 @@ public class ViewUtils {
             source.recycle();
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+        Bitmap.Config config = source.getConfig() != null ?
+            source.getConfig() : Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = Bitmap.createBitmap(size, size, config);
 
         Canvas canvas = new Canvas(bitmap);
         //Set a BitmapShader as the paint for the source bitmap to draw itself as a circle.
@@ -229,18 +242,6 @@ public class ViewUtils {
     }
 
     /**
-     * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.
-     *
-     * @param context    for resources
-     * @param resourceId resource ID of the SVG
-     * @param size       desired size of the icon
-     * @return parsed image.drawable
-     */
-    public static Drawable svgToBitmapDrawable(Context context, int resourceId, int size) {
-        return svgToBitmapDrawable(context, resourceId, size, null);
-    }
-
-    /**
      * Use the DrawablCompat lib to tin a source image.drawable.
      *
      * @param source image.drawable to tint
@@ -252,6 +253,18 @@ public class ViewUtils {
         DrawableCompat.setTint(drawable, color);
         DrawableCompat.setTintMode(drawable, SRC_IN);
         return DrawableCompat.unwrap(drawable);
+    }
+
+    /**
+     * Parse a SVG and return it as a {@link ContentDescriptionDrawable}.
+     *
+     * @param context    for resources
+     * @param resourceId resource ID of the SVG
+     * @param size       desired size of the icon
+     * @return parsed image.drawable
+     */
+    public static Drawable svgToBitmapDrawable(Context context, int resourceId, int size) {
+        return svgToBitmapDrawable(context, resourceId, size, null);
     }
 
     /**

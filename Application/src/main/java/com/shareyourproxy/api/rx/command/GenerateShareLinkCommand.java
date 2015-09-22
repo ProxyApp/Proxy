@@ -2,17 +2,19 @@ package com.shareyourproxy.api.rx.command;
 
 import android.app.Service;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 
-import com.shareyourproxy.api.domain.model.GroupEditContact;
-import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxShareLink;
+import com.shareyourproxy.api.domain.model.GroupToggle;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.shareyourproxy.api.rx.RxShareLink.getShareLinkMessageObservable;
+
 /**
- * Created by Evan on 7/27/15.
+ * Generate public link urls.
  */
 public class GenerateShareLinkCommand extends BaseCommand {
     public static final Creator<GenerateShareLinkCommand> CREATOR =
@@ -30,23 +32,22 @@ public class GenerateShareLinkCommand extends BaseCommand {
     private final static java.lang.ClassLoader CL =
         GenerateShareLinkCommand.class.getClassLoader();
 
-    public final ArrayList<GroupEditContact> groups;
-    public final User user;
+    public final ArrayList<GroupToggle> groups;
 
-    public GenerateShareLinkCommand(User user, ArrayList<GroupEditContact> groups) {
+    public GenerateShareLinkCommand(
+        @NonNull RxBusDriver rxBus, ArrayList<GroupToggle> groups) {
         super(GenerateShareLinkCommand.class.getPackage().getName(),
-            GenerateShareLinkCommand.class.getName());
-        this.user = user;
+            GenerateShareLinkCommand.class.getName(), rxBus);
         this.groups = groups;
     }
 
     private GenerateShareLinkCommand(Parcel in) {
-        this((User) in.readValue(CL), (ArrayList<GroupEditContact>) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (ArrayList<GroupToggle>) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxShareLink.getShareLinkMessageObservable(service, user, groups);
+        return getShareLinkMessageObservable(service, rxBus, groups);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class GenerateShareLinkCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(user);
+        super.writeToParcel(dest, flags);
         dest.writeValue(groups);
     }
 

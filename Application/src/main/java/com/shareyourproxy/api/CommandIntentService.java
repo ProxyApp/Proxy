@@ -13,7 +13,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
 
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 /**
@@ -36,7 +35,6 @@ public class CommandIntentService extends IntentService {
     }
 
     @Override
-    @DebugLog
     protected void onHandleIntent(Intent intent) {
         BaseCommand command = intent.getExtras().getParcelable(ARG_COMMAND_CLASS);
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
@@ -51,7 +49,6 @@ public class CommandIntentService extends IntentService {
         }
     }
 
-    @DebugLog
     private void logError(Intent intent, ResultReceiver result, Exception e) {
         Timber.e(Log.getStackTraceString(e));
         result.send(Activity.RESULT_CANCELED, intent.getExtras());

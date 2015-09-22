@@ -6,10 +6,12 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxUserSync;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
+
+import static com.shareyourproxy.api.rx.RxUserSync.saveUser;
 
 /**
  * Created by Evan on 6/9/15.
@@ -31,19 +33,20 @@ public class AddUserCommand extends BaseCommand {
     private final static java.lang.ClassLoader CL = AddUserCommand.class.getClassLoader();
     public final User user;
 
-    public AddUserCommand(@NonNull User user) {
+    public AddUserCommand(
+        @NonNull RxBusDriver rxBus, @NonNull User user) {
         super(AddUserCommand.class.getPackage().getName(),
-            AddUserCommand.class.getName());
+            AddUserCommand.class.getName(), rxBus);
         this.user = user;
     }
 
     private AddUserCommand(Parcel in) {
-        this((User) in.readValue(CL));
+        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserSync.saveUser(service, user);
+        return saveUser(service, rxBus, user);
     }
 
     @Override
@@ -53,6 +56,7 @@ public class AddUserCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(user);
     }
 

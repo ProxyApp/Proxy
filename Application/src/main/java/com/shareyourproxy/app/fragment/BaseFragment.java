@@ -2,6 +2,7 @@ package com.shareyourproxy.app.fragment;
 
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.shareyourproxy.ProxyApplication;
+import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
@@ -88,6 +90,13 @@ public abstract class BaseFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
             }
         };
+    }
+
+    /**
+     * Display a snack bar notifying the user that they've updated their information.
+     */
+    public void showChangesSavedSnackBar(View coordinatorLayout) {
+        Snackbar.make(coordinatorLayout, getString(R.string.changes_saved), Snackbar.LENGTH_LONG).show();
     }
 
 }

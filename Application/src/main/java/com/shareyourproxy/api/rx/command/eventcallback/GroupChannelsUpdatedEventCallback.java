@@ -14,12 +14,14 @@ import java.util.HashMap;
 public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
     public final Group group;
     public final HashMap<String, Id> channels;
+    public final int addOrEdit;
 
     public GroupChannelsUpdatedEventCallback(
-        User user, Group group, HashMap<String, Id> channels) {
+        User user, Group group, HashMap<String, Id> channels, int addOrEdit) {
         super(user);
         this.group = group;
         this.channels = channels;
+        this.addOrEdit = addOrEdit;
     }
 
     @Override
@@ -31,5 +33,6 @@ public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(group);
         dest.writeValue(channels);
+        dest.writeValue(addOrEdit);
     }
 }

@@ -1,6 +1,7 @@
 package com.shareyourproxy.app.fragment;
 
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,15 +23,21 @@ import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserAdapter;
 import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import butterknife.Bind;
+import butterknife.BindDimen;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
+import static android.text.Html.fromHtml;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
+import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
  * A recyclerView of Favorite {@link User}s.
@@ -42,6 +49,11 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     protected SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.fragment_contact_main_empty_textview)
     protected TextView emptyTextView;
+    @BindDimen(R.dimen.common_margin_medium)
+    protected int catPadding;
+    @BindString(R.string.fragment_contact_main_empty_text)
+    protected String nullMessage;
+
     OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override
         public void onRefresh() {
@@ -50,7 +62,8 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                 public void run() {
                     User user = getLoggedInUser();
                     if (user != null) {
-                        getRxBus().post(new SyncAllUsersCommand(getLoggedInUser().id().value()));
+                        getRxBus().post(new SyncAllUsersCommand(
+                            getRxBus(), getLoggedInUser().id().value()));
                     }
                 }
             });
@@ -103,8 +116,8 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
+        initializeEmptyView();
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setEmptyView(emptyTextView);
         recyclerView.hideRecyclerView(false);
         _adapter = UserAdapter.newInstance(this);
         recyclerView.setAdapter(_adapter);
@@ -112,11 +125,30 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    private void initializeEmptyView() {
+        Drawable draw = getCatDrawable();
+        draw.setBounds(-catPadding, 0, draw.getIntrinsicWidth(), draw.getIntrinsicHeight());
+        emptyTextView.setPadding(catPadding, 0, catPadding, 0);
+        emptyTextView.setCompoundDrawables(null, draw, null, null);
+        emptyTextView.setText(fromHtml(nullMessage));
+        recyclerView.setEmptyView(emptyTextView);
+    }
+
+    /**
+     * Parse a svg and return a null screen sized {@link ContentDescriptionDrawable} .
+     *
+     * @return Drawable with a contentDescription
+     */
+    private Drawable getCatDrawable() {
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_cat,
+            getNullScreenIconDimen(getActivity()));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
@@ -138,11 +170,12 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
 
     /**
      * Refresh user data.
+     *
      * @param user contacts to refresh
      */
     public void refreshUserData(@NonNull User user) {
-            _adapter.refreshUserList(
-                queryUserContacts(getActivity(), user.contacts()));
+        _adapter.refreshUserList(
+            queryUserContacts(getActivity(), user.contacts()));
     }
 
     @Override
@@ -160,10 +193,10 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
 
     @Override
     public void onItemClick(View view, int position) {
-       UserViewHolder  holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
+        UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
         getRxBus().post(
             new UserSelectedEvent(
-                holder.userImage,holder.userName, _adapter.getItemData(position)));
+                holder.userImage, holder.userName, _adapter.getItemData(position)));
     }
 
     /**

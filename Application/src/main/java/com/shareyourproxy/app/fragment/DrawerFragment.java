@@ -67,7 +67,7 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {

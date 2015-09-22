@@ -17,12 +17,12 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
 import com.facebook.FacebookSdk;
 import com.firebase.client.Firebase;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
-import com.shareyourproxy.api.aidl.INotificationService;
 import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
@@ -52,17 +52,19 @@ import rx.Subscription;
 import rx.functions.Action1;
 import timber.log.Timber;
 
+import static com.shareyourproxy.Constants.MASTER_KEY;
 import static com.shareyourproxy.api.CommandIntentService.ARG_COMMAND_CLASS;
 import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 import static com.shareyourproxy.api.rx.RxQuery.queryUser;
+import static com.shareyourproxy.api.rx.SaveFabricAnalytics.logAnalytics;
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 public class ProxyApplication extends Application {
 
+    private final RxBusDriver _bus = RxBusDriver.getInstance();
     private User _currentUser;
-    private RxBusDriver _bus = RxBusDriver.getInstance();
     private SharedPreferences _sharedPreferences;
     private INotificationService _notificationService;
     private Subscription _notificationSubscription;
@@ -97,23 +99,25 @@ public class ProxyApplication extends Application {
     }
 
     public void initialize() {
-        initializeBuildConfig();
-        _sharedPreferences = getSharedPreferences(
-            getString(R.string.shared_preferences_key), Context.MODE_PRIVATE);
-
         Firebase.setAndroidContext(this);
         FacebookSdk.sdkInitialize(this);
         MultiDex.install(this);
 
-        _bus.toObserverable().subscribe(getRequest());
+        _bus.toObservable().subscribe(getRequest(this));
+        _sharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE);
 
+        initializeBuildConfig();
+
+        initializeRealm();
+        initializeNotificationService();
+    }
+
+    public void initializeRealm() {
         RealmConfiguration config = new RealmConfiguration.Builder(this)
             .deleteRealmIfMigrationNeeded()
             .schemaVersion(BuildConfig.VERSION_CODE)
             .build();
         Realm.setDefaultConfiguration(config);
-
-        initializeNotificationService();
     }
 
     public void initializeBuildConfig() {
@@ -130,9 +134,9 @@ public class ProxyApplication extends Application {
         TwitterAuthConfig authConfig =
             new TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET);
         if (BuildConfig.USE_CRASHLYTICS) {
-            Fabric.with(this, new Twitter(authConfig), new Crashlytics());
+            Fabric.with(this, new Twitter(authConfig), new Crashlytics(), new Answers());
         } else {
-            Fabric.with(this, new Twitter(authConfig));
+            Fabric.with(this, new Twitter(authConfig), new Answers());
         }
     }
 
@@ -151,32 +155,34 @@ public class ProxyApplication extends Application {
     public JustObserver<Long> intervalObserver(final INotificationService _notificationService) {
         return new JustObserver<Long>() {
             @Override
-            public void onError() {
-                Timber.e("Notification Observable Error");
-            }
-
-            @Override
-            public void onNext(Long timesCalled) {
+            public void success(Long timesCalled) {
                 Timber.i("Checking for notifications, attempt:" + timesCalled.intValue());
                 if (_currentUser != null) {
                     try {
                         List<Notification> notifications =
-                            _notificationService.getNotifications(_currentUser.id().value());
+                            _notificationService.getNotifications(getRxBus(), _currentUser.id()
+                                .value());
                         if (notifications != null && notifications.size() > 0) {
                             for (Notification notification : notifications) {
                                 _notificationManager.notify(notification.hashCode(), notification);
                             }
-                            deleteAllFirebaseMessages(_currentUser).subscribe();
+                            deleteAllFirebaseMessages(ProxyApplication.this, getRxBus(),
+                                _currentUser).subscribe();
                         }
                     } catch (RemoteException e) {
                         Timber.e(Log.getStackTraceString(e));
                     }
                 }
             }
+
+            @Override
+            public void error(Throwable e) {
+                Timber.e("Notification Observable Error");
+            }
         };
     }
 
-    public Action1<Object> getRequest() {
+    public Action1<Object> getRequest(final Context context) {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
@@ -190,9 +196,9 @@ public class ProxyApplication extends Application {
     }
 
     private void userContactAddedEvent(UserContactAddedEventCallback event) {
-        baseCommandEvent(new AddUserMessageCommand(event.contactId,
-            Message.create(UUID.randomUUID().toString(), event.user.id().value(),
-                event.user.first(), event.user.last())));
+        baseCommandEvent(new AddUserMessageCommand(getRxBus(),
+            event.contactId, Message.create(UUID.randomUUID().toString(), event.user.id().value(),
+            event.user.first(), event.user.last())));
     }
 
     private void baseCommandEvent(BaseCommand event) {
@@ -202,30 +208,43 @@ public class ProxyApplication extends Application {
         intent.putExtra(
             CommandIntentService.ARG_RESULT_RECEIVER, new ResultReceiver(null) {
                 @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                protected void onReceiveResult(int resultCode, final Bundle resultData) {
                     if (resultCode == Activity.RESULT_OK) {
-                        ArrayList<EventCallback> events =
-                            resultData.getParcelableArrayList(
-                                CommandIntentService.ARG_RESULT_BASE_EVENTS);
-
-                        User realmUser = queryUser(
-                            ProxyApplication.this, _currentUser.id().value());
-                        updateUser(realmUser);
-                        for (EventCallback event : events) {
-                            Timber.i("EventCallback:" + event);
-                            getRxBus().post(event);
-                        }
+                        commandSuccessful(resultData);
                     } else if (resultCode == Activity.RESULT_CANCELED) {
-                        BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
-                        if (command instanceof SyncAllUsersCommand) {
-                            getRxBus().post(new SyncAllUsersErrorEvent());
-                        }
+                        sendError(resultData);
                     } else {
                         Timber.e("Error receiving result");
+                        sendError(resultData);
                     }
                 }
             });
         startService(intent);
+    }
+
+    private void commandSuccessful(Bundle resultData) {
+        ArrayList<EventCallback> events =
+            resultData.getParcelableArrayList(
+                CommandIntentService.ARG_RESULT_BASE_EVENTS);
+        // update the logged in user from data saved to realm from the BaseCommand issued.
+        User realmUser = queryUser(
+            ProxyApplication.this, _currentUser.id().value());
+        updateUser(realmUser);
+        // issue event data to the main messaging system
+        for (EventCallback event : events) {
+            getRxBus().post(event);
+        }
+        // log what happened successfully to fabric if we arent on debug
+        if (!BuildConfig.DEBUG) {
+            logAnalytics(Answers.getInstance(), realmUser, events);
+        }
+    }
+
+    private void sendError(Bundle resultData) {
+        BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
+        if (command instanceof SyncAllUsersCommand) {
+            getRxBus().post(new SyncAllUsersErrorEvent());
+        }
     }
 
     private void updateUser(User user) {
@@ -255,7 +274,9 @@ public class ProxyApplication extends Application {
      * @param currentUser currently logged in user
      */
     public void setCurrentUser(User currentUser) {
-        _currentUser = currentUser;
+        synchronized (Application.class) {
+            _currentUser = currentUser;
+        }
     }
 
     public RxBusDriver getRxBus() {

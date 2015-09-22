@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.dialog;
 
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.widget.Button;
@@ -38,5 +39,15 @@ public class BaseDialogFragment extends DialogFragment {
      */
     public RxBusDriver getRxBus() {
         return ((BaseActivity) getActivity()).getRxBus();
+    }
+
+
+    /**
+     * Get this applications Observable event bus.
+     *
+     * @return
+     */
+    public SharedPreferences getSharedPreferences() {
+        return ((BaseActivity) getActivity()).getSharedPreferences();
     }
 }

@@ -7,7 +7,7 @@ import android.widget.CheckedTextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
@@ -22,23 +22,23 @@ import butterknife.ButterKnife;
  * Adapts the contactGroups that a user belongs to in a dialog.
  */
 public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
-    private ArrayList<GroupEditContact> _groups;
+    private ArrayList<GroupToggle> _groups;
 
-    private UserGroupsAdapter(ArrayList<GroupEditContact> groups) {
+    private UserGroupsAdapter(ArrayList<GroupToggle> groups) {
         _groups = groups;
     }
 
-    public static UserGroupsAdapter newInstance(ArrayList<GroupEditContact> groups) {
+    public static UserGroupsAdapter newInstance(ArrayList<GroupToggle> groups) {
         return new UserGroupsAdapter(groups);
     }
 
     public static UserGroupsAdapter newInstance(HashMap<String, Group> groups) {
-        ArrayList<GroupEditContact> groupEditContacts = new ArrayList<>(groups.size());
+        ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
         for (Map.Entry<String, Group> group : groups.entrySet()) {
-            GroupEditContact newEntry = new GroupEditContact(group.getValue(), false);
-            groupEditContacts.add(newEntry);
+            GroupToggle newEntry = new GroupToggle(group.getValue(), false);
+            groupToggles.add(newEntry);
         }
-        return new UserGroupsAdapter(groupEditContacts);
+        return new UserGroupsAdapter(groupToggles);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     }
 
 
-    private GroupEditContact getDataItem(int position) {
+    private GroupToggle getDataItem(int position) {
         return _groups.get(position);
     }
 
@@ -72,11 +72,11 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     public void onItemClick(View view, int position) {
         CheckedTextView text = ButterKnife.findById(view, R.id.adapter_user_groups_textview);
         text.setChecked(!text.isChecked());
-        GroupEditContact group = getDataItem(position);
+        GroupToggle group = getDataItem(position);
         group.setHasContact(text.isChecked());
     }
 
-    public ArrayList<GroupEditContact> getDataArray() {
+    public ArrayList<GroupToggle> getDataArray() {
         return _groups;
     }
 

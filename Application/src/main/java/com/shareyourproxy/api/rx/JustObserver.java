@@ -6,22 +6,26 @@ import rx.Observer;
 import timber.log.Timber;
 
 /**
- * Created by Evan on 5/15/15.
+ * This abstraction simply logs all errors to the command prompt.
  */
 public abstract class JustObserver<T> implements Observer<T> {
 
     @Override
     public void onCompleted() {
-
+        Timber.v(this.toString(), "onComplete");
     }
 
     @Override
     public void onError(Throwable e) {
         Timber.e(Log.getStackTraceString(e));
-        this.onError();
+        this.error(e);
     }
 
-    public abstract void onError();
+    @Override
+    public void onNext(T t) {
+        this.success(t);
+    }
 
-    public abstract void onNext(T event);
+    public abstract void success(T t);
+    public abstract void error(Throwable e);
 }

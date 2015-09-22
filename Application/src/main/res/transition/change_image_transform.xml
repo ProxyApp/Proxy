@@ -3,21 +3,25 @@
     <changeBounds>
         <targets>
             <target android:excludeId="@android:id/statusBarBackground"/>
+            <target android:excludeId="@android:id/navigationBarBackground"/>
         </targets>
     </changeBounds>
     <changeTransform>
         <targets>
             <target android:excludeId="@android:id/statusBarBackground"/>
+            <target android:excludeId="@android:id/navigationBarBackground"/>
         </targets>
     </changeTransform>
     <changeClipBounds>
         <targets>
             <target android:excludeId="@android:id/statusBarBackground"/>
+            <target android:excludeId="@android:id/navigationBarBackground"/>
         </targets>
     </changeClipBounds>
-    <fade>
+    <fade android:fadingMode="fade_in">
         <targets>
             <target android:excludeId="@android:id/statusBarBackground"/>
+            <target android:excludeId="@android:id/navigationBarBackground"/>
         </targets>
     </fade>
 

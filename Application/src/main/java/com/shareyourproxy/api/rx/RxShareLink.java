@@ -4,9 +4,8 @@ import android.content.Context;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.SharedLink;
-import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
@@ -25,7 +24,7 @@ import rx.functions.Func1;
 public class RxShareLink {
 
     public static List<EventCallback> getShareLinkMessageObservable(
-        final Context context, final User user, final ArrayList<GroupEditContact> groups) {
+        final Context context, final RxBusDriver rxBus, final ArrayList<GroupToggle> groups) {
         return Observable.create(new Observable.OnSubscribe<EventCallback>() {
             @Override
             public void call(final Subscriber<? super EventCallback> subscriber) {
@@ -33,13 +32,14 @@ public class RxShareLink {
                     ArrayList<String> groupIds = Observable.just(groups)
                         .map(getCheckedGroups()).toBlocking().single();
                     final HashMap<String, SharedLink> links =
-                        RestClient.getSharedLinkService().getSharedLinks().toBlocking().single();
+                        RestClient.getSharedLinkService(context, rxBus)
+                            .getSharedLinks().toBlocking().single();
 
                     String message = Observable.from(groupIds)
                         .map(sortSharedLinks(links))
                         .filter(RxHelper.filterNullObject())
                         .buffer(groupIds.size())
-                        .map(buildMessage(context, user))
+                        .map(buildMessage(context))
                         .toBlocking().single();
 
                     subscriber.onNext(new ShareLinkEvent(message));
@@ -51,8 +51,7 @@ public class RxShareLink {
         }).toList().toBlocking().single();
     }
 
-    private static Func1<List<SharedLink>, String> buildMessage(
-        final Context context, final User user) {
+    private static Func1<List<SharedLink>, String> buildMessage(final Context context) {
         return new Func1<List<SharedLink>, String>() {
             @Override
             public String call(List<SharedLink> sharedLinks) {
@@ -84,15 +83,15 @@ public class RxShareLink {
         };
     }
 
-    private static Func1<ArrayList<GroupEditContact>, ArrayList<String>> getCheckedGroups() {
-        return new Func1<ArrayList<GroupEditContact>, ArrayList<String>>() {
+    private static Func1<ArrayList<GroupToggle>, ArrayList<String>> getCheckedGroups() {
+        return new Func1<ArrayList<GroupToggle>, ArrayList<String>>() {
             @Override
             public ArrayList<String> call(
-                ArrayList<GroupEditContact>
-                    groupEditContacts) {
-                ArrayList<String> checkedGroups = new ArrayList<>(groupEditContacts
+                ArrayList<GroupToggle>
+                    groupToggles) {
+                ArrayList<String> checkedGroups = new ArrayList<>(groupToggles
                     .size());
-                for (GroupEditContact groupEntry : groupEditContacts) {
+                for (GroupToggle groupEntry : groupToggles) {
                     if (groupEntry.isChecked()) {
                         checkedGroups.add(groupEntry.getGroup().id().value());
                     }

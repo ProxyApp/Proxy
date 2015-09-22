@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -50,6 +51,8 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class MainGroupFragment
     extends BaseFragment implements ItemClickListener {
+    @Bind(R.id.fragment_group_main_coordinator)
+    protected CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_group_main_recyclerview)
     protected BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_group_main_fab_group)
@@ -69,7 +72,7 @@ public class MainGroupFragment
                 public void run() {
                     User user = getLoggedInUser();
                     if (user != null) {
-                        getRxBus().post(new SyncAllUsersCommand(user.id().value()));
+                        getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id().value()));
                     }
                 }
             });
@@ -112,7 +115,7 @@ public class MainGroupFragment
         Boolean groupDeleted = activity.getIntent().getExtras().getBoolean(Constants
             .ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, false);
         if (groupDeleted) {
-            showSnackBar((Group) activity.getIntent().getExtras().getParcelable(
+            showUndoDeleteSnackBar((Group) activity.getIntent().getExtras().getParcelable(
                 Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP));
         }
     }
@@ -123,17 +126,27 @@ public class MainGroupFragment
      *
      * @param group deleted
      */
-    private void showSnackBar(final Group group) {
-        Snackbar snackbar = Snackbar.make(floatingActionButton, getString(R.string.undo_delete),
+    private void showUndoDeleteSnackBar(final Group group) {
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.undo_delete),
             Snackbar.LENGTH_LONG);
-        snackbar.setAction(getString(R.string.undo), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getRxBus().post(new AddUserGroupCommand(getLoggedInUser(), group));
-            }
-        });
+        snackbar.setAction(getString(R.string.undo), onClickUndoDelete(group));
         snackbar.setActionTextColor(_blue);
         snackbar.show();
+    }
+
+    /**
+     * Snackbar action button event logic.
+     *
+     * @param group to add
+     * @return click listener
+     */
+    private View.OnClickListener onClickUndoDelete(final Group group) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRxBus().post(new AddUserGroupCommand(getRxBus(), getLoggedInUser(), group));
+            }
+        };
     }
 
     @Override
@@ -175,14 +188,14 @@ public class MainGroupFragment
     public void onResume() {
         super.onResume();
         _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
                     if (event instanceof UserGroupAddedEventCallback) {
-                        updateGroups(((UserGroupAddedEventCallback) event).group);
+                        addGroup(((UserGroupAddedEventCallback) event).group);
                     } else if (event instanceof GroupChannelsUpdatedEventCallback) {
-                        updateGroups(((GroupChannelsUpdatedEventCallback) event).group);
+                        updateGroups(((GroupChannelsUpdatedEventCallback) event));
                     } else if (event instanceof LoggedInUserUpdatedEventCallback) {
                         updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
                     } else if (event instanceof SyncAllUsersCommand) {
@@ -194,6 +207,7 @@ public class MainGroupFragment
                     }
                 }
             }));
+        _adapter.refreshGroupData(getLoggedInUser().groups());
     }
 
     /**
@@ -201,8 +215,28 @@ public class MainGroupFragment
      *
      * @param group to add
      */
-    public void updateGroups(Group group) {
+    public void addGroup(Group group) {
         _adapter.addGroupData(group);
+        showAddedGroupSnackBar();
+    }
+
+    /**
+     * Add a new group.
+     *
+     * @param event group to add
+     */
+    public void updateGroups(GroupChannelsUpdatedEventCallback event) {
+        _adapter.addGroupData(event.group);
+        if (event.addOrEdit == ADD_GROUP) {
+            showAddedGroupSnackBar();
+        } else {
+            showChangesSavedSnackBar(coordinatorLayout);
+        }
+    }
+
+    private void showAddedGroupSnackBar() {
+        Snackbar.make(
+            coordinatorLayout, getString(R.string.channel_added), Snackbar.LENGTH_LONG).show();
     }
 
     /**
@@ -227,7 +261,6 @@ public class MainGroupFragment
      * Initialize this fragments {@link Group} data and {@link BaseRecyclerView}.
      */
     private void initializeRecyclerView() {
-        recyclerView.setEmptyView(emptyTextView);
         recyclerView.hideRecyclerView(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupAdapter.newInstance(recyclerView, getGroupData(), this);

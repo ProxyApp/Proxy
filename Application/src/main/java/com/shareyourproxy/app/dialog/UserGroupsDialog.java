@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
@@ -75,11 +75,10 @@ public class UserGroupsDialog extends BaseDialogFragment {
      * @return A {@link UserGroupsDialog}
      */
     public static UserGroupsDialog newInstance(
-        @NonNull ArrayList<GroupEditContact> groups, @NonNull User user) {
+        @NonNull ArrayList<GroupToggle> groups, @NonNull User user) {
         //Bundle arguments
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(ARG_GROUPS, groups);
-
         bundle.putParcelable(ARG_USER, user);
         //copy dialog instance
         UserGroupsDialog dialog = new UserGroupsDialog();
@@ -92,8 +91,8 @@ public class UserGroupsDialog extends BaseDialogFragment {
      */
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
-        getRxBus().post(new SaveGroupContactsCommand(
-            getLoggedInUser(), _adapter.getDataArray(), user.id().value()));
+        getRxBus().post(new SaveGroupContactsCommand(getRxBus(), getLoggedInUser(),
+            _adapter.getDataArray(), user.id().value()));
     }
 
     /**
@@ -110,7 +109,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
      *
      * @return selected groups
      */
-    private ArrayList<GroupEditContact> getCheckedGroups() {
+    private ArrayList<GroupToggle> getCheckedGroups() {
         return getArguments().getParcelableArrayList(ARG_GROUPS);
     }
 

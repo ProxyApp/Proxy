@@ -44,8 +44,8 @@ public class RxMessageSync {
     }
 
     public static List<EventCallback> getFirebaseMessages(
-        final Context context, @NonNull final String userId) {
-        return getMessageService()
+        final Context context,@NonNull RxBusDriver rxBus, @NonNull final String userId) {
+        return getMessageService(context, rxBus)
             .getUserMessages(userId).map(new Func1<Map<String, Message>, EventCallback>() {
                 @Override
                 public EventCallback call(Map<String, Message> messages) {
@@ -98,10 +98,11 @@ public class RxMessageSync {
         return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public static List<EventCallback> saveFirebaseMessage(String userId, Message message) {
+    public static List<EventCallback> saveFirebaseMessage(
+        Context context, RxBusDriver rxBus,String userId, Message message) {
         HashMap<String, Message> messages = new HashMap<>();
         messages.put(message.id(), message);
-        return getMessageService()
+        return getMessageService(context, rxBus)
             .addUserMessage(userId, messages)
             .map(getUserMessageCallback())
             .toList()
@@ -118,9 +119,10 @@ public class RxMessageSync {
         };
     }
 
-    public static Observable<Message> deleteAllFirebaseMessages(User user) {
+    public static Observable<Message> deleteAllFirebaseMessages(
+        Context context, RxBusDriver rxBus, User user) {
         String contactId = user.id().value();
-        return getMessageService()
+        return getMessageService(context, rxBus)
             .deleteAllUserMessages(contactId)
             .compose(RxHelper.<Message>applySchedulers());
     }

@@ -24,7 +24,7 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.domain.model.GroupEditChannel;
+import com.shareyourproxy.api.domain.model.ChannelToggle;
 import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.util.ObjectUtils;
@@ -49,8 +49,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     @BindColor(R.color.common_text_disabled)
     protected int _gray;
     private ItemClickListener _clickListener;
-    private Callback<GroupEditChannel> _sortedListCallback;
-    private SortedList<GroupEditChannel> _channels;
+    private Callback<ChannelToggle> _sortedListCallback;
+    private SortedList<ChannelToggle> _channels;
     private String _groupLabel;
     private TextWatcher _textWatcher = getTextWatcher();
 
@@ -61,7 +61,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         _groupLabel = groupLabel;
         _addOrEdit = addOrEdit;
         _channels = new SortedList<>(
-            GroupEditChannel.class, getSortedCallback(), userChannels.size());
+            ChannelToggle.class, getSortedCallback(), userChannels.size());
         updateChannels(userChannels, groupChannels);
     }
 
@@ -94,14 +94,14 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     private void updateChannels(
         HashMap<String, Channel> userChannels, HashMap<String, Id> groupChannels) {
         if (userChannels != null) {
-            ArrayList<GroupEditChannel> groupEditChannels = new ArrayList<>();
+            ArrayList<ChannelToggle> channelToggles = new ArrayList<>();
             for (Map.Entry<String, Channel> userChannel : userChannels.entrySet()) {
-                groupEditChannels.add(
-                    new GroupEditChannel(userChannel.getValue(),
+                channelToggles.add(
+                    new ChannelToggle(userChannel.getValue(),
                         channelInGroup(userChannel.getValue(), groupChannels)));
             }
             _channels.beginBatchedUpdates();
-            for (GroupEditChannel channel : groupEditChannels) {
+            for (ChannelToggle channel : channelToggles) {
                 _channels.add(channel);
             }
             _channels.endBatchedUpdates();
@@ -119,12 +119,12 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         return false;
     }
 
-    public Callback<GroupEditChannel> getSortedCallback() {
+    public Callback<ChannelToggle> getSortedCallback() {
         if (_sortedListCallback == null) {
-            _sortedListCallback = new Callback<GroupEditChannel>() {
+            _sortedListCallback = new Callback<ChannelToggle>() {
 
                 @Override
-                public int compare(GroupEditChannel item1, GroupEditChannel item2) {
+                public int compare(ChannelToggle item1, ChannelToggle item2) {
                     int weight1 = item1.getChannel().channelType().getWeight();
                     int weight2 = item2.getChannel().channelType().getWeight();
                     int compareFirst = ObjectUtils.compare(weight1, weight2);
@@ -157,12 +157,12 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areContentsTheSame(
-                    GroupEditChannel item1, GroupEditChannel item2) {
+                    ChannelToggle item1, ChannelToggle item2) {
                     return item1.getChannel().id().equals(item2.getChannel().id());
                 }
 
                 @Override
-                public boolean areItemsTheSame(GroupEditChannel item1, GroupEditChannel item2) {
+                public boolean areItemsTheSame(ChannelToggle item1, ChannelToggle item2) {
                     return item1.getChannel().id().equals(item2.getChannel().id());
                 }
             };
@@ -234,7 +234,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         holder.editText.addTextChangedListener(_textWatcher);
     }
 
-    public GroupEditChannel getItemData(int position) {
+    public ChannelToggle getItemData(int position) {
         if (position < _channels.size()) {
             return _channels.get(position);
         } else {
@@ -242,7 +242,7 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    private void bindItemViewData(ItemViewHolder holder, GroupEditChannel editChannel) {
+    private void bindItemViewData(ItemViewHolder holder, ChannelToggle editChannel) {
         Context context = holder._view.getContext();
         ChannelType channelType = editChannel.getChannel().channelType();
         holder.itemImage.setImageDrawable(

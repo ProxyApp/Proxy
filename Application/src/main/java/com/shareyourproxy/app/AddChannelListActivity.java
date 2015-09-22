@@ -82,7 +82,7 @@ public class AddChannelListActivity extends BaseActivity {
         if (_subscriptions == null) {
             _subscriptions = new CompositeSubscription();
         }
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {

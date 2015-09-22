@@ -8,35 +8,35 @@ import com.shareyourproxy.app.dialog.UserGroupsDialog;
 /**
  * Model for {@link UserGroupsDialog}.
  */
-public class GroupEditContact implements Parcelable {
-    public static final Creator<GroupEditContact> CREATOR = new Creator<GroupEditContact>
+public class GroupToggle implements Parcelable {
+    public static final Creator<GroupToggle> CREATOR = new Creator<GroupToggle>
         () {
         @Override
-        public GroupEditContact createFromParcel(Parcel in) {
-            return new GroupEditContact(in);
+        public GroupToggle createFromParcel(Parcel in) {
+            return new GroupToggle(in);
         }
 
         @Override
-        public GroupEditContact[] newArray(int size) {
-            return new GroupEditContact[size];
+        public GroupToggle[] newArray(int size) {
+            return new GroupToggle[size];
         }
     };
-    private final static java.lang.ClassLoader CL = GroupEditContact.class.getClassLoader();
+    private final static java.lang.ClassLoader CL = GroupToggle.class.getClassLoader();
 
     private Group _group;
     private boolean _isChecked;
 
-    public GroupEditContact(Group group, boolean isChecked) {
+    public GroupToggle(Group group, boolean isChecked) {
         _group = group;
         _isChecked = isChecked;
     }
 
-    private GroupEditContact(Parcel in) {
+    private GroupToggle(Parcel in) {
         this((Group) in.readValue(CL), (boolean) in.readValue(CL));
     }
 
-    public static GroupEditContact create(Group group, boolean hasContact) {
-        return new GroupEditContact(group, hasContact);
+    public static GroupToggle create(Group group, boolean hasContact) {
+        return new GroupToggle(group, hasContact);
     }
 
     public Group getGroup() {

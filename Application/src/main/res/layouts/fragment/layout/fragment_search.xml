@@ -64,7 +64,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingTop="@dimen/common_rect_huge"
+        android:paddingTop="@dimen/common_margin_tiny"
         android:visibility="gone">
         <TextView
             android:id="@+id/fragment_search_empty_textview"
@@ -73,6 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
+            android:drawablePadding="@dimen/common_margin_xxtiny"
             android:text="@string/fragment_search_empty_text"
             android:textColor="@color/common_text_disabled"/>
 
@@ -81,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/common_margin_small"
+            android:layout_marginTop="@dimen/common_margin_xxtiny"
             android:background="@drawable/selector_button_zoidberg"
             android:paddingEnd="@dimen/common_margin_xxtiny"
             android:paddingStart="@dimen/common_margin_xxtiny"

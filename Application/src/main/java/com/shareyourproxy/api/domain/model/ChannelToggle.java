@@ -6,35 +6,35 @@ import android.os.Parcelable;
 /**
  * Used to signify if a {@link Channel} is in a {@link Group} or not.
  */
-public class GroupEditChannel implements Parcelable {
-    public static final Creator<GroupEditChannel> CREATOR =
-        new Creator<GroupEditChannel>() {
+public class ChannelToggle implements Parcelable {
+    public static final Creator<ChannelToggle> CREATOR =
+        new Creator<ChannelToggle>() {
             @Override
-            public GroupEditChannel createFromParcel(Parcel in) {
-                return new GroupEditChannel(in);
+            public ChannelToggle createFromParcel(Parcel in) {
+                return new ChannelToggle(in);
             }
 
             @Override
-            public GroupEditChannel[] newArray(int size) {
-                return new GroupEditChannel[size];
+            public ChannelToggle[] newArray(int size) {
+                return new ChannelToggle[size];
             }
         };
-    private final static java.lang.ClassLoader CL = GroupEditChannel.class.getClassLoader();
+    private final static java.lang.ClassLoader CL = ChannelToggle.class.getClassLoader();
 
     private Channel _channel;
     private boolean _inGroup;
 
-    public GroupEditChannel(Channel channel, boolean inGroup) {
+    public ChannelToggle(Channel channel, boolean inGroup) {
         _channel = channel;
         _inGroup = inGroup;
     }
 
-    private GroupEditChannel(Parcel in) {
+    private ChannelToggle(Parcel in) {
         this((Channel) in.readValue(CL), (boolean) in.readValue(CL));
     }
 
-    public static GroupEditChannel create(Channel channel, boolean inGroup) {
-        return new GroupEditChannel(channel, inGroup);
+    public static ChannelToggle create(Channel channel, boolean inGroup) {
+        return new ChannelToggle(channel, inGroup);
     }
 
     public Channel getChannel() {

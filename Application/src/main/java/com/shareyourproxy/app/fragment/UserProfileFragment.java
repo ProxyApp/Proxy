@@ -29,7 +29,7 @@ import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.GroupEditContact;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
@@ -43,7 +43,9 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.app.adapter.ViewChannelAdapter;
 import com.shareyourproxy.app.dialog.EditChannelDialog;
+import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
+import com.shareyourproxy.widget.ContentDescriptionDrawable;
 import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
@@ -56,12 +58,14 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
@@ -70,6 +74,7 @@ import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -96,6 +101,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     protected CoordinatorLayout coordinatorLayout;
     @BindColor(R.color.common_blue)
     protected int _blue;
+    @BindString(R.string.fragment_userprofile_user_empty_text)
+    protected String nullUserMessage;
     private ViewChannelAdapter _adapter;
     private Target _target;
     private Target _backgroundTarget;
@@ -103,7 +110,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private User _userContact;
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
-    private ArrayList<GroupEditContact> _contactGroups = new ArrayList<>();
+    private ArrayList<GroupToggle> _contactGroups = new ArrayList<>();
     private Channel _deletedChannel;
 
     /**
@@ -151,7 +158,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
             if (user != null && user.id().value().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
-                setLoggedInUser(getUserService().getUser(loggedInUserId).toBlocking().single());
+                setLoggedInUser(getUserService(getActivity(), getRxBus())
+                    .getUser(loggedInUserId).toBlocking().single());
             }
         }
     }
@@ -195,13 +203,13 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private void getGroupEditContacts() {
         _contactGroups.clear();
         //creates group edit contacts array
-        List<GroupEditContact> list = queryContactGroups(
+        List<GroupToggle> list = queryContactGroups(
             getLoggedInUser(), _userContact);
         _contactGroups.addAll(list);
         ArrayList<Group> selectedGroupsList = new ArrayList<>(list.size());
-        for (GroupEditContact groupEditContact : list) {
-            if (groupEditContact.isChecked()) {
-                selectedGroupsList.add(groupEditContact.getGroup());
+        for (GroupToggle groupToggle : list) {
+            if (groupToggle.isChecked()) {
+                selectedGroupsList.add(groupToggle.getGroup());
             }
         }
         updateGroupButtonText(selectedGroupsList);
@@ -210,7 +218,6 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private void setToolbarTitle() {
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
         buildToolbar(toolbar, title, null);
-        collapsingToolbarLayout.setTitle(title);
     }
 
     private void initializeHeader() {
@@ -219,7 +226,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
             .transform(new CircleTransform())
             .into(getBitmapTargetView());
 
-        if (_userContact.coverURL() != null && !"".equals(_userContact.coverURL())) {
+        if (_userContact.coverURL() != null && !_userContact.coverURL().isEmpty()) {
             Picasso.with(getActivity()).load(_userContact.coverURL())
                 .transform(AlphaTransform.create())
                 .into(getBackgroundTarget());
@@ -319,18 +326,37 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView(HashMap<String, Channel> channels) {
+        initializeEmptyView();
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        if (_isLoggedInUser) {
-            emptyTextView.setText(getString(R.string.no_information_added));
-        } else {
-            emptyTextView.setText(getString(R.string.no_information_to_share,
-                _userContact.first()));
-        }
-        recyclerView.setEmptyView(emptyTextView);
         _adapter = ViewChannelAdapter.newInstance(channels, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    private void initializeEmptyView() {
+        if (_isLoggedInUser) {
+            emptyTextView.setText(fromHtml(nullUserMessage));
+            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null, getNullDrawable(R.raw.ic_ghost_doge), null, null);
+        } else {
+            emptyTextView.setText(
+                fromHtml(getString(R.string.fragment_userprofile_contact_empty_text,
+                    _userContact.first())));
+            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null, getNullDrawable(R.raw.ic_ghost_sloth), null, null);
+        }
+        recyclerView.setEmptyView(emptyTextView);
+    }
+
+    /**
+     * Parse a svg and return a null screen sized {@link ContentDescriptionDrawable} .
+     *
+     * @return Drawable with a contentDescription
+     */
+    private Drawable getNullDrawable(int resId) {
+        return svgToBitmapDrawable(getActivity(), resId,
+            getNullScreenIconDimen(getActivity()));
     }
 
     @Override
@@ -351,7 +377,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     public void onResume() {
         super.onResume();
         checkCompositeButton();
-        _subscriptions.add(getRxBus().toObserverable()
+        _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
     }
 
@@ -385,16 +411,19 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private void updateGroupButtonText(List<Group> list) {
         if (list != null) {
             int groupSize = list.size();
-            if (groupSize == 1) {
-                Object object = list.get(0);
-                groupButton.setText(((Group) object).label());
-            } else if (groupSize == 0) {
+            if (groupSize == 0) {
                 groupButton.setText(R.string.add_to_group);
+                groupButton.setBackgroundResource(R.drawable.selector_button_zoidberg);
+            } else if (groupSize == 1) {
+                groupButton.setText(list.get(0).label());
+                groupButton.setBackgroundResource(R.drawable.selector_button_grey);
             } else if (groupSize > 1) {
                 groupButton.setText(getString(R.string.in_blank_groups, groupSize));
+                groupButton.setBackgroundResource(R.drawable.selector_button_grey);
             }
         } else {
             groupButton.setText(R.string.add_to_group);
+            groupButton.setBackgroundResource(R.drawable.selector_button_zoidberg);
         }
     }
 
@@ -414,23 +443,33 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private void addUserChannel(UserChannelAddedEventCallback event) {
         if (event.oldChannel != null) {
             _adapter.updateChannel(event.oldChannel, event.newChannel);
+            showChangesSavedSnackBar(coordinatorLayout);
         } else {
             _adapter.addChannel(event.newChannel);
+            showAddedChannelSnackBar();
+            SaveGroupChannelDialog.newInstance(event.newChannel, event.user)
+                .show(getFragmentManager());
         }
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
         _adapter.removeChannel(event.channel);
         _deletedChannel = event.channel;
-        showSnackBar();
+        showDeletedChannelSnackBar();
     }
 
-    private void showSnackBar() {
-        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.undo_delete), Snackbar
-            .LENGTH_LONG);
+    private void showDeletedChannelSnackBar() {
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.undo_delete),
+            Snackbar
+                .LENGTH_LONG);
         snackbar.setAction(getString(R.string.undo), getAddChannelClickListener());
         snackbar.setActionTextColor(_blue);
         snackbar.show();
+    }
+
+    private void showAddedChannelSnackBar() {
+        Snackbar.make(coordinatorLayout, getString(R.string.channel_added), Snackbar.LENGTH_LONG)
+            .show();
     }
 
     /**
@@ -442,7 +481,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), _deletedChannel));
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
+                    _deletedChannel));
             }
         };
     }
@@ -457,13 +497,13 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private JustObserver<HashMap<String, Channel>> permissionedObserver() {
         return new JustObserver<HashMap<String, Channel>>() {
             @Override
-            public void onError() {
-                Timber.e("Error downloading permissioned channels");
+            public void success(HashMap<String, Channel> channels) {
+                _adapter.updateChannels(channels);
             }
 
             @Override
-            public void onNext(HashMap<String, Channel> channels) {
-                _adapter.updateChannels(channels);
+            public void error(Throwable e) {
+                Timber.e("Error downloading permissioned channels");
             }
         };
     }
