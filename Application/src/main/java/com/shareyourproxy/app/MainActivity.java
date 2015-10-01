@@ -22,6 +22,12 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static com.shareyourproxy.IntentLauncher.launchAboutActivity;
+import static com.shareyourproxy.IntentLauncher.launchEmailIntent;
+import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
+import static com.shareyourproxy.IntentLauncher.launchInviteFriendIntent;
+import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
+
 
 /**
  * The main landing point after loggin in. This is tabbed activity with {@link Contact}s and {@link
@@ -52,10 +58,11 @@ public class MainActivity extends GoogleApiActivity {
      * @param event data
      */
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
+        //TODO add type safety like woah.
         //if the user presses logout
         if (getString(R.string.profile).equals(event.message)) {
             User user = getLoggedInUser();
-            IntentLauncher.launchUserProfileActivity(this, user, user.id().value());
+            launchUserProfileActivity(this, user, user.id().value());
         } else if (getString(R.string.logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {
@@ -66,11 +73,14 @@ public class MainActivity extends GoogleApiActivity {
                 _googleApiClient.connect();
             }
         } else if (getString(R.string.about).equals(event.message)) {
-            IntentLauncher.launchAboutActivity(this);
+            launchAboutActivity(this);
         } else if (getString(R.string.report_problem).equals(event.message)) {
-            IntentLauncher.launchEmailIntent(this, getString(R.string.contact_proxy));
+            launchEmailIntent(this, getString(R.string.contact_proxy));
         } else if (getString(R.string.invite_friend).equals(event.message)) {
-            IntentLauncher.launchInviteFriendIntent(this);
+            launchInviteFriendIntent(this);
+        }
+        else if(getString(R.string.tour).equals(event.message)){
+            launchIntroductionActivity(this);
         }
     }
 

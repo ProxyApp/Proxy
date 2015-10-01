@@ -184,7 +184,9 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        _googleApiClient.connect();
+        if (!(this instanceof LoginActivity)) {
+            _googleApiClient.connect();
+        }
     }
 
     @Override

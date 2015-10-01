@@ -14,6 +14,8 @@ import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 public class Intents {
 
     public static final String ACTION_DISPATCH = "com.shareyourproxy.intent.action.DISPATCH";
+    public static final String ACTION_INTRODUCTION =
+        "com.shareyourproxy.intent.action.INTRODUCTION";
     public static final String ACTION_LOGIN = "com.shareyourproxy.intent.action.LOGIN";
     public static final String ACTION_MAIN_VIEW = "com.shareyourproxy.intent.action.MAIN_VIEW";
     public static final String ACTION_SEARCH_VIEW = "com.shareyourproxy.intent.action.SEARCH";

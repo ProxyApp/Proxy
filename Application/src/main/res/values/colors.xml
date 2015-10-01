@@ -38,6 +38,9 @@
     <color name="common_proxy_light_primary">#424242</color>
     <color name="common_proxy_light_selected">#FFFFFF</color>
     <color name="common_proxy_light_disabled">#E0E0E0</color>
+    <color name="common_proxy_slide_one">#FFA724</color>
+    <color name="common_proxy_slide_two">#34AC71</color>
+    <color name="common_proxy_slide_three">#4285f4</color>
 
     <!--87 percent alpha for text-->
     <color name="common_text">#DE000000</color>

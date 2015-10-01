@@ -434,12 +434,6 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         _subscriptions = null;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     private void addUserChannel(UserChannelAddedEventCallback event) {
         if (event.oldChannel != null) {
             _adapter.updateChannel(event.oldChannel, event.newChannel);

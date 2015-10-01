@@ -168,12 +168,6 @@ public class MainGroupFragment
         checkGroupDeleted(getActivity());
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     /**
      * Set the content image of this fragment's {@link FloatingActionButton}
      */

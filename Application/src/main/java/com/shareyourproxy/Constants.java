@@ -26,6 +26,7 @@ public class Constants {
     public static final String KEY_GOOGLE_PLUS_AUTH = "com.shareyourproxy.key_google_plus_auth";
     public static final String PROVIDER_GOOGLE = "google";
     public static final String MASTER_KEY= "com.shareyourproxy.application.shared_preferences_key";
+    public static final String KEY_PLAYED_INTRODUCTION = "com.shareyourproxy.play_introduction";
 
 
     /**

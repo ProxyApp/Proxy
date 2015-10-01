@@ -17,22 +17,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:theme="@style/Theme.Proxy.Base.DarkActionBar">
 
-    <ImageView
+    <TextView
         android:id="@+id/activity_login_title"
-        style="@style/TextAppearance.AppCompat.Display3"
+        style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/common_rect_large"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="@null"/>
+        android:layout_marginTop="@dimen/common_rect_small"
+        android:text="all of you, in one place"/>
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/activity_login_sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/common_rect_tiny"
         android:enabled="false"/>
 
 </LinearLayout>

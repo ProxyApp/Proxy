@@ -13,13 +13,16 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
-        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementEnterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_proxy_zoidberg
-        </item>
+              tools:targetApi="lollipop">@color/common_divider</item>
     </style>
 
 
@@ -33,15 +36,18 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
-        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementEnterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_proxy_zoidberg
-        </item>
+              tools:targetApi="lollipop">@color/common_divider</item>
     </style>
 
     <!--Used for activities that edit user info. Light text, dark background toolbar-->
@@ -54,14 +60,18 @@
         <item name="android:textColorHint">@color/common_text_disabled</item>
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
-        <item name="android:windowSharedElementEnterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReenterTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementReturnTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
-        <item name="android:windowSharedElementExitTransition" tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementEnterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReenterTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementReturnTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition"
+              tools:targetApi="lollipop">@transition/change_image_transform</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:colorEdgeEffect" tools:targetApi="lollipop">@color/common_proxy_zoidberg
-        </item>
+        <item name="android:colorEdgeEffect"
+              tools:targetApi="lollipop">@color/common_divider</item>
     </style>
 
     <style name="Widget.Proxy.SlidingTabView.Tab" parent="ThemeOverlay.AppCompat.Light">
@@ -103,6 +113,11 @@
 
     <style name="Widget.Proxy.ProgressBar" parent="Widget.AppCompat.ProgressBar">
         <item name="colorAccent">@color/common_blue</item>
+    </style>
+
+    <style name="Proxy.TextAppearance.Headline" parent="TextAppearance.AppCompat.Headline">
+    </style>
+    <style name="Proxy.TextAppearance.Subhead" parent="TextAppearance.AppCompat.Subhead">
     </style>
 
 </resources>

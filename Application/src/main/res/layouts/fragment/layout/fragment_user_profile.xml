@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:expandedTitleMarginBottom="@dimen/common_rect_huge"
+            app:expandedTitleMarginBottom="@dimen/common_rect_large"
             app:expandedTitleMarginStart="@dimen/common_rect_small"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Display1"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -27,7 +27,7 @@
                 android:layout_height="@dimen/common_circleimageview_settings_radius"
                 android:layout_gravity="start"
                 android:layout_marginStart="@dimen/common_rect_small"
-                android:layout_marginTop="@dimen/common_rect_medium"
+                android:layout_marginTop="@dimen/common_rect_tiny"
                 android:contentDescription="@string/channel_header_image"
                 android:fitsSystemWindows="true"
                 android:transitionName="@string/user_image"
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginStart="@dimen/common_rect_small"
-                android:layout_marginTop="216dp"
+                android:layout_marginTop="@dimen/fragment_userprofile_header_button_top_margin"
                 android:background="@drawable/selector_button_zoidberg"
                 android:drawablePadding="@dimen/common_margin_xxtiny"
                 android:fitsSystemWindows="true"
@@ -76,7 +76,7 @@
         android:gravity="center"
         android:paddingEnd="@dimen/common_margin_huge"
         android:paddingStart="@dimen/common_margin_huge"
-        android:paddingTop="@dimen/common_rect_tiny"
+        android:paddingTop="@dimen/common_margin_tiny"
         android:textColor="@color/common_text_disabled"
         android:visibility="gone"/>
 

@@ -26,7 +26,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Drawer Fragment to handle displaying a user profile with options.
  */
-public class DrawerFragment extends BaseFragment implements ItemLongClickListener{
+public class DrawerFragment extends BaseFragment implements ItemLongClickListener {
 
     @Bind(R.id.fragment_drawer_recyclerview)
     BaseRecyclerView drawerRecyclerView;
@@ -36,14 +36,15 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
     /**
      * Constructor.
      */
-    public DrawerFragment(){
+    public DrawerFragment() {
     }
 
     /**
      * Create a new instance of this fragment for parent {@link MainActivity}.
+     *
      * @return drawer fragment
      */
-    public static DrawerFragment newInstance(){
+    public static DrawerFragment newInstance() {
         return new DrawerFragment();
     }
 
@@ -55,12 +56,6 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
         ButterKnife.bind(this, view);
         initializeRecyclerView(getResources());
         return view;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     @Override
@@ -90,7 +85,8 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
      */
     private void initializeRecyclerView(Resources res) {
         int icons[] =
-            new int[]{ R.raw.ic_account_circle, R.raw.ic_email, R.raw.ic_info, R.raw.ic_eject };
+            new int[]{ R.raw.ic_account_circle, R.raw.ic_email, R.raw.ic_info, R.raw.ic_explore,
+                R.raw.ic_eject };
         String[] strings = res.getStringArray(R.array.drawer_settings);
 
         _adapter = DrawerAdapter.newInstance(getLoggedInUser(), strings, icons, this);

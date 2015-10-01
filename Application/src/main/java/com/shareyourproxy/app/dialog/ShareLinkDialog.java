@@ -9,9 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.shareyourproxy.R;
@@ -20,6 +18,8 @@ import com.shareyourproxy.api.rx.command.GenerateShareLinkCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
 
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
 import java.util.HashMap;
 
 import butterknife.Bind;
@@ -27,7 +27,6 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
-import static com.shareyourproxy.util.ViewUtils.dpToPx;
 
 /**
  * Share links to group channels in your web profile.
@@ -135,9 +134,6 @@ public class ShareLinkDialog extends BaseDialogFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();
-        ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
-        lp.height = (int) dpToPx(getResources(), R.dimen.user_groups_dialog_height);
-        recyclerView.setLayoutParams(lp);
     }
 
     @SuppressWarnings("unchecked")

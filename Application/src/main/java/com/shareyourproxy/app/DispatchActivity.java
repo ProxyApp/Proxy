@@ -2,11 +2,9 @@ package com.shareyourproxy.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
@@ -19,8 +17,6 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.fragment.DispatchFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
-
-import java.io.IOException;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -36,20 +32,18 @@ import static com.shareyourproxy.IntentLauncher.launchMainActivity;
  * and download a current user. Delete cached Realm data on startup.
  */
 public class DispatchActivity extends GoogleApiActivity {
-    private GoogleApiClient _googleApiClient;
     private CompositeSubscription _subscriptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initialize();
-
         setContentView(R.layout.activity_dispatch);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_dispatch_container,
                     DispatchFragment.newInstance()).commit();
         }
+        initialize();
     }
 
     /**
@@ -57,7 +51,6 @@ public class DispatchActivity extends GoogleApiActivity {
      * activity.
      */
     private void initialize() {
-        _googleApiClient = getGoogleApiClient();
         deleteRealm();
     }
 
@@ -78,12 +71,12 @@ public class DispatchActivity extends GoogleApiActivity {
 
     @Override
     public void onConnectionSuspended(int i) {
-        _googleApiClient.connect();
+        launchLoginActivity(this);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        _googleApiClient.connect();
+        launchLoginActivity(this);
     }
 
     @Override
@@ -129,25 +122,26 @@ public class DispatchActivity extends GoogleApiActivity {
             @Override
             public void call(final Subscriber<? super User> subscriber) {
                 try {
-                    User user = null;
-                    String jsonUser = getSharedPreferences().getString(Constants
-                        .KEY_LOGGED_IN_USER, null);
-                    if (jsonUser != null) {
-                        try {
-                            user = UserTypeAdapter.newInstance()
-                                .fromJson(jsonUser);
-                        } catch (IOException e) {
-                            Timber.e(Log.getStackTraceString(e));
-                        }
-                    }
-                    // if there is a user saved in shared prefs
-                    if (user != null) {
-                        setLoggedInUser(user);
-                        RxBusDriver rxBus = getRxBus();
-                        rxBus.post(new SyncAllUsersCommand(rxBus, user.id().value()));
-                        subscriber.onNext(user);
-                    } else {
+                    //even if we have a user saved, if this isnt present, go to login.
+                    if (!getSharedPreferences().contains(Constants.KEY_PLAYED_INTRODUCTION)) {
                         launchLoginActivity(activity);
+                    } else {
+                        //get the shared preferences user
+                        User user = null;
+                        String jsonUser = getSharedPreferences().getString(Constants
+                            .KEY_LOGGED_IN_USER, null);
+                        if (jsonUser != null) {
+                            user = UserTypeAdapter.newInstance().fromJson(jsonUser);
+                        }
+                        // if there is a user saved in shared prefs
+                        if (user != null) {
+                            setLoggedInUser(user);
+                            RxBusDriver rxBus = getRxBus();
+                            rxBus.post(new SyncAllUsersCommand(rxBus, user.id().value()));
+                            subscriber.onNext(user);
+                        } else {
+                            launchLoginActivity(activity);
+                        }
                     }
                     subscriber.onCompleted();
                 } catch (Exception e) {

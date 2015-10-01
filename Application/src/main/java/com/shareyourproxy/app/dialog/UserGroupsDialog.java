@@ -9,9 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.shareyourproxy.R;
@@ -21,7 +19,8 @@ import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
 import com.shareyourproxy.util.ObjectUtils;
-import com.shareyourproxy.util.ViewUtils;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.ArrayList;
 
@@ -154,12 +153,10 @@ public class UserGroupsDialog extends BaseDialogFragment {
      */
     private void initializeRecyclerView() {
         _adapter = UserGroupsAdapter.newInstance(getCheckedGroups());
+        //This Linear layout wraps content
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();
-        ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
-        lp.height = (int) ViewUtils.dpToPx(getResources(), R.dimen.user_groups_dialog_height);
-        recyclerView.setLayoutParams(lp);
     }
 
     /**

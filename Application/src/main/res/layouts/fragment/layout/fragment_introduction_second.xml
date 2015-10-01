@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/fragment_introduction_second_container"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/common_proxy_slide_two"
+              android:orientation="vertical">
+    <ImageView
+        android:id="@+id/fragment_introduction_second_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/common_rect_tiny"
+        android:contentDescription="@string/proxy_logo"/>
+
+    <TextView
+        android:id="@+id/fragment_introduction_second_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginTop="@dimen/common_margin_xxhuge"/>
+</LinearLayout>

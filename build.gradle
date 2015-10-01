@@ -4,9 +4,9 @@ buildscript {
         flatDir {
             dirs 'libs'
         }
-        jcenter()
-        mavenCentral()
         maven { url 'https://maven.fabric.io/public' }
+        mavenCentral()
+        jcenter()
     }
     dependencies {
         // NOTE: Do not place your application dependencies here; they belong
