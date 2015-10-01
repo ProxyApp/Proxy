@@ -9,14 +9,20 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.Intents;
 import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.gson.AutoValueAdapterFactory;
+import com.shareyourproxy.api.gson.AutoValueClass;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
@@ -25,6 +31,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * Base abstraction for all activities to inherit from.
@@ -82,7 +89,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public boolean isLoggedInUser(@NonNull User user) {
         return getLoggedInUser() != null &&
-            user.id().value().equals(getLoggedInUser().id().value());
+            user.id().equals(getLoggedInUser().id());
     }
 
     /**
@@ -118,6 +125,22 @@ public abstract class BaseActivity extends AppCompatActivity {
         RealmConfiguration config = realm.getConfiguration();
         realm.close();
         Realm.deleteRealm(config);
+    }
+
+    public User getSharedPrefJsonUser() {
+        User user=null;
+        String jsonUser = getSharedPreferences()
+            .getString(Constants.KEY_LOGGED_IN_USER, null);
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new AutoValueAdapterFactory())
+            .create();
+        try {
+            user = (User) gson.fromJson(
+                jsonUser,User.class.getAnnotation(AutoValueClass.class).autoValueClass());
+        } catch (Exception e) {
+            Timber.e(Log.getStackTraceString(e));
+        }
+        return user;
     }
 
     @Override

@@ -3,11 +3,11 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import io.realm.RealmResults;
 
@@ -28,15 +28,6 @@ public class UserFactory {
     private UserFactory() {
     }
 
-    /**
-     * Could be in and IdFractory but is only one method.
-     *
-     * @param userId users Id.
-     * @return user Id
-     */
-    private static Id getUserId(String userId) {
-        return Id.builder().value(userId).build();
-    }
 
     /**
      * Take in a realm user and create a model user.
@@ -48,7 +39,7 @@ public class UserFactory {
         if (realmUser == null) {
             return null;
         }
-        return User.create(getUserId(realmUser.getId()), realmUser.getFirst(),
+        return User.create(realmUser.getId(), realmUser.getFirst(),
             realmUser.getLast(), realmUser.getEmail(), realmUser.getProfileURL(),
             realmUser.getCoverURL(), getModelChannels(realmUser.getChannels()),
             getModelGroups(realmUser.getGroups()),
@@ -81,11 +72,11 @@ public class UserFactory {
     }
 
     public static User addUserContact(User user, String contactId) {
-        HashMap<String, Id> contactList = user.contacts();
+        HashSet<String> contactList = user.contacts();
         if (contactList == null) {
-            contactList = new HashMap<>();
+            contactList = new HashSet<>();
         }
-        contactList.put(contactId, Id.create(contactId));
+        contactList.add(contactId);
         return User.create(user.id(), user.first(), user.last(), user.email(),
             user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactList,
             VERSION_CODE);
@@ -102,7 +93,7 @@ public class UserFactory {
         if (channelHashMap == null) {
             channelHashMap = new HashMap<>();
         }
-        channelHashMap.put(channel.id().value(), channel);
+        channelHashMap.put(channel.id(), channel);
         return User.create(user.id(), user.first(), user.last(), user.email(),
             user.profileURL(), user.coverURL(), channelHashMap, user.groups(), user.contacts(),
             VERSION_CODE);
@@ -116,13 +107,13 @@ public class UserFactory {
      */
     public static User addUserGroup(User user, Group newGroup) {
         HashMap<String, Group> groups = user.groups();
-        groups.put(newGroup.id().value(), newGroup);
+        groups.put(newGroup.id(), newGroup);
         return addUserGroups(user, groups);
     }
 
     public static User deleteUserGroup(User user, Group group) {
         HashMap<String, Group> groups = user.groups();
-        groups.remove(group.id().value());
+        groups.remove(group.id());
         return addUserGroups(user, groups);
     }
 
@@ -139,8 +130,21 @@ public class UserFactory {
             VERSION_CODE);
     }
 
+    /**
+     * Create the same {@link User} with the updated List<{@link Group}> values.
+     *
+     * @param user   to copy
+     * @param newChannels to update
+     * @return updated user
+     */
+    public static User addUserPublicChannels(User user, HashMap<String,Channel> newChannels) {
+        return User.create(user.id(), user.first(), user.last(), user.email(),
+            user.profileURL(), user.coverURL(), newChannels,user.groups(), user.contacts(),
+            VERSION_CODE);
+    }
+
     public static User deleteUserContact(User user, String contactId) {
-        HashMap<String, Id> contactList = user.contacts();
+        HashSet<String> contactList = user.contacts();
         if (contactList != null) {
             contactList.remove(contactId);
         }
@@ -152,7 +156,7 @@ public class UserFactory {
     public static User deleteUserChannel(User user, Channel channel) {
         HashMap<String, Channel> channels = user.channels();
         if (channels != null) {
-            channels.remove(channel.id().value());
+            channels.remove(channel.id());
         }
         return User.create(user.id(), user.first(), user.last(), user.email(),
             user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts(),

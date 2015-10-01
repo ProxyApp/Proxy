@@ -119,5 +119,11 @@
     </style>
     <style name="Proxy.TextAppearance.Subhead" parent="TextAppearance.AppCompat.Subhead">
     </style>
+    <style name="Proxy.TextAppearance.Body" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Body.Disabled" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/common_text_disabled</item>
+    </style>
 
 </resources>

@@ -117,6 +117,7 @@
     <string name="add">Add</string>
     <string name="dial">Dial</string>
     <string name="edit_group">Edit Group</string>
+    <string name="public_group">Public Group</string>
     <string name="group_name">Group name</string>
     <string name="edit_groups">Edit groups</string>
     <string name="menu">Menu</string>
@@ -135,6 +136,7 @@
     <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
     <string name="oauth_error">Error retrieving token from Google OAuth</string>
     <string name="shared_links">Shared links</string>
+    <string name="reload_contact">Reload contact</string>
     <string name="about_license">Copyright 2015 Evan Denerley\n\nLicensed under the Apache License,
         Version 2.0 (the “License”) you may not use this file except in compliance with the License.
         You may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n
@@ -189,5 +191,8 @@
     <string name="slide_three_body">
         Get a URL for your profile and choose what it shows. Send it to friends or put it in your
         email signature.
+    </string>
+    <string name="proxy_hook">all of you, in one place</string>
+    <string name="edit_public_channel_header">Selected channels will be visible to all users.
     </string>
 </resources>

@@ -4,12 +4,12 @@ package com.shareyourproxy.api.domain.factory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Channel.Builder;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.realm.RealmChannel;
 import com.shareyourproxy.api.domain.realm.RealmChannelType;
 import com.shareyourproxy.api.domain.realm.RealmString;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import io.realm.RealmList;
 
@@ -54,27 +54,38 @@ public class ChannelFactory {
         String id, String label, ChannelType channelType,
         String actionAddress) {
         Channel.Builder channel = Channel.builder();
-        channel.id(Id.builder().value(id).build());
+        channel.id(id);
         channel.label(label);
         channel.actionAddress(actionAddress);
         channel.channelType(channelType);
+        channel.isPublic(false);
         return channel.build();
     }
 
     public static Channel createModelInstance(Channel copyChannel, String actionAddress) {
         Channel.Builder channel = Channel.builder();
-        channel.id(Id.builder().value(copyChannel.id().value()).build());
+        channel.id(copyChannel.id());
         channel.label(copyChannel.label());
         channel.actionAddress(actionAddress);
         channel.channelType(copyChannel.channelType());
+        channel.isPublic(false);
+        return channel.build();
+    }
+
+    public static Channel createPublicChannel(Channel copyChannel, Boolean isPublic) {
+        Channel.Builder channel = Channel.builder();
+        channel.id(copyChannel.id());
+        channel.label(copyChannel.label());
+        channel.actionAddress(copyChannel.actionAddress());
+        channel.channelType(copyChannel.channelType());
+        channel.isPublic(isPublic);
         return channel.build();
     }
 
     public static Channel createModelInstance(RealmChannel realmChannel) {
-        return Channel.create(Id.builder().value(realmChannel.getId()).build(),
-            realmChannel.getLabel(),
+        return Channel.create(realmChannel.getId(), realmChannel.getLabel(),
             getModelChannelType(realmChannel.getChannelType()),
-            realmChannel.getActionAddress());
+            realmChannel.getActionAddress(), realmChannel.getIsPublic());
     }
 
     public static ChannelType getModelChannelType(RealmChannelType channelType) {
@@ -88,10 +99,11 @@ public class ChannelFactory {
      */
     public static Channel getWebChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Web.toString()).build());
+        channel.id(Web.toString());
         channel.label(Web.toString());
         channel.channelType(Web);
         channel.actionAddress(Web.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -102,10 +114,11 @@ public class ChannelFactory {
      */
     public static Channel getFacebookChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Facebook.toString()).build());
+        channel.id(Facebook.toString());
         channel.label(Facebook.toString());
         channel.channelType(Facebook);
         channel.actionAddress(Facebook.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -116,10 +129,11 @@ public class ChannelFactory {
      */
     public static Channel getTwitterChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Twitter.toString()).build());
+        channel.id(Twitter.toString());
         channel.label(Twitter.toString());
         channel.channelType(Twitter);
         channel.actionAddress(Twitter.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -130,10 +144,11 @@ public class ChannelFactory {
      */
     public static Channel getMeerkatChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Meerkat.toString()).build());
+        channel.id(Meerkat.toString());
         channel.label(Meerkat.toString());
         channel.channelType(Meerkat);
         channel.actionAddress(Meerkat.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -144,10 +159,11 @@ public class ChannelFactory {
      */
     public static Channel getSnapchatChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Snapchat.toString()).build());
+        channel.id(Snapchat.toString());
         channel.label(Snapchat.toString());
         channel.channelType(Snapchat);
         channel.actionAddress(Snapchat.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -158,10 +174,11 @@ public class ChannelFactory {
      */
     public static Channel getSpotifyChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Spotify.toString()).build());
+        channel.id(Spotify.toString());
         channel.label(Spotify.toString());
         channel.channelType(Spotify);
         channel.actionAddress(Spotify.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -172,10 +189,11 @@ public class ChannelFactory {
      */
     public static Channel getLinkedInChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Linkedin.toString()).build());
+        channel.id(Linkedin.toString());
         channel.label(Linkedin.toString());
         channel.channelType(Linkedin);
         channel.actionAddress(Linkedin.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -186,10 +204,11 @@ public class ChannelFactory {
      */
     public static Channel getFBMessengerChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(FBMessenger.toString()).build());
+        channel.id(FBMessenger.toString());
         channel.label(FBMessenger.toString());
         channel.channelType(FBMessenger);
         channel.actionAddress(FBMessenger.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -200,10 +219,11 @@ public class ChannelFactory {
      */
     public static Channel getHangoutsChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Hangouts.toString()).build());
+        channel.id(Hangouts.toString());
         channel.label(Hangouts.toString());
         channel.channelType(Hangouts);
         channel.actionAddress(Hangouts.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -214,10 +234,11 @@ public class ChannelFactory {
      */
     public static Channel getWhatsappChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Whatsapp.toString()).build());
+        channel.id(Whatsapp.toString());
         channel.label(Whatsapp.toString());
         channel.channelType(Whatsapp);
         channel.actionAddress(Whatsapp.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -228,10 +249,11 @@ public class ChannelFactory {
      */
     public static Channel getRedditChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Reddit.toString()).build());
+        channel.id(Reddit.toString());
         channel.label(Reddit.toString());
         channel.channelType(Reddit);
         channel.actionAddress(Reddit.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -242,10 +264,11 @@ public class ChannelFactory {
      */
     public static Channel getYoChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Yo.toString()).build());
+        channel.id(Yo.toString());
         channel.label(Yo.toString());
         channel.channelType(Yo);
         channel.actionAddress(Yo.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -256,10 +279,11 @@ public class ChannelFactory {
      */
     public static Channel getGooglePlusChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Googleplus.toString()).build());
+        channel.id(Googleplus.toString());
         channel.label(Googleplus.toString());
         channel.channelType(Googleplus);
         channel.actionAddress(Googleplus.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -270,10 +294,11 @@ public class ChannelFactory {
      */
     public static Channel getGithubChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Github.toString()).build());
+        channel.id(Github.toString());
         channel.label(Github.toString());
         channel.channelType(Github);
         channel.actionAddress(Github.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -284,10 +309,11 @@ public class ChannelFactory {
      */
     public static Channel getAddressChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Address.toString()).build());
+        channel.id(Address.toString());
         channel.label(Address.toString());
         channel.channelType(Address);
         channel.actionAddress(Address.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -298,10 +324,11 @@ public class ChannelFactory {
      */
     public static Channel getSlackChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Slack.toString()).build());
+        channel.id(Slack.toString());
         channel.label(Slack.toString());
         channel.channelType(Slack);
         channel.actionAddress(Slack.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -312,10 +339,11 @@ public class ChannelFactory {
      */
     public static Channel getYoutubeChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Youtube.toString()).build());
+        channel.id(Youtube.toString());
         channel.label(Youtube.toString());
         channel.channelType(Youtube);
         channel.actionAddress(Youtube.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -326,10 +354,11 @@ public class ChannelFactory {
      */
     public static Channel getInstagramChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Instagram.toString()).build());
+        channel.id(Instagram.toString());
         channel.label(Instagram.toString());
         channel.channelType(Instagram);
         channel.actionAddress(Instagram.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -340,10 +369,11 @@ public class ChannelFactory {
      */
     public static Channel getTumblrChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Tumblr.toString()).build());
+        channel.id(Tumblr.toString());
         channel.label(Tumblr.toString());
         channel.channelType(Tumblr);
         channel.actionAddress(Tumblr.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -354,10 +384,11 @@ public class ChannelFactory {
      */
     public static Channel getElloChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Ello.toString()).build());
+        channel.id(Ello.toString());
         channel.label(Ello.toString());
         channel.channelType(Ello);
         channel.actionAddress(Ello.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -368,10 +399,11 @@ public class ChannelFactory {
      */
     public static Channel getVenmoChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Venmo.toString()).build());
+        channel.id(Venmo.toString());
         channel.label(Venmo.toString());
         channel.channelType(Venmo);
         channel.actionAddress(Venmo.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -382,10 +414,11 @@ public class ChannelFactory {
      */
     public static Channel getPeriscopeChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Periscope.toString()).build());
+        channel.id(Periscope.toString());
         channel.label(Periscope.toString());
         channel.channelType(Periscope);
         channel.actionAddress(Periscope.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -396,10 +429,11 @@ public class ChannelFactory {
      */
     public static Channel getMediumChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Medium.toString()).build());
+        channel.id(Medium.toString());
         channel.label(Medium.toString());
         channel.channelType(Medium);
         channel.actionAddress(Medium.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -410,10 +444,11 @@ public class ChannelFactory {
      */
     public static Channel getSoundCloudChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Soundcloud.toString()).build());
+        channel.id(Soundcloud.toString());
         channel.label(Soundcloud.toString());
         channel.channelType(Soundcloud);
         channel.actionAddress(Soundcloud.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -424,10 +459,11 @@ public class ChannelFactory {
      */
     public static Channel getSkypeChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Skype.toString()).build());
+        channel.id(Skype.toString());
         channel.label(Skype.toString());
         channel.channelType(Skype);
         channel.actionAddress(Skype.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -438,10 +474,11 @@ public class ChannelFactory {
      */
     public static Channel getEmailChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Email.toString()).build());
+        channel.id(Email.toString());
         channel.label(Email.toString());
         channel.channelType(Email);
         channel.actionAddress(Email.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -452,10 +489,11 @@ public class ChannelFactory {
      */
     public static Channel getSMSChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(SMS.toString()).build());
+        channel.id(SMS.toString());
         channel.label(SMS.toString());
         channel.channelType(SMS);
         channel.actionAddress(SMS.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -466,10 +504,11 @@ public class ChannelFactory {
      */
     public static Channel getPhoneChannel() {
         Builder channel = builder();
-        channel.id(Id.builder().value(Phone.toString()).build());
+        channel.id(Phone.toString());
         channel.label(Phone.toString());
         channel.channelType(Phone);
         channel.actionAddress(Phone.toString());
+        channel.isPublic(false);
         return channel.build();
     }
 
@@ -496,11 +535,11 @@ public class ChannelFactory {
      * @param realmChannels to get channels from
      * @return RealmList of Contacts
      */
-    public static HashMap<String, Id> getModelChannelList(RealmList<RealmString> realmChannels) {
+    public static HashSet<String> getModelChannelList(RealmList<RealmString> realmChannels) {
         if (realmChannels != null) {
-            HashMap<String, Id> channels = new HashMap<>(realmChannels.size());
+            HashSet<String> channels = new HashSet<>(realmChannels.size());
             for (RealmString realmChannel : realmChannels) {
-                channels.put(realmChannel.getValue(), Id.create(realmChannel.getValue()));
+                channels.add(realmChannel.getValue());
             }
             return channels;
         }

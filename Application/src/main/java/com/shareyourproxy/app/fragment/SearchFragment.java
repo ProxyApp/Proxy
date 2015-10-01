@@ -205,10 +205,10 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         User loggedInUser = getLoggedInUser();
         if (loggedInUser != null) {
             _subscriptions.add(queryFilteredUsers(
-                getActivity(), loggedInUser.id().value()).subscribe(getSearchObserver()));
+                getActivity(), loggedInUser.id()).subscribe(getSearchObserver()));
             _subscriptions.add(
                 _textWatcherSubject.toObserverable().map(
-                    searchUserString(getActivity(), loggedInUser.id().value()))
+                    searchUserString(getActivity(), loggedInUser.id()))
                     .subscribe(getSearchObserver()));
         }
     }
@@ -265,7 +265,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value(),
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id(),
             event.imageView, event.textView);
     }
 

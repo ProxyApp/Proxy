@@ -22,7 +22,6 @@ import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
@@ -202,8 +201,8 @@ public class LoginActivity extends GoogleApiActivity {
                 } else {
                     setLoggedInUser(user);
                     RestClient.getUserService(LoginActivity.this, getRxBus())
-                        .updateUserVersion(user.id().value(), BuildConfig.VERSION_CODE).subscribe();
-                    getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id().value()));
+                        .updateUserVersion(user.id(), BuildConfig.VERSION_CODE).subscribe();
+                    getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id()));
                 }
             }
 
@@ -224,7 +223,7 @@ public class LoginActivity extends GoogleApiActivity {
     private User createUserFromGoogle() {
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
-        String userUID = GOOGLE_UID_PREFIX + currentUser.getId();
+        String userId = GOOGLE_UID_PREFIX + currentUser.getId();
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
         String email = Plus.AccountApi.getAccountName(_googleApiClient);
@@ -239,8 +238,7 @@ public class LoginActivity extends GoogleApiActivity {
             }
         }
         //Create a new {@link User} with empty groups, contacts, and channels
-        Id id = Id.builder().value(userUID).build();
-        return User.create(id, firstName, lastName, email, profileURL, coverURL,
+        return User.create(userId, firstName, lastName, email, profileURL, coverURL,
             null, getDefaultGroups(), null, VERSION_CODE);
     }
 
@@ -249,7 +247,7 @@ public class LoginActivity extends GoogleApiActivity {
         String[] groupLabels = getResources().getStringArray(R.array.default_groups);
         for (String label : groupLabels) {
             Group group = Group.create(label);
-            groups.put(group.id().value(), group);
+            groups.put(group.id(), group);
         }
         return groups;
     }

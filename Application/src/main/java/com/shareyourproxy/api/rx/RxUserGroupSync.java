@@ -35,7 +35,7 @@ public class RxUserGroupSync {
         Context context, RxBusDriver rxBus, User user, Group group) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, group, user),
-            saveFirebaseUserGroup(context, user.id().value(), rxBus, group),
+            saveFirebaseUserGroup(context, user.id(), rxBus, group),
             zipAddUserGroup())
             .map(saveSharedLink(context, rxBus))
             .toList()
@@ -60,7 +60,7 @@ public class RxUserGroupSync {
         Context context, RxBusDriver rxBus, User user, Group group) {
         return Observable.zip(
             deleteRealmUserGroup(context, group, user),
-            deleteFirebaseUserGroup(context, user.id().value(), rxBus, group),
+            deleteFirebaseUserGroup(context, user.id(), rxBus, group),
             zipDeleteUserGroup())
             .map(deleteSharedLink(context, rxBus))
             .toList()
@@ -74,7 +74,7 @@ public class RxUserGroupSync {
             @Override
             public UserGroupDeletedEventCallback call(UserGroupDeletedEventCallback event) {
                 getSharedLinkService(context, rxBus)
-                    .deleteSharedLink(event.group.id().value()).subscribe();
+                    .deleteSharedLink(event.group.id()).subscribe();
                 return event;
             }
         };
@@ -139,13 +139,13 @@ public class RxUserGroupSync {
     private static rx.Observable<Group> saveFirebaseUserGroup(
         Context context, String userId, RxBusDriver rxBus, Group group) {
         return RestClient.getUserGroupService(context, rxBus)
-            .addUserGroup(userId, group.id().value(), group);
+            .addUserGroup(userId, group.id(), group);
     }
 
     private static rx.Observable<Group> deleteFirebaseUserGroup(
         Context context, String userId, RxBusDriver rxBus, Group group) {
         Observable<Group> deleteObserver = RestClient.getUserGroupService(context, rxBus)
-            .deleteUserGroup(userId, group.id().value());
+            .deleteUserGroup(userId, group.id());
         deleteObserver.subscribe();
         ConnectableObservable<Group> connectableObservable = deleteObserver.publish();
         return Observable.merge(Observable.just(group), connectableObservable)

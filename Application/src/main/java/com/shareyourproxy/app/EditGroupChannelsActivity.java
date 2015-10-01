@@ -1,40 +1,36 @@
 package com.shareyourproxy.app;
 
 import android.os.Bundle;
-import android.support.annotation.IntDef;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
-import com.shareyourproxy.app.fragment.GroupEditChannelFragment;
+import com.shareyourproxy.app.fragment.EditGroupChannelsFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
+import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.ADD_GROUP;
+import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP;
+import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.PUBLIC_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconSecondary;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
  * Add and remove newChannel permissions from a group.
  */
-public class GroupEditChannelActivity extends BaseActivity {
-    public static final int ADD_GROUP = 0;
-    public static final int EDIT_GROUP = 1;
+public class EditGroupChannelsActivity extends BaseActivity {
     // View
     @Bind(R.id.activity_toolbar)
     protected Toolbar toolbar;
@@ -57,21 +53,24 @@ public class GroupEditChannelActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_fragment_container,
-                    GroupEditChannelFragment.newInstance()).commit();
+                    EditGroupChannelsFragment.newInstance()).commit();
         }
     }
 
-    private int getAddOrEdit() {
-        return getIntent().getExtras().getInt(ARG_ADD_OR_EDIT, 0);
+    private GroupEditType getAddOrEdit() {
+        return (GroupEditType) getIntent().getExtras().getSerializable(ARG_EDIT_GROUP_TYPE);
     }
 
     private void initialize() {
-        if (getAddOrEdit() == ADD_GROUP) {
+        GroupEditType editType = getAddOrEdit();
+        if (ADD_GROUP.equals(editType)) {
             buildToolbar(toolbar, getString(R.string.add_group),
                 getMenuIconSecondary(this, R.raw.ic_clear));
-        }
-        if (getAddOrEdit() == EDIT_GROUP) {
+        } else if (EDIT_GROUP.equals(editType)) {
             buildToolbar(toolbar, getString(R.string.edit_group),
+                getMenuIconSecondary(this, R.raw.ic_clear));
+        } else if (PUBLIC_GROUP.equals(editType)) {
+            buildToolbar(toolbar, getString(R.string.public_group),
                 getMenuIconSecondary(this, R.raw.ic_clear));
         }
     }
@@ -118,8 +117,8 @@ public class GroupEditChannelActivity extends BaseActivity {
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
         ArrayList<String> contacts = new ArrayList<>();
         if (event.group.contacts() != null) {
-            for (Map.Entry<String, Id> contactId : event.group.contacts().entrySet()) {
-                contacts.add(contactId.getKey());
+            for (String contactId : event.group.contacts()) {
+                contacts.add(contactId);
             }
         }
 
@@ -129,9 +128,7 @@ public class GroupEditChannelActivity extends BaseActivity {
         onBackPressed();
     }
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = { ADD_GROUP, EDIT_GROUP })
-    public @interface EventType {
+    public enum GroupEditType {
+        ADD_GROUP, EDIT_GROUP, PUBLIC_GROUP
     }
-
 }

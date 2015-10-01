@@ -2,13 +2,13 @@ package com.shareyourproxy.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
@@ -131,13 +131,17 @@ public class DispatchActivity extends GoogleApiActivity {
                         String jsonUser = getSharedPreferences().getString(Constants
                             .KEY_LOGGED_IN_USER, null);
                         if (jsonUser != null) {
-                            user = UserTypeAdapter.newInstance().fromJson(jsonUser);
+                            try {
+                                user = getSharedPrefJsonUser();
+                            } catch (Exception e) {
+                                Timber.e(Log.getStackTraceString(e));
+                            }
                         }
                         // if there is a user saved in shared prefs
                         if (user != null) {
                             setLoggedInUser(user);
                             RxBusDriver rxBus = getRxBus();
-                            rxBus.post(new SyncAllUsersCommand(rxBus, user.id().value()));
+                            rxBus.post(new SyncAllUsersCommand(rxBus, user.id()));
                             subscriber.onNext(user);
                         } else {
                             launchLoginActivity(activity);

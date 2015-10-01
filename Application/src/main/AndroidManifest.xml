@@ -76,7 +76,7 @@
         </activity>
 
         <activity
-            android:name=".app.GroupEditChannelActivity"
+            android:name=".app.EditGroupChannelsActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.EDIT_GROUP"/>

@@ -2,7 +2,6 @@ package com.shareyourproxy.api.service;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 
 import retrofit.http.Body;
@@ -22,8 +21,7 @@ public interface GroupContactService {
      */
     @PUT("/users/{userId}/groups/{groupId}/contacts/{contactId}.json")
     Observable<Contact> addGroupContact(
-        @Path("userId") String userId, @Path("groupId") String groupId,
-        @Path("contactId") String contactId, @Body Id contact);
+        @Path("userId") String userId, @Path("groupId") String groupId, @Body String contactId);
 
     @DELETE("/users/{userId}/groups/{groupId}/contacts/{contactId}.json")
     Observable<Contact> deleteGroupContact(

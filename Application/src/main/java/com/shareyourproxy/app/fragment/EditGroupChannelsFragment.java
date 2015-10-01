@@ -14,23 +14,25 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.command.DeleteUserGroupCommand;
 import com.shareyourproxy.api.rx.command.SaveGroupChannelsCommand;
-import com.shareyourproxy.app.GroupEditChannelActivity;
+import com.shareyourproxy.api.rx.command.SavePublicGroupChannelsCommand;
+import com.shareyourproxy.app.EditGroupChannelsActivity;
+import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.app.adapter.GroupEditChannelAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
+import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_DELETE;
+import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_DELETE_FOOTER;
 
 /**
- * Display a {@link Group}s {@link Channel}s and whether they are in our out of the groups
- * permissions.
+ * Display a list of {@link Group} {@link Channel}s and whether they are in our out of the selected
+ * groups permissions.
  */
-public class GroupEditChannelFragment extends BaseFragment implements ItemClickListener {
+public class EditGroupChannelsFragment extends BaseFragment implements ItemClickListener {
 
     @Bind(R.id.fragment_group_edit_channel_recyclerview)
     protected RecyclerView recyclerView;
@@ -40,16 +42,16 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     /**
      * Constructor.
      */
-    public GroupEditChannelFragment() {
+    public EditGroupChannelsFragment() {
     }
 
     /**
-     * Create a new instance of this fragment for the parent {@link GroupEditChannelActivity}.
+     * Create a new instance of this fragment for the parent {@link EditGroupChannelsActivity}.
      *
-     * @return GroupEditChannelFragment
+     * @return EditGroupChannelsFragment
      */
-    public static GroupEditChannelFragment newInstance() {
-        return new GroupEditChannelFragment();
+    public static EditGroupChannelsFragment newInstance() {
+        return new EditGroupChannelsFragment();
     }
 
     private Group getSelectedGroup() {
@@ -74,7 +76,16 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     private void saveGroupChannels(String groupLabel) {
         getRxBus().post(new SaveGroupChannelsCommand(getRxBus(),
             getLoggedInUser(), groupLabel, getSelectedGroup(),
-            _adapter.getSelectedChannels(), getAddOrEdit()));
+            _adapter.getSelectedChannels(), getGroupEditType()));
+        getActivity().onBackPressed();
+    }
+
+    /**
+     * Save public channels and go back.
+     */
+    private void savePublicGroupChannels() {
+        getRxBus().post(new SavePublicGroupChannelsCommand(getRxBus(), getLoggedInUser(),
+            _adapter.getToggledChannels()));
         getActivity().onBackPressed();
     }
 
@@ -89,7 +100,7 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         _adapter = GroupEditChannelAdapter.newInstance(this, getSelectedGroup().label(),
-            getLoggedInUser().channels(), getSelectedGroup().channels(), getAddOrEdit());
+            getLoggedInUser().channels(), getSelectedGroup().channels(), getGroupEditType());
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -97,20 +108,19 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
     }
 
     /**
-     * Check whether this fragment is adding a new group(0) or editing a saved group(1).
+     * Check whether this fragment is Adding a group, Editing a group, or a Public group.
      *
-     * @return {@link GroupEditChannelActivity#ADD_GROUP} {@link
-     * GroupEditChannelActivity#EDIT_GROUP}
-     * constants.
+     * @return {@link GroupEditType} constants.
      */
-    private int getAddOrEdit() {
-        return getActivity().getIntent().getExtras().getInt(ARG_ADD_OR_EDIT, 0);
+    private GroupEditType getGroupEditType() {
+        return (GroupEditType) getActivity().getIntent()
+            .getExtras().getSerializable(ARG_EDIT_GROUP_TYPE);
     }
 
     @Override
     public void onItemClick(View view, int position) {
         int viewType = _adapter.getItemViewType(position);
-        if (viewType == TYPE_LIST_DELETE) {
+        if (viewType == TYPE_LIST_DELETE_FOOTER) {
             getRxBus().post(new DeleteUserGroupCommand(getRxBus(),
                 getLoggedInUser(), getSelectedGroup()));
         }
@@ -123,7 +133,12 @@ public class GroupEditChannelFragment extends BaseFragment implements ItemClickL
                 getActivity().onBackPressed();
                 break;
             case R.id.menu_edit_group_channel_save:
-                saveGroupChannels(_adapter.getGroupLabel());
+                if (GroupEditType.PUBLIC_GROUP.equals(getGroupEditType())) {
+                    savePublicGroupChannels();
+                } else {
+                    saveGroupChannels(_adapter.getGroupLabel());
+                }
+
                 break;
             default:
                 Timber.e("Option item selected is unknown");

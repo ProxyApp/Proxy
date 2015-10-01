@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import java.net.URISyntaxException;
 
@@ -12,7 +12,7 @@ import auto.parcel.AutoParcel;
  * Created by Evan on 8/14/15.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_SpotifyUser.class)
+@AutoValueClass(autoValueClass = AutoParcel_SpotifyUser.class)
 public abstract class SpotifyUser implements Parcelable {
 
     public static SpotifyUser create(

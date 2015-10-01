@@ -45,7 +45,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @return logged in user
      */
-    public SharedPreferences getSharedPrefrences() {
+    public SharedPreferences getSharedPreferences() {
         return ((BaseActivity) getActivity()).getSharedPreferences();
     }
 
@@ -72,6 +72,10 @@ public abstract class BaseFragment extends Fragment {
 
     public void buildCustomToolbar(Toolbar toolbar, View customView) {
         ((BaseActivity) getActivity()).buildCustomToolbar(toolbar, customView);
+    }
+
+    public User getSharedPrefJsonUser() {
+       return ((BaseActivity) getActivity()).getSharedPrefJsonUser();
     }
 
     /**

@@ -13,7 +13,7 @@ public class Constants {
     public static final String ARG_USER_SELECTED_PROFILE = "com.proxy.user_selected_profile";
     //Bundled extra key used to distinguish a selected group.
     public static final String ARG_SELECTED_GROUP = "com.proxy.selected_group";
-    public static final String ARG_ADD_OR_EDIT = "com.proxy.add_or_edit";
+    public static final String ARG_EDIT_GROUP_TYPE = "com.proxy.edit_group_type";
     public static final String ARG_LOGGEDIN_USER_ID = "com.shareyourproxy.arg_loggedin_user_id";
     public static final String ARG_MAINFRAGMENT_SELECTED_TAB = "com.shareyourproxy" +
         ".arg_mainfragment_selected_tab";

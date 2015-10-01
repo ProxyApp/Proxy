@@ -1,10 +1,10 @@
 package com.shareyourproxy.api.domain.factory;
 
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.realm.RealmGroup;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import io.realm.RealmList;
 
@@ -31,13 +31,13 @@ public class GroupFactory {
     }
 
     public static Group getModelGroup(RealmGroup realmGroup) {
-        return Group.copy(Id.create(realmGroup.getId()), realmGroup.getLabel(),
+        return Group.copy(realmGroup.getId(), realmGroup.getLabel(),
             getModelChannelList(realmGroup.getChannels()),
             getModelContactList(realmGroup.getContacts()));
     }
 
     public static Group addGroupChannels(
-        String newTitle, Group oldGroup, HashMap<String, Id> channels) {
+        String newTitle, Group oldGroup, HashSet<String> channels) {
         return Group.copy(oldGroup.id(), newTitle, channels, oldGroup.contacts());
     }
 

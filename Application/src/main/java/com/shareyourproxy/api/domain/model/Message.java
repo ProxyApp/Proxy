@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import auto.parcel.AutoParcel;
 
@@ -10,7 +10,7 @@ import auto.parcel.AutoParcel;
  * Message information for Notifications.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_Message.class)
+@AutoValueClass(autoValueClass = AutoParcel_Message.class)
 public abstract class Message implements Parcelable {
 
     public static Message create(String id, String contactId, String first, String last) {

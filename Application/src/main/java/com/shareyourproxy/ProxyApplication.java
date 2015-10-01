@@ -21,11 +21,14 @@ import com.crashlytics.android.answers.Answers;
 import com.facebook.FacebookSdk;
 import com.firebase.client.Firebase;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
 import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.gson.UserTypeAdapter;
+import com.shareyourproxy.api.gson.AutoValueAdapterFactory;
+import com.shareyourproxy.api.gson.AutoValueClass;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
@@ -38,7 +41,6 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -94,12 +96,13 @@ public class ProxyApplication extends Application {
 
     @Override
     public void onCreate() {
-        initialize();
         super.onCreate();
+        //this complains its not initialized before everything else....wtf?
+        Firebase.setAndroidContext(this);
+        initialize();
     }
 
     public void initialize() {
-        Firebase.setAndroidContext(this);
         FacebookSdk.sdkInitialize(this);
         MultiDex.install(this);
 
@@ -160,8 +163,7 @@ public class ProxyApplication extends Application {
                 if (_currentUser != null) {
                     try {
                         List<Notification> notifications =
-                            _notificationService.getNotifications(getRxBus(), _currentUser.id()
-                                .value());
+                            _notificationService.getNotifications(getRxBus(), _currentUser.id());
                         if (notifications != null && notifications.size() > 0) {
                             for (Notification notification : notifications) {
                                 _notificationManager.notify(notification.hashCode(), notification);
@@ -197,7 +199,7 @@ public class ProxyApplication extends Application {
 
     private void userContactAddedEvent(UserContactAddedEventCallback event) {
         baseCommandEvent(new AddUserMessageCommand(getRxBus(),
-            event.contactId, Message.create(UUID.randomUUID().toString(), event.user.id().value(),
+            event.contactId, Message.create(UUID.randomUUID().toString(), event.user.id(),
             event.user.first(), event.user.last())));
     }
 
@@ -228,7 +230,7 @@ public class ProxyApplication extends Application {
                 CommandIntentService.ARG_RESULT_BASE_EVENTS);
         // update the logged in user from data saved to realm from the BaseCommand issued.
         User realmUser = queryUser(
-            ProxyApplication.this, _currentUser.id().value());
+            ProxyApplication.this, _currentUser.id());
         updateUser(realmUser);
         // issue event data to the main messaging system
         for (EventCallback event : events) {
@@ -249,14 +251,15 @@ public class ProxyApplication extends Application {
 
     private void updateUser(User user) {
         setCurrentUser(user);
-        try {
-            _sharedPreferences
-                .edit()
-                .putString(Constants.KEY_LOGGED_IN_USER, UserTypeAdapter.newInstance().toJson(user))
-                .apply();
-        } catch (IOException e) {
-            Timber.e(Log.getStackTraceString(e));
-        }
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new AutoValueAdapterFactory())
+            .create();
+        String userJson = gson.toJson(
+            user, User.class.getAnnotation(AutoValueClass.class).autoValueClass());
+        _sharedPreferences
+            .edit()
+            .putString(Constants.KEY_LOGGED_IN_USER, userJson)
+            .apply();
     }
 
     /**

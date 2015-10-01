@@ -1,10 +1,9 @@
 package com.shareyourproxy.api.domain.factory;
 
 import com.shareyourproxy.api.domain.model.Contact;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.realm.RealmString;
 
-import java.util.HashMap;
+import java.util.HashSet;
 
 import io.realm.RealmList;
 
@@ -20,22 +19,21 @@ public class ContactFactory {
      * @param realmContactsArray to get contacts from
      * @return RealmList of Contacts
      */
-    public static HashMap<String, Id> getModelContactList(
-        RealmList<RealmString> realmContactsArray) {
+    public static HashSet<String> getModelContactList(RealmList<RealmString> realmContactsArray) {
         if (realmContactsArray != null) {
-            HashMap<String, Id> contactList = new HashMap<>(realmContactsArray.size());
+            HashSet<String> contactList = new HashSet<>(realmContactsArray.size());
             for (RealmString realmContact : realmContactsArray) {
-                contactList.put(realmContact.getValue(), Id.create(realmContact.getValue()));
+                contactList.add(realmContact.getValue());
             }
             return contactList;
         }
         return null;
     }
 
-    public static HashMap<String, Id> getContactIds(RealmList<RealmString> values) {
-        HashMap<String, Id> channels = new HashMap<>(values.size());
+    public static HashSet<String> getContactIds(RealmList<RealmString> values) {
+        HashSet<String> channels = new HashSet<>(values.size());
         for (RealmString value : values) {
-            channels.put(value.getValue(), Id.create(value.getValue()));
+            channels.add(value.getValue());
         }
         return channels;
     }
