@@ -94,7 +94,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     }
 
     /**
-     * A Group has been edited in {@link GroupEditChannelFragment}. Update this fragments intent
+     * A Group has been edited in {@link EditGroupChannelsFragment}. Update this fragments intent
      * data and title.
      *
      * @param event group data
@@ -118,7 +118,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      */
     public void onUserSelected(UserSelectedEvent event) {
         launchUserProfileActivity(getActivity(), event.user,
-            getLoggedInUser().id().value(), event.imageView, event.textView);
+            getLoggedInUser().id(), event.imageView, event.textView);
     }
 
     /**

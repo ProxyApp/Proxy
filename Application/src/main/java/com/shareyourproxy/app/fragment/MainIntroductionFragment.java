@@ -59,7 +59,7 @@ public class MainIntroductionFragment extends BaseFragment {
     @OnClick(R.id.fragment_introduction_main_fab)
     public void onClickFab() {
         if (_selectedPage == (_adapter.getCount() - 1)) {
-            getSharedPrefrences().edit().putBoolean(KEY_PLAYED_INTRODUCTION, true).apply();
+            getSharedPreferences().edit().putBoolean(KEY_PLAYED_INTRODUCTION, true).apply();
             launchMainActivity(getActivity(), MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
             getActivity().finish();
         } else {

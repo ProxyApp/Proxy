@@ -18,6 +18,9 @@ import java.util.Map;
 
 import butterknife.Bind;
 
+import static com.shareyourproxy.api.domain.model.Group.createPublicGroup;
+import static com.shareyourproxy.util.ObjectUtils.capitalize;
+
 /**
  * An Adapter to handle displaying {@link Group}s.
  */
@@ -108,7 +111,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 @Override
                 public boolean areItemsTheSame(Group item1, Group item2) {
                     //Sections will have the same ID but different categories
-                    return item1.id().value().equals(item2.id().value());
+                    return item1.id().equals(item2.id());
                 }
             };
         }
@@ -135,7 +138,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param group  the {@link Group} data
      */
     private void setLineItemViewData(final GroupViewHolder holder, Group group) {
-        holder.groupName.setText(group.label());
+        holder.groupName.setText(capitalize(group.label()));
     }
 
     @Override
@@ -180,6 +183,8 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 _groups.add(group.getValue());
             }
         }
+        // There's a public group no matter what
+        _groups.add(createPublicGroup());
         _groups.endBatchedUpdates();
     }
 

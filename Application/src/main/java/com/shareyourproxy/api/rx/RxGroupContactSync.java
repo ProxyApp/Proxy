@@ -5,11 +5,11 @@ import android.util.Pair;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class RxGroupContactSync {
             @Override
             public Pair<User, List<Group>> call(Pair<User, List<Group>> userListPair) {
                 User newUser = userListPair.first;
-                String userId = newUser.id().value();
+                String userId = newUser.id();
                 updateRealmUser(context, newUser);
                 getUserService(context, rxBus).updateUser(userId, newUser).subscribe();
                 return userListPair;
@@ -64,17 +64,17 @@ public class RxGroupContactSync {
                 boolean groupHasContact = false;
                 ArrayList<Group> contactInGroup = new ArrayList<>();
                 for (GroupToggle groupToggle : groupToggles) {
-                    String groupId = groupToggle.getGroup().id().value();
+                    String groupId = groupToggle.getGroup().id();
                     if (groupToggle.isChecked()) {
                         groupHasContact = true;
-                        user.groups().get(groupId).contacts().put(contactId, Id.create(contactId));
+                        user.groups().get(groupId).contacts().add(contactId);
                         contactInGroup.add(user.groups().get(groupId));
                     } else {
                         user.groups().get(groupId).contacts().remove(contactId);
                     }
                 }
                 if (groupHasContact) {
-                    user.contacts().put(contactId, Id.create(contactId));
+                    user.contacts().add(contactId);
                 } else {
                     user.contacts().remove(contactId);
                 }
@@ -88,10 +88,18 @@ public class RxGroupContactSync {
         return new Func1<Pair<User, List<Group>>, List<EventCallback>>() {
             @Override
             public List<EventCallback> call(Pair<User, List<Group>> groups) {
-                return new ArrayList<EventCallback>(
-                    asList(new UserContactAddedEventCallback(groups.first, contactId),
-                        new GroupContactsUpdatedEventCallback(
-                            groups.first, contactId, groups.second)));
+                if (groups.second.size() > 0) {
+                    return new ArrayList<EventCallback>(
+                        asList(new UserContactAddedEventCallback(groups.first, contactId),
+                            new GroupContactsUpdatedEventCallback(
+                                groups.first, contactId, groups.second)));
+                } else {
+                    //contact in group list is empty, so the contact has been removed from groups
+                    return new ArrayList<EventCallback>(
+                        asList(new UserContactDeletedEventCallback(groups.first, contactId),
+                            new GroupContactsUpdatedEventCallback(
+                                groups.first, contactId, groups.second)));
+                }
             }
         };
     }

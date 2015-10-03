@@ -91,7 +91,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
         getRxBus().post(new SaveGroupContactsCommand(getRxBus(), getLoggedInUser(),
-            _adapter.getDataArray(), user.id().value()));
+            _adapter.getDataArray(), user.id()));
     }
 
     /**

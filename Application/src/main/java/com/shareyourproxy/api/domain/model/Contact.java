@@ -3,7 +3,7 @@ package com.shareyourproxy.api.domain.model;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import java.util.HashMap;
 
@@ -13,7 +13,7 @@ import auto.parcel.AutoParcel;
  * Contacts are {@link User}s that you'd like to communicate with.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_Contact.class)
+@AutoValueClass(autoValueClass = AutoParcel_Contact.class)
 public abstract class Contact implements Parcelable {
 
     /**
@@ -25,7 +25,7 @@ public abstract class Contact implements Parcelable {
      */
     @SuppressWarnings("unused")
     public static Contact create(
-        Id id, String first, String last, String profileURL, String coverURL,
+        String id, String first, String last, String profileURL, String coverURL,
         HashMap<String, Channel> channels) {
         return builder().id(id).first(first).last(last).profileURL(profileURL).coverURL(coverURL)
             .channels(channels).build();
@@ -45,7 +45,7 @@ public abstract class Contact implements Parcelable {
      *
      * @return name
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
      * Get the name of the Contact.
@@ -96,7 +96,7 @@ public abstract class Contact implements Parcelable {
          * @param id group unique id
          * @return group id
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
          * Set the contacts first name.

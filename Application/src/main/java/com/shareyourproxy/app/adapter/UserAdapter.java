@@ -93,7 +93,7 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 @Override
                 public boolean areContentsTheSame(User item1, User item2) {
                     // we dont compare resId because its probably going to be removed
-                    return (item1.id().value().equals(item2.id().value())
+                    return (item1.id().equals(item2.id())
                         && item1.first().equals(item2.first())
                         && item1.last().equals(item2.last())
                         && item1.email().equals(item2.email())
@@ -104,7 +104,7 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public boolean areItemsTheSame(User item1, User item2) {
-                    return (item1.id().value().equals(item2.id().value()));
+                    return (item1.id().equals(item2.id()));
                 }
             };
         }

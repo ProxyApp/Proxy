@@ -5,13 +5,9 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.Constants;
-import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.gson.AutoGson;
-import com.shareyourproxy.api.gson.AutoParcelAdapterFactory;
-import com.shareyourproxy.api.gson.UserTypeAdapter;
+import com.shareyourproxy.api.gson.AutoValueAdapterFactory;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.service.InstagramAuthService;
 import com.shareyourproxy.api.service.MessageService;
@@ -52,9 +48,7 @@ public class RestClient {
      * @return userService
      */
     public static UserService getUserService(Context context, RxBusDriver rxBus) {
-        return buildRestClient(context,
-            rxBus, buildGsonConverter(User.class.getAnnotation(AutoGson.class).autoValueClass(),
-                UserTypeAdapter.newInstance()))
+        return buildRestClient(context, rxBus, buildGsonConverter())
             .create(UserService.class);
     }
 
@@ -147,16 +141,9 @@ public class RestClient {
             .build();
     }
 
-    public static Gson buildGsonConverter(Class clazz, TypeAdapter typeAdapter) {
-        return new GsonBuilder()
-            .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
-            .registerTypeAdapter(clazz, typeAdapter)
-            .create();
-    }
-
     public static Gson buildGsonConverter() {
         return new GsonBuilder()
-            .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
+            .registerTypeAdapterFactory(new AutoValueAdapterFactory())
             .create();
     }
 

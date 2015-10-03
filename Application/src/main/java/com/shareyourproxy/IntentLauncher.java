@@ -14,13 +14,14 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.AddChannelListActivity;
 import com.shareyourproxy.app.GroupContactsActivity;
+import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserProfileActivity;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
-import static com.shareyourproxy.Constants.ARG_ADD_OR_EDIT;
+import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 
@@ -68,6 +69,22 @@ public final class IntentLauncher {
      */
     public static void launchChannelListActivity(Activity activity) {
         Intent intent = new Intent(Intents.ACTION_ADD_CHANNEL_LIST_VIEW);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+    }
+
+    /**
+     * Add a new group or edit a selected group and it's channels.
+     *
+     * @param activity context
+     * @param group selected
+     * @param groupEditType add edit or public group
+     */
+    public static void launchEditGroupChannelsActivity(
+        Activity activity, Group group, GroupEditType groupEditType) {
+        Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
+        intent.putExtra(ARG_SELECTED_GROUP, group);
+        intent.putExtra(ARG_EDIT_GROUP_TYPE, groupEditType);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
@@ -189,22 +206,6 @@ public final class IntentLauncher {
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
         }
-    }
-
-    /**
-     * Add a new group or edit a selected group and it's channels.
-     *
-     * @param activity context
-     * @param group selected
-     * @param addOrEdit are we adding or editing the group
-     */
-    public static void launchGroupEditChannelActivity(
-        Activity activity, Group group, int addOrEdit) {
-        Intent intent = new Intent(Intents.ACTION_EDIT_GROUP_CHANNEL);
-        intent.putExtra(ARG_SELECTED_GROUP, group);
-        intent.putExtra(ARG_ADD_OR_EDIT, addOrEdit);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
     }
 
     /**

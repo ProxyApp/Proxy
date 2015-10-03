@@ -42,7 +42,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     public static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
     public static final int REQUESTCODE_SIGN_IN = 0;
     // Final
-    public final Firebase _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
+    public Firebase _firebaseRef;
     private AuthResultHandler _authResultHandler = new AuthResultHandler(this);
     private boolean _googleIntentInProgress = false;
     private CompositeSubscription _subscriptions;
@@ -61,6 +61,17 @@ public abstract class GoogleApiActivity extends BaseActivity implements
         }
         ErrorDialog.newInstance(activity.getString(R.string.login_error), message)
             .show(activity.getSupportFragmentManager());
+    }
+
+    private static GoogleApiClient buildGoogleApiClient(GoogleApiActivity activity) {
+        return new GoogleApiClient.Builder(activity)
+            .addConnectionCallbacks(activity)
+            .addOnConnectionFailedListener(activity)
+            .addApi(Plus.API, Plus.PlusOptions.builder().build())
+            .addScope(Plus.SCOPE_PLUS_LOGIN)
+            .addScope(new Scope(Scopes.PLUS_ME))
+            .addScope(new Scope(SCOPE_EMAIL))
+            .addScope(Plus.SCOPE_PLUS_PROFILE).build();
     }
 
     public abstract void onAuthenticated(AuthData authData);
@@ -118,17 +129,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _googleApiClient = buildGoogleApiClient(this);
-    }
-
-    private static GoogleApiClient buildGoogleApiClient(GoogleApiActivity activity) {
-        return new GoogleApiClient.Builder(activity)
-            .addConnectionCallbacks(activity)
-            .addOnConnectionFailedListener(activity)
-            .addApi(Plus.API, Plus.PlusOptions.builder().build())
-            .addScope(Plus.SCOPE_PLUS_LOGIN)
-            .addScope(new Scope(Scopes.PLUS_ME))
-            .addScope(new Scope(SCOPE_EMAIL))
-            .addScope(Plus.SCOPE_PLUS_PROFILE).build();
+        _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
     }
 
     @Override
@@ -146,9 +147,9 @@ public abstract class GoogleApiActivity extends BaseActivity implements
                 if (event instanceof RefreshFirebaseAuthenticationEvent) {
                     if (!_isTokenRefreshing) {
                         _isTokenRefreshing = true;
-                       _subscriptions.add(refreshFirebaseAuth(activity,
-                           getGoogleApiClient(), getSharedPreferences())
-                           .subscribe(getTokenRefreshObserver()));
+                        _subscriptions.add(refreshFirebaseAuth(activity,
+                            getGoogleApiClient(), getSharedPreferences())
+                            .subscribe(getTokenRefreshObserver()));
                     }
                 }
             }
@@ -184,6 +185,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        // let the user press the button to connect to gms on the login activity
         if (!(this instanceof LoginActivity)) {
             _googleApiClient.connect();
         }
@@ -193,6 +195,10 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     protected void onStop() {
         super.onStop();
         _googleApiClient.disconnect();
+    }
+
+    public GoogleApiClient getGoogleApiClient() {
+        return _googleApiClient;
     }
 
     /**
@@ -220,10 +226,6 @@ public abstract class GoogleApiActivity extends BaseActivity implements
         public void onAuthenticationError(FirebaseError firebaseError) {
             activity.onAuthenticationError(firebaseError.toException());
         }
-    }
-
-    public GoogleApiClient getGoogleApiClient() {
-        return _googleApiClient;
     }
 
 }

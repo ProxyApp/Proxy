@@ -3,8 +3,6 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
@@ -14,7 +12,6 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import rx.functions.Func1;
 
@@ -45,36 +42,9 @@ public class RxUserSync {
     public static List<EventCallback> syncAllUsers(
         Context context, RxBusDriver rxBus, String loggedInUserId) {
         return getFirebaseUsers(context, rxBus)
-            .map(updateLoggedInUser(loggedInUserId))
             .map(saveRealmUsers(context))
             .map(usersDownloaded(loggedInUserId))
             .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
-    }
-
-    private static Func1<HashMap<String, User>, HashMap<String, User>> updateLoggedInUser(
-        final String loggedInUserId) {
-        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
-            @Override
-            public HashMap<String, User> call(HashMap<String, User> users) {
-                User loggedInUser = users.get(loggedInUserId);
-                //for every loggedInUser Contact
-                for (Map.Entry<String, Id> contactId : loggedInUser.contacts().entrySet()) {
-                    //if that contactId is in any logged in user group, update it
-                    for (Map.Entry<String, Group> groupEntry : loggedInUser.groups().entrySet()) {
-                        Group group = groupEntry.getValue();
-                        HashMap<String, Id> groupContacts = group.contacts();
-                        if (groupContacts.containsKey(contactId.getKey())) {
-                            group.contacts().put(contactId.getKey(), Id.create(contactId.getKey()));
-                        }
-                        loggedInUser.contacts().put(contactId.getKey(), Id.create(contactId
-                            .getKey()));
-                    }
-                }
-                users.put(loggedInUserId, loggedInUser);
-                return users;
-            }
-        };
-
     }
 
     private static rx.Observable<HashMap<String, User>> getFirebaseUsers(
@@ -105,8 +75,7 @@ public class RxUserSync {
 
     public static List<EventCallback> saveUser(
         Context context, RxBusDriver rxBus, User newUser) {
-        return RestClient.getUserService(context, rxBus).updateUser(newUser.id().value(),
-            newUser)
+        return RestClient.getUserService(context, rxBus).updateUser(newUser.id(), newUser)
             .map(saveRealmUser(context))
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())

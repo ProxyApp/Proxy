@@ -42,7 +42,9 @@ import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.shareyourproxy.app.GroupEditChannelActivity.ADD_GROUP;
+import static com.shareyourproxy.api.domain.model.Group.*;
+import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.ADD_GROUP;
+import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.PUBLIC_GROUP;
 import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -72,7 +74,7 @@ public class MainGroupFragment
                 public void run() {
                     User user = getLoggedInUser();
                     if (user != null) {
-                        getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id().value()));
+                        getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id()));
                     }
                 }
             });
@@ -97,16 +99,16 @@ public class MainGroupFragment
     }
 
     /**
-     * Prompt user with a {@link GroupEditChannelFragment} to add a new {@link Group}.
+     * Prompt user with a {@link EditGroupChannelsFragment} to add a new {@link Group}.
      */
     @OnClick(R.id.fragment_group_main_fab_group)
     public void onClick() {
-        IntentLauncher.launchGroupEditChannelActivity(
-            getActivity(), Group.createBlank(), ADD_GROUP);
+        IntentLauncher.launchEditGroupChannelsActivity(
+            getActivity(), createBlank(), ADD_GROUP);
     }
 
     /**
-     * Check if there was a group deleted from the {@link GroupEditChannelFragment#onItemClick
+     * Check if there was a group deleted from the {@link EditGroupChannelsFragment#onItemClick
      * (View, int)})}
      *
      * @param activity to get intent data from
@@ -221,7 +223,7 @@ public class MainGroupFragment
      */
     public void updateGroups(GroupChannelsUpdatedEventCallback event) {
         _adapter.addGroupData(event.group);
-        if (event.addOrEdit == ADD_GROUP) {
+        if (event.groupEditType == ADD_GROUP) {
             showAddedGroupSnackBar();
         } else {
             showChangesSavedSnackBar(coordinatorLayout);
@@ -230,7 +232,7 @@ public class MainGroupFragment
 
     private void showAddedGroupSnackBar() {
         Snackbar.make(
-            coordinatorLayout, getString(R.string.channel_added), Snackbar.LENGTH_LONG).show();
+            coordinatorLayout, getString(R.string.group_added), Snackbar.LENGTH_LONG).show();
     }
 
     /**
@@ -288,7 +290,12 @@ public class MainGroupFragment
     @Override
     public void onItemClick(View view, int position) {
         Group group = _adapter.getGroupData(position);
-        IntentLauncher.launchEditGroupContactsActivity(getActivity(), group);
+        if (group.id().equals(PUBLIC)) {
+            IntentLauncher.launchEditGroupChannelsActivity(getActivity(), group, PUBLIC_GROUP);
+        } else {
+            IntentLauncher.launchEditGroupContactsActivity(getActivity(), group);
+        }
+
     }
 
 }

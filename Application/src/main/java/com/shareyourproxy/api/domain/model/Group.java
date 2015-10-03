@@ -3,9 +3,9 @@ package com.shareyourproxy.api.domain.model;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import auto.parcel.AutoParcel;
@@ -14,8 +14,11 @@ import auto.parcel.AutoParcel;
  * Groups are collections of {@link User}s.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_Group.class)
+@AutoValueClass(autoValueClass = AutoParcel_Group.class)
 public abstract class Group implements Parcelable {
+    public static final String PUBLIC = "public";
+    public static final String BLANK = "";
+
     /**
      * create a new blank Group.
      *
@@ -24,25 +27,28 @@ public abstract class Group implements Parcelable {
     @SuppressWarnings("unused")
     public static Group createBlank() {
         String groupId = UUID.randomUUID().toString();
-        Id id = Id.builder().value(groupId).build();
-        return builder().id(id).label("").channels(null)
+        return builder().id(groupId).label(BLANK).channels(null)
             .contacts(null).build();
     }
 
     public static Group create(String label) {
         String groupId = UUID.randomUUID().toString();
-        Id id = Id.builder().value(groupId).build();
-        return builder().id(id).label(label).channels(null)
+        return builder().id(groupId).label(label).channels(null)
             .contacts(null).build();
     }
 
-    public static Group copy(Group group, String newTitle, HashMap<String, Id> channels) {
+    public static Group createPublicGroup() {
+        return builder().id(PUBLIC).label(PUBLIC).channels(null)
+            .contacts(null).build();
+    }
+
+    public static Group copy(Group group, String newTitle, HashSet<String> channels) {
         return builder().id(group.id()).label(newTitle).channels(channels)
             .contacts(group.contacts()).build();
     }
 
     public static Group copy(
-        Id id, String label, HashMap<String, Id> channels, HashMap<String, Id> contacts) {
+        String id, String label, HashSet<String> channels, HashSet<String> contacts) {
         return builder().id(id).label(label).channels(channels)
             .contacts(contacts).build();
     }
@@ -61,7 +67,7 @@ public abstract class Group implements Parcelable {
      *
      * @return name
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
      * Get the name of the {@link Group}.
@@ -76,7 +82,7 @@ public abstract class Group implements Parcelable {
      * @return list of {@link Channel}s
      */
     @Nullable
-    public abstract HashMap<String, Id> channels();
+    public abstract HashSet<String> channels();
 
     /**
      * Get the list of {@link Contact}s in this {@link Group}.
@@ -84,7 +90,7 @@ public abstract class Group implements Parcelable {
      * @return list of {@link Contact}s
      */
     @Nullable
-    public abstract HashMap<String, Id> contacts();
+    public abstract HashSet<String> contacts();
 
     /**
      * Group Builder.
@@ -98,7 +104,7 @@ public abstract class Group implements Parcelable {
          * @param id group unique groupId
          * @return group groupId
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
          * Set the contactGroups name.
@@ -115,7 +121,7 @@ public abstract class Group implements Parcelable {
          * @return channels
          */
         @Nullable
-        Builder channels(HashMap<String, Id> channels);
+        Builder channels(HashSet<String> channels);
 
         /**
          * Set group contacts.
@@ -124,7 +130,7 @@ public abstract class Group implements Parcelable {
          * @return contacts
          */
         @Nullable
-        Builder contacts(HashMap<String, Id> contacts);
+        Builder contacts(HashSet<String> contacts);
 
         /**
          * BUILD.

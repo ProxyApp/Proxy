@@ -6,11 +6,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
@@ -56,6 +64,9 @@ public class UserProfileActivity extends BaseActivity {
 
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
+    private MenuItem refreshButton;
+    private ImageView menuAnimation;
+    private Animation rotation;
 
     @Override
     public void onBackPressed() {
@@ -74,6 +85,7 @@ public class UserProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_user_profile);
         preventStatusBarFlash(this);
         setIsLoggedInUser();
+        initMenuAnimation();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_user_profile_container,
@@ -81,13 +93,39 @@ public class UserProfileActivity extends BaseActivity {
         }
     }
 
+    private void initMenuAnimation() {
+        menuAnimation = (ImageView) getLayoutInflater().inflate(R.layout.common_imageview, null);
+        menuAnimation.setImageDrawable(getMenuIcon(this, R.raw.ic_sync));
+        menuAnimation.setOnClickListener(menuRefreshClickListener());
+        rotation = AnimationUtils.loadAnimation(this, R.anim.counter_clockwise_refresh);
+        rotation.setRepeatCount(Animation.INFINITE);
+    }
+
+    private View.OnClickListener menuRefreshClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRefreshAnimation();
+                RxBusDriver bus = getRxBus();
+                bus.post(new SyncAllUsersCommand(bus, getUserExtra().id()));
+            }
+        };
+    }
+
     /**
      * Initialize _isLoggedInUser field.
      */
     private void setIsLoggedInUser() {
-        User userContact = getIntent().getExtras().getParcelable
-            (ARG_USER_SELECTED_PROFILE);
+        User userContact = getUserExtra();
         _isLoggedInUser = isLoggedInUser(userContact);
+    }
+
+    /**
+     * Get parceled user.
+     */
+    private User getUserExtra() {
+        return getIntent().getExtras().getParcelable
+            (ARG_USER_SELECTED_PROFILE);
     }
 
     @Override
@@ -95,7 +133,9 @@ public class UserProfileActivity extends BaseActivity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         if (_isLoggedInUser) {
-            inflater.inflate(R.menu.menu_activity_current_user, menu);
+            inflater.inflate(R.menu.menu_activity_current_user_profile, menu);
+        } else {
+            inflater.inflate(R.menu.menu_activity_contact_profile, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -105,6 +145,9 @@ public class UserProfileActivity extends BaseActivity {
         if (_isLoggedInUser) {
             MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
             sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
+        } else {
+            refreshButton = menu.findItem(R.id.menu_contact_profile_reload);
+            refreshButton.setActionView(menuAnimation);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -116,13 +159,22 @@ public class UserProfileActivity extends BaseActivity {
                 onBackPressed();
                 break;
             case R.id.menu_current_user_shared_links:
-                ShareLinkDialog.newInstance(getLoggedInUser().groups())
+                ShareLinkDialog.newInstance(getUserExtra().groups())
                     .show(getSupportFragmentManager());
                 break;
             default:
                 Timber.e("Option item selected is unknown");
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startRefreshAnimation() {
+        // get the static icon out of view
+        menuAnimation.startAnimation(rotation);
+    }
+
+    private void stopRefreshAnimation() {
+        menuAnimation.clearAnimation();
     }
 
     @Override
@@ -136,6 +188,10 @@ public class UserProfileActivity extends BaseActivity {
                 public void call(Object event) {
                     if (event instanceof SelectUserChannelEvent) {
                         onChannelSelected((SelectUserChannelEvent) event);
+                    } else if (event instanceof SyncAllUsersSuccessEvent) {
+                        stopRefreshAnimation();
+                    } else if (event instanceof SyncAllUsersErrorEvent) {
+                        stopRefreshAnimation();
                     }
                 }
             }));

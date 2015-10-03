@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ import auto.parcel.AutoParcel;
  * Upload information to firebase to create shared links for group channels.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_SharedLink.class)
+@AutoValueClass(autoValueClass = AutoParcel_SharedLink.class)
 public abstract class SharedLink implements Parcelable {
 
     /**
@@ -25,7 +25,7 @@ public abstract class SharedLink implements Parcelable {
     @SuppressWarnings("unused")
     public static SharedLink create(User user, Group group) {
         String id = UUID.randomUUID().toString();
-        return builder().id(id).userId(user.id().value()).groupId(group.id().value()).build();
+        return builder().id(id).userId(user.id()).groupId(group.id()).build();
     }
 
     /**

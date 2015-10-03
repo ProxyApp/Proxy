@@ -1,8 +1,9 @@
 package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import auto.parcel.AutoParcel;
 
@@ -10,22 +11,25 @@ import auto.parcel.AutoParcel;
  * Channels are other apps and services that you will use to communicate with {@link Contact}s.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_Channel.class)
+@AutoValueClass(autoValueClass = AutoParcel_Channel.class)
 public abstract class Channel implements Parcelable {
 
     /**
      * Create a new {@link Channel}.
      *
-     * @param id          unique id
-     * @param label       name of the newChannel
-     * @param channelType newChannel intent type
-     * @return Immutable newChannel
+     * @param id            unique id
+     * @param label         name of the newChannel
+     * @param channelType   newChannel intent type
+     * @param actionAddress endpoint
+     * @param isPublic      is channel public
+     * @return Immutable Channel
      */
     @SuppressWarnings("unused")
-    public static Channel create(Id id, String label, ChannelType channelType, String
-        actionAddress) {
+    public static Channel create(
+        String id, String label, ChannelType channelType, String
+        actionAddress, Boolean isPublic) {
         return builder().id(id).label(label).channelType(channelType)
-            .actionAddress(actionAddress).build();
+            .actionAddress(actionAddress).isPublic(isPublic).build();
     }
 
     /**
@@ -42,7 +46,7 @@ public abstract class Channel implements Parcelable {
      *
      * @return name
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
      * Get the name of the {@link Channel}.
@@ -66,6 +70,12 @@ public abstract class Channel implements Parcelable {
     public abstract String actionAddress();
 
     /**
+     * Is this channel public to all contacts?
+     */
+    @Nullable
+    public abstract Boolean isPublic();
+
+    /**
      * Channel Builder.
      */
     @AutoParcel.Builder
@@ -77,7 +87,7 @@ public abstract class Channel implements Parcelable {
          * @param id newChannel unique id
          * @return newChannel id
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
          * Set the channels name.
@@ -90,6 +100,8 @@ public abstract class Channel implements Parcelable {
         Builder channelType(ChannelType channelType);
 
         Builder actionAddress(String actionAddress);
+
+        Builder isPublic(Boolean isPublic);
 
         /**
          * BUILD.

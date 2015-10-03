@@ -25,7 +25,7 @@ public class RealmUserFactory {
     public static RealmUser createRealmUser(User user) {
         RealmUser realmUser = new RealmUser();
         if (user != null) {
-            realmUser.setId(user.id().value());
+            realmUser.setId(user.id());
             realmUser.setFirst(user.first());
             realmUser.setLast(user.last());
             realmUser.setFullName(joinWithSpace(new String[]{ user.first(), user.last() }));

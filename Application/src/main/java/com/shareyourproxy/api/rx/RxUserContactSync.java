@@ -5,7 +5,6 @@ import android.util.Pair;
 
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Group;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
@@ -13,13 +12,13 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCa
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.observables.ConnectableObservable;
 
 import static com.shareyourproxy.api.RestClient.getUserContactService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
@@ -39,7 +38,7 @@ public class RxUserContactSync {
         Context context, RxBusDriver rxBus, User user, String contactId) {
         return rx.Observable.zip(
             saveRealmUserContact(context, user, contactId),
-            saveFirebaseUserContact(context, rxBus, user.id().value(), contactId),
+            saveFirebaseUserContact(context, rxBus, user.id(), contactId),
             zipAddUserContact())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -50,7 +49,7 @@ public class RxUserContactSync {
         Context context, RxBusDriver rxBus, User user, String contactId) {
         return rx.Observable.zip(
             deleteRealmUserContact(context, user, contactId),
-            deleteFirebaseUserContact(context, rxBus, user.id().value(), contactId),
+            deleteFirebaseUserContact(context, rxBus, user.id(), contactId),
             zipDeleteUserContact())
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
@@ -114,30 +113,14 @@ public class RxUserContactSync {
     private static rx.Observable<String> saveFirebaseUserContact(
         Context context,
         RxBusDriver rxBus, String userId, String contactId) {
-        return getUserContactService(context, rxBus).addUserContact(userId, contactId, Id
-            .create(contactId));
+        return getUserContactService(context, rxBus).addUserContact(userId, contactId);
     }
 
 
     private static rx.Observable<String> deleteFirebaseUserContact(
         Context context, RxBusDriver rxBus, String userId, String contactId) {
-
-        Observable<String> deleteObserver = getUserContactService(context, rxBus)
-            .deleteUserContact(userId, contactId);
-        deleteObserver.subscribe();
-        ConnectableObservable<String> connectableObservable = deleteObserver.publish();
-
-        return rx.Observable.merge(Observable.just(contactId), connectableObservable)
-            .filter(filterNullContact());
-    }
-
-    private static Func1<String, Boolean> filterNullContact() {
-        return new Func1<String, Boolean>() {
-            @Override
-            public Boolean call(String contactId) {
-                return contactId != null;
-            }
-        };
+        getUserContactService(context, rxBus).deleteUserContact(userId, contactId).subscribe();
+        return Observable.just(contactId);
     }
 
     public static List<EventCallback> checkContacts(
@@ -159,13 +142,12 @@ public class RxUserContactSync {
                 if (userGroups != null) {
                     for (Map.Entry<String, Group> entryGroup : userGroups.entrySet()) {
                         Group group = entryGroup.getValue();
-                        HashMap<String, Id> groupContacts = group.contacts();
+                        HashSet<String> groupContacts = group.contacts();
                         if (groupContacts != null) {
-                            for (Map.Entry<String, Id> entryGroupContact : groupContacts.entrySet
-                                ()) {
+                            for (String groupContactId : groupContacts) {
 
-                                if (entryGroupContact.getKey().equals(contactId)) {
-                                    return new Pair<>(contactId, true);
+                                if (groupContactId.equals(contactId)) {
+                                    return new Pair<>(groupContactId, true);
                                 }
                             }
                             return new Pair<>(contactId, false);
@@ -203,7 +185,7 @@ public class RxUserContactSync {
             public Observable<EventCallback> call(String contactId) {
                 return Observable.zip(
                     deleteRealmUserContact(context, user, contactId),
-                    deleteFirebaseUserContact(context, rxBus, user.id().value(), contactId),
+                    deleteFirebaseUserContact(context, rxBus, user.id(), contactId),
                     zipDeleteUserContact());
             }
         };

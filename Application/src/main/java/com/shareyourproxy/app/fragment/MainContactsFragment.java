@@ -63,7 +63,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                     User user = getLoggedInUser();
                     if (user != null) {
                         getRxBus().post(new SyncAllUsersCommand(
-                            getRxBus(), getLoggedInUser().id().value()));
+                            getRxBus(), getLoggedInUser().id()));
                     }
                 }
             });
@@ -199,7 +199,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id().value(),
+        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id(),
             event.imageView, event.textView);
     }
 }

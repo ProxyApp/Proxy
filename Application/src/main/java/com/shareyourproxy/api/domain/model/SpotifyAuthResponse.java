@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import auto.parcel.AutoParcel;
 
@@ -10,7 +10,7 @@ import auto.parcel.AutoParcel;
  * Created by Evan on 8/14/15.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_SpotifyAuthResponse.class)
+@AutoValueClass(autoValueClass = AutoParcel_SpotifyAuthResponse.class)
 public abstract class SpotifyAuthResponse implements Parcelable {
     public static SpotifyAuthResponse create(
         String accessToken, String type, String expires, String refreshToken) {

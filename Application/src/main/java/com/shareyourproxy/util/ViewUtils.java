@@ -39,6 +39,9 @@ import static android.support.v4.content.ContextCompat.getColor;
  */
 public class ViewUtils {
 
+    //used to alpha svg compound drawables that have similar text with an alpha value
+    public static final int ALPHA_0X42 = 66;
+
     /**
      * Private Constructor
      */

@@ -62,7 +62,7 @@ public class MainActivity extends GoogleApiActivity {
         //if the user presses logout
         if (getString(R.string.profile).equals(event.message)) {
             User user = getLoggedInUser();
-            launchUserProfileActivity(this, user, user.id().value());
+            launchUserProfileActivity(this, user, user.id());
         } else if (getString(R.string.logout).equals(event.message)) {
             // and the google api is connected
             if (_googleApiClient.isConnected()) {

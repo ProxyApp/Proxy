@@ -2,14 +2,10 @@ package com.shareyourproxy.app.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.ColorInt;
 import android.support.v7.util.SortedList;
 import android.support.v7.util.SortedList.Callback;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,17 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.BindColor;
 
 /**
  * Adapter for a users profile and their {@link Channel} package permissions.
  */
 public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
-    public static final int VIEW_TYPE_CONTENT = 2;
     private final ItemLongClickListener _clickListener;
-    @ColorInt
-    @BindColor(R.color.common_gray)
-    protected int _gray;
     private Callback<Channel> _sortedListCallback;
     private SortedList<Channel> _channels;
     private boolean _needsRefresh = true;
@@ -136,7 +127,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areContentsTheSame(Channel item1, Channel item2) {
-                    return (item1.id().value().equals(item2.id().value())
+                    return (item1.id().equals(item2.id())
                         && item1.label().equals(item2.label())
                         && item1.channelType().equals(item2.channelType()))
                         && item1.actionAddress().equals(item2.actionAddress());
@@ -149,11 +140,6 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
             };
         }
         return _sortedListCallback;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return VIEW_TYPE_CONTENT;
     }
 
     @Override
@@ -181,40 +167,13 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
         String channelTypeString = channel.channelType().getLabel();
         String label = channel.label();
         String address = channel.actionAddress();
-
-        SpannableStringBuilder sb = getSpannableStringBuilder(context, channelTypeString, label,
-            address);
+        SpannableStringBuilder sb = getChannelSpannableStringBuilder(
+            context, channelTypeString, label, address);
 
         holder.channelImage.setImageDrawable(
             getSVGIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
         holder.channelContentText.setText(sb);
-    }
-
-    private SpannableStringBuilder getSpannableStringBuilder(Context context, String
-        channelTypeString, String label, String address) {
-        SpannableStringBuilder sb;
-        int start;
-        int end;
-        if (label.length() > 0) {
-            sb = new SpannableStringBuilder(
-                context.getString(R.string.channel_view_item_content,
-                    channelTypeString, label, address));
-            start = channelTypeString.length() + label.length() + 3;
-            end = sb.length();
-            sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
-                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        } else {
-            sb = new SpannableStringBuilder(
-                context.getString(R.string.channel_view_item_content_no_label,
-                    channelTypeString, address));
-            start = channelTypeString.length();
-            end = sb.length();
-
-        }
-        sb.setSpan(new ForegroundColorSpan(Color.LTGRAY), start, end,
-            Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        return sb;
     }
 
     @Override

@@ -93,7 +93,7 @@ public class RxShareLink {
                     .size());
                 for (GroupToggle groupEntry : groupToggles) {
                     if (groupEntry.isChecked()) {
-                        checkedGroups.add(groupEntry.getGroup().id().value());
+                        checkedGroups.add(groupEntry.getGroup().id());
                     }
                 }
                 return checkedGroups;

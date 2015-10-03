@@ -104,7 +104,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
                 @Override
                 public boolean areContentsTheSame(Contact item1, Contact item2) {
                     // we dont compare resId because its probably going to be removed
-                    return (item1.id().value().equals(item2.id().value())
+                    return (item1.id().equals(item2.id())
                         && item1.first().equals(item2.first())
                         && item1.last().equals(item2.last())
                         && item1.channels().equals(item2.channels()));
@@ -112,7 +112,7 @@ public class ContactAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
                 @Override
                 public boolean areItemsTheSame(Contact item1, Contact item2) {
-                    return (item1.id().value().equals(item2.id().value()));
+                    return (item1.id().equals(item2.id()));
                 }
             };
         }

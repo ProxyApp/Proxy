@@ -32,10 +32,13 @@ public class RealmChannelFactory {
             realmChannelType.setResId(channel.channelType().getResId());
 
             //construct the newChannel
-            realmChannel.setId(channel.id().value());
+            realmChannel.setId(channel.id());
             realmChannel.setLabel(channel.label());
             realmChannel.setChannelType(realmChannelType);
             realmChannel.setActionAddress(channel.actionAddress());
+
+            Boolean isPublic = channel.isPublic() == null ? false : channel.isPublic();
+            realmChannel.setIsPublic(isPublic);
 
             //add to array
             realmChannelArray.add(realmChannel);

@@ -3,12 +3,15 @@ package com.shareyourproxy.app.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.style.TextAppearanceSpan;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
 import static com.shareyourproxy.util.ViewUtils.getCircularDrawableImage;
 
 /**
@@ -100,6 +103,36 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
                 return getColor(context, R.color.common_text_secondary);
         }
 
+    }
+
+    public SpannableStringBuilder getChannelSpannableStringBuilder(
+        Context context, String channelTypeString, String label, String address) {
+        SpannableStringBuilder sb;
+        int addressStart;
+        int end;
+        // there are two different formats for data display, with and without a label
+        if (label.length() > 0) {
+            sb = new SpannableStringBuilder(context.getString(
+                R.string.channel_view_item_content, channelTypeString, label, address));
+            // add three to account for the formatting ("label - address") hyphen and spacing.
+            addressStart = channelTypeString.length() + label.length() + 3;
+            end = sb.length();
+
+            int labelStart = channelTypeString.length();
+            TextAppearanceSpan span =
+                new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body);
+            sb.setSpan(span, labelStart, addressStart, SPAN_INCLUSIVE_INCLUSIVE);
+        } else {
+            sb = new SpannableStringBuilder(context.getString(
+                R.string.channel_view_item_content_no_label, channelTypeString, address));
+            addressStart = channelTypeString.length();
+            end = sb.length();
+        }
+
+        TextAppearanceSpan span =
+            new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body_Disabled);
+        sb.setSpan(span, addressStart, end, SPAN_INCLUSIVE_INCLUSIVE);
+        return sb;
     }
 
 }

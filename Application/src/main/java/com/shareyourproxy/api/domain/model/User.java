@@ -3,9 +3,10 @@ package com.shareyourproxy.api.domain.model;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import auto.parcel.AutoParcel;
 
@@ -14,7 +15,7 @@ import auto.parcel.AutoParcel;
  * {@link Group}s.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_User.class)
+@AutoValueClass(autoValueClass = AutoParcel_User.class)
 public abstract class User implements Parcelable {
 
     /**
@@ -33,9 +34,9 @@ public abstract class User implements Parcelable {
      * @return the entered user data
      */
     public static User create(
-        Id id, String firstName, String lastName, String email, String profileURL,
+        String id, String firstName, String lastName, String email, String profileURL,
         String coverURL, HashMap<String, Channel> channels, HashMap<String, Group> groups,
-        HashMap<String, Id> contacts, int version) {
+        HashSet<String> contacts, int version) {
         return builder().id(id).first(firstName).last(lastName).email(email)
             .profileURL(profileURL).coverURL(coverURL).channels(channels)
             .groups(groups).contacts(contacts).version(version).build();
@@ -55,7 +56,7 @@ public abstract class User implements Parcelable {
      *
      * @return first name
      */
-    public abstract Id id();
+    public abstract String id();
 
     /**
      * Get users first name.
@@ -110,7 +111,7 @@ public abstract class User implements Parcelable {
      * @return contacts
      */
     @Nullable
-    public abstract HashMap<String, Id> contacts();
+    public abstract HashSet<String> contacts();
 
     /**
      * Get users contactGroups.
@@ -153,7 +154,7 @@ public abstract class User implements Parcelable {
          * @param id user unique id
          * @return user id
          */
-        Builder id(Id id);
+        Builder id(String id);
 
         /**
          * Set user first name.
@@ -204,7 +205,7 @@ public abstract class User implements Parcelable {
          * @return List {@link Contact}
          */
         @Nullable
-        Builder contacts(HashMap<String, Id> contacts);
+        Builder contacts(HashSet<String> contacts);
 
         /**
          * Set this {@link User}s {@link Group}s

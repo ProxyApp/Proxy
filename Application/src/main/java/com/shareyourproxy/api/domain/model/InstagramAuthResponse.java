@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import auto.parcel.AutoParcel;
 
@@ -10,7 +10,7 @@ import auto.parcel.AutoParcel;
  * Created by Evan on 8/12/15.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_InstagramAuthResponse.class)
+@AutoValueClass(autoValueClass = AutoParcel_InstagramAuthResponse.class)
 public abstract class InstagramAuthResponse implements Parcelable {
 
     public static InstagramAuthResponse createBlank(String token, InstagramUser user) {

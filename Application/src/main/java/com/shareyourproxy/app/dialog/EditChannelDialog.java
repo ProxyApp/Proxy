@@ -135,13 +135,13 @@ public class EditChannelDialog extends BaseDialogFragment {
         if (!TextUtils.isEmpty(actionContent.trim())) {
             Channel channel;
             if (_channel.channelType().equals(ChannelType.Facebook)) {
-                channel = createModelInstance(_channel.id().value(), _channel.label(),
+                channel = createModelInstance(_channel.id(), _channel.label(),
                     _channel.channelType(), actionContent);
                 getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
                     channel, _channel));
             } else {
                 channel =
-                    createModelInstance(_channel.id().value(), labelContent, _channel.channelType(),
+                    createModelInstance(_channel.id(), labelContent, _channel.channelType(),
                         actionContent);
                 getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
                     channel, _channel));

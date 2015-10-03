@@ -31,13 +31,13 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.gson.UserTypeAdapter;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.UserProfileActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
@@ -51,7 +51,6 @@ import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,13 +148,12 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         if (getLoggedInUser() == null) {
             User user = null;
             try {
-                user = UserTypeAdapter.newInstance().fromJson(getSharedPrefrences()
-                    .getString(Constants.KEY_LOGGED_IN_USER, null));
-            } catch (IOException e) {
+                user = getSharedPrefJsonUser();
+            } catch (Exception e) {
                 Timber.e(Log.getStackTraceString(e));
             }
             //set the shared preferences user if it matches the logged in user id
-            if (user != null && user.id().value().equals(loggedInUserId)) {
+            if (user != null && user.id().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
                 setLoggedInUser(getUserService(getActivity(), getRxBus())
@@ -398,6 +396,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 } else if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
+                } else if (event instanceof SyncAllUsersSuccessEvent){
+                    _adapter.notifyDataSetChanged();
                 }
             }
         };
@@ -484,7 +484,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     public void getSharedChannels() {
         checkCompositeButton();
         _subscriptions.add(queryPermissionedChannels(
-            getActivity(), getLoggedInUser().id().value(), _userContact.id().value())
+            getActivity(), getLoggedInUser().id(), _userContact.id())
             .subscribe(permissionedObserver()));
     }
 

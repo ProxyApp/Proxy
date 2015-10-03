@@ -14,6 +14,7 @@ public class RealmChannel extends RealmObject {
     private String label;
     private String actionAddress;
     private RealmChannelType channelType;
+    private boolean isPublic;
 
     /**
      * Getter
@@ -70,6 +71,14 @@ public class RealmChannel extends RealmObject {
 
     public void setActionAddress(String actionAddress) {
         this.actionAddress = actionAddress;
+    }
+
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
 }

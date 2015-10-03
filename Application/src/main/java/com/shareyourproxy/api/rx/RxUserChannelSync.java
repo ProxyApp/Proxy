@@ -63,8 +63,8 @@ public class RxUserChannelSync {
         return new Func1<User, User>() {
             @Override
             public User call(User user) {
-                String userId = user.id().value();
-                String channelId = channel.id().value();
+                String userId = user.id();
+                String channelId = channel.id();
 
                 getUserChannelService(context, rxBus)
                     .addUserChannel(userId, channelId, channel)
@@ -112,8 +112,8 @@ public class RxUserChannelSync {
         return new Func1<User, User>() {
             @Override
             public User call(User user) {
-                String userId = user.id().value();
-                String channelId = channel.id().value();
+                String userId = user.id();
+                String channelId = channel.id();
                 getUserChannelService(context, rxBus)
                     .deleteUserChannel(userId, channelId).subscribe();
                 getUserGroupService(context, rxBus)

@@ -121,7 +121,7 @@ public class RxMessageSync {
 
     public static Observable<Message> deleteAllFirebaseMessages(
         Context context, RxBusDriver rxBus, User user) {
-        String contactId = user.id().value();
+        String contactId = user.id();
         return getMessageService(context, rxBus)
             .deleteAllUserMessages(contactId)
             .compose(RxHelper.<Message>applySchedulers());

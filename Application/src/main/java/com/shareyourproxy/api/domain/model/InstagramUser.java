@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoGson;
+import com.shareyourproxy.api.gson.AutoValueClass;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +13,7 @@ import auto.parcel.AutoParcel;
  * Instagram User Object.
  */
 @AutoParcel
-@AutoGson(autoValueClass = AutoParcel_InstagramUser.class)
+@AutoValueClass(autoValueClass = AutoParcel_InstagramUser.class)
 public abstract class InstagramUser implements Parcelable {
 
     /**

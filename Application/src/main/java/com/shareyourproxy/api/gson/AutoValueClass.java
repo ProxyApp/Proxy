@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface AutoGson {
+public @interface AutoValueClass {
 
     /**
      * A reference to the AutoValue-generated class (e.g. AutoValue_MyClass). This is necessary to

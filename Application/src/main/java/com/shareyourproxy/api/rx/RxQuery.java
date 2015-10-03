@@ -8,13 +8,13 @@ import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
-import com.shareyourproxy.api.domain.model.Id;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class RxQuery {
     }
 
     public static HashMap<String, User> queryUserContacts(
-        Context context, final HashMap<String, Id> contactIds) {
+        Context context, final HashSet<String> contactIds) {
         return Observable.just(context).map(new Func1<Context, HashMap<String, User>>() {
             @Override
             public HashMap<String, User> call(Context context) {
@@ -60,11 +60,11 @@ public class RxQuery {
                 }
                 Realm realm = Realm.getInstance(context);
                 realm.refresh();
-                for (Map.Entry<String, Id> contactId : contactIds.entrySet()) {
+                for (String contactId : contactIds) {
                     RealmUser realmUser =
-                        realm.where(RealmUser.class).equalTo("id", contactId.getKey()).findFirst();
+                        realm.where(RealmUser.class).equalTo("id", contactId).findFirst();
                     if (realmUser != null) {
-                        contacts.put(contactId.getKey(), createModelUser(realmUser));
+                        contacts.put(contactId, createModelUser(realmUser));
                     }
                 }
                 realm.close();
@@ -87,25 +87,33 @@ public class RxQuery {
             public HashMap<String, Channel> call(User contact) {
                 ArrayList<String> permissionedIds = new ArrayList<>();
                 HashMap<String, Channel> permissionedChannels = new HashMap<>();
+                //escape early
                 if (contact.groups() == null || contact.groups().size() == 0) {
                     return permissionedChannels;
                 } else {
                     //check the contacts groups for the logged in user and gather the channel
                     // Id's of that group
                     for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
-                        HashMap<String, Id> contacts = entryGroup.getValue().contacts();
-                        for (Map.Entry<String, Id> entryUser : contacts.entrySet()) {
-                            if (entryUser.getKey().equals(loggedInUserId)) {
+                        HashSet<String> contacts = entryGroup.getValue().contacts();
+                        for (String contactId : contacts) {
+                            if (contactId.equals(loggedInUserId)) {
                                 permissionedIds.addAll(
-                                    entryGroup.getValue().channels().keySet());
+                                    entryGroup.getValue().channels());
                             }
                         }
                     }
-
+                    // for the above keyset data, find the channels associated
                     for (String channelId : permissionedIds) {
                         Channel channel = contact.channels().get(channelId);
                         if (channel != null) {
-                            permissionedChannels.put(channel.id().value(), channel);
+                            permissionedChannels.put(channel.id(), channel);
+                        }
+                    }
+                    // add public channels
+                    for (Map.Entry<String, Channel> entryChannels : contact.channels().entrySet()) {
+                        Channel channel = entryChannels.getValue();
+                        if (channel.isPublic()) {
+                            permissionedChannels.put(channel.id(), channel);
                         }
                     }
                     return permissionedChannels;
@@ -183,10 +191,10 @@ public class RxQuery {
             @Override
             public GroupToggle call(Map.Entry<String, Group> groupEntry) {
                 Group group = groupEntry.getValue();
-                String contactId = selectedContact.id().value();
-                HashMap<String, Id> contacts = group.contacts();
+                String contactId = selectedContact.id();
+                HashSet<String> contacts = group.contacts();
                 if (contacts != null &&
-                    group.contacts().containsKey(contactId)) {
+                    group.contacts().contains(contactId)) {
                     return new GroupToggle(group, true);
                 }
                 return new GroupToggle(group, false);
