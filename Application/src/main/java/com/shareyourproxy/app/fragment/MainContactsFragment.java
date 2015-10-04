@@ -36,7 +36,6 @@ import static android.text.Html.fromHtml;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -51,6 +50,8 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     protected TextView emptyTextView;
     @BindDimen(R.dimen.common_margin_medium)
     protected int catPadding;
+    @BindDimen(R.dimen.common_svg_null_screen)
+    int marginNullScreen;
     @BindString(R.string.fragment_contact_main_empty_text)
     protected String nullMessage;
 
@@ -134,8 +135,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * @return Drawable with a contentDescription
      */
     private Drawable getCatDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_cat,
-            getNullScreenIconDimen(getActivity()));
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_cat, marginNullScreen);
     }
 
     @Override

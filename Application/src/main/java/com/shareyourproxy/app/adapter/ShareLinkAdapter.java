@@ -9,33 +9,39 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.shareyourproxy.util.ObjectUtils.capitalize;
+import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 /**
- * Adapts the contactGroups that a user belongs to in a dialog.
+ * Created by Evan on 10/5/15.
  */
-public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
+public class ShareLinkAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
     private ArrayList<GroupToggle> _groups;
 
-    private UserGroupsAdapter(ArrayList<GroupToggle> groups) {
+    private ShareLinkAdapter(ArrayList<GroupToggle> groups) {
         _groups = groups;
     }
 
-    public static UserGroupsAdapter newInstance(ArrayList<GroupToggle> groups) {
-        return new UserGroupsAdapter(groups);
+    public static ShareLinkAdapter newInstance(HashMap<String, Group> groups) {
+        ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
+        for (Map.Entry<String, Group> group : groups.entrySet()) {
+            GroupToggle newEntry = new GroupToggle(group.getValue(), false);
+            groupToggles.add(newEntry);
+        }
+        return new ShareLinkAdapter(groupToggles);
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.adapter_user_groups_checklist, parent, false);
+            .inflate(R.layout.adapter_share_link, parent, false);
         return ContentViewHolder.newInstance(view, this);
     }
 
@@ -45,7 +51,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(capitalize(getDataItem(position).getGroup().label()));
+        holder.checkedTextView.setText(getDataItem(position).getGroup().label());
         holder.checkedTextView.setChecked(getDataItem(position).isChecked());
     }
 
@@ -54,29 +60,33 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
         return _groups.size();
     }
 
-
-    private GroupToggle getDataItem(int position) {
-        return _groups.get(position);
-    }
-
     @Override
     public void onItemClick(View view, int position) {
-        CheckedTextView text = ButterKnife.findById(view, R.id.adapter_user_groups_textview);
+        clearGroupState();
+        CheckedTextView text = ButterKnife.findById(view, R.id.adapter_share_link_textview);
         text.setChecked(!text.isChecked());
         GroupToggle group = getDataItem(position);
         group.setChecked(text.isChecked());
+        notifyDataSetChanged();
+    }
+
+    private void clearGroupState() {
+        for (GroupToggle group : _groups) {
+            group.setChecked(false);
+        }
+    }
+
+    private GroupToggle getDataItem(int position) {
+        return _groups.get(position);
     }
 
     public ArrayList<GroupToggle> getDataArray() {
         return _groups;
     }
 
-    /**
-     * ViewHolder for the entered {@link Group} data.
-     */
     static class ContentViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_user_groups_textview)
-        protected CheckedTextView checkedTextView;
+        @Bind(R.id.adapter_share_link_textview)
+        CheckedTextView checkedTextView;
 
         /**
          * Constructor for the holder.

@@ -2,6 +2,7 @@ package com.shareyourproxy.app;
 
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,7 +15,9 @@ import android.widget.ImageView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxRefreshUserSubject;
 import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
@@ -62,9 +65,9 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
  */
 public class UserProfileActivity extends BaseActivity {
 
+    private final RxRefreshUserSubject _rxRefreshUser = RxRefreshUserSubject.getInstance();
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
-    private MenuItem refreshButton;
     private ImageView menuAnimation;
     private Animation rotation;
 
@@ -105,9 +108,7 @@ public class UserProfileActivity extends BaseActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRefreshAnimation();
-                RxBusDriver bus = getRxBus();
-                bus.post(new SyncAllUsersCommand(bus, getUserExtra().id()));
+                _rxRefreshUser.click(v);
             }
         };
     }
@@ -146,7 +147,7 @@ public class UserProfileActivity extends BaseActivity {
             MenuItem sharedLinkButton = menu.findItem(R.id.menu_current_user_shared_links);
             sharedLinkButton.setIcon(getMenuIcon(this, R.raw.ic_share));
         } else {
-            refreshButton = menu.findItem(R.id.menu_contact_profile_reload);
+            MenuItem refreshButton = menu.findItem(R.id.menu_contact_profile_reload);
             refreshButton.setActionView(menuAnimation);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -195,12 +196,30 @@ public class UserProfileActivity extends BaseActivity {
                     }
                 }
             }));
+        _subscriptions.add(_rxRefreshUser.toObserverable().subscribe(refreshUserObserver()));
+    }
+
+    public JustObserver<View> refreshUserObserver() {
+        return new JustObserver<View>() {
+            @Override
+            public void success(View view) {
+                startRefreshAnimation();
+                RxBusDriver bus = getRxBus();
+                bus.post(new SyncAllUsersCommand(bus, getLoggedInUser().id()));
+            }
+
+            @Override
+            public void error(Throwable e) {
+                Timber.e(Log.getStackTraceString(e));
+            }
+        };
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         _subscriptions.unsubscribe();
+        stopRefreshAnimation();
     }
 
     @Override

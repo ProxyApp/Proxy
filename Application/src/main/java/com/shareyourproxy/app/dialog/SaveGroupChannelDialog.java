@@ -15,9 +15,11 @@ import android.view.WindowManager;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.command.AddGroupChannelAndPublicCommand;
 import com.shareyourproxy.api.rx.command.AddGroupsChannelCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.UserGroupsAdapter;
+import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter;
 import com.shareyourproxy.util.ObjectUtils;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
@@ -35,6 +37,13 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
         "com.shareyourproxy.savegroupchanneldialog.arg.channel";
     private static final String ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user";
     private static final String TAG = ObjectUtils.getSimpleName(SaveGroupChannelDialog.class);
+    private final DialogInterface.OnClickListener _negativeClicked =
+        new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        };
     @Bind(R.id.dialog_user_groups_recyclerview)
     protected BaseRecyclerView recyclerView;
     @BindColor(R.color.common_text)
@@ -43,26 +52,12 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
     protected int _blue;
     private Channel _channel;
     private User _user;
-    private UserGroupsAdapter _adapter;
-
+    private SaveGroupChannelAdapter _adapter;
     private final DialogInterface.OnClickListener _positiveClicked =
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dispatchUpdatedUserGroups();
-            }
-        };
-
-    private void dispatchUpdatedUserGroups() {
-        getRxBus().post(new AddGroupsChannelCommand(getRxBus(),_user,
-            _adapter.getDataArray(), _channel));
-    }
-
-    private final DialogInterface.OnClickListener _negativeClicked =
-        new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
             }
         };
 
@@ -86,6 +81,17 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
         SaveGroupChannelDialog dialog = new SaveGroupChannelDialog();
         dialog.setArguments(bundle);
         return dialog;
+    }
+
+    private void dispatchUpdatedUserGroups() {
+        RxBusDriver rxBus = getRxBus();
+        if (_adapter.isPublicChecked()) {
+            rxBus.post(new AddGroupChannelAndPublicCommand(
+                rxBus, _user, _adapter.getDataArray(), _channel));
+        } else {
+            rxBus.post(
+                new AddGroupsChannelCommand(rxBus, _user, _adapter.getDataArray(), _channel));
+        }
     }
 
     @Override
@@ -134,7 +140,7 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
      * Setup the group list UI.
      */
     private void initializeRecyclerView() {
-        _adapter = UserGroupsAdapter.newInstance(_user.groups());
+        _adapter = SaveGroupChannelAdapter.newInstance(_user.groups());
         //This Linear layout wraps content
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(_adapter);

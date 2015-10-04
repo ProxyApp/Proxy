@@ -23,6 +23,7 @@ import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import butterknife.Bind;
+import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
@@ -33,7 +34,6 @@ import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
-import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -48,6 +48,8 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     protected TextView emptyTextView;
     @BindString(R.string.fragment_contact_group_empty_text)
     protected String emptyTextMessage;
+    @BindDimen(R.dimen.common_svg_null_screen)
+    int marginNullScreen;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
@@ -166,8 +168,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * @return Drawable with a contentDescription
      */
     private Drawable getFishDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_fish,
-            getNullScreenIconDimen(getActivity()));
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_fish, marginNullScreen);
     }
 
     @Override

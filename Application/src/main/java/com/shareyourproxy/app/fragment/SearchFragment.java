@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.fragment;
 
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -30,6 +29,8 @@ import com.shareyourproxy.widget.ContentDescriptionDrawable;
 import java.util.HashMap;
 
 import butterknife.Bind;
+import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.BindInt;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -38,11 +39,8 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxQuery.queryFilteredUsers;
 import static com.shareyourproxy.api.rx.RxQuery.searchUserString;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
-import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
@@ -52,22 +50,29 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class SearchFragment extends BaseFragment implements ItemClickListener {
 
+
     @Bind(R.id.fragment_search_bar_container)
-    protected LinearLayout searchBarContainer;
+    LinearLayout searchBarContainer;
     @Bind(R.id.fragment_search_back_button)
-    protected ImageView imageViewBackButton;
+    ImageView imageViewBackButton;
     @Bind(R.id.fragment_search_edittext)
-    protected EditText editText;
+    EditText editText;
     @Bind(R.id.fragment_search_clear_button)
-    protected ImageView imageViewClearButton;
+    ImageView imageViewClearButton;
     @Bind(R.id.fragment_search_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_search_empty_textview)
-    protected TextView emptyTextView;
+    TextView emptyTextView;
     @Bind(R.id.fragment_search_empty_view_container)
-    protected LinearLayout emptyViewContainer;
+    LinearLayout emptyViewContainer;
     @BindInt(android.R.integer.config_shortAnimTime)
-    protected int _animationDuration;
+    int _animationDuration;
+    @BindDimen(R.dimen.common_svg_null_screen_small)
+    int sexBotSize;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
+    @BindColor(R.color.common_gray)
+    int colorGray;
     private UserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
@@ -139,6 +144,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
+        editText.requestFocus();
         showSoftwareKeyboard(editText);
     }
 
@@ -163,8 +169,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return Drawable with a contentDescription
      */
     private Drawable getSexBotDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_sexbot,
-            getNullScreenIconDimen(getActivity()));
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_sexbot, sexBotSize);
     }
 
     @Override
@@ -172,7 +177,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
         getRxBus().post(
             new UserSelectedEvent(
-                holder.userImage,holder.userName, _adapter.getItemData(position)));
+                holder.userImage, holder.userName, _adapter.getItemData(position)));
     }
 
     /**
@@ -181,8 +186,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return back arrow image.drawable
      */
     private Drawable getBackArrowDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_arrow_back,
-            getLargeIconDimen(getActivity()), Color.GRAY);
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_arrow_back, marginSVGLarge, colorGray);
     }
 
     /**
@@ -191,8 +195,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return clear button image.drawable
      */
     private Drawable getClearSearchDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_clear,
-            getLargeIconDimen(getActivity()), Color.GRAY);
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_clear, marginSVGLarge, colorGray);
     }
 
     @Override
@@ -204,12 +207,11 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
         User loggedInUser = getLoggedInUser();
         if (loggedInUser != null) {
-            _subscriptions.add(queryFilteredUsers(
-                getActivity(), loggedInUser.id()).subscribe(getSearchObserver()));
             _subscriptions.add(
                 _textWatcherSubject.toObserverable().map(
                     searchUserString(getActivity(), loggedInUser.id()))
                     .subscribe(getSearchObserver()));
+            _textWatcherSubject.post(editText.getText().toString().trim());
         }
     }
 
@@ -243,8 +245,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
             public void call(Object event) {
                 if (event instanceof UserSelectedEvent) {
                     onUserSelected((UserSelectedEvent) event);
-                }
-                else if(event instanceof OnBackPressedEvent){
+                } else if (event instanceof OnBackPressedEvent) {
                     imageViewClearButton.animate().alpha(0f).setDuration(_animationDuration);
                 }
             }

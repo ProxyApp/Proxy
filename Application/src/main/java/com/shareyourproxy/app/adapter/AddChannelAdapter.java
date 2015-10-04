@@ -107,7 +107,7 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
                     int weight2 = item2.channelType().getWeight();
                     int compareFirst = ObjectUtils.compare(weight1, weight2);
                     if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
-                        return item1.label().compareTo(item2.label());
+                        return item1.label().compareToIgnoreCase(item2.label());
                     } else {
                         return compareFirst;
                     }

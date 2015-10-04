@@ -28,11 +28,13 @@
     <dimen name="common_svg_small">@dimen/common_margin_medium</dimen>
     <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
-    <dimen name="common_svg_xlarge">300dp</dimen>
-    <dimen name="common_svg_xxlarge">360dp</dimen>
+    <dimen name="common_svg_xlarge">900dp</dimen>
+    <dimen name="common_svg_xxlarge">1080dp</dimen>
     <dimen name="common_svg_ultra_minor">720dp</dimen>
     <dimen name="common_svg_ultra">1080dp</dimen>
+    <dimen name="common_svg_null_screen_small">500dp</dimen>
     <dimen name="common_svg_null_screen">600dp</dimen>
     <dimen name="fragment_userprofile_header_background_size">260dp</dimen>
-    <dimen name="fragment_userprofile_header_button_top_margin">192dp</dimen>
+    <dimen name="fragment_userprofile_header_followers_top_margin">168dp</dimen>
+    <dimen name="fragment_userprofile_header_button_top_margin">194dp</dimen>
 </resources>

@@ -1,7 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -37,15 +36,17 @@ import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.shareyourproxy.api.domain.model.Group.*;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static com.shareyourproxy.api.domain.model.Group.PUBLIC;
+import static com.shareyourproxy.api.domain.model.Group.createBlank;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.ADD_GROUP;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.PUBLIC_GROUP;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -54,17 +55,21 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 public class MainGroupFragment
     extends BaseFragment implements ItemClickListener {
     @Bind(R.id.fragment_group_main_coordinator)
-    protected CoordinatorLayout coordinatorLayout;
+    CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_group_main_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_group_main_fab_group)
-    protected FloatingActionButton floatingActionButton;
+    FloatingActionButton floatingActionButton;
     @Bind(R.id.fragment_group_main_swipe_refresh)
-    protected SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.fragment_group_main_empty_textview)
-    protected TextView emptyTextView;
+    TextView emptyTextView;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
+    @BindColor(android.R.color.white)
+    int colorWhite;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
     SwipeRefreshLayout.OnRefreshListener _refreshListener = new SwipeRefreshLayout
         .OnRefreshListener() {
         @Override
@@ -130,9 +135,9 @@ public class MainGroupFragment
      */
     private void showUndoDeleteSnackBar(final Group group) {
         Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.undo_delete),
-            Snackbar.LENGTH_LONG);
+            LENGTH_LONG);
         snackbar.setAction(getString(R.string.undo), onClickUndoDelete(group));
-        snackbar.setActionTextColor(_blue);
+        snackbar.setActionTextColor(colorBlue);
         snackbar.show();
     }
 
@@ -174,8 +179,8 @@ public class MainGroupFragment
      * Set the content image of this fragment's {@link FloatingActionButton}
      */
     private void initializeSVG() {
-        Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
-            getLargeIconDimen(getActivity()), Color.WHITE);
+        Drawable drawable =
+            svgToBitmapDrawable(getActivity(), R.raw.ic_add, marginSVGLarge, colorWhite);
         floatingActionButton.setImageDrawable(drawable);
         ViewCompat.setElevation(floatingActionButton, 10f);
     }
@@ -232,7 +237,7 @@ public class MainGroupFragment
 
     private void showAddedGroupSnackBar() {
         Snackbar.make(
-            coordinatorLayout, getString(R.string.group_added), Snackbar.LENGTH_LONG).show();
+            coordinatorLayout, getString(R.string.group_added), LENGTH_LONG).show();
     }
 
     /**
@@ -295,7 +300,6 @@ public class MainGroupFragment
         } else {
             IntentLauncher.launchEditGroupContactsActivity(getActivity(), group);
         }
-
     }
 
 }

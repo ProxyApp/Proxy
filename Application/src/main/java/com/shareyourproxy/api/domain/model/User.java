@@ -70,6 +70,7 @@ public abstract class User implements Parcelable {
      *
      * @return last name
      */
+    @Nullable
     public abstract String last();
 
     /**
@@ -136,9 +137,6 @@ public abstract class User implements Parcelable {
     public void validate() {
         if (first().length() == 0) {
             throw new IllegalStateException("Need a valid first name");
-        }
-        if (last().length() == 0) {
-            throw new IllegalStateException("Need a valid last name");
         }
     }
 

@@ -36,8 +36,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
     private final ItemClickListener _clickListener;
-    @BindColor(R.color.common_deep_purple)
-    protected int _purple;
     private User _currentUser;
     private String[] _strings;
     private Target _targetProfileImage;
@@ -81,12 +79,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @return palette listener
      */
     private Palette.PaletteAsyncListener getPaletteAsyncListener(
-        final HeaderViewHolder viewHolder) {
+        final HeaderViewHolder viewHolder, final int defualtColor) {
         return new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
                 if (_currentUser.coverURL() == null || _currentUser.coverURL().trim().isEmpty()) {
                     viewHolder.backgroundContainer
-                        .setBackgroundColor(palette.getVibrantColor(_purple));
+                        .setBackgroundColor(palette.getVibrantColor(defualtColor));
                 }
             }
         };
@@ -202,7 +200,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap)
+                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
                 }
 
                 @Override
@@ -210,7 +209,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Bitmap bitmap = Bitmap.createBitmap(errorDrawable.getIntrinsicWidth(),
                         errorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap)
+                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
                 }
 
                 @Override
@@ -218,7 +218,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Bitmap bitmap = Bitmap.createBitmap(placeHolderDrawable.getIntrinsicWidth(),
                         placeHolderDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap).generate(getPaletteAsyncListener(viewHolder));
+                    new Palette.Builder(bitmap)
+                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
                 }
             };
         }
@@ -263,13 +264,15 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * ViewHolder for the settings header.
      */
-    protected static class HeaderViewHolder extends BaseViewHolder {
+     static class HeaderViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_drawer_header_container)
-        protected LinearLayout backgroundContainer;
+         LinearLayout backgroundContainer;
         @Bind(R.id.adapter_drawer_header_image)
-        protected ImageView userImage;
+         ImageView userImage;
         @Bind(R.id.adapter_drawer_header_name)
-        protected TextView userName;
+         TextView userName;
+        @BindColor(R.color.common_deep_purple)
+         int purple;
 
         /**
          * Constructor for the HeaderViewHolder.
@@ -296,11 +299,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * ViewHolder for the entered settings data.
      */
-    protected static class ItemViewHolder extends BaseViewHolder {
+     static class ItemViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_drawer_item_name)
-        protected TextView name;
+         TextView name;
         @Bind(R.id.adapter_drawer_item_image)
-        protected ImageView image;
+         ImageView image;
 
         /**
          * Constructor for the ItemViewHolder.
