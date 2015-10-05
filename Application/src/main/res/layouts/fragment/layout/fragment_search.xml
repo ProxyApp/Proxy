@@ -34,6 +34,7 @@
             android:imeOptions="flagNoExtractUi|actionDone"
             android:inputType="textFilter"
             android:singleLine="true"
+            android:focusable="true"
             android:textColor="@color/common_text"
             android:textColorHint="@color/common_text_disabled"
             android:transitionName="@string/search_textview"/>

@@ -2,10 +2,10 @@
 <TextView android:id="@+id/adapter_edit_group_channel_public_header_textview"
           style="@style/Proxy.TextAppearance.Body.Disabled"
           xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="wrap_content"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_gravity="center"
           android:drawablePadding="@dimen/common_margin_xxtiny"
+          android:gravity="center"
           android:paddingBottom="@dimen/common_margin_tiny"
-          android:paddingEnd="@dimen/common_margin_xxtiny"
-          android:paddingStart="@dimen/common_margin_xxtiny"
           android:paddingTop="@dimen/common_margin_tiny"/>

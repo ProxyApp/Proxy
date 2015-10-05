@@ -68,8 +68,8 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             _sortedListCallback = new Callback<Group>() {
 
                 @Override
-                public int compare(Group o1, Group o2) {
-                    return o1.label().compareTo(o2.label());
+                public int compare(Group group1, Group group2) {
+                    return group1.label().compareToIgnoreCase(group2.label());
                 }
 
                 @Override

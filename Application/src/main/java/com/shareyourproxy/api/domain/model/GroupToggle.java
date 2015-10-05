@@ -51,8 +51,8 @@ public class GroupToggle implements Parcelable {
         return _isChecked;
     }
 
-    public void setHasContact(boolean hasContact) {
-        _isChecked = hasContact;
+    public void setChecked(boolean isChecked) {
+        _isChecked = isChecked;
     }
 
     @Override

@@ -12,6 +12,8 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,17 +21,26 @@ import butterknife.ButterKnife;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
 
 /**
- * Adapts the contactGroups that a user belongs to in a dialog.
+ * Add a new channel to groups after its made.
  */
-public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
+public class SaveGroupChannelAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
+    private final GroupToggle _publicGroup;
     private ArrayList<GroupToggle> _groups;
 
-    private UserGroupsAdapter(ArrayList<GroupToggle> groups) {
+    private SaveGroupChannelAdapter(ArrayList<GroupToggle> groups) {
+        // There's a public group no matter what
+        _publicGroup = new GroupToggle(Group.createPublicGroup(), false);
+        groups.add(_publicGroup);
         _groups = groups;
     }
 
-    public static UserGroupsAdapter newInstance(ArrayList<GroupToggle> groups) {
-        return new UserGroupsAdapter(groups);
+    public static SaveGroupChannelAdapter newInstance(HashMap<String, Group> groups) {
+        ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
+        for (Map.Entry<String, Group> group : groups.entrySet()) {
+            GroupToggle newEntry = new GroupToggle(group.getValue(), false);
+            groupToggles.add(newEntry);
+        }
+        return new SaveGroupChannelAdapter(groupToggles);
     }
 
     @Override
@@ -59,6 +70,11 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
         return _groups.get(position);
     }
 
+    //public should always be the last item
+    public boolean isPublicChecked(){
+        return _groups.get(_groups.size()-1).isChecked();
+    }
+
     @Override
     public void onItemClick(View view, int position) {
         CheckedTextView text = ButterKnife.findById(view, R.id.adapter_user_groups_textview);
@@ -68,7 +84,9 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     }
 
     public ArrayList<GroupToggle> getDataArray() {
-        return _groups;
+        ArrayList<GroupToggle> userGroups = _groups;
+        userGroups.remove(_publicGroup);
+        return userGroups;
     }
 
     /**

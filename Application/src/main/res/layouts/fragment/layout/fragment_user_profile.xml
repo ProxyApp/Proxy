@@ -16,9 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:expandedTitleMarginBottom="@dimen/common_rect_large"
+            app:expandedTitleMarginBottom="@dimen/common_rect_huge"
             app:expandedTitleMarginStart="@dimen/common_rect_small"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Display1"
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
@@ -31,6 +31,18 @@
                 android:contentDescription="@string/channel_header_image"
                 android:fitsSystemWindows="true"
                 android:transitionName="@string/user_image"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="2"/>
+
+            <TextView
+                android:id="@+id/fragment_user_profile_header_followers"
+                style="@style/Proxy.TextAppearance.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="@dimen/common_rect_small"
+                android:layout_marginTop="@dimen/fragment_userprofile_header_followers_top_margin"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="2"/>
 

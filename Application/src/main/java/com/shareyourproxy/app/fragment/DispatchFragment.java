@@ -20,7 +20,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  * off the current user.
  */
 public class DispatchFragment extends BaseFragment {
-    @BindDimen(R.dimen.common_svg_xlarge)
+    @BindDimen(R.dimen.common_svg_ultra)
     protected int logoSize;
     @Bind(R.id.fragment_dispatch_image)
     ImageView imageView;

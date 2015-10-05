@@ -78,36 +78,12 @@ public class ViewUtils {
     /**
      * Convert density pixels to pixels
      *
-     * @param res   app resources
-     * @param resId dimension resource
+     * @param res app resources
+     * @param dp  dimension resource int. @BindDimen
      * @return float pixel size value
      */
-    public static float dpToPx(Resources res, int resId) {
-        return res.getDimension(resId) / res.getDisplayMetrics().density;
-    }
-
-    /**
-     * Get the dimensions of a 48x48px.
-     *
-     * @param context this activities resources
-     * @return dimension
-     */
-    public static int getLargeIconDimen(Context context) {
-        Resources res = context.getResources();
-        return (int) (res.getDimension(R.dimen.common_svg_large)
-            / res.getDisplayMetrics().density);
-    }
-
-    /**
-     * Get the dimensions of a 48x48px.
-     *
-     * @param context this activities resources
-     * @return dimension
-     */
-    public static int getNullScreenIconDimen(Context context) {
-        Resources res = context.getResources();
-        return (int) (res.getDimension(R.dimen.common_svg_null_screen)
-            / res.getDisplayMetrics().density);
+    public static int dpToPx(Resources res, int dp) {
+        return (int) (dp / res.getDisplayMetrics().density);
     }
 
     /**
@@ -206,7 +182,7 @@ public class ViewUtils {
         background.setColorFilter(backgroundColor, SRC);
 
         int backgroundRadius = context.getResources()
-            .getDimensionPixelSize(R.dimen.common_margin_huge);
+            .getDimensionPixelSize(R.dimen.common_rect_small);
 
         background.setIntrinsicWidth(backgroundRadius);
         background.setIntrinsicHeight(backgroundRadius);
@@ -215,7 +191,7 @@ public class ViewUtils {
             backgroundRadius, channelType.getResColor());
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
 
-        int inset = backgroundRadius / 2;
+        int inset = backgroundRadius / 3;
         layerDrawable.setLayerInset(1, inset, inset, inset, inset);
         return layerDrawable;
     }
@@ -239,7 +215,7 @@ public class ViewUtils {
         background.setIntrinsicHeight(backgroundRadius);
 
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
-        int inset = backgroundRadius / 2;
+        int inset = backgroundRadius / 3;
         layerDrawable.setLayerInset(1, inset, inset, inset, inset);
         return layerDrawable;
     }
@@ -286,7 +262,7 @@ public class ViewUtils {
         Drawable drawable = null;
         try {
             SVG svg = SVG.getFromResource(res, resourceId);
-            int densitySize = (int) (size + 16f + .5f);
+            int densitySize = (int) (dpToPx(res, size) + 16f + .5f);
 
             Bitmap bmp = Bitmap.createBitmap(dm, densitySize, densitySize, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
@@ -310,7 +286,9 @@ public class ViewUtils {
      * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIconDark(Context context, int resId) {
-        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
+        Resources res = context.getResources();
+        int size = res.getDimensionPixelSize(R.dimen.common_svg_large);
+        return svgToBitmapDrawable(context, resId, size,
             getColor(context, R.color.common_proxy_dark_selected));
     }
 
@@ -321,7 +299,9 @@ public class ViewUtils {
      * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIcon(Context context, int resId) {
-        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
+        Resources res = context.getResources();
+        int size = res.getDimensionPixelSize(R.dimen.common_svg_large);
+        return svgToBitmapDrawable(context, resId, size,
             getColor(context, R.color.common_text_inverse));
     }
 
@@ -332,7 +312,9 @@ public class ViewUtils {
      * @return menu icon image.drawable
      */
     public static ContentDescriptionDrawable getMenuIconSecondary(Context context, int resId) {
-        return svgToBitmapDrawable(context, resId, getLargeIconDimen(context),
+        Resources res = context.getResources();
+        int size = res.getDimensionPixelSize(R.dimen.common_svg_large);
+        return svgToBitmapDrawable(context, resId, size,
             getColor(context, R.color.common_text_secondary_inverse));
     }
 

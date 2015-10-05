@@ -9,6 +9,7 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.domain.realm.RealmString;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.functions.Func1;
@@ -88,9 +90,10 @@ public class RxQuery {
                 ArrayList<String> permissionedIds = new ArrayList<>();
                 HashMap<String, Channel> permissionedChannels = new HashMap<>();
                 //escape early
-                if (contact.groups() == null || contact.groups().size() == 0) {
+                if (contact.groups() == null ||
+                    (contact.groups().size() == 0 && contact.channels().size() == 0)) {
                     return permissionedChannels;
-                } else {
+                }else{
                     //check the contacts groups for the logged in user and gather the channel
                     // Id's of that group
                     for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
@@ -126,6 +129,33 @@ public class RxQuery {
         return Observable.just(context).map(getRealmUser(userId)).compose(RxHelper
             .<User>applySchedulers()).toBlocking().single();
     }
+
+    public static Observable<Integer> getUserContactScore(Context context, final String userId){
+        return Observable.just(userId).map(getUserContactScore(context)).compose(RxHelper
+            .<Integer>applySchedulers());
+    }
+
+    private static Func1<String, Integer> getUserContactScore(final Context context) {
+        return new Func1<String, Integer>() {
+            @Override
+            public Integer call(String userId) {
+                int score = 0;
+                Realm realm = Realm.getInstance(context);
+                realm.refresh();
+                RealmResults<RealmUser> realmUsers = realm.where(RealmUser.class).findAll();
+                for(RealmUser user : realmUsers){
+                    RealmList<RealmString> contactIds = user.getContacts();
+                    for(RealmString contactId : contactIds){
+                        if(userId.equals(contactId.getValue())){
+                            ++score;
+                        }
+                    }
+                }
+                return score;
+            }
+        };
+    }
+
 
     private static Func1<Context, User> getRealmUser(final String userId) {
         return new Func1<Context, User>() {

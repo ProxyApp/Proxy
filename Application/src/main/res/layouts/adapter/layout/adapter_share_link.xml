@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView android:id="@+id/adapter_share_link_textview"
+                 xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:layout_width="match_parent"
+                 android:layout_height="?android:attr/listPreferredItemHeightSmall"
+                 android:checkMark="?android:attr/listChoiceIndicatorSingle"
+                 android:gravity="center_vertical"
+                 android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+                 android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                 android:theme="@style/Widget.Proxy.CheckedTextView.CheckedBox"/>

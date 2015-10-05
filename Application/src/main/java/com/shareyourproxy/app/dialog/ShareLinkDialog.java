@@ -16,7 +16,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.command.GenerateShareLinkCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.UserGroupsAdapter;
+import com.shareyourproxy.app.adapter.ShareLinkAdapter;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
@@ -45,7 +45,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
     protected int _gray;
     @BindColor(R.color.common_blue)
     protected int _blue;
-    private UserGroupsAdapter _adapter;
+    private ShareLinkAdapter _adapter;
     private final DialogInterface.OnClickListener _positiveClicked =
         getPosOnClickListener();
 
@@ -130,7 +130,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
     }
 
     private void initializeRecyclerView() {
-        _adapter = UserGroupsAdapter.newInstance(getGroups());
+        _adapter = ShareLinkAdapter.newInstance(getGroups());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();

@@ -57,6 +57,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -64,16 +65,17 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static android.support.design.widget.Snackbar.make;
 import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
+import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
-import static com.shareyourproxy.util.ViewUtils.getNullScreenIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -82,26 +84,36 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class UserProfileFragment extends BaseFragment implements ItemLongClickListener {
 
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
+    @BindDimen(R.dimen.common_svg_null_screen)
+    int marginNullScreen;
     @Bind(R.id.fragment_user_profile_toolbar)
-    protected Toolbar toolbar;
+    Toolbar toolbar;
     @Bind(R.id.fragment_user_profile_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_user_profile_header_image)
-    protected ImageView userImage;
+    ImageView userImage;
+    @Bind(R.id.fragment_user_profile_header_followers)
+    TextView followersTextView;
     @Bind(R.id.fragment_user_profile_header_button)
-    protected Button groupButton;
+    Button groupButton;
     @Bind(R.id.fragment_user_profile_empty_textview)
-    protected TextView emptyTextView;
+    TextView emptyTextView;
     @Bind(R.id.fragment_user_profile_collapsing_toolbar)
-    protected CollapsingToolbarLayout collapsingToolbarLayout;
+    CollapsingToolbarLayout collapsingToolbarLayout;
     @Bind(R.id.fragment_user_profile_fab)
-    protected FloatingActionButton floatingActionButton;
+    FloatingActionButton floatingActionButton;
     @Bind(R.id.fragment_user_profile_coordinator_layout)
-    protected CoordinatorLayout coordinatorLayout;
+    CoordinatorLayout coordinatorLayout;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     @BindString(R.string.fragment_userprofile_user_empty_text)
-    protected String nullUserMessage;
+    String stringNullMessage;
+    @BindString(R.string.calculating)
+    String stringCalculating;
+    @BindString(R.string.error_calculating)
+    String stringErrorCalculating;
     private ViewChannelAdapter _adapter;
     private Target _target;
     private Target _backgroundTarget;
@@ -133,7 +145,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     }
 
     @OnClick(R.id.fragment_user_profile_header_button)
-    protected void onClickGroup() {
+    void onClickGroup() {
         UserGroupsDialog.newInstance(_contactGroups, _userContact).show(getFragmentManager());
     }
 
@@ -175,9 +187,12 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
      * Initialize this fragments views.
      */
     private void initialize() {
+        checkCompositeButton();
         setToolbarTitle();
         initializeSVG();
         initializeHeader();
+        _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
+            .subscribe(getContactScoreObserver()));
         if (!_isLoggedInUser) {
             floatingActionButton.setVisibility(View.GONE);
             getGroupEditContacts();
@@ -193,7 +208,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
      */
     private void initializeSVG() {
         Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
-            getLargeIconDimen(getActivity()), Color.WHITE);
+            marginSVGLarge, Color.WHITE);
         floatingActionButton.setImageDrawable(drawable);
         ViewCompat.setElevation(floatingActionButton, 10f);
     }
@@ -216,6 +231,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private void setToolbarTitle() {
         String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
         buildToolbar(toolbar, title, null);
+        followersTextView.setText(getString(R.string.user_profile_followers,
+            stringCalculating));
     }
 
     private void initializeHeader() {
@@ -306,7 +323,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         if (_paletteListener == null) {
             _paletteListener = new PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
-                    Integer offColor = palette.getMutedColor(_blue);
+                    Integer offColor = palette.getMutedColor(colorBlue);
                     Integer color = palette.getVibrantColor(offColor);
 
                     collapsingToolbarLayout.setContentScrimColor(color);
@@ -334,7 +351,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
 
     private void initializeEmptyView() {
         if (_isLoggedInUser) {
-            emptyTextView.setText(fromHtml(nullUserMessage));
+            emptyTextView.setText(fromHtml(stringNullMessage));
             emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
                 null, getNullDrawable(R.raw.ic_ghost_doge), null, null);
         } else {
@@ -353,8 +370,7 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
      * @return Drawable with a contentDescription
      */
     private Drawable getNullDrawable(int resId) {
-        return svgToBitmapDrawable(getActivity(), resId,
-            getNullScreenIconDimen(getActivity()));
+        return svgToBitmapDrawable(getActivity(), resId, marginNullScreen);
     }
 
     @Override
@@ -379,6 +395,24 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
             .subscribe(onNextEvent()));
     }
 
+    public JustObserver<Integer> getContactScoreObserver() {
+        return new JustObserver<Integer>() {
+
+
+            @Override
+            public void success(Integer integer) {
+                followersTextView.setText(getString(R.string.user_profile_followers,
+                    integer));
+            }
+
+            @Override
+            public void error(Throwable e) {
+                followersTextView.setText(getString(R.string.user_profile_followers,
+                    stringErrorCalculating));
+            }
+        };
+    }
+
     private void checkCompositeButton() {
         if (_subscriptions == null) {
             _subscriptions = new CompositeSubscription();
@@ -389,14 +423,13 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
-                setToolbarTitle();
                 if (event instanceof UserChannelAddedEventCallback) {
                     addUserChannel(((UserChannelAddedEventCallback) event));
                 } else if (event instanceof UserChannelDeletedEventCallback) {
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 } else if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
-                } else if (event instanceof SyncAllUsersSuccessEvent){
+                } else if (event instanceof SyncAllUsersSuccessEvent) {
                     _adapter.notifyDataSetChanged();
                 }
             }
@@ -405,6 +438,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
 
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
         updateGroupButtonText(event.contactGroups);
+        _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
+            .subscribe(getContactScoreObserver()));
     }
 
     @SuppressWarnings("unchecked")
@@ -453,17 +488,14 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     }
 
     private void showDeletedChannelSnackBar() {
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.undo_delete),
-            Snackbar
-                .LENGTH_LONG);
+        Snackbar snackbar = make(coordinatorLayout, getString(R.string.undo_delete), LENGTH_LONG);
         snackbar.setAction(getString(R.string.undo), getAddChannelClickListener());
-        snackbar.setActionTextColor(_blue);
+        snackbar.setActionTextColor(colorBlue);
         snackbar.show();
     }
 
     private void showAddedChannelSnackBar() {
-        Snackbar.make(coordinatorLayout, getString(R.string.channel_added), Snackbar.LENGTH_LONG)
-            .show();
+        make(coordinatorLayout, getString(R.string.channel_added), LENGTH_LONG).show();
     }
 
     /**
@@ -482,7 +514,6 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     }
 
     public void getSharedChannels() {
-        checkCompositeButton();
         _subscriptions.add(queryPermissionedChannels(
             getActivity(), getLoggedInUser().id(), _userContact.id())
             .subscribe(permissionedObserver()));

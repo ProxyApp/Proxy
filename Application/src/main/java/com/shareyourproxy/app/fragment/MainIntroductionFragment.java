@@ -1,7 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -20,12 +19,12 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static java.util.Arrays.asList;
 
@@ -43,6 +42,10 @@ public class MainIntroductionFragment extends BaseFragment {
     ColorStateList colorTransparent;
     @BindColor(R.color.common_proxy_zoidberg)
     ColorStateList colorSelected;
+    @BindColor(android.R.color.white)
+    int colorWhite;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
     private int _selectedPage = 0;
     private IntroductionFragmentPagerAdapter _adapter;
 
@@ -123,15 +126,15 @@ public class MainIntroductionFragment extends BaseFragment {
     }
 
     private void drawDoneButton() {
-        floatingActionButton.setImageDrawable(svgToBitmapDrawable(getActivity(),
-            R.raw.ic_done, getLargeIconDimen(getActivity()), Color.WHITE));
+        floatingActionButton.setImageDrawable(svgToBitmapDrawable(getActivity(), R.raw.ic_done,
+            marginSVGLarge, colorWhite));
         floatingActionButton.setBackgroundTintList(colorSelected);
         ViewCompat.setAlpha(floatingActionButton, 1f);
     }
 
     private void drawNextButton() {
         floatingActionButton.setImageDrawable(svgToBitmapDrawable(getActivity(),
-            R.raw.ic_chevron_right, getLargeIconDimen(getActivity()), Color.WHITE));
+            R.raw.ic_chevron_right, marginSVGLarge, colorWhite));
         floatingActionButton.setBackgroundTintList(colorTransparent);
         ViewCompat.setAlpha(floatingActionButton, .3f);
     }

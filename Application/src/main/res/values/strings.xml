@@ -132,6 +132,7 @@
     <string name="family">Family</string>
     <string name="friends">Friends</string>
     <string name="coworkers">Coworkers</string>
+    <string name="following">Following</string>
     <string name="rx_eventbus_error">Error processing event data</string>
     <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
     <string name="oauth_error">Error retrieving token from Google OAuth</string>
@@ -164,6 +165,7 @@
     <string-array name="default_groups">
         <item>@string/family</item>
         <item>@string/friends</item>
+        <item>@string/following</item>
         <item>@string/coworkers</item>
     </string-array>
     <string name="fragment_search_empty_text">No search results.</string>
@@ -193,6 +195,9 @@
         email signature.
     </string>
     <string name="proxy_hook">all of you, in one place</string>
-    <string name="edit_public_channel_header">Selected channels will be visible to all users.
-    </string>
+    <string name="edit_public_channel_header"><![CDATA[<b>Everyone can see these</b><br>
+        Selected channels will be visible to all users.]]></string>
+    <string name="user_profile_followers">%1$s followers</string>
+    <string name="calculating">Calculating</string>
+    <string name="error_calculating">Error calculating</string>
 </resources>

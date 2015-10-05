@@ -1,6 +1,5 @@
 package com.shareyourproxy.app;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,7 +43,6 @@ import static com.shareyourproxy.BuildConfig.VERSION_CODE;
 import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
-import static com.shareyourproxy.util.ViewUtils.dpToPx;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 
@@ -60,6 +58,8 @@ public class LoginActivity extends GoogleApiActivity {
     SignInButton signInButton;
     @BindDimen(R.dimen.common_rect_tiny)
     int margin;
+    @BindDimen(R.dimen.common_svg_ultra_minor)
+    int svgUltraMinor;
     // Transient
     private PendingIntent _signInIntent;
     private int _signInError;
@@ -101,18 +101,8 @@ public class LoginActivity extends GoogleApiActivity {
      */
     private void drawLogo() {
         Drawable draw = svgToBitmapDrawable(this,
-            R.raw.ic_proxy_logo_typed, (int) getResourceDimension(this));
+            R.raw.ic_proxy_logo_typed, svgUltraMinor);
         proxyLogo.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null);
-    }
-
-    /**
-     * Get a big icon dimension size.
-     *
-     * @param activity context
-     * @return resource dimension
-     */
-    private float getResourceDimension(Activity activity) {
-        return dpToPx(activity.getResources(), R.dimen.common_svg_ultra_minor);
     }
 
     @Override
@@ -260,6 +250,7 @@ public class LoginActivity extends GoogleApiActivity {
     private void addUserToDatabase(User newUser) {
         setLoggedInUser(newUser);
         getRxBus().post(new AddUserCommand(getRxBus(), newUser));
+        getRxBus().post(new SyncAllUsersCommand(getRxBus(), newUser.id()));
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.util.SortedList;
@@ -27,7 +26,6 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.util.ObjectUtils;
-import com.shareyourproxy.util.ViewUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,25 +36,24 @@ import butterknife.Bind;
 import butterknife.BindDimen;
 import timber.log.Timber;
 
+import static android.text.Html.fromHtml;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
-public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
+public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int TYPE_LIST_ITEM = 1;
     public static final int TYPE_LIST_HEADER = 2;
     public static final int TYPE_LIST_DELETE_FOOTER = 3;
     private final GroupEditType _groupEditType;
-    @BindDimen(R.dimen.common_margin_xxtiny)
-    int margin;
     private ItemClickListener _clickListener;
     private Callback<ChannelToggle> _sortedListCallback;
     private SortedList<ChannelToggle> _channels;
     private String _groupLabel;
     private TextWatcher _textWatcher = getTextWatcher();
+    private HeaderViewHolder _groupLabelHeaderViewHolder;
 
-    public GroupEditChannelAdapter(
+    public EditGroupChannelAdapter(
         ItemClickListener listener, String groupLabel, HashMap<String, Channel> userChannels,
         HashSet<String> groupChannels, GroupEditType groupEditType) {
         _clickListener = listener;
@@ -71,10 +68,10 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         }
     }
 
-    public static GroupEditChannelAdapter newInstance(
+    public static EditGroupChannelAdapter newInstance(
         ItemClickListener listener, String groupLabel, HashMap<String, Channel> userChannels,
         HashSet<String> groupChannels, GroupEditType groupEditType) {
-        return new GroupEditChannelAdapter(listener, groupLabel,
+        return new EditGroupChannelAdapter(listener, groupLabel,
             userChannels, groupChannels, groupEditType);
     }
 
@@ -151,7 +148,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
                     int weight2 = item2.getChannel().channelType().getWeight();
                     int compareFirst = ObjectUtils.compare(weight1, weight2);
                     if (compareFirst == 0) {
-                        return item1.getChannel().label().compareTo(item2.getChannel().label());
+                        return item1.getChannel().label()
+                            .compareToIgnoreCase(item2.getChannel().label());
                     } else {
                         return compareFirst;
                     }
@@ -285,16 +283,16 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
 
     public void bindPublicHeaderViewData(PublicHeaderViewHolder holder) {
         Context context = holder._view.getContext();
-        Drawable draw = svgToBitmapDrawable(
-            context, R.raw.ic_warning, getLargeIconDimen(context), Color.BLACK);
-        draw.setAlpha(ViewUtils.ALPHA_0X42);
+        String nullMessage = context.getString(R.string.edit_public_channel_header);
+        holder.textView.setText(fromHtml(nullMessage));
 
-        holder.textView.setCompoundDrawablesWithIntrinsicBounds(draw, null, null, null);
-        holder.textView.setText(
-            context.getString(R.string.edit_public_channel_header));
+        Drawable draw = svgToBitmapDrawable(
+            context, R.raw.ic_chameleon, holder.chameleonSized);
+        holder.textView.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null);
     }
 
     private void bindHeaderViewData(HeaderViewHolder holder) {
+        _groupLabelHeaderViewHolder = holder;
         holder.editText.setText(_groupLabel);
         holder.editText.addTextChangedListener(_textWatcher);
     }
@@ -305,6 +303,12 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
         } else {
             return null;
         }
+    }
+
+    public void promptGroupLabelError(Context context) {
+        _groupLabelHeaderViewHolder.
+            textInputLayout.setError(context.getString(R.string.required));
+        _groupLabelHeaderViewHolder.textInputLayout.setErrorEnabled(true);
     }
 
     private void bindItemViewData(ItemViewHolder holder, ChannelToggle editChannel) {
@@ -392,6 +396,8 @@ public class GroupEditChannelAdapter extends BaseRecyclerViewAdapter {
     public static final class PublicHeaderViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_edit_group_channel_public_header_textview)
         TextView textView;
+        @BindDimen(R.dimen.common_svg_null_screen_small)
+        int chameleonSized;
 
         private PublicHeaderViewHolder(View view, ItemClickListener itemClickListener) {
             super(view, itemClickListener);

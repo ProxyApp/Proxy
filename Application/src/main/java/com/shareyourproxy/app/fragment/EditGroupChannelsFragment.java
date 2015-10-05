@@ -17,7 +17,7 @@ import com.shareyourproxy.api.rx.command.SaveGroupChannelsCommand;
 import com.shareyourproxy.api.rx.command.SavePublicGroupChannelsCommand;
 import com.shareyourproxy.app.EditGroupChannelsActivity;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
-import com.shareyourproxy.app.adapter.GroupEditChannelAdapter;
+import com.shareyourproxy.app.adapter.EditGroupChannelAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -26,7 +26,7 @@ import timber.log.Timber;
 import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.app.adapter.GroupEditChannelAdapter.TYPE_LIST_DELETE_FOOTER;
+import static com.shareyourproxy.app.adapter.EditGroupChannelAdapter.TYPE_LIST_DELETE_FOOTER;
 
 /**
  * Display a list of {@link Group} {@link Channel}s and whether they are in our out of the selected
@@ -37,7 +37,7 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
     @Bind(R.id.fragment_group_edit_channel_recyclerview)
     protected RecyclerView recyclerView;
 
-    private GroupEditChannelAdapter _adapter;
+    private EditGroupChannelAdapter _adapter;
 
     /**
      * Constructor.
@@ -99,7 +99,7 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
      */
     private void initializeRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = GroupEditChannelAdapter.newInstance(this, getSelectedGroup().label(),
+        _adapter = EditGroupChannelAdapter.newInstance(this, getSelectedGroup().label(),
             getLoggedInUser().channels(), getSelectedGroup().channels(), getGroupEditType());
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
@@ -136,7 +136,11 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
                 if (GroupEditType.PUBLIC_GROUP.equals(getGroupEditType())) {
                     savePublicGroupChannels();
                 } else {
-                    saveGroupChannels(_adapter.getGroupLabel());
+                    if(_adapter.getGroupLabel().trim().isEmpty()){
+                        _adapter.promptGroupLabelError(getActivity());
+                    }else {
+                        saveGroupChannels(_adapter.getGroupLabel());
+                    }
                 }
 
                 break;

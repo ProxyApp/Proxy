@@ -20,6 +20,7 @@ import java.util.Map;
 
 import butterknife.Bind;
 
+import static com.shareyourproxy.util.ObjectUtils.capitalize;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
 
@@ -52,10 +53,10 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             _sortedListCallback = new SortedList.Callback<User>() {
                 @Override
                 public int compare(User item1, User item2) {
-                    int comapreFirst = item1.first().compareTo(item2.first());
+                    int comapreFirst = item1.first().compareToIgnoreCase(item2.first());
 
                     if (comapreFirst == 0) {
-                        return item1.last().compareTo(item2.last());
+                        return item1.last().compareToIgnoreCase(item2.last());
                     } else {
                         return comapreFirst;
                     }
@@ -131,8 +132,9 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     private void setItemViewData(UserViewHolder holder, User user) {
         Context context = holder._view.getContext();
-        holder.userName.setText(joinWithSpace(new String[]{ user.first(),
-            user.last() }));
+        String name = joinWithSpace(new String[]{ capitalize(user.first()),
+            capitalize(user.last()) });
+        holder.userName.setText(name);
         if (user.profileURL() != null) {
             Picasso.with(context).load(user.profileURL())
                 .placeholder(R.mipmap.ic_proxy)

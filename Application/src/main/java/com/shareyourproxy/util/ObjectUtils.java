@@ -2,6 +2,9 @@ package com.shareyourproxy.util;
 
 import android.text.TextUtils;
 
+import static java.lang.Character.toTitleCase;
+import static java.lang.String.valueOf;
+
 /**
  * Helper class for formatting objects.
  */
@@ -38,7 +41,9 @@ public class ObjectUtils {
         if (string == null || string.length() == 0) {
             return "";
         }
-        return String.valueOf(Character.toTitleCase(string.charAt(0))) + string.substring(1);
+        StringBuilder sb = new StringBuilder(valueOf(toTitleCase(string.charAt(0))))
+            .append(string.substring(1));
+        return sb.toString();
     }
 
     /**

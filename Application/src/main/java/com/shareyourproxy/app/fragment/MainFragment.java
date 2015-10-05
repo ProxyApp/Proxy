@@ -28,11 +28,11 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchSearchActivity;
-import static com.shareyourproxy.util.ViewUtils.getLargeIconDimen;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static java.util.Arrays.asList;
 
@@ -45,19 +45,21 @@ public class MainFragment extends BaseFragment {
     public static final int ARG_SELECT_CONTACTS_TAB = 0;
     public static final int ARG_SELECT_GROUP_TAB = 1;
     @Bind(R.id.include_toolbar)
-    protected Toolbar toolbar;
+    Toolbar toolbar;
     @Bind(R.id.activity_main_drawer_layout)
-    protected DrawerLayout drawerLayout;
+    DrawerLayout drawerLayout;
     @Bind(R.id.fragment_main_viewpager)
-    protected ViewPager viewPager;
+    ViewPager viewPager;
     @Bind(R.id.fragment_main_sliding_tabs)
-    protected TabLayout slidingTabLayout;
+    TabLayout slidingTabLayout;
     @Bind(R.id.fragment_main_coordinator_layout)
-    protected CoordinatorLayout coordinatorLayout;
+    CoordinatorLayout coordinatorLayout;
     @BindColor(R.color.common_proxy_dark_selected)
-    protected int _selectedColor;
+    int _selectedColor;
     @BindColor(R.color.common_proxy_dark_disabled)
-    protected int _unselectedColor;
+    int _unselectedColor;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
     private CompositeSubscription _subscriptions;
     private ContactSearchLayout _contactSearchLayout;
 
@@ -214,8 +216,7 @@ public class MainFragment extends BaseFragment {
      * @return Drawable with a contentDescription
      */
     private ContentDescriptionDrawable getUserDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_group,
-            getLargeIconDimen(getActivity()), _unselectedColor)
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_group, marginSVGLarge, _unselectedColor)
             .setContentDescription(getString(R.string.contacts));
     }
 
@@ -225,8 +226,7 @@ public class MainFragment extends BaseFragment {
      * @return Drawable with a contentDescription
      */
     private ContentDescriptionDrawable getGroupDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_groups,
-            getLargeIconDimen(getActivity()), _unselectedColor)
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_groups, marginSVGLarge, _unselectedColor)
             .setContentDescription(getString(R.string.groups));
     }
 
@@ -248,7 +248,7 @@ public class MainFragment extends BaseFragment {
         }
 
         public static MainFragmentPagerAdapter newInstance(
-            List<Fragment> fragmentArray, FragmentManager fragmentManager){
+            List<Fragment> fragmentArray, FragmentManager fragmentManager) {
             return new MainFragmentPagerAdapter(fragmentArray, fragmentManager);
         }
 

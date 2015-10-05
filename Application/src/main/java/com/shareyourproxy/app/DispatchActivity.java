@@ -6,8 +6,10 @@ import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
@@ -139,6 +141,9 @@ public class DispatchActivity extends GoogleApiActivity {
                         }
                         // if there is a user saved in shared prefs
                         if (user != null) {
+                            RestClient.getUserService(activity, getRxBus())
+                                .updateUserVersion(user.id(), BuildConfig.VERSION_CODE)
+                                .toBlocking().single();
                             setLoggedInUser(user);
                             RxBusDriver rxBus = getRxBus();
                             rxBus.post(new SyncAllUsersCommand(rxBus, user.id()));
