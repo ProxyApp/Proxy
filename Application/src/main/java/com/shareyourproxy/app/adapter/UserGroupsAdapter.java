@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.adapter;
 
+import android.support.v7.util.SortedList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +23,68 @@ import static com.shareyourproxy.util.ObjectUtils.capitalize;
  * Adapts the contactGroups that a user belongs to in a dialog.
  */
 public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
-    private ArrayList<GroupToggle> _groups;
+    private SortedList<GroupToggle> _groups;
+    private SortedList.Callback<GroupToggle> _sortedListCallback;
 
     private UserGroupsAdapter(ArrayList<GroupToggle> groups) {
-        _groups = groups;
+        if (groups != null) {
+            _groups = new SortedList<>(GroupToggle.class, getSortedCallback(), groups.size());
+        } else {
+            _groups = new SortedList<>(GroupToggle.class, getSortedCallback(), 0);
+        }
+        _groups.beginBatchedUpdates();
+        _groups.addAll(groups);
+        _groups.endBatchedUpdates();
     }
 
     public static UserGroupsAdapter newInstance(ArrayList<GroupToggle> groups) {
         return new UserGroupsAdapter(groups);
+    }
+
+    public SortedList.Callback<GroupToggle> getSortedCallback() {
+        if (_sortedListCallback == null) {
+            _sortedListCallback = new SortedList.Callback<GroupToggle>() {
+
+                @Override
+                public int compare(GroupToggle item1, GroupToggle item2) {
+                    String label1 = item1.getGroup().label();
+                    String label2 = item2.getGroup().label();
+                    return label1.compareToIgnoreCase(label2);
+                }
+
+                @Override
+                public void onInserted(int position, int count) {
+                    notifyItemRangeInserted(position, count);
+                }
+
+                @Override
+                public void onRemoved(int position, int count) {
+                    notifyItemRangeRemoved(position, count);
+                }
+
+                @Override
+                public void onMoved(int fromPosition, int toPosition) {
+                    notifyItemMoved(fromPosition, toPosition);
+                }
+
+                @Override
+                public void onChanged(int position, int count) {
+                    notifyItemRangeChanged(position, count);
+                }
+
+                @Override
+                public boolean areContentsTheSame(GroupToggle item1, GroupToggle item2) {
+                    return item1.getGroup().equals(item2.getGroup())
+                        && item1.isChecked() == item2.isChecked();
+                }
+
+                @Override
+                public boolean areItemsTheSame(GroupToggle item1, GroupToggle item2) {
+                    return item1.getGroup().equals(item2.getGroup());
+                }
+            };
+        }
+        return _sortedListCallback;
     }
 
     @Override
@@ -68,7 +123,11 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
     }
 
     public ArrayList<GroupToggle> getDataArray() {
-        return _groups;
+        ArrayList<GroupToggle> groups = new ArrayList<>(_groups.size());
+        for (int i = 0; i < _groups.size(); ++i) {
+            groups.add(_groups.get(i));
+        }
+        return groups;
     }
 
     /**
@@ -76,7 +135,7 @@ public class UserGroupsAdapter extends BaseRecyclerViewAdapter implements ItemCl
      */
     static class ContentViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_user_groups_textview)
-        protected CheckedTextView checkedTextView;
+        CheckedTextView checkedTextView;
 
         /**
          * Constructor for the holder.

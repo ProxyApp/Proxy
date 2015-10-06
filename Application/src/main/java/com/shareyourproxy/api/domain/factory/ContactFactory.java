@@ -12,17 +12,16 @@ import io.realm.RealmList;
  */
 public class ContactFactory {
 
-
     /**
-     * Return a RealmList of Contacts from a user.
+     * Convert a list of RealmString values into a HashSet of contact id Strings.
      *
-     * @param realmContactsArray to get contacts from
-     * @return RealmList of Contacts
+     * @param values contact ids saved in realm
+     * @return HashSet of contact id values
      */
-    public static HashSet<String> getModelContactList(RealmList<RealmString> realmContactsArray) {
-        if (realmContactsArray != null) {
-            HashSet<String> contactList = new HashSet<>(realmContactsArray.size());
-            for (RealmString realmContact : realmContactsArray) {
+    public static HashSet<String> getContactIdSet(RealmList<RealmString> values) {
+        if (values != null) {
+            HashSet<String> contactList = new HashSet<>(values.size());
+            for (RealmString realmContact : values) {
                 contactList.add(realmContact.getValue());
             }
             return contactList;
@@ -30,11 +29,4 @@ public class ContactFactory {
         return null;
     }
 
-    public static HashSet<String> getContactIds(RealmList<RealmString> values) {
-        HashSet<String> channels = new HashSet<>(values.size());
-        for (RealmString value : values) {
-            channels.add(value.getValue());
-        }
-        return channels;
-    }
 }

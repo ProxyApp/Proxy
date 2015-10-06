@@ -33,7 +33,7 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 public class EditGroupChannelsActivity extends BaseActivity {
     // View
     @Bind(R.id.activity_toolbar)
-    protected Toolbar toolbar;
+    Toolbar toolbar;
     // Transient
     private CompositeSubscription _subscriptions;
 

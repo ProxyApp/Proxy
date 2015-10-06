@@ -44,7 +44,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_channel_auth_action_address_edittext)
-    protected EditText editTextActionAddress;
+    EditText editTextActionAddress;
     private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -54,11 +54,11 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_channel_auth_action_address_floatlabel)
-    protected TextInputLayout floatLabelAddress;
+    TextInputLayout floatLabelAddress;
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     private Channel _channel;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
@@ -156,9 +156,9 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
         // Setup Button Colors
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), colorText);
         // Set TextInput hint
         floatLabelAddress.setHint(getString(
             R.string.dialog_addchannel_hint_address_blank_handle,

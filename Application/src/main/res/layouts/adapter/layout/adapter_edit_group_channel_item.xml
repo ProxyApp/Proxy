@@ -37,8 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/common_margin_tiny"
-        android:layout_toEndOf="@id/adapter_add_channel_list_item_label"/>
+        android:layout_marginEnd="@dimen/common_margin_tiny"/>
 
     <View
         android:layout_width="match_parent"
@@ -46,7 +45,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="@dimen/common_margin_small"
-        android:layout_toEndOf="@id/adapter_add_channel_list_item_image"
+        android:layout_toStartOf="@id/adapter_edit_group_list_item_label"
         android:background="@color/common_divider"/>
 
 </RelativeLayout>

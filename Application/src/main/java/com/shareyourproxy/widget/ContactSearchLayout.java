@@ -2,8 +2,6 @@ package com.shareyourproxy.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.RxBusDriver;
@@ -25,6 +22,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
+import static android.support.v4.view.GravityCompat.START;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 
@@ -35,17 +38,17 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 public class ContactSearchLayout extends FrameLayout {
 
     @Bind(R.id.widget_contactsearchlayout_textview)
-    protected TextView searchTextView;
+    TextView searchTextView;
     @Bind(R.id.widget_contactsearchlayout_menu_icon)
-    protected ImageView menuImageView;
+    ImageView menuImageView;
     @BindDimen(R.dimen.common_margin_xxxtiny)
-    protected int microMargin;
+    int microMargin;
     @BindDimen(R.dimen.common_margin_xxtiny)
-    protected int tinyMargin;
+    int tinyMargin;
     @BindDimen(R.dimen.common_margin_tiny)
-    protected int smallMargin;
+    int smallMargin;
     @BindDrawable(R.drawable.selector_contactsearchlayout)
-    protected Drawable background;
+    Drawable background;
     private DrawerLayout _drawerLayout;
     private RxBusDriver _rxBus;
     private View _view;
@@ -57,7 +60,7 @@ public class ContactSearchLayout extends FrameLayout {
 
     @OnClick(R.id.widget_contactsearchlayout_menu_icon)
     public void onClickMenuIcon() {
-        _drawerLayout.openDrawer(GravityCompat.START);
+        _drawerLayout.openDrawer(START);
     }
 
     @OnClick(R.id.widget_contactsearchlayout_textview)
@@ -68,7 +71,7 @@ public class ContactSearchLayout extends FrameLayout {
     @OnLongClick(R.id.widget_contactsearchlayout_menu_icon)
     public boolean onLongClick(View view) {
         makeText(
-            view.getContext(), menuImageView.getContentDescription(), Toast.LENGTH_SHORT).show();
+            view.getContext(), menuImageView.getContentDescription(), LENGTH_SHORT).show();
         return false;
     }
 
@@ -79,8 +82,8 @@ public class ContactSearchLayout extends FrameLayout {
      * @param drawerLayout to open drawer on action
      */
     public void initLayout(Context context, RxBusDriver rxBus, DrawerLayout drawerLayout) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context
-            .LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(
+            LAYOUT_INFLATER_SERVICE);
         _view = inflater.inflate(R.layout.widget_contactsearchlayout, this, true);
         ButterKnife.bind(this, _view);
         _drawerLayout = drawerLayout;
@@ -95,13 +98,12 @@ public class ContactSearchLayout extends FrameLayout {
      * @param view    rootView
      */
     public void initialize(Context context, View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (SDK_INT >= LOLLIPOP) {
             setTransitionName(context.getString(R.string.search_container));
         }
         setBackground(background);
         setOnClickListener(onClickBackground());
-        MarginLayoutParams lp = new MarginLayoutParams(MarginLayoutParams.MATCH_PARENT,
-            MarginLayoutParams.MATCH_PARENT);
+        MarginLayoutParams lp = new MarginLayoutParams(MATCH_PARENT, MATCH_PARENT);
         lp.setMargins(tinyMargin, tinyMargin, tinyMargin, microMargin);
         setLayoutParams(lp);
         ViewCompat.setElevation(view, 10f);

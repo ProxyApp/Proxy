@@ -41,13 +41,13 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
     @Bind(R.id.fragment_contact_group_toolbar)
-    protected Toolbar toolbar;
+    Toolbar toolbar;
     @Bind(R.id.fragment_contact_group_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_contact_group_empty_textview)
-    protected TextView emptyTextView;
+    TextView emptyTextView;
     @BindString(R.string.fragment_contact_group_empty_text)
-    protected String emptyTextMessage;
+    String emptyTextMessage;
     @BindDimen(R.dimen.common_svg_null_screen)
     int marginNullScreen;
     private UserAdapter _adapter;

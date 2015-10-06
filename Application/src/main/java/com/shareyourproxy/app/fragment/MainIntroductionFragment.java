@@ -3,9 +3,6 @@ package com.shareyourproxy.app.fragment;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -15,6 +12,7 @@ import android.view.ViewGroup;
 import com.shareyourproxy.R;
 import com.viewpagerindicator.CirclePageIndicator;
 
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -26,7 +24,6 @@ import butterknife.OnClick;
 import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
-import static java.util.Arrays.asList;
 
 /**
  * Created by Evan on 9/21/15.
@@ -47,7 +44,7 @@ public class MainIntroductionFragment extends BaseFragment {
     @BindDimen(R.dimen.common_svg_large)
     int marginSVGLarge;
     private int _selectedPage = 0;
-    private IntroductionFragmentPagerAdapter _adapter;
+    private BasePagerAdapter _adapter;
 
     /**
      * Default Constructor.
@@ -87,12 +84,13 @@ public class MainIntroductionFragment extends BaseFragment {
      * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
      */
     private void initializeFragments() {
-        List<BaseIntroductionFragment> fragmentArray = asList(
+        List<BaseFragment> fragmentArray = Arrays.<BaseFragment>asList(
             FirstIntroductionFragment.newInstance(),
             SecondIntroductionFragment.newInstance(),
             ThirdIntroductionFragment.newInstance());
+
         _adapter =
-            IntroductionFragmentPagerAdapter.newInstance(fragmentArray, getChildFragmentManager());
+            BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager());
         viewPager.setAdapter(_adapter);
         viewPager.addOnPageChangeListener(getFabDrawableListener());
         pageIndicator.setViewPager(viewPager);
@@ -103,9 +101,7 @@ public class MainIntroductionFragment extends BaseFragment {
         return new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(
-                int position, float positionOffset, int
-                positionOffsetPixels) {
-
+                int position, float positionOffset, int positionOffsetPixels) {
             }
 
             @Override
@@ -120,7 +116,6 @@ public class MainIntroductionFragment extends BaseFragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         };
     }
@@ -137,39 +132,5 @@ public class MainIntroductionFragment extends BaseFragment {
             R.raw.ic_chevron_right, marginSVGLarge, colorWhite));
         floatingActionButton.setBackgroundTintList(colorTransparent);
         ViewCompat.setAlpha(floatingActionButton, .3f);
-    }
-
-    /**
-     * The {@link FragmentPagerAdapter} used to display Groups and Users.
-     */
-    private static class IntroductionFragmentPagerAdapter extends FragmentPagerAdapter {
-        private List<BaseIntroductionFragment> _fragmentArray;
-
-        /**
-         * Constructor.
-         *
-         * @param fragmentManager Manager of fragments.
-         */
-        private IntroductionFragmentPagerAdapter(
-            List<BaseIntroductionFragment> fragmentArray, FragmentManager fragmentManager) {
-            super(fragmentManager);
-            _fragmentArray = fragmentArray;
-        }
-
-        public static IntroductionFragmentPagerAdapter newInstance(
-            List<BaseIntroductionFragment> fragmentArray, FragmentManager fragmentManager) {
-            return new IntroductionFragmentPagerAdapter(fragmentArray, fragmentManager);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return _fragmentArray.get(i);
-        }
-
-        @Override
-        public int getCount() {
-            return _fragmentArray.size();
-        }
-
     }
 }

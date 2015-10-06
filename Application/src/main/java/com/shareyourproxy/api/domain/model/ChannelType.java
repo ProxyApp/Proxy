@@ -44,7 +44,13 @@ public enum ChannelType {
     Periscope(25, "Periscope", R.raw.ic_periscope, null),
     Medium(26, "Medium", R.raw.ic_medium, null),
     Soundcloud(27, "Soundcloud", R.raw.ic_soundcloud, null),
-    Skype(28, "Skype", R.raw.ic_skype, null);
+    Skype(28, "Skype", R.raw.ic_skype, null),
+    LeagueOfLegends(29, "League of Legends", R.raw.ic_lol, null),
+    PlaystationNetwork(30, "Playstation Network", R.raw.ic_playstation, null),
+    NintendoNetwork(31, "Nintendo Network", R.raw.ic_nintendo, null),
+    Steam(32, "Steam", R.raw.ic_steam, null),
+    Twitch(33, "Twitch", R.raw.ic_twitch, null),
+    XboxLive(34, "Xbox Live", R.raw.ic_xbox, null);
 
     private final int weight;
     private final String label;

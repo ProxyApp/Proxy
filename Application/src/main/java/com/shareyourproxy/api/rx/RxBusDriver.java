@@ -12,10 +12,9 @@ import rx.subjects.Subject;
 import timber.log.Timber;
 
 /**
- * A singleton pattern intended to store an Instance in the {@link ProxyApplication} that allows one
+ * A singleton pattern intended to store an instance in the {@link ProxyApplication} that allows one
  * to easily send messages over this {@link PublishSubject} Bus.
  */
-@SuppressWarnings("unused")
 public class RxBusDriver implements Parcelable {
     private static final RxBusDriver DEFAULT_INSTANCE = new RxBusDriver();
     public static final Creator<RxBusDriver> CREATOR = new Creator<RxBusDriver>() {
@@ -63,6 +62,5 @@ public class RxBusDriver implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
     }
 }

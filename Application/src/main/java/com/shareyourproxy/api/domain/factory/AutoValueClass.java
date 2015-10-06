@@ -1,4 +1,4 @@
-package com.shareyourproxy.api.gson;
+package com.shareyourproxy.api.domain.factory;
 
 
 import java.lang.annotation.ElementType;

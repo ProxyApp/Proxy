@@ -90,7 +90,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
         return new JustObserver<String>() {
 
             @Override
-            public void success(String token) {
+            public void next(String token) {
                 _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
             }
 
@@ -160,7 +160,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
         if (_tokenRefreshObservable == null) {
             _tokenRefreshObservable = new JustObserver<String>() {
                 @Override
-                public void success(String token) {
+                public void next(String token) {
                     getSharedPreferences().edit()
                         .putString(Constants.KEY_GOOGLE_PLUS_AUTH, token).commit();
                     _isTokenRefreshing = false;

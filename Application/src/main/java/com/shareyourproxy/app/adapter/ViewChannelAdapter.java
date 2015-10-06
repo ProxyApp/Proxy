@@ -162,7 +162,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      */
     @SuppressLint("NewApi")
     private void bindContentViewData(ContentViewHolder holder, Channel channel) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         ChannelType channelType = channel.channelType();
         String channelTypeString = channel.channelType().getLabel();
         String label = channel.label();
@@ -171,7 +171,7 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
             context, channelTypeString, label, address);
 
         holder.channelImage.setImageDrawable(
-            getSVGIconDrawable(context, channel,
+            getChannelIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
         holder.channelContentText.setText(sb);
     }
@@ -200,9 +200,9 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      */
     public static final class ContentViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_channel_view_content_image)
-        protected ImageView channelImage;
+        ImageView channelImage;
         @Bind(R.id.adapter_channel_view_content)
-        protected TextView channelContentText;
+        TextView channelContentText;
 
         /**
          * Constructor for the ItemViewHolder.

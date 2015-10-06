@@ -282,7 +282,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public void bindPublicHeaderViewData(PublicHeaderViewHolder holder) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         String nullMessage = context.getString(R.string.edit_public_channel_header);
         holder.textView.setText(fromHtml(nullMessage));
 
@@ -312,7 +312,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     private void bindItemViewData(ItemViewHolder holder, ChannelToggle editChannel) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         ChannelType channelType = editChannel.getChannel().channelType();
         Channel channel = editChannel.getChannel();
         String channelTypeString = editChannel.getChannel().channelType().getLabel();
@@ -322,7 +322,8 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
             context, channelTypeString, label, address);
 
         holder.itemImage.setImageDrawable(
-            getSVGIconDrawable(context, channel, getChannelBackgroundColor(context, channelType)));
+            getChannelIconDrawable(context, channel, getChannelBackgroundColor(context,
+                channelType)));
 
         View.OnClickListener clickListener = switchListener(holder);
         CompoundButton.OnCheckedChangeListener checkedListener = checkedListener(holder);

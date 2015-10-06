@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx;
 
 import android.content.Context;
 
-import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
@@ -18,7 +17,8 @@ import rx.functions.Func1;
 import static com.shareyourproxy.api.RestClient.getUserChannelService;
 import static com.shareyourproxy.api.RestClient.getUserGroupService;
 import static com.shareyourproxy.api.domain.factory.UserFactory.addUserChannel;
-import static com.shareyourproxy.api.rx.RxHelper.addRealmUser;
+import static com.shareyourproxy.api.domain.factory.UserFactory.deleteUserChannel;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 
 /**
@@ -40,6 +40,26 @@ public class RxUserChannelSync {
             .map(saveChannelToFirebase(context, rxBus, newChannel))
             .map(userChannelAddedEventCallback(oldChannel, newChannel))
             .toList().toBlocking().single();
+    }
+
+    public static List<EventCallback> deleteChannel(
+        Context context,RxBusDriver rxBus, User oldUser, Channel channel) {
+        return Observable.just(oldUser)
+            .map(removeUserChannel(channel))
+            .map(addRealmUser(context))
+            .map(deleteChannelFromFirebase(context, rxBus, channel))
+            .map(userChannelDeletedEventCallback(channel))
+            .toList().toBlocking().single();
+    }
+
+    private static Func1<User, User> addRealmUser(final Context context) {
+        return new Func1<User, User>() {
+            @Override
+            public User call(User user) {
+                updateRealmUser(context, user);
+                return user;
+            }
+        };
     }
 
     /**
@@ -87,21 +107,11 @@ public class RxUserChannelSync {
         };
     }
 
-    public static List<EventCallback> deleteChannel(
-        Context context,RxBusDriver rxBus, User oldUser, Channel channel) {
-        return Observable.just(oldUser)
-            .map(removeUserChannel(channel))
-            .map(addRealmUser(context))
-            .map(deleteChannelFromFirebase(context, rxBus,channel))
-            .map(userChannelDeletedEventCallback(channel))
-            .toList().toBlocking().single();
-    }
-
     private static Func1<User, User> removeUserChannel(final Channel channel) {
         return new Func1<User, User>() {
             @Override
             public User call(User oldUser) {
-                User newUser = UserFactory.deleteUserChannel(oldUser, channel);
+                User newUser = deleteUserChannel(oldUser, channel);
                 return newUser;
             }
         };

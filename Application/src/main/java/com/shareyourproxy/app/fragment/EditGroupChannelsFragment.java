@@ -35,7 +35,7 @@ import static com.shareyourproxy.app.adapter.EditGroupChannelAdapter.TYPE_LIST_D
 public class EditGroupChannelsFragment extends BaseFragment implements ItemClickListener {
 
     @Bind(R.id.fragment_group_edit_channel_recyclerview)
-    protected RecyclerView recyclerView;
+    RecyclerView recyclerView;
 
     private EditGroupChannelAdapter _adapter;
 

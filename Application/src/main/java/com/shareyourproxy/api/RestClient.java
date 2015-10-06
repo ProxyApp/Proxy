@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.Constants;
-import com.shareyourproxy.api.gson.AutoValueAdapterFactory;
+import com.shareyourproxy.api.domain.factory.AutoValueAdapterFactory;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.service.InstagramAuthService;
 import com.shareyourproxy.api.service.MessageService;

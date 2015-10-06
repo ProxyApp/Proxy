@@ -15,7 +15,9 @@ public class RealmUser extends RealmObject {
     @PrimaryKey
     private String id;
     private String first;
+    @Nullable
     private String last;
+    @Nullable
     private String fullName;
     private String email;
     private String profileURL;

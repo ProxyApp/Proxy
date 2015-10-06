@@ -27,6 +27,7 @@ import com.shareyourproxy.app.dialog.AddRedditChannelDialog;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 import com.shareyourproxy.app.dialog.InstagramAuthDialog;
 import com.shareyourproxy.app.dialog.SpotifyAuthDialog;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;
@@ -40,6 +41,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
@@ -51,12 +53,13 @@ import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
  */
 public class AddChannelListFragment extends BaseFragment implements ItemClickListener {
 
-    public static final String TWITTER_LOGIN_ERROR = "Twitter Login Error";
-    public static final String TWITTER_ERROR = "Error authenticating with Twitter.";
     @Bind(R.id.fragment_channel_list_recyclerview)
-    protected BaseRecyclerView recyclerView;
-    @Bind(R.id.fragment_user_profile_twitter)
-    protected TwitterLoginButton twitterLoginButton;
+    BaseRecyclerView recyclerView;
+    @BindString(R.string.twitter_login_error)
+    String twitterLoginError;
+    @BindString(R.string.twitter_login_error_message)
+    String twitterLoginErrorMessage;
+    private TwitterLoginButton twitterLoginButton;
     private AddChannelAdapter _adapter;
     private CallbackManager _callbackManager;
     private LoginManager _loginManager;
@@ -98,7 +101,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     }
 
     /**
-     * Callback manager to handle success or error when OAuthing a facebook user.
+     * Callback manager to handle next or error when OAuthing a facebook user.
      *
      * @return callback manager
      */
@@ -155,9 +158,12 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
      * Initialize a twitter login button with a callback to handle errors.
      */
     private void initializeTwitterLogin() {
+        twitterLoginButton = new TwitterLoginButton(getActivity());
+        twitterLoginButton.setVisibility(View.GONE);
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
+                Twitter.getSessionManager().setActiveSession(result.data);
                 String id = String.valueOf(result.data.getUserId());
                 String handle = result.data.getUserName();
 
@@ -169,8 +175,8 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
             @Override
             public void failure(TwitterException exception) {
                 Timber.e(Log.getStackTraceString(exception));
-                ErrorDialog.newInstance(TWITTER_LOGIN_ERROR,
-                    TWITTER_ERROR).show(getActivity().getSupportFragmentManager());
+                ErrorDialog.newInstance(twitterLoginError,
+                    twitterLoginErrorMessage).show(getActivity().getSupportFragmentManager());
             }
         });
     }
@@ -189,8 +195,6 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
     public void onItemClick(View view, int position) {
         _clickedChannel = _adapter.getItemData(position);
         ChannelType channelType = _clickedChannel.channelType();
-
-
         switch (channelType) {
             case Custom:
             case Phone:
@@ -210,6 +214,12 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
             case Address:
             case Slack:
             case Youtube:
+            case PlaystationNetwork:
+            case NintendoNetwork:
+            case Steam:
+            case Twitch:
+            case LeagueOfLegends:
+            case XboxLive:
             case Tumblr:
             case Ello:
             case Venmo:

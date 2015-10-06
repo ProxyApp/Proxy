@@ -27,8 +27,8 @@ import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
 import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.gson.AutoValueAdapterFactory;
-import com.shareyourproxy.api.gson.AutoValueClass;
+import com.shareyourproxy.api.domain.factory.AutoValueAdapterFactory;
+import com.shareyourproxy.api.domain.factory.AutoValueClass;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
@@ -158,7 +158,7 @@ public class ProxyApplication extends Application {
     public JustObserver<Long> intervalObserver(final INotificationService _notificationService) {
         return new JustObserver<Long>() {
             @Override
-            public void success(Long timesCalled) {
+            public void next(Long timesCalled) {
                 Timber.i("Checking for notifications, attempt:" + timesCalled.intValue());
                 if (_currentUser != null) {
                     try {

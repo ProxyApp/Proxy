@@ -47,13 +47,22 @@ public class RxUserSync {
             .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
     }
 
+    public static List<EventCallback> saveUser(
+        Context context, RxBusDriver rxBus, User newUser) {
+        return RestClient.getUserService(context, rxBus).updateUser(newUser.id(), newUser)
+            .map(saveRealmUser(context))
+            .toList()
+            .compose(RxHelper.<List<EventCallback>>applySchedulers())
+            .toBlocking().single();
+    }
+
     private static rx.Observable<HashMap<String, User>> getFirebaseUsers(
         Context context, RxBusDriver rxBus) {
         return getUserService(context, rxBus).listUsers();
     }
 
-    private static Func1<HashMap<String, User>, HashMap<String, User>>
-    saveRealmUsers(final Context context) {
+    private static Func1<HashMap<String, User>, HashMap<String, User>> saveRealmUsers(
+        final Context context) {
         return new Func1<HashMap<String, User>, HashMap<String, User>>() {
             @Override
             public HashMap<String, User> call(HashMap<String, User> users) {
@@ -71,15 +80,6 @@ public class RxUserSync {
                 return new LoggedInUserUpdatedEventCallback(user);
             }
         };
-    }
-
-    public static List<EventCallback> saveUser(
-        Context context, RxBusDriver rxBus, User newUser) {
-        return RestClient.getUserService(context, rxBus).updateUser(newUser.id(), newUser)
-            .map(saveRealmUser(context))
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
-            .toBlocking().single();
     }
 
     private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(

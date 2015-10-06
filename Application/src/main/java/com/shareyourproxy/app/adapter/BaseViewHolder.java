@@ -10,7 +10,7 @@ import butterknife.ButterKnife;
  */
 public abstract class BaseViewHolder extends RecyclerView.ViewHolder
     implements View.OnClickListener, View.OnLongClickListener {
-    protected View _view;
+    protected View view;
     private ItemClickListener _itemClickListener;
     private ItemLongClickListener _itemLongClickListener;
 
@@ -23,8 +23,8 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder
     protected BaseViewHolder(View view, ItemClickListener clickListener) {
         super(view);
         ButterKnife.bind(this, view);
-        _view = view;
-        _view.setOnClickListener(this);
+        this.view = view;
+        this.view.setOnClickListener(this);
         _itemClickListener = clickListener;
     }
 
@@ -37,9 +37,9 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder
     protected BaseViewHolder(View view, ItemLongClickListener clickListener) {
         super(view);
         ButterKnife.bind(this, view);
-        _view = view;
-        _view.setOnClickListener(this);
-        _view.setOnLongClickListener(this);
+        this.view = view;
+        this.view.setOnClickListener(this);
+        this.view.setOnLongClickListener(this);
         _itemLongClickListener = clickListener;
     }
 

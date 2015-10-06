@@ -5,10 +5,9 @@ import android.os.Parcel;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 /**
- * Created by Evan on 8/23/15.
+ * Sync all users command has successfully completed.
  */
-public class SyncAllUsersSuccessEvent extends EventCallback {
-
+public class SyncAllUsersSuccessEvent extends EventCallback{
     @Override
     public int describeContents() {
         return 0;

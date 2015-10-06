@@ -20,57 +20,68 @@ import com.shareyourproxy.util.ObjectUtils;
 
 import butterknife.Bind;
 
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getAddressChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getElloChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getEmailChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getFacebookChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getGithubChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getGooglePlusChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getInstagramChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getLinkedInChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getMediumChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getMeerkatChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getPhoneChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getRedditChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getSMSChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getSkypeChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getSnapchatChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getSoundCloudChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getTumblrChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getTwitterChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getVenmoChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getWebChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getWhatsappChannel;
-import static com.shareyourproxy.api.domain.factory.ChannelFactory.getYoutubeChannel;
+import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
+import static com.shareyourproxy.api.domain.model.ChannelType.Address;
+import static com.shareyourproxy.api.domain.model.ChannelType.Ello;
+import static com.shareyourproxy.api.domain.model.ChannelType.Email;
+import static com.shareyourproxy.api.domain.model.ChannelType.Facebook;
+import static com.shareyourproxy.api.domain.model.ChannelType.Github;
+import static com.shareyourproxy.api.domain.model.ChannelType.Googleplus;
+import static com.shareyourproxy.api.domain.model.ChannelType.Instagram;
+import static com.shareyourproxy.api.domain.model.ChannelType.LeagueOfLegends;
+import static com.shareyourproxy.api.domain.model.ChannelType.Linkedin;
+import static com.shareyourproxy.api.domain.model.ChannelType.Medium;
+import static com.shareyourproxy.api.domain.model.ChannelType.Meerkat;
+import static com.shareyourproxy.api.domain.model.ChannelType.NintendoNetwork;
+import static com.shareyourproxy.api.domain.model.ChannelType.Phone;
+import static com.shareyourproxy.api.domain.model.ChannelType.PlaystationNetwork;
+import static com.shareyourproxy.api.domain.model.ChannelType.Reddit;
+import static com.shareyourproxy.api.domain.model.ChannelType.Skype;
+import static com.shareyourproxy.api.domain.model.ChannelType.Snapchat;
+import static com.shareyourproxy.api.domain.model.ChannelType.Soundcloud;
+import static com.shareyourproxy.api.domain.model.ChannelType.Steam;
+import static com.shareyourproxy.api.domain.model.ChannelType.Tumblr;
+import static com.shareyourproxy.api.domain.model.ChannelType.Twitch;
+import static com.shareyourproxy.api.domain.model.ChannelType.Twitter;
+import static com.shareyourproxy.api.domain.model.ChannelType.Venmo;
+import static com.shareyourproxy.api.domain.model.ChannelType.Web;
+import static com.shareyourproxy.api.domain.model.ChannelType.Whatsapp;
+import static com.shareyourproxy.api.domain.model.ChannelType.XboxLive;
+import static com.shareyourproxy.api.domain.model.ChannelType.Youtube;
 
 /**
  * Adapter that handles displaying channels.
  */
 public class AddChannelAdapter extends BaseRecyclerViewAdapter {
-    private static final Channel PHONE = getPhoneChannel();
-    private static final Channel SMS = getSMSChannel();
-    private static final Channel EMAIL = getEmailChannel();
-    private static final Channel WEB = getWebChannel();
-    private static final Channel FACEBOOK = getFacebookChannel();
-    private static final Channel TWITTER = getTwitterChannel();
-    private static final Channel MEERKAT = getMeerkatChannel();
-    private static final Channel REDDIT = getRedditChannel();
-    private static final Channel LINKEDIN = getLinkedInChannel();
-    private static final Channel GOOGLEPLUS = getGooglePlusChannel();
-    private static final Channel GITHUB = getGithubChannel();
-    private static final Channel ADDRESS = getAddressChannel();
-    private static final Channel YOUTUBE = getYoutubeChannel();
-    private static final Channel INSTAGRAM = getInstagramChannel();
-    private static final Channel TUMBLR = getTumblrChannel();
-    private static final Channel ELLO = getElloChannel();
-    private static final Channel VENMO = getVenmoChannel();
-    private static final Channel MEDIUM = getMediumChannel();
-    private static final Channel SOUNDCLOUD = getSoundCloudChannel();
-    private static final Channel SKYPE = getSkypeChannel();
-    private static final Channel SNAPCHAT = getSnapchatChannel();
-    private static final Channel WHATSAPP = getWhatsappChannel();
+    private static final Channel PHONE = createModelInstance(Phone);
+    private static final Channel SMS = createModelInstance(ChannelType.SMS);
+    private static final Channel EMAIL = createModelInstance(Email);
+    private static final Channel WEB = createModelInstance(Web);
+    private static final Channel FACEBOOK = createModelInstance(Facebook);
+    private static final Channel TWITTER = createModelInstance(Twitter);
+    private static final Channel MEERKAT = createModelInstance(Meerkat);
+    private static final Channel REDDIT = createModelInstance(Reddit);
+    private static final Channel LINKEDIN = createModelInstance(Linkedin);
+    private static final Channel GOOGLEPLUS = createModelInstance(Googleplus);
+    private static final Channel GITHUB = createModelInstance(Github);
+    private static final Channel ADDRESS = createModelInstance(Address);
+    private static final Channel YOUTUBE = createModelInstance(Youtube);
+    private static final Channel INSTAGRAM = createModelInstance(Instagram);
+    private static final Channel TUMBLR = createModelInstance(Tumblr);
+    private static final Channel ELLO = createModelInstance(Ello);
+    private static final Channel VENMO = createModelInstance(Venmo);
+    private static final Channel MEDIUM = createModelInstance(Medium);
+    private static final Channel SOUNDCLOUD = createModelInstance(Soundcloud);
+    private static final Channel SKYPE = createModelInstance(Skype);
+    private static final Channel SNAPCHAT =createModelInstance(Snapchat);
+    private static final Channel WHATSAPP = createModelInstance(Whatsapp);
+    private static final Channel LEAGUEOFLEGENDS = createModelInstance(LeagueOfLegends);
+    private static final Channel PLAYSTATIONNETWORK = createModelInstance(PlaystationNetwork);
+    private static final Channel NINTENDONETWORK = createModelInstance(NintendoNetwork);
+    private static final Channel STEAM = createModelInstance(Steam);
+    private static final Channel TWITCH = createModelInstance(Twitch);
+    private static final Channel XBOXLIVE = createModelInstance(XboxLive);
 
-    private static final int TYPE_LIST_ITEM = 1;
     private Callback<Channel> _sortedListCallback;
     private SortedList<Channel> _channels = new SortedList<>(Channel.class, getSortedCallback());
     private ItemClickListener _clickListener;
@@ -80,7 +91,8 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
         Channel[] channels = new Channel[]{
             PHONE, SMS, EMAIL, WEB, FACEBOOK, TWITTER, MEERKAT, REDDIT, LINKEDIN,
             GOOGLEPLUS, GITHUB, ADDRESS, YOUTUBE, INSTAGRAM, TUMBLR, ELLO,
-            VENMO, MEDIUM, SOUNDCLOUD, SKYPE, SNAPCHAT, WHATSAPP
+            VENMO, MEDIUM, SOUNDCLOUD, SKYPE, SNAPCHAT, WHATSAPP, LEAGUEOFLEGENDS,
+            PLAYSTATIONNETWORK, NINTENDONETWORK, STEAM, TWITCH,XBOXLIVE
         };
         _channels.addAll(channels);
     }
@@ -135,7 +147,6 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areContentsTheSame(Channel item1, Channel item2) {
-                    // we dont compare resId because its probably going to be removed
                     return (item1.id().equals(item2.id())
                         && item1.label().equals(item2.label())
                         && item1.channelType().equals(item2.channelType()));
@@ -143,7 +154,6 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
 
                 @Override
                 public boolean areItemsTheSame(Channel item1, Channel item2) {
-                    //Sections will have the same ID but different categories
                     return item1.id().equals(item2.id());
                 }
             };
@@ -181,17 +191,12 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
      */
     @SuppressLint("NewApi")
     private void bindItemViewData(ItemViewHolder holder, Channel channel) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         ChannelType channelType = channel.channelType();
         holder.itemImage.setImageDrawable(
-            getSVGIconDrawable(context, channel,
+            getChannelIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
         holder.itemLabel.setText(ObjectUtils.capitalize(channel.label()));
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return TYPE_LIST_ITEM;
     }
 
     @Override
@@ -204,9 +209,9 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
      */
     public static final class SectionHeaderViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_add_channel_list_section_image)
-        protected ImageView sectionImage;
+        ImageView sectionImage;
         @Bind(R.id.adapter_add_channel_list_section_label)
-        protected TextView sectionLabel;
+        TextView sectionLabel;
 
         /**
          * Constructor for the HeaderViewHolder.
@@ -236,9 +241,9 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
      */
     public static final class ItemViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_add_channel_list_item_image)
-        protected ImageView itemImage;
+        ImageView itemImage;
         @Bind(R.id.adapter_add_channel_list_item_label)
-        protected TextView itemLabel;
+        TextView itemLabel;
 
         /**
          * Constructor for the ItemViewHolder.

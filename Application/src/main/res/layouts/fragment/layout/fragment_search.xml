@@ -2,14 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@android:color/white"
               android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/fragment_search_bar_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_rect_small"
-        android:background="@android:color/white"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:transitionName="@string/search_container">

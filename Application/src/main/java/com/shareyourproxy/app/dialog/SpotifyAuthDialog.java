@@ -44,12 +44,12 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
      */
     private static final String TAG = ObjectUtils.getSimpleName(SpotifyAuthDialog.class);
     @Bind(R.id.dialog_webview_container)
-    protected WebView webView;
+    WebView webView;
 
     /**
      * Constructor.
      */
-    public SpotifyAuthDialog(){
+    public SpotifyAuthDialog() {
     }
 
     public static SpotifyAuthDialog newInstance() {
@@ -121,9 +121,10 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
         return new JustObserver<SpotifyAuthResponse>() {
 
             @Override
-            public void success(SpotifyAuthResponse event) {
+            public void next(SpotifyAuthResponse event) {
                 Timber.i(event.toString());
-                RestClient.getSpotifyUserService(getActivity(), getRxBus()).getUser(event.access_token())
+                RestClient.getSpotifyUserService(getActivity(), getRxBus()).getUser(event
+                    .access_token())
                     .subscribe(getUserObserver());
             }
 
@@ -137,7 +138,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
     public JustObserver<SpotifyUser> getUserObserver() {
         return new JustObserver<SpotifyUser>() {
             @Override
-            public void success(SpotifyUser event) {
+            public void next(SpotifyUser event) {
                 Timber.i(event.toString());
                 Channel channel = ChannelFactory.createModelInstance(event.id(), ChannelType
                         .Spotify.toString(),

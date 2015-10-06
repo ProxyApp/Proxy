@@ -58,7 +58,7 @@ public class MainGroupFragment
     CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_group_main_recyclerview)
     BaseRecyclerView recyclerView;
-    @Bind(R.id.fragment_group_main_fab_group)
+    @Bind(R.id.fragment_group_main_fab)
     FloatingActionButton floatingActionButton;
     @Bind(R.id.fragment_group_main_swipe_refresh)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -106,7 +106,7 @@ public class MainGroupFragment
     /**
      * Prompt user with a {@link EditGroupChannelsFragment} to add a new {@link Group}.
      */
-    @OnClick(R.id.fragment_group_main_fab_group)
+    @OnClick(R.id.fragment_group_main_fab)
     public void onClick() {
         IntentLauncher.launchEditGroupChannelsActivity(
             getActivity(), createBlank(), ADD_GROUP);
@@ -135,7 +135,7 @@ public class MainGroupFragment
      */
     private void showUndoDeleteSnackBar(final Group group) {
         Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.undo_delete),
-            LENGTH_LONG);
+            Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(getString(R.string.undo), onClickUndoDelete(group));
         snackbar.setActionTextColor(colorBlue);
         snackbar.show();
@@ -159,7 +159,7 @@ public class MainGroupFragment
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_display_group, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main_group, container, false);
         ButterKnife.bind(this, rootView);
         initialize();
         return rootView;

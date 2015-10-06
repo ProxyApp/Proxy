@@ -38,13 +38,13 @@ public class ShareLinkDialog extends BaseDialogFragment {
     private final DialogInterface.OnClickListener _negativeClicked =
         getNegOnClickListener();
     @Bind(R.id.dialog_sharelink_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_divider)
-    protected int _gray;
+    int colorGray;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     private ShareLinkAdapter _adapter;
     private final DialogInterface.OnClickListener _positiveClicked =
         getPosOnClickListener();
@@ -52,7 +52,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
     /**
      * Constructor.
      */
-    public ShareLinkDialog(){
+    public ShareLinkDialog() {
     }
 
     /**
@@ -124,8 +124,8 @@ public class ShareLinkDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
         initializeRecyclerView();
     }
 

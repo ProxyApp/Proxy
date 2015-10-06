@@ -21,7 +21,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class DispatchFragment extends BaseFragment {
     @BindDimen(R.dimen.common_svg_ultra)
-    protected int logoSize;
+    int logoSize;
     @Bind(R.id.fragment_dispatch_image)
     ImageView imageView;
 

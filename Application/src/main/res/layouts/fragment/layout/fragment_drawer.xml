@@ -3,5 +3,4 @@
     android:id="@+id/fragment_drawer_recyclerview"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/common_drawer_width"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"/>
+    android:layout_height="match_parent"/>

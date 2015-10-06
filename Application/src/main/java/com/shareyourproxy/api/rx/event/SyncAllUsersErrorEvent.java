@@ -1,7 +1,7 @@
 package com.shareyourproxy.api.rx.event;
 
 /**
- * Created by Evan on 8/23/15.
+ * Sync all users command has failed.
  */
-public class SyncAllUsersErrorEvent {
+public class SyncAllUsersErrorEvent{
 }

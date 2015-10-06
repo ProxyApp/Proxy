@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
  */
 public class AboutFragment extends BaseFragment {
     @Bind(R.id.fragment_about_toolbar)
-    protected Toolbar toolbar;
+    Toolbar toolbar;
 
     /**
      * Return a new instance of this fragment for the parent {@link AboutActivity}.

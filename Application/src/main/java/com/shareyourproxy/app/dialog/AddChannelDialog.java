@@ -43,7 +43,7 @@ public class AddChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType";
     private static final String TAG = getSimpleName(AddChannelDialog.class);
     @Bind(R.id.dialog_channel_action_address_edittext)
-    protected EditText editTextActionAddress;
+    EditText editTextActionAddress;
     private final OnClickListener _negativeClicked =
         new OnClickListener() {
             @Override
@@ -53,19 +53,19 @@ public class AddChannelDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_channel_label_edittext)
-    protected EditText editTextLabel;
+    EditText editTextLabel;
     @Bind(R.id.dialog_channel_label_floatlabel)
-    protected TextInputLayout floatLabelChannelLabel;
+    TextInputLayout floatLabelChannelLabel;
     @Bind(R.id.dialog_channel_action_address_floatlabel)
-    protected TextInputLayout floatLabelAddress;
+    TextInputLayout floatLabelAddress;
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_divider)
-    protected int _gray;
+    int colorGray;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     @BindString(R.string.required)
-    protected String _required;
+    String _required;
     private ChannelType _channelType;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
@@ -168,8 +168,8 @@ public class AddChannelDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
         //Alert Dialogs dismiss by default because of an internal handler... this bypasses that.
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
         //Setup TextInput hints.
@@ -220,133 +220,162 @@ public class AddChannelDialog extends BaseDialogFragment {
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Snapchat:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Spotify:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Linkedin:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case FBMessenger:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Hangouts:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Whatsapp:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_phone);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Yo:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Googleplus:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Github:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Address:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Slack:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Youtube:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Instagram:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Tumblr:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Ello:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Venmo:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Periscope:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Medium:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Soundcloud:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
             case Skype:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
                 _channelAddressHint = getString(
                     R.string.dialog_addchannel_hint_address_blank_handle, name);
-                _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+                _channelLabelHint = getString(R.string.label);
                 break;
+            case LeagueOfLegends:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.username);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case PlaystationNetwork:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.username);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case NintendoNetwork:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.username);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case Steam:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.username);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case Twitch:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.username);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case XboxLive:
+                _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
+                _channelAddressHint = getString(R.string.gamertag);
+                _channelLabelHint = getString(R.string.label);
+                break;
+            case URL:
+            case Facebook:
+            case Twitter:
             case Reddit:
-                /**
-                 * Use {@link AddRedditChannelDialog}.
-                 */
-                break;
             default:
                 _dialogTitle = getString(R.string.dialog_addchannel_title_default);
                 _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_default);

@@ -3,7 +3,6 @@ package com.shareyourproxy.api.rx;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -23,7 +22,6 @@ import io.realm.RealmList;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.android.schedulers.HandlerScheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -55,16 +53,6 @@ public class RxHelper {
         };
     }
 
-    public static <T> Observable.Transformer<T, T> applyHandlerSchedulers(final Handler handler) {
-        return new Observable.Transformer<T, T>() {
-            @Override
-            public Observable<T> call(Observable<T> observable) {
-                return observable.subscribeOn(Schedulers.io())
-                    .observeOn(HandlerScheduler.from(handler));
-            }
-        };
-    }
-
     public static <T> Func1<T, Boolean> filterNullObject() {
         return new Func1<T, Boolean>() {
             @Override
@@ -92,16 +80,6 @@ public class RxHelper {
         realm.copyToRealmOrUpdate(realmUsers);
         realm.commitTransaction();
         realm.close();
-    }
-
-    public static Func1<User, User> addRealmUser(final Context context) {
-        return new Func1<User, User>() {
-            @Override
-            public User call(User user) {
-                updateRealmUser(context, user);
-                return user;
-            }
-        };
     }
 
     public static Observable<String> refreshGooglePlusToken(
@@ -140,10 +118,10 @@ public class RxHelper {
         }).compose(RxHelper.<String>applySchedulers());
     }
 
-    public static JustObserver<String> getGoogleOAuthObserver() {
+    private static JustObserver<String> getGoogleOAuthObserver() {
         return new JustObserver<String>() {
         @Override
-        public void success(String s) {
+        public void next(String s) {
 
         }
 
@@ -154,7 +132,7 @@ public class RxHelper {
     };
     }
 
-    public static Action1<String> getFirebaseToken(
+    private static Action1<String> getFirebaseToken(
         final Subscriber<? super String> subscriber, final SharedPreferences sharedPref) {
         return new Action1<String>() {
             @Override
@@ -166,7 +144,7 @@ public class RxHelper {
         };
     }
 
-    public static Firebase.AuthResultHandler getHandler(
+    private static Firebase.AuthResultHandler getHandler(
         final Subscriber<? super String> subscriber, final SharedPreferences sharedPref) {
         if (_handler == null) {
             _handler = new Firebase.AuthResultHandler() {
