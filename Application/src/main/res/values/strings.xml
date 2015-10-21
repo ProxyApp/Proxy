@@ -57,7 +57,7 @@
     <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
     </string>
     <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
-    <string name="dialog_addchannel_hint_address_web">URL (Do not include http://)</string>
+    <string name="dialog_addchannel_hint_address_web">@string/web_address_type</string>
     <string name="dialog_addchannel_hint_label_custom">Custom Channel Label</string>
     <string name="dialog_addchannel_hint_label_default">@string/edit_channel_description</string>
     <string name="dialog_addchannel_hint_label_email">@string/email_label_type</string>
@@ -73,7 +73,7 @@
     <string name="dialog_editchannel_hint_address_facebook">Facebook Handle</string>
     <string name="dialog_editchannel_hint_address_phone">@string/phone_number</string>
     <string name="dialog_editchannel_hint_address_sms">@string/phone_number</string>
-    <string name="dialog_editchannel_hint_address_web">@string/web_label_type</string>
+    <string name="dialog_editchannel_hint_address_web">@string/web_address_type</string>
     <string name="dialog_editchannel_hint_label_custom">Custom Channel Label</string>
     <string name="dialog_editchannel_hint_label_default">@string/edit_channel_description</string>
     <string name="dialog_editchannel_hint_label_email">@string/email_label_type</string>
@@ -214,6 +214,7 @@
     <string name="username">Username</string>
     <string name="user_image">user image</string>
     <string name="user_profile_followers">%1$s followers</string>
+    <string name="web_address_type">URL (Do not include http://)</string>
     <string name="web_label_type">URL Description (e.g. Reddit, SoundCloud)</string>
     <plurals name="years_ago">
         <item quantity="one">%1$s year ago.</item>
