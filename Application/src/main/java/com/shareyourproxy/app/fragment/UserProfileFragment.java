@@ -8,8 +8,11 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
@@ -24,12 +27,17 @@ import android.widget.TextView;
 
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.app.UserProfileActivity;
+import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
 import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
@@ -41,6 +49,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -48,12 +57,17 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static android.support.design.widget.Snackbar.make;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
+import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static java.util.Collections.singletonList;
 
 /**
@@ -78,8 +92,12 @@ public class UserProfileFragment extends BaseFragment {
     CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_user_profile_sliding_tabs)
     TabLayout slidingTabLayout;
+    @Bind(R.id.fragment_user_profile_fab)
+    FloatingActionButton floatingActionButton;
     @BindColor(R.color.common_blue)
     int colorBlue;
+    @BindColor(android.R.color.white)
+    int colorWhite;
     @BindColor(R.color.common_proxy_dark_selected)
     int _selectedColor;
     @BindColor(R.color.common_proxy_dark_disabled)
@@ -88,6 +106,8 @@ public class UserProfileFragment extends BaseFragment {
     String stringCalculating;
     @BindString(R.string.error_calculating)
     String stringErrorCalculating;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
     private Target _target;
     private Target _backgroundTarget;
     private PaletteAsyncListener _paletteListener;
@@ -96,7 +116,7 @@ public class UserProfileFragment extends BaseFragment {
     private boolean _isLoggedInUser;
     private ArrayList<GroupToggle> _contactGroups = new ArrayList<>();
     private List<? extends BaseFragment> fragmentArray;
-
+    private Channel _deletedChannel;
 
     /**
      * Empty Fragment Constructor.
@@ -111,6 +131,26 @@ public class UserProfileFragment extends BaseFragment {
      */
     public static UserProfileFragment newInstance() {
         return new UserProfileFragment();
+    }
+
+    @OnClick(R.id.fragment_user_profile_fab)
+    public void onClick() {
+        launchChannelListActivity(getActivity());
+    }
+
+    /**
+     * Get a click listener to add a deleted channel.
+     *
+     * @return click listener
+     */
+    private View.OnClickListener getAddChannelClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
+                    _deletedChannel));
+            }
+        };
     }
 
     @OnClick(R.id.fragment_user_profile_header_button)
@@ -168,9 +208,28 @@ public class UserProfileFragment extends BaseFragment {
      */
     private void initialize() {
         _subscriptions = checkCompositeButton(_subscriptions);
+        initializeFab();
         setToolbarTitle();
         initializeHeader();
         initializeViewPager();
+    }
+
+    private void initializeFab() {
+        if (_isLoggedInUser) {
+            initializeFabPlusIcon();
+        } else {
+            floatingActionButton.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Set the content image of this {@link FloatingActionButton}
+     */
+    private void initializeFabPlusIcon() {
+        Drawable drawable = svgToBitmapDrawable(
+            getActivity(), R.raw.ic_add, marginSVGLarge, colorWhite);
+        floatingActionButton.setImageDrawable(drawable);
+        ViewCompat.setElevation(floatingActionButton, 10f);
     }
 
     private void setToolbarTitle() {
@@ -409,9 +468,40 @@ public class UserProfileFragment extends BaseFragment {
             public void call(Object event) {
                 if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
+                } else if (event instanceof UserChannelAddedEventCallback) {
+                    addUserChannel(((UserChannelAddedEventCallback) event));
+                }else if (event instanceof UserChannelDeletedEventCallback) {
+                    deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 }
             }
         };
+    }
+
+    private void deleteUserChannel(UserChannelDeletedEventCallback event) {
+        _deletedChannel = event.channel;
+        showDeletedChannelSnackBar();
+    }
+
+    private void showDeletedChannelSnackBar() {
+        Snackbar snackbar = make(coordinatorLayout, getString(R.string.undo_delete),
+            LENGTH_INDEFINITE);
+        snackbar.setAction(getString(R.string.undo), getAddChannelClickListener());
+        snackbar.setActionTextColor(colorBlue);
+        snackbar.show();
+    }
+
+    private void addUserChannel(UserChannelAddedEventCallback event) {
+        if (event.oldChannel != null) {
+            showChangesSavedSnackBar(coordinatorLayout);
+        } else {
+            showAddedChannelSnackBar();
+            SaveGroupChannelDialog.newInstance(event.newChannel, event.user)
+                .show(getFragmentManager());
+        }
+    }
+
+    private void showAddedChannelSnackBar() {
+        make(coordinatorLayout, getString(R.string.channel_added), LENGTH_LONG).show();
     }
 
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
@@ -443,8 +533,8 @@ public class UserProfileFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        for(BaseFragment frag : fragmentArray){
-            frag.onActivityResult(requestCode,resultCode,data);
+        for (BaseFragment frag : fragmentArray) {
+            frag.onActivityResult(requestCode, resultCode, data);
         }
     }
 

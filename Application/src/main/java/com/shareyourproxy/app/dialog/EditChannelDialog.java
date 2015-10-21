@@ -228,6 +228,7 @@ public class EditChannelDialog extends BaseDialogFragment {
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_email);
                 break;
             case Web:
+            case URL:
                 _dialogTitle = getString(R.string.dialog_editchannel_title_blank, label);
                 _channelAddressHint = getString(R.string.dialog_editchannel_hint_address_web);
                 _channelLabelHint = getString(R.string.dialog_editchannel_hint_label_web);

@@ -88,4 +88,20 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
     </android.support.v4.view.ViewPager>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fragment_user_profile_fab"
+        android:layout_width="@dimen/common_fab_radius"
+        android:layout_height="@dimen/common_fab_radius"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/common_margin_tiny"
+        android:layout_marginEnd="@dimen/common_margin_tiny"
+        android:fitsSystemWindows="true"
+        android:scaleType="center"
+        app:backgroundTint="@color/common_proxy_zoidberg"
+        app:borderWidth="0dp"
+        app:fabSize="normal"
+        app:layout_behavior="com.shareyourproxy.widget.behavior.ScrollOffBottomBehavior"
+        app:layout_anchorGravity="bottom|right|end"
+        app:rippleColor="@color/common_red_light"/>
+
 </android.support.design.widget.CoordinatorLayout>
