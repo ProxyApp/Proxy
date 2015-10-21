@@ -45,12 +45,12 @@ public class UserGroupsDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_user_groups_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     // Color
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     private UserGroupsAdapter _adapter;
     private final OnClickListener _positiveClicked =
         new OnClickListener() {
@@ -143,8 +143,8 @@ public class UserGroupsDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
         initializeRecyclerView();
     }
 

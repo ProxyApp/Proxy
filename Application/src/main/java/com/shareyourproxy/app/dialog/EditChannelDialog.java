@@ -24,7 +24,6 @@ import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand;
-import com.shareyourproxy.api.rx.event.DialogCanceledEvent;
 import com.shareyourproxy.util.ObjectUtils;
 
 import butterknife.Bind;
@@ -44,28 +43,27 @@ public class EditChannelDialog extends BaseDialogFragment {
     private static final String TAG = ObjectUtils.getSimpleName(AddChannelDialog.class);
     // View
     @Bind(R.id.dialog_channel_action_address_edittext)
-    protected EditText editTextActionAddress;
+    EditText editTextActionAddress;
     private final OnClickListener _negativeClicked =
         new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 hideSoftwareKeyboard(editTextActionAddress);
-                getRxBus().post(new DialogCanceledEvent());
             }
         };
     @Bind(R.id.dialog_channel_label_edittext)
-    protected EditText editTextLabel;
+    EditText editTextLabel;
     @Bind(R.id.dialog_channel_label_floatlabel)
-    protected TextInputLayout floatLabelChannelLabel;
+    TextInputLayout floatLabelChannelLabel;
     @Bind(R.id.dialog_channel_action_address_floatlabel)
-    protected TextInputLayout floatLabelAddress;
+    TextInputLayout floatLabelAddress;
     // Color
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     @BindString(R.string.required)
-    protected String _required;
+    String stringRequired;
     // Transient
     private Channel _channel;
     /**
@@ -188,9 +186,9 @@ public class EditChannelDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), colorText);
         //Alert Dialogs dismiss by default because of an internal handler... this bypasses that.
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
     }
@@ -198,7 +196,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     public void saveChannelAndExit() {
         boolean addressHasText = editTextActionAddress.getText().toString().trim().length() > 0;
         if (!addressHasText) {
-            floatLabelAddress.setError(_required);
+            floatLabelAddress.setError(stringRequired);
         } else {
             floatLabelAddress.setErrorEnabled(false);
             addUserChannel();

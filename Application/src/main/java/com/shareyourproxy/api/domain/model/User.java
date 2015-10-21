@@ -3,7 +3,7 @@ package com.shareyourproxy.api.domain.model;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-import com.shareyourproxy.api.gson.AutoValueClass;
+import com.shareyourproxy.api.domain.factory.AutoValueClass;
 
 import java.util.HashMap;
 import java.util.HashSet;

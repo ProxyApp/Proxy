@@ -1,7 +1,9 @@
 package com.shareyourproxy.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +19,6 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
-import com.shareyourproxy.api.rx.RxRefreshUserSubject;
 import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
@@ -25,6 +26,8 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.MainFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
+
+import java.util.List;
 
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -40,24 +43,32 @@ import static com.shareyourproxy.IntentLauncher.launchGithubIntent;
 import static com.shareyourproxy.IntentLauncher.launchGooglePlusIntent;
 import static com.shareyourproxy.IntentLauncher.launchHangoutsIntent;
 import static com.shareyourproxy.IntentLauncher.launchInstagramIntent;
+import static com.shareyourproxy.IntentLauncher.launchLeagueOfLegendsIntent;
 import static com.shareyourproxy.IntentLauncher.launchLinkedInIntent;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.IntentLauncher.launchMediumIntent;
 import static com.shareyourproxy.IntentLauncher.launchMeerkatIntent;
+import static com.shareyourproxy.IntentLauncher.launchNintendoNetworkIntent;
 import static com.shareyourproxy.IntentLauncher.launchPhoneIntent;
+import static com.shareyourproxy.IntentLauncher.launchPlaystationNetworkIntent;
 import static com.shareyourproxy.IntentLauncher.launchRedditIntent;
 import static com.shareyourproxy.IntentLauncher.launchSMSIntent;
 import static com.shareyourproxy.IntentLauncher.launchSkypeIntent;
 import static com.shareyourproxy.IntentLauncher.launchSnapChatIntent;
 import static com.shareyourproxy.IntentLauncher.launchSoundCloudIntent;
 import static com.shareyourproxy.IntentLauncher.launchSpotifyIntent;
+import static com.shareyourproxy.IntentLauncher.launchSteamIntent;
 import static com.shareyourproxy.IntentLauncher.launchTumblrIntent;
+import static com.shareyourproxy.IntentLauncher.launchTwitchIntent;
 import static com.shareyourproxy.IntentLauncher.launchTwitterIntent;
 import static com.shareyourproxy.IntentLauncher.launchVenmoIntent;
 import static com.shareyourproxy.IntentLauncher.launchWebIntent;
 import static com.shareyourproxy.IntentLauncher.launchWhatsAppIntent;
+import static com.shareyourproxy.IntentLauncher.launchXboxLiveIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
+import static com.shareyourproxy.api.rx.RxRefreshUserSubject.click;
+import static com.shareyourproxy.api.rx.RxRefreshUserSubject.toObserverable;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
@@ -65,7 +76,6 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
  */
 public class UserProfileActivity extends BaseActivity {
 
-    private final RxRefreshUserSubject _rxRefreshUser = RxRefreshUserSubject.getInstance();
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ImageView menuAnimation;
@@ -108,7 +118,7 @@ public class UserProfileActivity extends BaseActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                _rxRefreshUser.click(v);
+                click(v);
             }
         };
     }
@@ -196,13 +206,13 @@ public class UserProfileActivity extends BaseActivity {
                     }
                 }
             }));
-        _subscriptions.add(_rxRefreshUser.toObserverable().subscribe(refreshUserObserver()));
+        _subscriptions.add(toObserverable().subscribe(refreshUserObserver()));
     }
 
     public JustObserver<View> refreshUserObserver() {
         return new JustObserver<View>() {
             @Override
-            public void success(View view) {
+            public void next(View view) {
                 startRefreshAnimation();
                 RxBusDriver bus = getRxBus();
                 bus.post(new SyncAllUsersCommand(bus, getLoggedInUser().id()));
@@ -325,8 +335,39 @@ public class UserProfileActivity extends BaseActivity {
                 break;
             case Periscope:
                 break;
+            case LeagueOfLegends:
+                launchLeagueOfLegendsIntent(this, actionAddress);
+                break;
+            case PlaystationNetwork:
+                launchPlaystationNetworkIntent(this, actionAddress);
+                break;
+            case NintendoNetwork:
+                launchNintendoNetworkIntent(this, actionAddress);
+                break;
+            case Steam:
+                launchSteamIntent(this, actionAddress);
+                break;
+            case Twitch:
+                launchTwitchIntent(this, actionAddress);
+                break;
+            case XboxLive:
+                launchXboxLiveIntent(this, actionAddress);
+                break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null && fragments.size() > 0) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
+                }
+            }
         }
     }
 }

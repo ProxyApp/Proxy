@@ -191,7 +191,7 @@ public class ViewUtils {
             backgroundRadius, channelType.getResColor());
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
 
-        int inset = backgroundRadius / 3;
+        int inset = backgroundRadius / 4;
         layerDrawable.setLayerInset(1, inset, inset, inset, inset);
         return layerDrawable;
     }
@@ -215,7 +215,7 @@ public class ViewUtils {
         background.setIntrinsicHeight(backgroundRadius);
 
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{ background, source });
-        int inset = backgroundRadius / 3;
+        int inset = backgroundRadius / 4;
         layerDrawable.setLayerInset(1, inset, inset, inset, inset);
         return layerDrawable;
     }

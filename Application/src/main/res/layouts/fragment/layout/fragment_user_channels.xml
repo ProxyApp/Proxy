@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
-    android:id="@+id/fragment_group_main_coordinator"
+    android:id="@+id/fragment_user_channel_coordinator"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/fragment_group_main_empty_textview"
+        android:id="@+id/fragment_user_channel_empty_textview"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,19 +17,14 @@
         android:gravity="center"
         android:visibility="gone"/>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/fragment_group_main_swipe_refresh"
+    <com.shareyourproxy.app.adapter.BaseRecyclerView
+        android:id="@+id/fragment_user_channel_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.shareyourproxy.app.adapter.BaseRecyclerView
-            android:id="@+id/fragment_group_main_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fragment_group_main_fab_group"
+        android:id="@+id/fragment_user_channel_fab"
         android:layout_width="@dimen/common_fab_radius"
         android:layout_height="@dimen/common_fab_radius"
         android:layout_gravity="bottom|end"

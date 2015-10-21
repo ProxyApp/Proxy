@@ -131,14 +131,18 @@ public class UserAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @param user   the {@link User} data
      */
     private void setItemViewData(UserViewHolder holder, User user) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         String name = joinWithSpace(new String[]{ capitalize(user.first()),
             capitalize(user.last()) });
         holder.userName.setText(name);
-        if (user.profileURL() != null) {
-            Picasso.with(context).load(user.profileURL())
+        String profileURL = user.profileURL();
+        if (profileURL != null && !profileURL.isEmpty() && !profileURL.contains(".gif")) {
+            Picasso.with(context).load(profileURL)
                 .placeholder(R.mipmap.ic_proxy)
                 .transform(new CircleTransform())
+                .into(holder.userImage);
+        } else {
+            Picasso.with(context).load(R.mipmap.ic_proxy)
                 .into(holder.userImage);
         }
     }

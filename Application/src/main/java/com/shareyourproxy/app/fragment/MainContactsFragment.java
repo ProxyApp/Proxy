@@ -43,17 +43,17 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class MainContactsFragment extends BaseFragment implements ItemClickListener {
     @Bind(R.id.fragment_contact_main_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_contact_main_swipe_refresh)
-    protected SwipeRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.fragment_contact_main_empty_textview)
-    protected TextView emptyTextView;
+    TextView emptyTextView;
     @BindDimen(R.dimen.common_margin_medium)
-    protected int catPadding;
+    int catPadding;
     @BindDimen(R.dimen.common_svg_null_screen)
     int marginNullScreen;
     @BindString(R.string.fragment_contact_main_empty_text)
-    protected String nullMessage;
+    String nullMessage;
 
     OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override

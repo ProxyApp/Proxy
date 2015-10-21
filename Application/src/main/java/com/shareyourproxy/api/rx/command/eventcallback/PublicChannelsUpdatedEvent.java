@@ -10,12 +10,11 @@ import java.util.HashMap;
 /**
  * Created by Evan on 10/1/15.
  */
-public class PublicChannelsUpdatedEvent extends EventCallback{
-    public final User user;
+public class PublicChannelsUpdatedEvent extends UserEventCallback{
     public final HashMap<String, Channel> newChannels;
 
     public PublicChannelsUpdatedEvent(User user, HashMap<String, Channel> newChannels) {
-        this.user = user;
+        super(user);
         this.newChannels = newChannels;
     }
 

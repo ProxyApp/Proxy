@@ -1,9 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        flatDir {
-            dirs 'libs'
-        }
         maven { url 'https://maven.fabric.io/public' }
         mavenCentral()
         jcenter()
@@ -20,10 +17,13 @@ buildscript {
 }
 allprojects {
     repositories {
+        flatDir {
+            dirs 'libs'
+        }
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url 'https://maven.fabric.io/public' }
     }
 
     task checkstyle(type: Checkstyle) {

@@ -1,143 +1,6 @@
 <resources>
-    <!--common-->
-    <string name="facebook_app_id">470093589815006</string>
-    <string name="app_name">Proxy</string>
-    <string name="contact_proxy">contact@shareyourproxy.com</string>
-    <!--dialog-->
-    <string name="add_group">Add Group</string>
-    <string name="dialog_addchannel_title_default">Add Channel</string>
-    <string name="dialog_addchannel_title_web">Add URL</string>
-    <string name="dialog_addchannel_title_add_blank">Add %1$s</string>
-
-    <string name="dialog_addchannel_hint_address_default">@string/edit_channel_address</string>
-    <string name="dialog_addchannel_hint_address_web">URL (Do not include http://)</string>
-    <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
-    <string name="dialog_addchannel_hint_address_blank_handle">%1$s Handle</string>
-    <string name="dialog_addchannel_hint_address_blank_username">%1$s Username</string>
-    <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
-    </string>
-    <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)
-    </string>
-    <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
-    <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
-    <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
-
-    <string name="dialog_addchannel_hint_label_default">@string/edit_channel_description</string>
-    <string name="dialog_addchannel_hint_label_web">@string/web_label_type</string>
-    <string name="dialog_addchannel_hint_label_email">@string/email_label_type</string>
-    <string name="dialog_addchannel_hint_label_sms">@string/sms_label_type</string>
-    <string name="dialog_addchannel_hint_label_phone">@string/phone_label_type</string>
-    <string name="dialog_addchannel_hint_label_custom">Custom Channel Label</string>
-    <string name="dialog_addchannel_hint_label_blank_label">Label</string>
-
-    <string name="dialog_editchannel_title_default">Edit Channel</string>
-    <string name="dialog_editchannel_title_blank">Edit %1$s</string>
-    <string name="dialog_editchannel_title_custom">Edit custom channel</string>
-
-    <string name="dialog_editchannel_hint_address_default">@string/edit_channel_address</string>
-    <string name="dialog_editchannel_hint_address_web">@string/web_label_type</string>
-    <string name="dialog_editchannel_hint_address_email">@string/email_address</string>
-    <string name="dialog_editchannel_hint_address_facebook">Facebook Handle</string>
-    <string name="dialog_editchannel_hint_address_sms">@string/phone_number</string>
-    <string name="dialog_editchannel_hint_address_phone">@string/phone_number</string>
-    <string name="dialog_editchannel_hint_address_custom">Add Custom Channel Address</string>
-
-    <string name="dialog_editchannel_hint_label_default">@string/edit_channel_description</string>
-    <string name="dialog_editchannel_hint_label_web">URL Description (e.g. Reddit, SoundCloud)
-    </string>
-    <string name="dialog_editchannel_hint_label_email">@string/email_label_type</string>
-    <string name="dialog_editchannel_hint_label_sms">@string/sms_label_type</string>
-    <string name="dialog_editchannel_hint_label_phone">@string/phone_label_type</string>
-    <string name="dialog_editchannel_hint_label_custom">Custom Channel Label</string>
-
-    <string name="web_label_type">URL Description (e.g. Reddit, SoundCloud)</string>
-    <string name="sms_label_type">Label (e.g. google voice, cell)</string>
-    <string name="phone_label_type">Label (e.g. home, ice)</string>
-    <string name="email_label_type">Label (e.g. Email Business)</string>
-
-    <string name="phone_number">Phone Number</string>
-    <string name="email_address">Email Address</string>
-    <string name="status_signed_out">Signed Out</string>
-    <string name="status_signed_in">Signed In</string>
-    <string name="status_signing_in">Signing In</string>
-    <string name="signed_in_as">Signed in as:</string>
-    <string name="play_services_error">Play Services Error</string>
-    <string name="configuration_error">Configuration onError</string>
-    <string name="profile">Profile</string>
-    <string name="type">Type</string>
-    <string name="required">Required</string>
-    <string name="reddit_linktype_profile">/u/%1$s</string>
-    <string name="reddit_linktype_subreddit">/r/%1$s</string>
-    <string name="subreddit">Subreddit</string>
+    <!--Strings-->
     <string name="about">About</string>
-    <string name="logout">Logout</string>
-    <string name="report_problem">Report Issue</string>
-    <string name="invite_friend">Invite Friend</string>
-    <string name="tour">Tour</string>
-    <string name="activity_login_title">proxy</string>
-    <string name="channel_view_item_content">%1$s\n%2$s - %3$s</string>
-    <string name="channel_view_item_content_no_label">%1$s\n%2$s</string>
-    <string name="notifications">Notifications</string>
-    <string name="favorites">Favorites</string>
-    <string name="contacts">Contacts</string>
-    <string name="groups">Groups</string>
-    <string name="search">Search</string>
-    <string name="share_with">Share with</string>
-    <string name="group_removed">Group Removed</string>
-    <string name="share_your_proxy">Share Your Proxy</string>
-    <string name="invite_friend_content">Join me on Proxy. Share all of your social profiles from
-        one place. www.shareyourproxy.com
-    </string>
-    <string name="action_menu_back_from_search">back from search</string>
-    <string name="login_error_failed_connection">Failed to create a connection.</string>
-    <string name="login_error_retrieving_user">Error retrieving user from Google</string>
-    <string name="login_error">Login Error</string>
-    <string name="description_clear_search">clear search bar</string>
-    <string name="login_error_update_play_service">Please update your play services</string>
-    <string name="login_error_api_unavailable">API Unavailable</string>
-    <string name="search_contacts">Search contacts</string>
-    <string name="settings">Settings</string>
-    <string name="open">open</string>
-    <string name="closed">closed</string>
-    <string name="undo">undo</string>
-    <string name="undo_delete">Undo Delete</string>
-    <string name="channel_added">Channel added</string>
-    <string name="group_added">Group added</string>
-    <string name="changes_saved">Changes saved</string>
-    <string name="ok">OK</string>
-    <string name="save">save</string>
-    <string name="close">close</string>
-    <string name="channel_image">channel image</string>
-    <string name="channel_header_image">channel header image</string>
-    <string name="channel_section_image">channel channelSection image</string>
-    <string name="drawer_header_image">drawer header image</string>
-    <string name="user_image">user image</string>
-    <string name="username">username</string>
-    <string name="proxy_logo">Proxy logo</string>
-    <string name="add">Add</string>
-    <string name="dial">Dial</string>
-    <string name="edit_group">Edit Group</string>
-    <string name="public_group">Public Group</string>
-    <string name="group_name">Group name</string>
-    <string name="edit_groups">Edit groups</string>
-    <string name="menu">Menu</string>
-    <string name="in_blank_groups">%1$s groups</string>
-    <string name="add_channel">Add Channel</string>
-    <string name="delete">Delete</string>
-    <string name="search_for_people">Search for people</string>
-    <string name="edit_channel_description">Edit channel description</string>
-    <string name="edit_channel_address">Edit channel address</string>
-    <string name="dialog_edit_user_groups">Select groups for</string>
-    <string name="add_to_group">Add to group</string>
-    <string name="family">Family</string>
-    <string name="friends">Friends</string>
-    <string name="coworkers">Coworkers</string>
-    <string name="following">Following</string>
-    <string name="rx_eventbus_error">Error processing event data</string>
-    <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
-    <string name="oauth_error">Error retrieving token from Google OAuth</string>
-    <string name="shared_links">Shared links</string>
-    <string name="reload_contact">Reload contact</string>
     <string name="about_license">Copyright 2015 Evan Denerley\n\nLicensed under the Apache License,
         Version 2.0 (the “License”) you may not use this file except in compliance with the License.
         You may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n
@@ -146,15 +9,84 @@
         either express or implied. See the License for the specific language governing permissions
         and limitations under the License.
     </string>
+    <string name="action_menu_back_from_search">back from search</string>
+    <string name="activity">Activity</string>
+    <string name="activity_feed_auth_message">Connect your %1$s account to view %2$s\'s activity</string>
+    <string name="add">Add</string>
+    <string name="add_channel">Add Channel</string>
+    <string name="add_group">Add Group</string>
     <string name="added_to_contacts">%1$s added you to their contacts.</string>
+    <string name="add_to_group">Add to group</string>
+    <string name="app_name">@string/proxy</string>
+    <string name="calculating">Calculating</string>
+    <string name="changes_saved">Changes saved</string>
+    <string name="channel_added">Channel added</string>
+    <string name="channel_header_image">channel header image</string>
+    <string name="channel_image">channel image</string>
+    <string name="channel_section_image">channel channelSection image</string>
+    <string name="channel_view_item_content">%1$s\n%2$s - %3$s</string>
+    <string name="channels">Channels</string>
+    <string name="close">close</string>
+    <string name="closed">closed</string>
     <string name="common_help">Help</string>
-    <string name="save_realm_db">Save Realm DB</string>
-    <string name="share">Share</string>
-    <string name="dialog_sharelink_title">Share group links</string>
-    <string name="sharelink_message_beginning">“%1$s would like to share the following group
-        channels with you:\n\n”
+    <string name="configuration_error">Configuration onError</string>
+    <string name="contact_proxy">contact@shareyourproxy.com</string>
+    <string name="contacts">Contacts</string>
+    <string name="coworkers">Coworkers</string>
+    <plurals name="days_ago">
+        <item quantity="one">%1$s day ago.</item>
+        <item quantity="other">%1$s days ago.</item>
+    </plurals>
+    <string-array name="default_groups">
+        <item>@string/family</item>
+        <item>@string/friends</item>
+        <item>@string/following</item>
+        <item>@string/professional</item>
+    </string-array>
+    <string name="delete">Delete</string>
+    <string name="description_clear_search">clear search bar</string>
+    <string name="dial">Dial</string>
+    <string name="dialog_addchannel_hint_address_blank_handle">%1$s Handle</string>
+    <string name="dialog_addchannel_hint_address_blank_username">%1$s Username</string>
+    <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
+    <string name="dialog_addchannel_hint_address_default">@string/edit_channel_address</string>
+    <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
+    <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
+    <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)
     </string>
-    <string name="sharelink_message_link">https://app.shareyourproxy.com/#/public/%1$s</string>
+    <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
+    </string>
+    <string name="dialog_addchannel_hint_address_sms">@string/phone_number</string>
+    <string name="dialog_addchannel_hint_address_web">URL (Do not include http://)</string>
+    <string name="dialog_addchannel_hint_label_custom">Custom Channel Label</string>
+    <string name="dialog_addchannel_hint_label_default">@string/edit_channel_description</string>
+    <string name="dialog_addchannel_hint_label_email">@string/email_label_type</string>
+    <string name="dialog_addchannel_hint_label_phone">@string/phone_label_type</string>
+    <string name="dialog_addchannel_hint_label_sms">@string/sms_label_type</string>
+    <string name="dialog_addchannel_hint_label_web">@string/web_label_type</string>
+    <string name="dialog_addchannel_title_add_blank">Add %1$s</string>
+    <string name="dialog_addchannel_title_default">Add Channel</string>
+    <string name="dialog_addchannel_title_web">Add URL</string>
+    <string name="dialog_editchannel_hint_address_custom">Add Custom Channel Address</string>
+    <string name="dialog_editchannel_hint_address_default">@string/edit_channel_address</string>
+    <string name="dialog_editchannel_hint_address_email">@string/email_address</string>
+    <string name="dialog_editchannel_hint_address_facebook">Facebook Handle</string>
+    <string name="dialog_editchannel_hint_address_phone">@string/phone_number</string>
+    <string name="dialog_editchannel_hint_address_sms">@string/phone_number</string>
+    <string name="dialog_editchannel_hint_address_web">@string/web_label_type</string>
+    <string name="dialog_editchannel_hint_label_custom">Custom Channel Label</string>
+    <string name="dialog_editchannel_hint_label_default">@string/edit_channel_description</string>
+    <string name="dialog_editchannel_hint_label_email">@string/email_label_type</string>
+    <string name="dialog_editchannel_hint_label_sms">@string/sms_label_type</string>
+    <string name="dialog_editchannel_hint_label_phone">@string/phone_label_type</string>
+    <string name="dialog_editchannel_hint_label_web">URL Description (e.g. Reddit, SoundCloud)
+    </string>
+    <string name="dialog_editchannel_title_default">Edit Channel</string>
+    <string name="dialog_editchannel_title_blank">Edit %1$s</string>
+    <string name="dialog_editchannel_title_custom">Edit custom channel</string>
+    <string name="dialog_edit_user_groups">Select groups for</string>
+    <string name="dialog_sharelink_title">Share group links</string>
+    <string name="drawer_header_image">drawer header image</string>
     <string-array name="drawer_settings">
         <item>@string/profile</item>
         <item>@string/invite_friend</item>
@@ -162,42 +94,129 @@
         <item>@string/tour</item>
         <item>@string/logout</item>
     </string-array>
-    <string-array name="default_groups">
-        <item>@string/family</item>
-        <item>@string/friends</item>
-        <item>@string/following</item>
-        <item>@string/coworkers</item>
-    </string-array>
-    <string name="fragment_search_empty_text">No search results.</string>
+    <string name="edit_channel_address">Edit channel address</string>
+    <string name="edit_channel_description">Edit channel description</string>
+    <string name="edit_group">Edit Group</string>
+    <string name="edit_groups">Edit groups</string>
+    <string name="edit_public_channel_header"><![CDATA[<b>Everyone can see these</b><br>
+        Selected channels will be visible to all users.]]></string>
+    <string name="email_address">Email Address</string>
+    <string name="email_label_type">Label (e.g. Email Business)</string>
+    <string name="error_calculating">Error calculating</string>
+    <string name="facebook_app_id">470093589815006</string>
+    <string name="family">Family</string>
+    <string name="favorites">Favorites</string>
+    <string name="following">Following</string>
     <string name="fragment_contact_main_empty_text"><![CDATA[<b>No contacts</b><br>
         Tap search to find people!]]></string>
     <string name="fragment_contact_group_empty_text"><![CDATA[<b>Empty group</b><br>
         You haven\'t added anyone to this group.]]></string>
+    <string name="fragment_search_empty_text">No search results.</string>
     <string name="fragment_userprofile_contact_empty_text"><![CDATA[<b>Nothing to show</b><br>
     %1$s isn\'t sharing anything with you.]]></string>
-    <string name="fragment_userprofile_user_empty_text"><![CDATA[<b>Empty profile</b><br>
+    <string name="fragment_userchannels_empty_text"><![CDATA[<b>Empty profile</b><br>
     Tap <b>+</b> to add your social channels.]]></string>
+    <string name="fragment_userfeed_empty_text"><![CDATA[<b>Empty Feed</b><br>
+    Try refreshing.]]></string>
+    <string name="friends">Friends</string>
+    <string name="gamertag">Gamertag</string>
+    <string name="group_added">Group added</string>
+    <string name="group_name">Group name</string>
+    <string name="group_removed">Group Removed</string>
+    <string name="groups">Groups</string>
     <string name="hamburger">Hamburger</string>
-    <string name="search_textview">search_textview</string>
+    <plurals name="hours_ago">
+        <item quantity="one">%1$s hour ago.</item>
+        <item quantity="other">%1$s hours ago.</item>
+    </plurals>
+    <string name="in_blank_groups">%1$s groups</string>
+    <string name="invite_friend">Invite Friend</string>
+    <string name="invite_friend_content">Join me on Proxy. Share all of your social profiles from
+        one place. www.shareyourproxy.com
+    </string>
+    <string name="item1_return_item2">%1$s\n%2$s</string>
+    <string name="label">Label</string>
+    <string name="login_error">Login Error</string>
+    <string name="login_error_api_unavailable">API Unavailable</string>
+    <string name="login_error_failed_connection">Failed to create a connection.</string>
+    <string name="login_error_retrieving_user">Error retrieving user from Google</string>
+    <string name="login_error_update_play_service">Please update your play services</string>
+    <string name="logout">Logout</string>
+    <string name="menu">Menu</string>
+    <plurals name="minutes_ago">
+        <item quantity="one">%1$s minute ago.</item>
+        <item quantity="other">%1$s minutes ago.</item>
+    </plurals>
+    <string name="moments_ago">Moments ago</string>
+    <string name="notifications">Notifications</string>
+    <string name="oauth_error">Error retrieving token from Google OAuth</string>
+    <string name="ok">OK</string>
+    <string name="open">open</string>
+    <string name="phone_label_type">Label (e.g. home, ice)</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="play_services_error">Play Services Error</string>
+    <string name="posted_on">posted on %1$s</string>
+    <string name="professional">Professional</string>
+    <string name="profile">Profile</string>
+    <string name="proxy">Proxy</string>
+    <string name="proxy_hook">all of you, in one place</string>
+    <string name="proxy_logo">Proxy logo</string>
+    <string name="public_group">Public Group</string>
+    <string name="reddit_linktype_profile">/u/%1$s</string>
+    <string name="reddit_linktype_subreddit">/r/%1$s</string>
+    <string name="reload_contact">Reload contact</string>
+    <string name="required">Required</string>
+    <string name="retrofit_general_error">"Retrofit general error retrieving User"</string>
+    <string name="report_problem">Report Issue</string>
+    <string name="rx_eventbus_error">Error processing event data</string>
+    <string name="save">save</string>
+    <string name="save_realm_db">Save Realm DB</string>
+    <string name="search">Search</string>
+    <string name="search_contacts">Search contacts</string>
     <string name="search_container">search_container</string>
+    <string name="search_for_people">Search for people</string>
+    <string name="search_textview">search_textview</string>
     <string name="select_groups_for_channel">Select groups that can see this channel</string>
-    <string name="slide_one_title">Your whole story\n</string>
+    <string name="settings">Settings</string>
+    <string name="share">Share</string>
+    <string name="share_with">Share with</string>
+    <string name="share_your_proxy">Share Your Proxy</string>
+    <string name="shared_links">Shared links</string>
+    <string name="sharelink_message_beginning">“%1$s would like to share the following group
+        channels with you:\n\n”
+    </string>
+    <string name="sharelink_message_link">https://app.shareyourproxy.com/#/public/%1$s</string>
+    <string name="signed_in_as">Signed in as:</string>
     <string name="slide_one_body">Collect all your profiles in one place. Manage your digital
         footprint easily.
     </string>
-    <string name="slide_two_title">You control your privacy\n</string>
-    <string name="slide_two_body">Add people to groups to manage what they can see. Easily control
-        what you share publicly.
-    </string>
-    <string name="slide_three_title">Share your profile\n</string>
+    <string name="slide_one_title">Your whole story\n</string>
     <string name="slide_three_body">
         Get a URL for your profile and choose what it shows. Send it to friends or put it in your
         email signature.
     </string>
-    <string name="proxy_hook">all of you, in one place</string>
-    <string name="edit_public_channel_header"><![CDATA[<b>Everyone can see these</b><br>
-        Selected channels will be visible to all users.]]></string>
+    <string name="slide_three_title">Share your profile\n</string>
+    <string name="slide_two_body">Add people to groups to manage what they can see. Easily control
+        what you share publicly.
+    </string>
+    <string name="slide_two_title">You control your privacy\n</string>
+    <string name="sms_label_type">Label (e.g. google voice, cell)</string>
+    <string name="status_signed_in">Signed In</string>
+    <string name="status_signed_out">Signed Out</string>
+    <string name="status_signing_in">Signing In</string>
+    <string name="subreddit">Subreddit</string>
+    <string name="tour">Tour</string>
+    <string name="twitter_login_error">Twitter Login Error</string>
+    <string name="twitter_login_error_message">Error authenticating with Twitter.</string>
+    <string name="type">Type</string>
+    <string name="undo">undo</string>
+    <string name="undo_delete">Undo Delete</string>
+    <string name="username">Username</string>
+    <string name="user_image">user image</string>
     <string name="user_profile_followers">%1$s followers</string>
-    <string name="calculating">Calculating</string>
-    <string name="error_calculating">Error calculating</string>
+    <string name="web_label_type">URL Description (e.g. Reddit, SoundCloud)</string>
+    <plurals name="years_ago">
+        <item quantity="one">%1$s year ago.</item>
+        <item quantity="other">%1$s years ago.</item>
+    </plurals>
 </resources>

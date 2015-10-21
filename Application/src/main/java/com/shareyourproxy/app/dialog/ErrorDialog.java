@@ -9,9 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.ContextThemeWrapper;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.rx.event.LoginErrorDialogEvent;
 
-import static com.shareyourproxy.api.rx.event.LoginErrorDialogEvent.DialogEvent.DISMISS;
 import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
 
 /**
@@ -24,7 +22,7 @@ public class ErrorDialog extends BaseDialogFragment {
     private DialogInterface.OnClickListener _onOkClicked = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            getRxBus().post(new LoginErrorDialogEvent(DISMISS));
+            //do nothing
         }
     };
 

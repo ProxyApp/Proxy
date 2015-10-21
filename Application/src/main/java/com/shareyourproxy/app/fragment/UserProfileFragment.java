@@ -1,25 +1,22 @@
 package com.shareyourproxy.app.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
+import android.support.design.widget.TabLayout;
+import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
+import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,37 +24,23 @@ import android.widget.TextView;
 
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
-import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
-import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.UserProfileActivity;
-import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
-import com.shareyourproxy.app.adapter.ViewChannelAdapter;
-import com.shareyourproxy.app.dialog.EditChannelDialog;
-import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
-import com.shareyourproxy.widget.ContentDescriptionDrawable;
 import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
-import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -65,56 +48,46 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static android.support.design.widget.Snackbar.LENGTH_LONG;
-import static android.support.design.widget.Snackbar.make;
-import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
-import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
-import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
+import static java.util.Collections.singletonList;
 
 /**
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
  * Contact's to be added to be observed and added to groups logged in user groups.
  */
-public class UserProfileFragment extends BaseFragment implements ItemLongClickListener {
+public class UserProfileFragment extends BaseFragment {
 
-    @BindDimen(R.dimen.common_svg_large)
-    int marginSVGLarge;
-    @BindDimen(R.dimen.common_svg_null_screen)
-    int marginNullScreen;
     @Bind(R.id.fragment_user_profile_toolbar)
     Toolbar toolbar;
-    @Bind(R.id.fragment_user_profile_recyclerview)
-    BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_user_profile_header_image)
     ImageView userImage;
     @Bind(R.id.fragment_user_profile_header_followers)
     TextView followersTextView;
     @Bind(R.id.fragment_user_profile_header_button)
     Button groupButton;
-    @Bind(R.id.fragment_user_profile_empty_textview)
-    TextView emptyTextView;
+    @Bind(R.id.fragment_user_profile_viewpager)
+    ViewPager viewPager;
     @Bind(R.id.fragment_user_profile_collapsing_toolbar)
     CollapsingToolbarLayout collapsingToolbarLayout;
-    @Bind(R.id.fragment_user_profile_fab)
-    FloatingActionButton floatingActionButton;
     @Bind(R.id.fragment_user_profile_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
+    @Bind(R.id.fragment_user_profile_sliding_tabs)
+    TabLayout slidingTabLayout;
     @BindColor(R.color.common_blue)
     int colorBlue;
-    @BindString(R.string.fragment_userprofile_user_empty_text)
-    String stringNullMessage;
+    @BindColor(R.color.common_proxy_dark_selected)
+    int _selectedColor;
+    @BindColor(R.color.common_proxy_dark_disabled)
+    int _unselectedColor;
     @BindString(R.string.calculating)
     String stringCalculating;
     @BindString(R.string.error_calculating)
     String stringErrorCalculating;
-    private ViewChannelAdapter _adapter;
     private Target _target;
     private Target _backgroundTarget;
     private PaletteAsyncListener _paletteListener;
@@ -122,7 +95,8 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     private CompositeSubscription _subscriptions;
     private boolean _isLoggedInUser;
     private ArrayList<GroupToggle> _contactGroups = new ArrayList<>();
-    private Channel _deletedChannel;
+    private List<? extends BaseFragment> fragmentArray;
+
 
     /**
      * Empty Fragment Constructor.
@@ -139,11 +113,6 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         return new UserProfileFragment();
     }
 
-    @OnClick(R.id.fragment_user_profile_fab)
-    public void onClick() {
-        launchChannelListActivity(getActivity());
-    }
-
     @OnClick(R.id.fragment_user_profile_header_button)
     void onClickGroup() {
         UserGroupsDialog.newInstance(_contactGroups, _userContact).show(getFragmentManager());
@@ -154,9 +123,20 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         super.onAttach(context);
         _userContact = getActivity().getIntent().getExtras().getParcelable
             (ARG_USER_SELECTED_PROFILE);
+        _isLoggedInUser = isLoggedInUser(_userContact);
+
         String loggedInUserId = getActivity().getIntent().getExtras()
             .getString(Constants.ARG_LOGGEDIN_USER_ID);
-        _isLoggedInUser = isLoggedInUser(_userContact);
+        checkLoggedInUserValue(loggedInUserId);
+    }
+
+    /**
+     * If we entered this activity fragment through a notification, make sure the logged in user has
+     * a value.
+     *
+     * @param loggedInUserId logged in user id.
+     */
+    public void checkLoggedInUserValue(String loggedInUserId) {
         if (getLoggedInUser() == null) {
             User user = null;
             try {
@@ -187,30 +167,117 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
      * Initialize this fragments views.
      */
     private void initialize() {
-        checkCompositeButton();
+        _subscriptions = checkCompositeButton(_subscriptions);
         setToolbarTitle();
-        initializeSVG();
         initializeHeader();
-        _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
-            .subscribe(getContactScoreObserver()));
-        if (!_isLoggedInUser) {
-            floatingActionButton.setVisibility(View.GONE);
-            getGroupEditContacts();
-            initializeRecyclerView(null);
-            getSharedChannels();
-        } else {
-            initializeRecyclerView(getLoggedInUser().channels());
-        }
+        initializeViewPager();
+    }
+
+    private void setToolbarTitle() {
+        String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
+        buildToolbar(toolbar, title, null);
+        followersTextView.setText(getString(R.string.user_profile_followers,
+            stringCalculating));
     }
 
     /**
-     * Set the content image of this {@link FloatingActionButton}
+     * Initialize the Header view data and state.
      */
-    private void initializeSVG() {
-        Drawable drawable = svgToBitmapDrawable(getActivity(), R.raw.ic_add,
-            marginSVGLarge, Color.WHITE);
-        floatingActionButton.setImageDrawable(drawable);
-        ViewCompat.setElevation(floatingActionButton, 10f);
+    private void initializeHeader() {
+        String profileURL = _userContact.profileURL();
+        String coverURL = _userContact.coverURL();
+        //profile pic
+        if (profileURL != null && !profileURL.trim().isEmpty() && !profileURL.contains(".gif")) {
+            Picasso.with(getActivity()).load(profileURL)
+                .placeholder(R.mipmap.ic_proxy)
+                .transform(new CircleTransform())
+                .into(getBitmapTargetView());
+        } else {
+            Picasso.with(getActivity()).load(R.mipmap.ic_proxy)
+                .transform(new CircleTransform())
+                .into(getBitmapTargetView());
+        }
+        //Background cover photo
+        if (coverURL != null && !coverURL.isEmpty() && !coverURL.contains(".gif")) {
+            Picasso.with(getActivity()).load(coverURL)
+                .transform(AlphaTransform.create())
+                .into(getBackgroundTarget());
+        } else {
+            Picasso.with(getActivity()).load(R.mipmap.ic_proxy)
+                .transform(AlphaTransform.create())
+                .into(getBackgroundTarget());
+        }
+        //update group button
+        if (_isLoggedInUser) {
+            groupButton.setVisibility(View.GONE);
+        } else {
+            groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                getMenuIcon(getActivity(), R.raw.ic_groups), null, null, null);
+            getGroupEditContacts();
+        }
+        //followers score
+        _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
+            .subscribe(getContactScoreObserver()));
+    }
+
+    private void initializeViewPager() {
+        initializeFragments();
+        initializeTabs();
+    }
+
+    /**
+     * Initialize this fragments tabs and their icons. Select the default tab based input intent
+     * data from user action.
+     */
+    private void initializeTabs() {
+//        slidingTabLayout.addTab(
+//            slidingTabLayout.newTab()
+//                .setText(R.string.activity));
+        //TODO:REMOVE ME
+        slidingTabLayout.setVisibility(View.GONE);
+        slidingTabLayout.addTab(
+            slidingTabLayout.newTab()
+                .setText(R.string.channels));
+
+        slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
+        viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
+        //set the defualt selected tab
+        slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
+            .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB)).select();
+    }
+
+    /**
+     * Get a tab selection listener that tints tab drawables correctly.
+     *
+     * @return OnTabSelectedListener
+     */
+    private TabLayout.OnTabSelectedListener getOnTabSelectedListener() {
+        return new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        };
+    }
+
+    /**
+     * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
+     */
+    private void initializeFragments() {
+//        fragmentArray = asList(
+//            UserFeedFragment.newInstance(), UserChannelsFragment.newInstance());
+        fragmentArray = singletonList(UserChannelsFragment.newInstance());
+        viewPager.setAdapter(
+            BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
     }
 
     private void getGroupEditContacts() {
@@ -226,32 +293,6 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
             }
         }
         updateGroupButtonText(selectedGroupsList);
-    }
-
-    private void setToolbarTitle() {
-        String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
-        buildToolbar(toolbar, title, null);
-        followersTextView.setText(getString(R.string.user_profile_followers,
-            stringCalculating));
-    }
-
-    private void initializeHeader() {
-        Picasso.with(getActivity()).load(_userContact.profileURL())
-            .placeholder(R.mipmap.ic_proxy)
-            .transform(new CircleTransform())
-            .into(getBitmapTargetView());
-
-        if (_userContact.coverURL() != null && !_userContact.coverURL().isEmpty()) {
-            Picasso.with(getActivity()).load(_userContact.coverURL())
-                .transform(AlphaTransform.create())
-                .into(getBackgroundTarget());
-        }
-        if (_isLoggedInUser) {
-            groupButton.setVisibility(View.GONE);
-        } else {
-            groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                getMenuIcon(getActivity(), R.raw.ic_groups), null, null, null);
-        }
     }
 
     /**
@@ -298,16 +339,10 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
 
                 @Override
                 public void onBitmapFailed(Drawable errorDrawable) {
-                    Bitmap bitmap = Bitmap.createBitmap(errorDrawable.getIntrinsicWidth(),
-                        errorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                    userImage.setImageBitmap(bitmap);
                 }
 
                 @Override
                 public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    Bitmap bitmap = Bitmap.createBitmap(placeHolderDrawable.getIntrinsicWidth(),
-                        placeHolderDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                    userImage.setImageBitmap(bitmap);
                 }
             };
         }
@@ -337,70 +372,25 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         return _paletteListener;
     }
 
-    /**
-     * Initialize a recyclerView with User data.
-     */
-    private void initializeRecyclerView(HashMap<String, Channel> channels) {
-        initializeEmptyView();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ViewChannelAdapter.newInstance(channels, this);
-        recyclerView.setAdapter(_adapter);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-    }
-
-    private void initializeEmptyView() {
-        if (_isLoggedInUser) {
-            emptyTextView.setText(fromHtml(stringNullMessage));
-            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
-                null, getNullDrawable(R.raw.ic_ghost_doge), null, null);
-        } else {
-            emptyTextView.setText(
-                fromHtml(getString(R.string.fragment_userprofile_contact_empty_text,
-                    _userContact.first())));
-            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
-                null, getNullDrawable(R.raw.ic_ghost_sloth), null, null);
-        }
-        recyclerView.setEmptyView(emptyTextView);
-    }
-
-    /**
-     * Parse a svg and return a null screen sized {@link ContentDescriptionDrawable} .
-     *
-     * @return Drawable with a contentDescription
-     */
-    private Drawable getNullDrawable(int resId) {
-        return svgToBitmapDrawable(getActivity(), resId, marginNullScreen);
-    }
-
-    @Override
-    public final void onItemClick(View view, int position) {
-        Channel channel = _adapter.getItemData(position);
-        getRxBus().post(new SelectUserChannelEvent(channel));
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
-        Channel channel = _adapter.getItemData(position);
-        if (_isLoggedInUser) {
-            EditChannelDialog.newInstance(channel).show(getFragmentManager());
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        checkCompositeButton();
+        _subscriptions = checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        _subscriptions.unsubscribe();
+        _subscriptions = null;
+    }
+
     public JustObserver<Integer> getContactScoreObserver() {
         return new JustObserver<Integer>() {
-
-
             @Override
-            public void success(Integer integer) {
+            public void next(Integer integer) {
                 followersTextView.setText(getString(R.string.user_profile_followers,
                     integer));
             }
@@ -413,24 +403,12 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
         };
     }
 
-    private void checkCompositeButton() {
-        if (_subscriptions == null) {
-            _subscriptions = new CompositeSubscription();
-        }
-    }
-
     private Action1<Object> onNextEvent() {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
-                if (event instanceof UserChannelAddedEventCallback) {
-                    addUserChannel(((UserChannelAddedEventCallback) event));
-                } else if (event instanceof UserChannelDeletedEventCallback) {
-                    deleteUserChannel(((UserChannelDeletedEventCallback) event));
-                } else if (event instanceof GroupContactsUpdatedEventCallback) {
+                if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
-                } else if (event instanceof SyncAllUsersSuccessEvent) {
-                    _adapter.notifyDataSetChanged();
                 }
             }
         };
@@ -463,73 +441,11 @@ public class UserProfileFragment extends BaseFragment implements ItemLongClickLi
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        _subscriptions.unsubscribe();
-        _subscriptions = null;
-    }
-
-    private void addUserChannel(UserChannelAddedEventCallback event) {
-        if (event.oldChannel != null) {
-            _adapter.updateChannel(event.oldChannel, event.newChannel);
-            showChangesSavedSnackBar(coordinatorLayout);
-        } else {
-            _adapter.addChannel(event.newChannel);
-            showAddedChannelSnackBar();
-            SaveGroupChannelDialog.newInstance(event.newChannel, event.user)
-                .show(getFragmentManager());
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        for(BaseFragment frag : fragmentArray){
+            frag.onActivityResult(requestCode,resultCode,data);
         }
     }
 
-    private void deleteUserChannel(UserChannelDeletedEventCallback event) {
-        _adapter.removeChannel(event.channel);
-        _deletedChannel = event.channel;
-        showDeletedChannelSnackBar();
-    }
-
-    private void showDeletedChannelSnackBar() {
-        Snackbar snackbar = make(coordinatorLayout, getString(R.string.undo_delete), LENGTH_LONG);
-        snackbar.setAction(getString(R.string.undo), getAddChannelClickListener());
-        snackbar.setActionTextColor(colorBlue);
-        snackbar.show();
-    }
-
-    private void showAddedChannelSnackBar() {
-        make(coordinatorLayout, getString(R.string.channel_added), LENGTH_LONG).show();
-    }
-
-    /**
-     * Get a click listener to add a deleted channel.
-     *
-     * @return click listener
-     */
-    private OnClickListener getAddChannelClickListener() {
-        return new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
-                    _deletedChannel));
-            }
-        };
-    }
-
-    public void getSharedChannels() {
-        _subscriptions.add(queryPermissionedChannels(
-            getActivity(), getLoggedInUser().id(), _userContact.id())
-            .subscribe(permissionedObserver()));
-    }
-
-    private JustObserver<HashMap<String, Channel>> permissionedObserver() {
-        return new JustObserver<HashMap<String, Channel>>() {
-            @Override
-            public void success(HashMap<String, Channel> channels) {
-                _adapter.updateChannels(channels);
-            }
-
-            @Override
-            public void error(Throwable e) {
-                Timber.e("Error downloading permissioned channels");
-            }
-        };
-    }
 }

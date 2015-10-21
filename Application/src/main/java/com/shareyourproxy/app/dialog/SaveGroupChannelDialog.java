@@ -45,11 +45,11 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_user_groups_recyclerview)
-    protected BaseRecyclerView recyclerView;
+    BaseRecyclerView recyclerView;
     @BindColor(R.color.common_text)
-    protected int _textColor;
+    int colorText;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     private Channel _channel;
     private User _user;
     private SaveGroupChannelAdapter _adapter;
@@ -130,9 +130,9 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
         // Setup Button Colors
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _textColor);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), _textColor);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), colorText);
         initializeRecyclerView();
     }
 

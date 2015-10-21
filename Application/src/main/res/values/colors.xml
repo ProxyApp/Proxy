@@ -25,6 +25,13 @@
     <color name="common_medium">#000000</color>
     <color name="common_soundcloud">#FC6520</color>
     <color name="common_skype">#00AAF1</color>
+    <color name="common_playstation">#1C67AC</color>
+    <color name="common_nintendo">#F58A33</color>
+    <color name="common_steam">#000000</color>
+    <color name="common_twitch">#6441A5</color>
+    <color name="common_leagueoflegends">#25008A</color>
+    <color name="common_xbox">#107C10</color>
+
 
     <!--material design guide lines-->
     <!--http://www.google.com/design/spec/style/color.html#color-color-palette-->
@@ -54,6 +61,8 @@
     <color name="common_text_disabled">#42000000</color>
     <!--12 percent alpha for dividers-->
     <color name="common_divider">#1F000000</color>
+    <!--standard icon color-->
+    <color name="common_icon">#010101</color>
 
     <!--Common primary color gray (100,500,700)-->
     <color name="common_gray_light">#F5F5F5</color>

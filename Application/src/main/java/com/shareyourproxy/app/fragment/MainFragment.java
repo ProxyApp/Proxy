@@ -5,9 +5,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.OnTabSelectedListener;
 import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +21,7 @@ import com.shareyourproxy.util.ViewUtils;
 import com.shareyourproxy.widget.ContactSearchLayout;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -34,7 +32,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchSearchActivity;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
-import static java.util.Arrays.asList;
 
 /**
  * Add a {@link MainContactsFragment} and {@link MainGroupFragment} to this fragment's {@link
@@ -98,7 +95,7 @@ public class MainFragment extends BaseFragment {
     public JustObserver<Object> getObserver() {
         return new JustObserver<Object>() {
             @Override
-            public void success(Object event) {
+            public void next(Object event) {
                 if (event instanceof SearchClickedEvent) {
                     launchSearchActivity(getActivity(),
                         _contactSearchLayout.getContainerView(),
@@ -153,7 +150,7 @@ public class MainFragment extends BaseFragment {
         slidingTabLayout.setTabMode(TabLayout.MODE_FIXED);
         slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
-        //set the defualt selected tab
+        //set the default selected tab
         slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
             .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB)).select();
     }
@@ -187,27 +184,10 @@ public class MainFragment extends BaseFragment {
      * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
      */
     private void initializeFragments() {
-        List<Fragment> fragmentArray = asList(getFavoritesTab(), getGroupsTab());
+        List<BaseFragment> fragmentArray = Arrays.<BaseFragment>asList(
+                MainContactsFragment.newInstance(), MainGroupFragment.newInstance());
         viewPager.setAdapter(
-            MainFragmentPagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
-    }
-
-    /**
-     * Pair an Image to a Fragment to simplify our {@link MainFragmentPagerAdapter}.
-     *
-     * @return {@link MainContactsFragment} and Drawable combo
-     */
-    private Fragment getFavoritesTab() {
-        return MainContactsFragment.newInstance();
-    }
-
-    /**
-     * Pair an Image to a Fragment to simplify our {@link MainFragmentPagerAdapter}.
-     *
-     * @return {@link MainGroupFragment} and Drawable combo
-     */
-    private Fragment getGroupsTab() {
-        return MainGroupFragment.newInstance();
+            BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
     }
 
     /**
@@ -228,40 +208,6 @@ public class MainFragment extends BaseFragment {
     private ContentDescriptionDrawable getGroupDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_groups, marginSVGLarge, _unselectedColor)
             .setContentDescription(getString(R.string.groups));
-    }
-
-    /**
-     * The {@link FragmentPagerAdapter} used to display Groups and Users.
-     */
-    private static class MainFragmentPagerAdapter extends FragmentPagerAdapter {
-        private List<Fragment> _fragmentArray;
-
-        /**
-         * Constructor.
-         *
-         * @param fragmentManager Manager of fragments.
-         */
-        private MainFragmentPagerAdapter(
-            List<Fragment> fragmentArray, FragmentManager fragmentManager) {
-            super(fragmentManager);
-            _fragmentArray = fragmentArray;
-        }
-
-        public static MainFragmentPagerAdapter newInstance(
-            List<Fragment> fragmentArray, FragmentManager fragmentManager) {
-            return new MainFragmentPagerAdapter(fragmentArray, fragmentManager);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return _fragmentArray.get(i);
-        }
-
-        @Override
-        public int getCount() {
-            return _fragmentArray.size();
-        }
-
     }
 
 }

@@ -39,7 +39,7 @@ import static com.shareyourproxy.BuildConfig.WEBVIEW_REDIRECT;
 public class InstagramAuthDialog extends BaseDialogFragment {
     private static final String TAG = ObjectUtils.getSimpleName(InstagramAuthDialog.class);
     @Bind(R.id.dialog_webview_container)
-    protected WebView webView;
+    WebView webView;
 
     /**
      * Constructor.
@@ -111,7 +111,7 @@ public class InstagramAuthDialog extends BaseDialogFragment {
     public JustObserver<InstagramAuthResponse> authObserver() {
         return new JustObserver<InstagramAuthResponse>() {
             @Override
-            public void success(InstagramAuthResponse event) {
+            public void next(InstagramAuthResponse event) {
                 Timber.i(event.toString());
                 InstagramUser user = event.user();
                 Channel channel = ChannelFactory.createModelInstance(user.id(), "",

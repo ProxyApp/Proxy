@@ -16,7 +16,7 @@ import rx.subjects.Subject;
  */
 public class RxRefreshUserSubject {
         private static final RxRefreshUserSubject DEFAULT_INSTANCE = new RxRefreshUserSubject();
-        private final Subject<View, View> _rxBus =
+        private static final Subject<View, View> _rxBus =
             new SerializedSubject<>(PublishSubject.<View>create());
 
         /**
@@ -29,7 +29,7 @@ public class RxRefreshUserSubject {
             return DEFAULT_INSTANCE;
         }
 
-        public Observable<View> toObserverable() {
+        public static Observable<View> toObserverable() {
             return _rxBus.throttleFirst(3, TimeUnit.SECONDS, Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -40,7 +40,7 @@ public class RxRefreshUserSubject {
          *
          * @param view clicked.
          */
-        public void click(View view) {
+        public static void click(View view) {
             _rxBus.onNext(view);
         }
 }

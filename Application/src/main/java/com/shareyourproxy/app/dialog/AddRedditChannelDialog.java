@@ -45,7 +45,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL_TYPE = "AddRedditChannelDialog.ChannelType";
     private static final String TAG = getSimpleName(AddRedditChannelDialog.class);
     @Bind(R.id.dialog_reddit_channel_action_address_edittext)
-    protected EditText editTextActionAddress;
+    EditText editTextActionAddress;
     private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -55,23 +55,23 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
             }
         };
     @Bind(R.id.dialog_reddit_channel_label_edittext)
-    protected EditText editTextLabel;
+    EditText editTextLabel;
     @Bind(R.id.dialog_reddit_channel_label_floatlabel)
-    protected TextInputLayout floatLabelChannelLabel;
+    TextInputLayout floatLabelChannelLabel;
     @Bind(R.id.dialog_reddit_channel_action_address_floatlabel)
-    protected TextInputLayout floatLabelAddress;
+    TextInputLayout floatLabelAddress;
     @Bind(R.id.dialog_reddit_channel_linktype_header)
-    protected TextView linkTypeHeader;
+    TextView linkTypeHeader;
     @Bind(R.id.dialog_reddit_channel_radiobutton_profile)
-    protected RadioButton linkTypeProfile;
+    RadioButton linkTypeProfile;
     @Bind(R.id.dialog_reddit_channel_radiobutton_subreddit)
-    protected RadioButton linkTypeSub;
+    RadioButton linkTypeSub;
     @BindColor(R.color.common_text)
-    protected int _text;
+    int colorText;
     @BindColor(R.color.common_blue)
-    protected int _blue;
+    int colorBlue;
     @BindString(R.string.required)
-    protected String _required;
+    String _required;
     private ChannelType _channelType;
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is
@@ -105,8 +105,9 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     /**
      * Constructor.
      */
-    public AddRedditChannelDialog(){
+    public AddRedditChannelDialog() {
     }
+
     /**
      * Create a new instance of a {@link AddRedditChannelDialog}.
      *
@@ -217,8 +218,8 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     public void onStart() {
         super.onStart();
         AlertDialog dialog = (AlertDialog) getDialog();
-        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), _blue);
-        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), _text);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue);
+        setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText);
         //Alert Dialogs dismiss by default because of an internal handler... this bypasses that.
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
     }
@@ -227,7 +228,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
         String name = _channelType.getLabel();
         _dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name);
         _channelAddressHint = getString(R.string.dialog_addchannel_hint_address_reddit_username);
-        _channelLabelHint = getString(R.string.dialog_addchannel_hint_label_blank_label);
+        _channelLabelHint = getString(R.string.label);
     }
 
     /**

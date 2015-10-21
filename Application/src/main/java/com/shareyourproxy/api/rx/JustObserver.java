@@ -23,9 +23,9 @@ public abstract class JustObserver<T> implements Observer<T> {
 
     @Override
     public void onNext(T t) {
-        this.success(t);
+        this.next(t);
     }
 
-    public abstract void success(T t);
+    public abstract void next(T t);
     public abstract void error(Throwable e);
 }

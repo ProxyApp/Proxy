@@ -16,7 +16,7 @@ import static com.shareyourproxy.Constants.KEY_GOOGLE_PLUS_AUTH;
 import static com.shareyourproxy.Constants.QUERY_AUTH;
 
 /**
- * Created by Evan on 9/16/15.
+ * Appends a firebase token saved in shared preferences to each network request.
  */
 public class FirebaseAuthenticator implements Authenticator {
     private final RxBusDriver _rxBus;

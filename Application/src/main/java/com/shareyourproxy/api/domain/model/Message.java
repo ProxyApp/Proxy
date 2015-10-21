@@ -2,7 +2,7 @@ package com.shareyourproxy.api.domain.model;
 
 import android.os.Parcelable;
 
-import com.shareyourproxy.api.gson.AutoValueClass;
+import com.shareyourproxy.api.domain.factory.AutoValueClass;
 
 import auto.parcel.AutoParcel;
 

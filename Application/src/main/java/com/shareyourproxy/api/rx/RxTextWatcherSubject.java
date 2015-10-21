@@ -14,7 +14,7 @@ import rx.subjects.Subject;
  */
 public class RxTextWatcherSubject {
     private static final RxTextWatcherSubject DEFAULT_INSTANCE = new RxTextWatcherSubject();
-    private final Subject<String, String> _rxBus =
+    private static final Subject<String, String> _rxBus =
         new SerializedSubject<>(PublishSubject.<String>create());
 
     /**
@@ -27,7 +27,7 @@ public class RxTextWatcherSubject {
         return DEFAULT_INSTANCE;
     }
 
-    public Observable<String> toObserverable() {
+    public static Observable<String> toObserverable() {
         return _rxBus.debounce(200, TimeUnit.MILLISECONDS, Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread());
     }
@@ -37,7 +37,7 @@ public class RxTextWatcherSubject {
      *
      * @param searchText String.
      */
-    public void post(String searchText) {
+    public static void post(String searchText) {
         _rxBus.onNext(searchText);
     }
 }

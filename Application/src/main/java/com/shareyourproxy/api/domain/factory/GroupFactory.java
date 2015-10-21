@@ -9,7 +9,7 @@ import java.util.HashSet;
 import io.realm.RealmList;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.getModelChannelList;
-import static com.shareyourproxy.api.domain.factory.ContactFactory.getModelContactList;
+import static com.shareyourproxy.api.domain.factory.ContactFactory.getContactIdSet;
 
 /**
  * Factory for creating domain model {@link Group}s.
@@ -33,7 +33,7 @@ public class GroupFactory {
     public static Group getModelGroup(RealmGroup realmGroup) {
         return Group.copy(realmGroup.getId(), realmGroup.getLabel(),
             getModelChannelList(realmGroup.getChannels()),
-            getModelContactList(realmGroup.getContacts()));
+            getContactIdSet(realmGroup.getContacts()));
     }
 
     public static Group addGroupChannels(

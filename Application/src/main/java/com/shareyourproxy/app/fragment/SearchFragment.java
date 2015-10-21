@@ -223,7 +223,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private JustObserver<HashMap<String, User>> getSearchObserver() {
         return new JustObserver<HashMap<String, User>>() {
             @Override
-            public void success(HashMap<String, User> users) {
+            public void next(HashMap<String, User> users) {
                 _adapter.refreshUserList(users);
             }
 

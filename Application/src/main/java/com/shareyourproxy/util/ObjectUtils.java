@@ -2,6 +2,9 @@ package com.shareyourproxy.util;
 
 import android.text.TextUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import static java.lang.Character.toTitleCase;
 import static java.lang.String.valueOf;
 
@@ -9,6 +12,7 @@ import static java.lang.String.valueOf;
  * Helper class for formatting objects.
  */
 public class ObjectUtils {
+
     /**
      * Private Constructor.
      */
@@ -44,6 +48,10 @@ public class ObjectUtils {
         StringBuilder sb = new StringBuilder(valueOf(toTitleCase(string.charAt(0))))
             .append(string.substring(1));
         return sb.toString();
+    }
+
+    public static SimpleDateFormat getTwitterDateFormat() {
+        return new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.US);
     }
 
     /**

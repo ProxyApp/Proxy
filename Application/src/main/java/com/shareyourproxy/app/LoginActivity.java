@@ -116,7 +116,7 @@ public class LoginActivity extends GoogleApiActivity {
     public JustObserver<Object> getRxBusObserver() {
         return new JustObserver<Object>() {
             @Override
-            public void success(Object event) {
+            public void next(Object event) {
                 if (event instanceof SyncAllUsersSuccessEvent) {
                     login();
                 } else if (event instanceof SyncAllUsersErrorEvent) {
@@ -185,7 +185,7 @@ public class LoginActivity extends GoogleApiActivity {
     private JustObserver<User> getUserObserver() {
         return new JustObserver<User>() {
             @Override
-            public void success(User user) {
+            public void next(User user) {
                 if (user == null) {
                     addUserToDatabase(createUserFromGoogle());
                 } else {

@@ -26,10 +26,23 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * @param channelBackgroundColor background color value
      * @return circular image.drawable
      */
-    public static Drawable getSVGIconDrawable(
+    public static Drawable getChannelIconDrawable(
         Context context, Channel channel, int channelBackgroundColor) {
-        return getCircularDrawableImage(context, channel.channelType().getResId(),
-            channel.channelType(), channelBackgroundColor);
+        return getChannelIconDrawable(context, channel.channelType(), channelBackgroundColor);
+    }
+
+    /**
+     * Get a Circular SVG Drawable.
+     *
+     * @param context                activity context
+     * @param channelType            resId
+     * @param channelBackgroundColor background color value
+     * @return circular image.drawable
+     */
+    public static Drawable getChannelIconDrawable(
+        Context context, ChannelType channelType, int channelBackgroundColor) {
+        return getCircularDrawableImage(context, channelType.getResId(),
+            channelType, channelBackgroundColor);
     }
 
     /**
@@ -50,6 +63,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
             case Email:
                 return getColor(context, R.color.common_red);
             case Web:
+            case URL:
                 return getColor(context, R.color.common_text_secondary);
             case Facebook:
                 return getColor(context, R.color.common_facebook);
@@ -99,6 +113,18 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
                 return getColor(context, R.color.common_soundcloud);
             case Skype:
                 return getColor(context, R.color.common_skype);
+            case LeagueOfLegends:
+                return getColor(context, R.color.common_leagueoflegends);
+            case PlaystationNetwork:
+                return getColor(context, R.color.common_playstation);
+            case NintendoNetwork:
+                return getColor(context, R.color.common_nintendo);
+            case Steam:
+                return getColor(context, R.color.common_steam);
+            case Twitch:
+                return getColor(context, R.color.common_twitch);
+            case XboxLive:
+                return getColor(context, R.color.common_xbox);
             default:
                 return getColor(context, R.color.common_text_secondary);
         }
@@ -124,7 +150,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
             sb.setSpan(span, labelStart, addressStart, SPAN_INCLUSIVE_INCLUSIVE);
         } else {
             sb = new SpannableStringBuilder(context.getString(
-                R.string.channel_view_item_content_no_label, channelTypeString, address));
+                R.string.item1_return_item2, channelTypeString, address));
             addressStart = channelTypeString.length();
             end = sb.length();
         }

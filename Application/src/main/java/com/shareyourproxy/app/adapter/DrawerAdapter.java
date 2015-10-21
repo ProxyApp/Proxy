@@ -119,7 +119,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @param position in list
      */
     public void bindItemViewHolder(ItemViewHolder holder, int position) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         String name = getItemStringValue(position);
         int resId = getItemIconValue(position);
 
@@ -133,7 +133,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @param holder view holder
      */
     public void bindHeaderViewHolder(HeaderViewHolder holder) {
-        Context context = holder._view.getContext();
+        Context context = holder.view.getContext();
         if (_currentUser != null) {
             String fullname =
                 joinWithSpace(new String[]{ _currentUser.first(), _currentUser.last() });
@@ -142,15 +142,23 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             String profileURL = _currentUser.profileURL();
             String coverURL = _currentUser.coverURL();
 
-            if (profileURL != null && !profileURL.trim().isEmpty()) {
-                Picasso.with(context).load(_currentUser.profileURL())
+            if (profileURL != null && !profileURL.trim().isEmpty() && !profileURL.contains("" +
+                ".gif")) {
+                Picasso.with(context).load(profileURL)
                     .transform(CircleTransform.create())
                     .placeholder(R.mipmap.ic_proxy)
                     .into(getBitmapTargetView(holder));
+            } else {
+                Picasso.with(context).load(R.mipmap.ic_proxy)
+                    .into(getBitmapTargetView(holder));
             }
 
-            if (coverURL != null && !coverURL.trim().isEmpty()) {
-                Picasso.with(context).load(_currentUser.coverURL())
+            if (coverURL != null && !coverURL.trim().isEmpty() && !coverURL.contains(".gif")) {
+                Picasso.with(context).load(coverURL)
+                    .transform(AlphaTransform.create())
+                    .into(getBackgroundTarget(holder));
+            } else {
+                Picasso.with(context).load(R.mipmap.ic_proxy)
                     .transform(AlphaTransform.create())
                     .into(getBackgroundTarget(holder));
             }
@@ -171,7 +179,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.backgroundContainer.setBackground(
-                        new BitmapDrawable(viewHolder._view.getContext().getResources(), bitmap));
+                        new BitmapDrawable(viewHolder.view.getContext().getResources(), bitmap));
                 }
 
                 @Override
@@ -201,7 +209,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     viewHolder.userImage.setImageBitmap(bitmap);
                     new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
+                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
                 }
 
                 @Override
@@ -210,7 +218,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         errorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
                     new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
+                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
                 }
 
                 @Override
@@ -219,7 +227,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         placeHolderDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                     viewHolder.userImage.setImageBitmap(bitmap);
                     new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder,viewHolder.purple));
+                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
                 }
             };
         }
@@ -264,15 +272,15 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * ViewHolder for the settings header.
      */
-     static class HeaderViewHolder extends BaseViewHolder {
+    static class HeaderViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_drawer_header_container)
-         LinearLayout backgroundContainer;
+        LinearLayout backgroundContainer;
         @Bind(R.id.adapter_drawer_header_image)
-         ImageView userImage;
+        ImageView userImage;
         @Bind(R.id.adapter_drawer_header_name)
-         TextView userName;
+        TextView userName;
         @BindColor(R.color.common_deep_purple)
-         int purple;
+        int purple;
 
         /**
          * Constructor for the HeaderViewHolder.
@@ -299,11 +307,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * ViewHolder for the entered settings data.
      */
-     static class ItemViewHolder extends BaseViewHolder {
+    static class ItemViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_drawer_item_name)
-         TextView name;
+        TextView name;
         @Bind(R.id.adapter_drawer_item_image)
-         ImageView image;
+        ImageView image;
 
         /**
          * Constructor for the ItemViewHolder.

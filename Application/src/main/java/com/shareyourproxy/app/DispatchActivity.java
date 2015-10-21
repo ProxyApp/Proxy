@@ -99,7 +99,7 @@ public class DispatchActivity extends GoogleApiActivity {
     public JustObserver<Object> getRxBusObserver() {
         return new JustObserver<Object>() {
             @Override
-            public void success(Object event) {
+            public void next(Object event) {
                 if (event instanceof SyncAllUsersSuccessEvent) {
                     login();
                 } else if (event instanceof SyncAllUsersErrorEvent) {

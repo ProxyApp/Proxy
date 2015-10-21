@@ -28,7 +28,7 @@ public class CommandIntentService extends IntentService {
     public static final String ARG_RESULT_RECEIVER =
         "com.shareyourproxy.api.CommandIntentService.api.result_receiver";
     public static final String ARG_RESULT_BASE_EVENTS =
-        "com.shareyourproxy.api.CommandIntentService.api.result_receiver";
+        "com.shareyourproxy.api.CommandIntentService.api.base_events";
 
     public CommandIntentService() {
         super(TAG);

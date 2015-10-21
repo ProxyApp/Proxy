@@ -6,12 +6,5 @@
     <com.shareyourproxy.app.adapter.BaseRecyclerView
         android:id="@+id/fragment_channel_list_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"/>
-
-    <com.twitter.sdk.android.core.identity.TwitterLoginButton
-        android:id="@+id/fragment_user_profile_twitter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:layout_height="match_parent"/>
 </FrameLayout>

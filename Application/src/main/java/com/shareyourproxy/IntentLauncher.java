@@ -13,8 +13,8 @@ import android.widget.Toast;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.AddChannelListActivity;
-import com.shareyourproxy.app.GroupContactsActivity;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
+import com.shareyourproxy.app.GroupContactsActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
@@ -39,6 +39,7 @@ public final class IntentLauncher {
 
     /**
      * Launch an Apache II License
+     *
      * @param activity context
      */
     public static void launchAboutActivity(Activity activity) {
@@ -54,8 +55,9 @@ public final class IntentLauncher {
      * @param actionAddress location
      */
     public static void launchAddressIntent(Activity activity, String actionAddress) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("geo:0,0?q=" + actionAddress));
+        StringBuilder sb = new StringBuilder("geo:0,0?q=").append(actionAddress);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -76,8 +78,8 @@ public final class IntentLauncher {
     /**
      * Add a new group or edit a selected group and it's channels.
      *
-     * @param activity context
-     * @param group selected
+     * @param activity      context
+     * @param group         selected
      * @param groupEditType add edit or public group
      */
     public static void launchEditGroupChannelsActivity(
@@ -109,8 +111,9 @@ public final class IntentLauncher {
      * @param userId   ello user id
      */
     public static void launchElloIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:ello.co/" + userId));
+        StringBuilder sb = new StringBuilder("https:ello.co/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -126,6 +129,7 @@ public final class IntentLauncher {
     public static void launchEmailIntent(Activity activity, String address) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{ address });
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
@@ -140,9 +144,9 @@ public final class IntentLauncher {
      * @param userId   user profile ID
      */
     public static void launchFacebookIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        String mobileURI = "https://www.facebook.com/app_scoped_user_id/"+userId;
-        intent.setData(Uri.parse("https:www.facebook.com/" + userId));
+        StringBuilder sb = new StringBuilder("https:www.facebook.com/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -157,6 +161,7 @@ public final class IntentLauncher {
     public static void launchFacebookHelpIntent(Activity activity) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("http:www.facebook.com/help/211813265517027"));
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -170,8 +175,9 @@ public final class IntentLauncher {
      * @param userId   fb messenger user id
      */
     public static void launchFBMessengerIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("fb://messaging/" + userId));
+        StringBuilder sb = new StringBuilder("fb://messaging/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -185,8 +191,9 @@ public final class IntentLauncher {
      * @param userId   github user id
      */
     public static void launchGithubIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:github.com/" + userId));
+        StringBuilder sb = new StringBuilder("https:github.com/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -200,8 +207,10 @@ public final class IntentLauncher {
      * @param userId   plus user id
      */
     public static void launchGooglePlusIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://plus.google.com/" + userId + "/posts"));
+        StringBuilder sb = new StringBuilder("https://plus.google.com/")
+            .append(userId).append("/posts");
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -215,9 +224,11 @@ public final class IntentLauncher {
      * @param actionAddress to contactId
      */
     public static void launchHangoutsIntent(Activity activity, String actionAddress) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        StringBuilder sb = new StringBuilder("content://com.android.contacts/data/")
+            .append(actionAddress);
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(sb.toString()));
         intent.setPackage("com.google.android.talk");
-        intent.setData(Uri.parse("content://com.android.contacts/data/" + actionAddress));
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -261,11 +272,32 @@ public final class IntentLauncher {
      * @param userId   instagram user id
      */
     public static void launchInstagramIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:instagram.com/_u/" + userId));
+        StringBuilder sb =
+            new StringBuilder("https:instagram.com/_u/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
+        }
+    }
+
+    /**
+     * Launch a lol profile link.
+     *
+     * @param activity context
+     * @param address  address
+     */
+    public static void launchLeagueOfLegendsIntent(Activity activity, String address) {
+        StringBuilder sb =
+            new StringBuilder("http:boards.na.leagueoflegends.com/en/player/NA/").append(address);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -276,8 +308,10 @@ public final class IntentLauncher {
      * @param userId   linkedin user id
      */
     public static void launchLinkedInIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:linkedin.com/in/" + userId));
+        StringBuilder sb =
+            new StringBuilder("https:linkedin.com/in/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -318,8 +352,9 @@ public final class IntentLauncher {
      * @param userId   medium user id
      */
     public static void launchMediumIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:medium.com/@" + userId));
+        StringBuilder sb = new StringBuilder("https:medium.com/@").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -333,11 +368,31 @@ public final class IntentLauncher {
      * @param userId   user profile ID
      */
     public static void launchMeerkatIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://meerkatapp.co/" + userId));
+        StringBuilder sb = new StringBuilder("https://meerkatapp.co/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
+        }
+    }
+
+    /**
+     * Launch a nintendo network profile link.
+     *
+     * @param activity context
+     * @param address  address
+     */
+    public static void launchNintendoNetworkIntent(Activity activity, String address) {
+        StringBuilder sb =
+            new StringBuilder("http:miiverse.nintendo.net/users/").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -357,14 +412,35 @@ public final class IntentLauncher {
     }
 
     /**
+     * Launch a playstation network profile link.
+     *
+     * @param activity context
+     * @param address  address
+     */
+    public static void launchPlaystationNetworkIntent(Activity activity, String address) {
+        StringBuilder sb =
+            new StringBuilder("http:psnprofiles.com/").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
      * View Reddit profile or subreddit
      *
      * @param activity      context
      * @param actionAddress endpoint
      */
     public static void launchRedditIntent(Activity activity, String actionAddress) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://reddit.com" + actionAddress));
+        StringBuilder sb =
+            new StringBuilder("https://reddit.com").append(actionAddress);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -441,8 +517,9 @@ public final class IntentLauncher {
      * @param actionAddress location
      */
     public static void launchSnapChatIntent(Activity activity, String actionAddress) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("http:snapchat.com/add/" + actionAddress));
+        StringBuilder sb = new StringBuilder("http:snapchat.com/add/").append(actionAddress);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -456,8 +533,9 @@ public final class IntentLauncher {
      * @param userId   soundcloud user id
      */
     public static void launchSoundCloudIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:m.soundcloud.com/" + userId));
+        StringBuilder sb = new StringBuilder("http:snapchat.com/add/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -471,11 +549,29 @@ public final class IntentLauncher {
      * @param actionAddress user endpoint
      */
     public static void launchSpotifyIntent(Activity activity, String actionAddress) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("spotify:user:" + actionAddress));
+        StringBuilder sb = new StringBuilder("spotify:user:").append(actionAddress);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
+        }
+    }
+
+    /**
+     * Launch a steam profile link.
+     *
+     * @param activity context
+     * @param address  http address
+     */
+    public static void launchSteamIntent(Activity activity, String address) {
+        StringBuilder sb = new StringBuilder("http:steamcommunity.com/id/").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -503,14 +599,34 @@ public final class IntentLauncher {
     }
 
     /**
+     * Launch a twitch profile link.
+     *
+     * @param activity context
+     * @param address  http address
+     */
+    public static void launchTwitchIntent(Activity activity, String address) {
+        StringBuilder sb =
+            new StringBuilder("http:www.twitch.tv/").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
      * View Twitter profile
      *
      * @param activity context
      * @param userId   user profile ID
      */
     public static void launchTwitterIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("twitter://user?screen_name=" + userId));
+        StringBuilder sb = new StringBuilder("twitter://user?screen_name=").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) == null) {
             intent.setData(Uri.parse("https://mobile.twitter.com/" + userId));
@@ -567,8 +683,9 @@ public final class IntentLauncher {
      * @param userId   venmo user id
      */
     public static void launchVenmoIntent(Activity activity, String userId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https:venmo.com/" + userId));
+        StringBuilder sb = new StringBuilder("https:venmo.com/").append(userId);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -597,7 +714,27 @@ public final class IntentLauncher {
      * @param address  http address
      */
     public static void launchWebIntent(Activity activity, String address) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http:" + address));
+        StringBuilder sb = new StringBuilder("http:").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivity(intent);
+        } else {
+            Toast.makeText(activity, "Invalid link", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Launch a xbox live profile link.
+     *
+     * @param activity context
+     * @param address  http address
+     */
+    public static void launchXboxLiveIntent(Activity activity, String address) {
+        StringBuilder sb =
+            new StringBuilder("http:live.xbox.com/en-US/Profile?Gamertag=").append(address);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -615,6 +752,7 @@ public final class IntentLauncher {
     public static void launchYoIntent(Activity activity, String username) {
         Intent intent = new Intent();
         intent.setData(Uri.parse("yo:add:" + username));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);
@@ -630,6 +768,7 @@ public final class IntentLauncher {
     public static void launchYoutubeIntent(Activity activity, String userId) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("http://www.youtube.com/user/" + userId));
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
             activity.startActivity(intent);

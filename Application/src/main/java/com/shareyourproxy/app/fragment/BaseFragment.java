@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,7 +17,10 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.app.BaseActivity;
 
+import java.util.List;
+
 import butterknife.ButterKnife;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
@@ -75,7 +80,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public User getSharedPrefJsonUser() {
-       return ((BaseActivity) getActivity()).getSharedPrefJsonUser();
+        return ((BaseActivity) getActivity()).getSharedPrefJsonUser();
     }
 
     /**
@@ -102,12 +107,54 @@ public abstract class BaseFragment extends Fragment {
      * Display a snack bar notifying the user that they've updated their information.
      */
     public void showChangesSavedSnackBar(View coordinatorLayout) {
-        Snackbar.make(coordinatorLayout, getString(R.string.changes_saved), Snackbar.LENGTH_LONG).show();
+        Snackbar.make(coordinatorLayout, getString(R.string.changes_saved), Snackbar.LENGTH_LONG)
+            .show();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+    }
+
+    CompositeSubscription checkCompositeButton(CompositeSubscription sub) {
+        if (sub == null) {
+            return new CompositeSubscription();
+        } else {
+            return sub;
+        }
+    }
+
+    /**
+     * The {@link FragmentPagerAdapter} used to display base fragments.
+     */
+    static class BasePagerAdapter extends FragmentPagerAdapter {
+        private List<? extends BaseFragment> _fragmentArray;
+
+        /**
+         * Constructor.
+         *
+         * @param fragmentManager Manager of fragments.
+         */
+        private BasePagerAdapter(
+            List<? extends BaseFragment> fragmentArray, FragmentManager fragmentManager) {
+            super(fragmentManager);
+            _fragmentArray = fragmentArray;
+        }
+
+        public static BasePagerAdapter newInstance(
+            List<? extends BaseFragment> fragmentArray, FragmentManager fragmentManager) {
+            return new BasePagerAdapter(fragmentArray, fragmentManager);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return _fragmentArray.get(i);
+        }
+
+        @Override
+        public int getCount() {
+            return _fragmentArray.size();
+        }
     }
 }

@@ -81,23 +81,6 @@ public class RxMessageSync {
             .single();
     }
 
-    public static Bitmap getProxyIcon(Context context) {
-        return BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_proxy);
-    }
-
-    public static PendingIntent getPendingUserProfileIntent(
-        Context context, String loggedInUserId, Message message) {
-        // Creates an explicit intent for an Activity in your app
-//        User contact = queryUser(context, message.contactId());
-        User contact = getRealmUser(context, message.contactId());
-        Intent resultIntent =
-            getUserProfileIntent(contact, loggedInUserId);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(UserProfileActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
-        return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
     public static List<EventCallback> saveFirebaseMessage(
         Context context, RxBusDriver rxBus,String userId, Message message) {
         HashMap<String, Message> messages = new HashMap<>();
@@ -110,15 +93,6 @@ public class RxMessageSync {
             .toBlocking().single();
     }
 
-    private static Func1<HashMap<String, Message>, EventCallback> getUserMessageCallback() {
-        return new Func1<HashMap<String, Message>, EventCallback>() {
-            @Override
-            public EventCallback call(HashMap<String, Message> message) {
-                return new UserMessageAddedEventCallback(message);
-            }
-        };
-    }
-
     public static Observable<Message> deleteAllFirebaseMessages(
         Context context, RxBusDriver rxBus, User user) {
         String contactId = user.id();
@@ -127,5 +101,28 @@ public class RxMessageSync {
             .compose(RxHelper.<Message>applySchedulers());
     }
 
+    private static Bitmap getProxyIcon(Context context) {
+        return BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_proxy);
+    }
 
+    private static PendingIntent getPendingUserProfileIntent(
+        Context context, String loggedInUserId, Message message) {
+        // Creates an explicit intent for an Activity in your app
+        User contact = getRealmUser(context, message.contactId());
+        Intent resultIntent =
+            getUserProfileIntent(contact, loggedInUserId);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(UserProfileActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private static Func1<HashMap<String, Message>, EventCallback> getUserMessageCallback() {
+        return new Func1<HashMap<String, Message>, EventCallback>() {
+            @Override
+            public EventCallback call(HashMap<String, Message> message) {
+                return new UserMessageAddedEventCallback(message);
+            }
+        };
+    }
 }

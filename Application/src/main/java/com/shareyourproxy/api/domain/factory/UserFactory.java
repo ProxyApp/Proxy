@@ -13,7 +13,7 @@ import io.realm.RealmResults;
 
 import static com.shareyourproxy.BuildConfig.VERSION_CODE;
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.getModelChannels;
-import static com.shareyourproxy.api.domain.factory.ContactFactory.getContactIds;
+import static com.shareyourproxy.api.domain.factory.ContactFactory.getContactIdSet;
 import static com.shareyourproxy.api.domain.factory.GroupFactory.getModelGroups;
 
 
@@ -27,7 +27,6 @@ public class UserFactory {
      */
     private UserFactory() {
     }
-
 
     /**
      * Take in a realm user and create a model user.
@@ -43,7 +42,7 @@ public class UserFactory {
             realmUser.getLast(), realmUser.getEmail(), realmUser.getProfileURL(),
             realmUser.getCoverURL(), getModelChannels(realmUser.getChannels()),
             getModelGroups(realmUser.getGroups()),
-            getContactIds(realmUser.getContacts()), VERSION_CODE);
+            getContactIdSet(realmUser.getContacts()), VERSION_CODE);
     }
 
     /**
@@ -58,10 +57,10 @@ public class UserFactory {
     }
 
     /**
-     * Create a HashMap of Users from all
+     * Create a HashMap of Users from the input realm results.
      *
-     * @param realmUsers
-     * @return
+     * @param realmUsers RealmUsers
+     * @return User Map
      */
     public static HashMap<String, User> createModelUsers(RealmResults<RealmUser> realmUsers) {
         HashMap<String, User> users = new HashMap<>();
@@ -71,19 +70,8 @@ public class UserFactory {
         return users;
     }
 
-    public static User addUserContact(User user, String contactId) {
-        HashSet<String> contactList = user.contacts();
-        if (contactList == null) {
-            contactList = new HashSet<>();
-        }
-        contactList.add(contactId);
-        return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactList,
-            VERSION_CODE);
-    }
-
     /**
-     * Create the same {@link User} with the updated email value.
+     * Create the same {@link User} with the updated channel value.
      *
      * @param user to copy
      * @return updated user
@@ -100,7 +88,56 @@ public class UserFactory {
     }
 
     /**
-     * Create the same {@link User} with the updated List<{@link Group}> values.
+     * Create the same {@link User} without the input channel value.
+     *
+     * @param user to copy
+     * @return updated user
+     */
+    public static User deleteUserChannel(User user, Channel channel) {
+        HashMap<String, Channel> channels = user.channels();
+        if (channels != null) {
+            channels.remove(channel.id());
+        }
+        return User.create(user.id(), user.first(), user.last(), user.email(),
+            user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts(),
+            VERSION_CODE);
+    }
+
+    /**
+     * Create the same {@link User} with the updated {@link Contact} id value.
+     *
+     * @param user to copy
+     * @return updated user
+     */
+    public static User addUserContact(User user, String contactId) {
+        HashSet<String> contactList = user.contacts();
+        if (contactList == null) {
+            contactList = new HashSet<>();
+        }
+        contactList.add(contactId);
+        return User.create(user.id(), user.first(), user.last(), user.email(),
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactList,
+            VERSION_CODE);
+    }
+
+    /**
+     * Create the same {@link User} without the input {@link Contact} id value.
+     *
+     * @param user to copy
+     * @return updated user
+     */
+    public static User deleteUserContact(User user, String contactId) {
+        HashSet<String> contactList = user.contacts();
+        if (contactList != null) {
+            contactList.remove(contactId);
+        }
+        return User.create(user.id(), user.first(), user.last(), user.email(),
+            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactList,
+            VERSION_CODE);
+    }
+
+    /**
+     * Create the same {@link User} with the updated {@link Group} value.
      *
      * @param user to copy
      * @return updated user
@@ -111,6 +148,12 @@ public class UserFactory {
         return addUserGroups(user, groups);
     }
 
+    /**
+     * Create the same {@link User} without the input {@link Group} value.
+     *
+     * @param user to copy
+     * @return updated user
+     */
     public static User deleteUserGroup(User user, Group group) {
         HashMap<String, Group> groups = user.groups();
         groups.remove(group.id());
@@ -131,35 +174,15 @@ public class UserFactory {
     }
 
     /**
-     * Create the same {@link User} with the updated List<{@link Group}> values.
+     * Create the same {@link User} with the updated public channels.
      *
-     * @param user   to copy
+     * @param user        to copy
      * @param newChannels to update
      * @return updated user
      */
-    public static User addUserPublicChannels(User user, HashMap<String,Channel> newChannels) {
+    public static User addUserPublicChannels(User user, HashMap<String, Channel> newChannels) {
         return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), newChannels,user.groups(), user.contacts(),
-            VERSION_CODE);
-    }
-
-    public static User deleteUserContact(User user, String contactId) {
-        HashSet<String> contactList = user.contacts();
-        if (contactList != null) {
-            contactList.remove(contactId);
-        }
-        return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), user.channels(), user.groups(), contactList,
-            VERSION_CODE);
-    }
-
-    public static User deleteUserChannel(User user, Channel channel) {
-        HashMap<String, Channel> channels = user.channels();
-        if (channels != null) {
-            channels.remove(channel.id());
-        }
-        return User.create(user.id(), user.first(), user.last(), user.email(),
-            user.profileURL(), user.coverURL(), channels, user.groups(), user.contacts(),
+            user.profileURL(), user.coverURL(), newChannels, user.groups(), user.contacts(),
             VERSION_CODE);
     }
 }

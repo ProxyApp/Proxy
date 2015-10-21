@@ -33,22 +33,6 @@ import static com.shareyourproxy.api.rx.RxHelper.filterNullObject;
  */
 public class RxQuery {
 
-    public static rx.Observable<HashMap<String, User>> queryFilteredUsers(
-        Context context, final String userId) {
-        return Observable.just(context).map(new Func1<Context, HashMap<String, User>>() {
-            @Override
-            public HashMap<String, User> call(Context context) {
-                Realm realm = Realm.getInstance(context);
-                realm.refresh();
-                RealmResults<RealmUser> realmUsers =
-                    realm.where(RealmUser.class).notEqualTo("id", userId).findAll();
-                HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
-                realm.close();
-                return users;
-            }
-        }).compose(RxHelper.<HashMap<String, User>>applySchedulers());
-    }
-
     public static HashMap<String, User> queryUserContacts(
         Context context, final HashSet<String> contactIds) {
         return Observable.just(context).map(new Func1<Context, HashMap<String, User>>() {

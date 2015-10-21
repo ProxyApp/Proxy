@@ -14,7 +14,6 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.Bind;
 
@@ -58,9 +57,8 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return an {@link GroupAdapter} with no data
      */
     public static GroupAdapter newInstance(
-        BaseRecyclerView recyclerView,
-        HashMap<String, Group> groups, ItemClickListener listner) {
-        return new GroupAdapter(recyclerView, groups, listner);
+        BaseRecyclerView recyclerView, HashMap<String, Group> groups, ItemClickListener listener) {
+        return new GroupAdapter(recyclerView, groups, listener);
     }
 
     public Callback<Group> getSortedCallback() {
@@ -179,9 +177,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         _groups.clear();
         _groups.beginBatchedUpdates();
         if (groups != null) {
-            for (Map.Entry<String, Group> group : groups.entrySet()) {
-                _groups.add(group.getValue());
-            }
+                _groups.addAll(groups.values());
         }
         // There's a public group no matter what
         _groups.add(createPublicGroup());
@@ -193,7 +189,7 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      */
     public static class GroupViewHolder extends BaseViewHolder {
         @Bind(R.id.adapter_group_name)
-        protected TextView groupName;
+        TextView groupName;
 
         /**
          * Constructor for the holder.

@@ -6,15 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/fragment_user_profile_appbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/fragment_userprofile_header_background_size"
-        android:fitsSystemWindows="true"
-        app:layout_scrollFlags="scroll">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/fragment_user_profile_collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/fragment_userprofile_header_background_size"
             android:fitsSystemWindows="true"
             app:expandedTitleMarginBottom="@dimen/common_rect_huge"
             app:expandedTitleMarginStart="@dimen/common_rect_small"
@@ -64,46 +64,28 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/fragment_user_profile_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
                 android:theme="@style/Theme.Proxy.Base"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.CollapsingToolbarLayout>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/fragment_user_profile_sliding_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/Widget.Proxy.SlidingTabView.Tab"
+            app:layout_anchor="@+id/fragment_user_profile_toolbar"
+            app:layout_anchorGravity="bottom"
+            app:tabGravity="fill"/>
     </android.support.design.widget.AppBarLayout>
 
-    <com.shareyourproxy.app.adapter.BaseRecyclerView
-        android:id="@+id/fragment_user_profile_recyclerview"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/fragment_user_profile_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-    <TextView
-        android:id="@+id/fragment_user_profile_empty_textview"
-        style="@style/TextAppearance.AppCompat.Title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_userprofile_header_background_size"
-        android:gravity="center"
-        android:paddingEnd="@dimen/common_margin_huge"
-        android:paddingStart="@dimen/common_margin_huge"
-        android:paddingTop="@dimen/common_margin_tiny"
-        android:textColor="@color/common_text_disabled"
-        android:visibility="gone"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fragment_user_profile_fab"
-        android:layout_width="@dimen/common_fab_radius"
-        android:layout_height="@dimen/common_fab_radius"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/common_margin_tiny"
-        android:layout_marginEnd="@dimen/common_margin_tiny"
-        android:scaleType="center"
-        app:backgroundTint="@color/common_proxy_zoidberg"
-        app:borderWidth="0dp"
-        app:fabSize="normal"
-        app:layout_anchorGravity="bottom|right|end"
-        app:rippleColor="@color/common_red_light"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    </android.support.v4.view.ViewPager>
 
 </android.support.design.widget.CoordinatorLayout>
