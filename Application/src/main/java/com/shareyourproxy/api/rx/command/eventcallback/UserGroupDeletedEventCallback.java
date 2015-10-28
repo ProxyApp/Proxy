@@ -8,6 +8,21 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 
 public class UserGroupDeletedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        UserGroupDeletedEventCallback.class.getClassLoader();
+    public static final Creator<UserGroupDeletedEventCallback> CREATOR =
+        new Creator<UserGroupDeletedEventCallback>() {
+            @Override
+            public UserGroupDeletedEventCallback createFromParcel(Parcel in) {
+                return new UserGroupDeletedEventCallback(
+                    (User) in.readValue(CL),(Group) in.readValue(CL));
+            }
+
+            @Override
+            public UserGroupDeletedEventCallback[] newArray(int size) {
+                return new UserGroupDeletedEventCallback[size];
+            }
+        };
     public final Group group;
 
     /**

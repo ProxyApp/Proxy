@@ -27,7 +27,8 @@ public abstract class ActivityFeedItem implements Parcelable {
      */
     @SuppressWarnings("unused")
     public static ActivityFeedItem create(
-        String handle, String subtext, ChannelType channelType, String actionAddress, Date timestamp) {
+        String handle, String subtext, ChannelType channelType, String actionAddress, Date
+        timestamp) {
         return builder().handle(handle).subtext(subtext).channelType(channelType)
             .actionAddress(actionAddress).timestamp(timestamp).isError(false).build();
     }

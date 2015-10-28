@@ -2,10 +2,9 @@ package com.shareyourproxy.api.rx.command;
 
 import android.app.Service;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.GroupToggle;
-import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
@@ -33,21 +32,20 @@ public class GenerateShareLinkCommand extends BaseCommand {
         GenerateShareLinkCommand.class.getClassLoader();
 
     public final ArrayList<GroupToggle> groups;
+    public final User user;
 
-    public GenerateShareLinkCommand(
-        @NonNull RxBusDriver rxBus, ArrayList<GroupToggle> groups) {
-        super(GenerateShareLinkCommand.class.getPackage().getName(),
-            GenerateShareLinkCommand.class.getName(), rxBus);
+    public GenerateShareLinkCommand(User loggedInUser, ArrayList<GroupToggle> groups) {
         this.groups = groups;
+        this.user = loggedInUser;
     }
 
     private GenerateShareLinkCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (ArrayList<GroupToggle>) in.readValue(CL));
+        this((User) in.readValue(CL), (ArrayList<GroupToggle>) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return getShareLinkMessageObservable(service, rxBus, groups);
+        return getShareLinkMessageObservable(service, user, groups);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class GenerateShareLinkCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
+        dest.writeValue(user);
         dest.writeValue(groups);
     }
 

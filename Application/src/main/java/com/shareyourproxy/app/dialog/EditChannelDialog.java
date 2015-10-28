@@ -40,6 +40,7 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 public class EditChannelDialog extends BaseDialogFragment {
     // Final
     private static final String ARG_CHANNEL = "EditChannelDialog.Channel";
+    private static final String ARG_POSITION = "EditChannelDialog.Position";
     private static final String TAG = ObjectUtils.getSimpleName(AddChannelDialog.class);
     // View
     @Bind(R.id.dialog_channel_action_address_edittext)
@@ -94,13 +95,14 @@ public class EditChannelDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 getRxBus().post(
-                    new DeleteUserChannelCommand(getRxBus(), getLoggedInUser(), _channel));
+                    new DeleteUserChannelCommand(getLoggedInUser(), _channel, _position));
                 dialogInterface.dismiss();
             }
         };
     private String _dialogTitle;
     private String _channelAddressHint;
     private String _channelLabelHint;
+    private int _position;
 
     /**
      * Constructor.
@@ -114,10 +116,11 @@ public class EditChannelDialog extends BaseDialogFragment {
      * @return A {@link EditChannelDialog}
      */
     public static EditChannelDialog newInstance(
-        Channel channel) {
+        Channel channel, int position) {
         //Bundle arguments
         Bundle bundle = new Bundle();
         bundle.putParcelable(ARG_CHANNEL, channel);
+        bundle.putInt(ARG_POSITION, position);
         //copy dialog instance
         EditChannelDialog dialog = new EditChannelDialog();
         dialog.setArguments(bundle);
@@ -135,14 +138,11 @@ public class EditChannelDialog extends BaseDialogFragment {
             if (_channel.channelType().equals(ChannelType.Facebook)) {
                 channel = createModelInstance(_channel.id(), _channel.label(),
                     _channel.channelType(), actionContent);
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
-                    channel, _channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
             } else {
-                channel =
-                    createModelInstance(_channel.id(), labelContent, _channel.channelType(),
+                channel = createModelInstance(_channel.id(), labelContent, _channel.channelType(),
                         actionContent);
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
-                    channel, _channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
             }
         }
     }
@@ -151,6 +151,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         _channel = getArguments().getParcelable(ARG_CHANNEL);
+        _position = getArguments().getInt(ARG_POSITION);
     }
 
     @NonNull
@@ -164,7 +165,7 @@ public class EditChannelDialog extends BaseDialogFragment {
         initializeDisplayValues();
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(_dialogTitle)
             .setView(view)
             .setPositiveButton(R.string.save, null)
@@ -174,10 +175,10 @@ public class EditChannelDialog extends BaseDialogFragment {
         //Override the dialog wrapping content and cancel dismiss on click outside
         // of the dialog window
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
-        dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.setCanceledOnTouchOutside(false);
         initializeEditText();
         return dialog;
     }
@@ -266,7 +267,6 @@ public class EditChannelDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

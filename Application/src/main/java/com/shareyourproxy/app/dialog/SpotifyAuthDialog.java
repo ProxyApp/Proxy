@@ -88,7 +88,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                         String auth = SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET;
                         String header = new String(Base64.encode(auth.getBytes(), Base64.DEFAULT));
 
-                        RestClient.getSpotifyAuthService(getActivity(), getRxBus())
+                        RestClient.getSpotifyAuthService(getActivity())
                             .getAuth(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET,
                                 "authorization_code", accessToken, WEBVIEW_REDIRECT)
                             .subscribe(authObserver());
@@ -113,7 +113,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
         // of the dialog window
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.getWindow().getAttributes().height = WindowManager.LayoutParams.MATCH_PARENT;
-        dialog.setCanceledOnTouchOutside(false);
+
         return dialog;
     }
 
@@ -123,7 +123,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
             @Override
             public void next(SpotifyAuthResponse event) {
                 Timber.i(event.toString());
-                RestClient.getSpotifyUserService(getActivity(), getRxBus()).getUser(event
+                RestClient.getSpotifyUserService(getActivity()).getUser(event
                     .access_token())
                     .subscribe(getUserObserver());
             }
@@ -143,7 +143,7 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                 Channel channel = ChannelFactory.createModelInstance(event.id(), ChannelType
                         .Spotify.toString(),
                     ChannelType.Spotify, event.id());
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
                 getDialog().dismiss();
             }
 

@@ -44,8 +44,8 @@ public class ThirdIntroductionFragment extends BaseIntroductionFragment {
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_introduction_third, container, false);
         ButterKnife.bind(this, rootView);
-        drawSlide(getActivity(),imageView,textView,R.raw.ic_guide_activity_slide3,logoSize,
-            introTitle,introBody);
+        drawSlide(getActivity(), imageView, textView, R.raw.ic_guide_activity_slide3, logoSize,
+            introTitle, introBody);
         return rootView;
     }
 

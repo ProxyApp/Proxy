@@ -39,21 +39,18 @@ public class AddUserGroupCommand extends BaseCommand {
      * @param user  logged in user
      * @param group this events group
      */
-    public AddUserGroupCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull Group group) {
-        super(AddUserGroupCommand.class.getPackage().getName(),
-            AddUserGroupCommand.class.getName(), rxBus);
+    public AddUserGroupCommand(@NonNull User user, @NonNull Group group) {
         this.user = user;
         this.group = group;
     }
 
     private AddUserGroupCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL), (Group) in.readValue(CL));
+        this((User) in.readValue(CL), (Group) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return addUserGroup(service, rxBus, user, group);
+        return addUserGroup(service, user, group);
     }
 
     @Override
@@ -63,7 +60,6 @@ public class AddUserGroupCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(group);
     }

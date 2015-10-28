@@ -12,30 +12,33 @@ import com.shareyourproxy.api.domain.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
+import static com.shareyourproxy.util.ObjectUtils.capitalize;
 
 /**
- * Created by Evan on 10/5/15.
+ * Display a list of groups to broadcast in a shared link intent.
  */
-public class ShareLinkAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
-    private ArrayList<GroupToggle> _groups;
+public class ShareLinkAdapter extends SortedRecyclerAdapter<GroupToggle> implements ItemClickListener {
 
-    private ShareLinkAdapter(ArrayList<GroupToggle> groups) {
-        _groups = groups;
+    private final BaseRecyclerView _recyclerView;
+    private CheckedTextView _lastCheckedView;
+
+    private ShareLinkAdapter(BaseRecyclerView recyclerView, ArrayList<GroupToggle> groups) {
+        super(GroupToggle.class, recyclerView);
+        _recyclerView = recyclerView;
+        refreshData(groups);
     }
 
-    public static ShareLinkAdapter newInstance(HashMap<String, Group> groups) {
+    public static ShareLinkAdapter newInstance(
+        BaseRecyclerView recyclerView, HashMap<String, Group> groups) {
         ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
-        for (Map.Entry<String, Group> group : groups.entrySet()) {
-            GroupToggle newEntry = new GroupToggle(group.getValue(), false);
-            groupToggles.add(newEntry);
+        for (Group group : groups.values()) {
+            groupToggles.add(GroupToggle.create(group, false));
         }
-        return new ShareLinkAdapter(groupToggles);
+        return new ShareLinkAdapter(recyclerView, groupToggles);
     }
 
     @Override
@@ -51,37 +54,61 @@ public class ShareLinkAdapter extends BaseRecyclerViewAdapter implements ItemCli
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(getDataItem(position).getGroup().label());
-        holder.checkedTextView.setChecked(getDataItem(position).isChecked());
-    }
-
-    @Override
-    public int getItemCount() {
-        return _groups.size();
+        holder.checkedTextView.setText(capitalize(getItemData(position).getGroup().label()));
+        holder.checkedTextView.setChecked(getItemData(position).isChecked());
     }
 
     @Override
     public void onItemClick(View view, int position) {
+        //set data
         clearGroupState();
-        CheckedTextView text = ButterKnife.findById(view, R.id.adapter_share_link_textview);
-        text.setChecked(!text.isChecked());
-        GroupToggle group = getDataItem(position);
-        group.setChecked(text.isChecked());
-        notifyDataSetChanged();
+        getItemData(position).setChecked(true);
+
+        //set view
+        updateViewState(view);
+    }
+
+    public void updateViewState(View view) {
+        //turn off the last checked view and cache
+        if (_lastCheckedView != null && !_lastCheckedView.equals(view)) {
+            _lastCheckedView.setChecked(false);
+        }
+        //set the selected view checked
+        CheckedTextView checkedTextView = ((ContentViewHolder)
+            _recyclerView.getChildViewHolder(view))
+            .checkedTextView;
+        checkedTextView.setChecked(true);
+
+        _lastCheckedView = checkedTextView;
     }
 
     private void clearGroupState() {
-        for (GroupToggle group : _groups) {
-            group.setChecked(false);
+        for (int i = 0; i < getItemCount(); i++) {
+            getSortedList().get(i).setChecked(false);
         }
     }
 
-    private GroupToggle getDataItem(int position) {
-        return _groups.get(position);
+    @Override
+    protected int compare(GroupToggle item1, GroupToggle item2) {
+        Group group1 = item1.getGroup();
+        Group group2 = item2.getGroup();
+        return group1.label().compareToIgnoreCase(group2.label());
     }
 
-    public ArrayList<GroupToggle> getDataArray() {
-        return _groups;
+    @Override
+    protected boolean areContentsTheSame(GroupToggle item1, GroupToggle item2) {
+        Group group1 = item1.getGroup();
+        Group group2 = item2.getGroup();
+        return (group1.id().equals(group2.id())
+            && group1.label().equals(group2.label()));
+    }
+
+    @Override
+    protected boolean areItemsTheSame(GroupToggle item1, GroupToggle item2) {
+        //Sections will have the same ID but different categories
+        Group group1 = item1.getGroup();
+        Group group2 = item2.getGroup();
+        return group1.id().equals(group2.id());
     }
 
     static class ContentViewHolder extends BaseViewHolder {

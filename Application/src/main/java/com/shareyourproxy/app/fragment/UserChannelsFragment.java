@@ -6,9 +6,14 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
@@ -17,6 +22,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
@@ -32,14 +38,17 @@ import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static android.text.Html.fromHtml;
+import static android.view.View.GONE;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE;
 
 /**
  * Created by Evan on 10/10/15.
@@ -47,13 +56,21 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 public class UserChannelsFragment extends BaseFragment implements ItemLongClickListener {
     @Bind(R.id.fragment_user_channel_recyclerview)
     BaseRecyclerView recyclerView;
+    @Bind(R.id.fragment_user_channel_empty_view_container)
+    LinearLayout emptyViewContainer;
+    @Bind(R.id.fragment_user_channel_empty_button)
+    Button addChannelButton;
     @Bind(R.id.fragment_user_channel_empty_textview)
     TextView emptyTextView;
     @Bind(R.id.fragment_user_channel_coordinator)
     CoordinatorLayout coordinatorLayout;
-    @BindString(R.string.fragment_userchannels_empty_text)
-    String stringNullMessage;
-    @BindDimen(R.dimen.common_svg_null_screen)
+    @BindString(R.string.fragment_userchannels_empty_title)
+    String loggedInNullTitle;
+    @BindString(R.string.fragment_userchannels_empty_message)
+    String loggedInNullMessage;
+    @BindString(R.string.fragment_userprofile_contact_empty_title)
+    String contactNullTitle;
+    @BindDimen(R.dimen.common_svg_null_screen_mini)
     int marginNullScreen;
     @BindColor(R.color.common_blue)
     int colorBlue;
@@ -73,15 +90,25 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
      *
      * @return user channels fragment.
      */
-    public static UserChannelsFragment newInstance() {
-        return new UserChannelsFragment();
+    public static UserChannelsFragment newInstance(User contact) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ARG_USER_SELECTED_PROFILE, contact);
+        UserChannelsFragment fragment = new UserChannelsFragment();
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.fragment_user_channel_empty_button)
+    public void onClickAddChannel() {
+        launchChannelListActivity(getActivity());
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        _userContact = getActivity().getIntent().getExtras().getParcelable
-            (ARG_USER_SELECTED_PROFILE);
+        _userContact = getArguments()
+            .getParcelable(ARG_USER_SELECTED_PROFILE);
         _isLoggedInUser = isLoggedInUser(_userContact);
     }
 
@@ -98,12 +125,11 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
      * Initialize this fragments views.
      */
     private void initialize() {
-        _subscriptions = checkCompositeButton(_subscriptions);
         if (_isLoggedInUser) {
             initializeRecyclerView(getLoggedInUser().channels());
         } else {
+            addChannelButton.setVisibility(GONE);
             initializeRecyclerView(null);
-            getSharedChannels();
         }
     }
 
@@ -111,27 +137,54 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView(HashMap<String, Channel> channels) {
+        _adapter = ViewChannelAdapter.newInstance(
+            recyclerView, getSharedPreferences(), isShowHeader(channels), this);
         initializeEmptyView();
+
+        recyclerView.setEmptyView(emptyViewContainer);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ViewChannelAdapter.newInstance(channels, this);
-        recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(_adapter);
+    }
+
+    private boolean isShowHeader(HashMap<String, Channel> channels) {
+        return _isLoggedInUser && channels.size() > 0 &&
+                !getSharedPreferences().getBoolean(SHARE_PROFILE.getKey(), false);
     }
 
     private void initializeEmptyView() {
+        Context context = getContext();
         if (_isLoggedInUser) {
-            emptyTextView.setText(fromHtml(stringNullMessage));
+            SpannableStringBuilder sb = new SpannableStringBuilder(loggedInNullTitle).append("\n")
+                .append(loggedInNullMessage);
+
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+                0, loggedInNullTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+                loggedInNullTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+            emptyTextView.setText(sb);
             emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
                 null, getNullDrawable(R.raw.ic_ghost_doge), null, null);
+
+
         } else {
-            emptyTextView.setText(
-                fromHtml(getString(R.string.fragment_userprofile_contact_empty_text,
-                    _userContact.first())));
+            String contactNullMessage = getString(
+                R.string.fragment_userprofile_contact_empty_message, _userContact.first());
+            SpannableStringBuilder sb = new SpannableStringBuilder(contactNullTitle).append("\n")
+                .append(contactNullMessage);
+
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+                0, contactNullTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+                contactNullTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+            emptyTextView.setText(sb);
+
             emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
                 null, getNullDrawable(R.raw.ic_ghost_sloth), null, null);
         }
-        recyclerView.setEmptyView(emptyTextView);
     }
 
     /**
@@ -144,8 +197,7 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     }
 
     public void getSharedChannels() {
-        _subscriptions.add(queryPermissionedChannels(
-            getActivity(), getLoggedInUser().id(), _userContact.id())
+        _subscriptions.add(queryPermissionedChannels(_userContact, getLoggedInUser().id())
             .subscribe(permissionedObserver()));
     }
 
@@ -169,6 +221,12 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
         _subscriptions = checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
+        if (_isLoggedInUser) {
+            _adapter.updateChannels(getLoggedInUser().channels());
+        } else {
+            getSharedChannels();
+        }
+        recyclerView.scrollToPosition(0);
     }
 
     private Action1<Object> onNextEvent() {
@@ -181,9 +239,15 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 } else if (event instanceof SyncAllUsersSuccessEvent) {
                     _adapter.notifyDataSetChanged();
+                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
+                    toggleRecyclerViewState((RecyclerViewDatasetChangedEvent) event);
                 }
             }
         };
+    }
+
+    public void toggleRecyclerViewState(RecyclerViewDatasetChangedEvent event) {
+        recyclerView.updateViewState(event);
     }
 
     @Override
@@ -195,16 +259,15 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
 
     private void addUserChannel(UserChannelAddedEventCallback event) {
         if (event.oldChannel != null) {
-            _adapter.updateChannel(event.oldChannel, event.newChannel);
+            _adapter.updateItem(event.oldChannel, event.newChannel);
         } else {
-            _adapter.addChannel(event.newChannel);
+            _adapter.addItem(event.newChannel);
         }
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
-        _adapter.removeChannel(event.channel);
+        _adapter.removeItem(event.position);
     }
-
 
     @Override
     public final void onItemClick(View view, int position) {
@@ -216,7 +279,7 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     public void onItemLongClick(View view, int position) {
         Channel channel = _adapter.getItemData(position);
         if (_isLoggedInUser) {
-            EditChannelDialog.newInstance(channel).show(getFragmentManager());
+            EditChannelDialog.newInstance(channel, position).show(getFragmentManager());
         }
     }
 }

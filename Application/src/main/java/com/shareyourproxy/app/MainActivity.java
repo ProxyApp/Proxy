@@ -1,7 +1,6 @@
 package com.shareyourproxy.app;
 
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.firebase.client.AuthData;
@@ -14,7 +13,9 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
+import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.fragment.DrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -22,7 +23,6 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.IntentLauncher.launchAboutActivity;
 import static com.shareyourproxy.IntentLauncher.launchEmailIntent;
 import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
 import static com.shareyourproxy.IntentLauncher.launchInviteFriendIntent;
@@ -36,6 +36,7 @@ import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 public class MainActivity extends GoogleApiActivity {
     private GoogleApiClient _googleApiClient;
     private CompositeSubscription _subscriptions;
+    private final RxGoogleAnalytics _analytics = RxGoogleAnalytics.getInstance(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,29 +59,48 @@ public class MainActivity extends GoogleApiActivity {
      * @param event data
      */
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
-        //TODO add type safety like woah.
-        //if the user presses logout
-        if (getString(R.string.profile).equals(event.message)) {
-            User user = getLoggedInUser();
-            launchUserProfileActivity(this, user, user.id());
-        } else if (getString(R.string.logout).equals(event.message)) {
-            // and the google api is connected
-            if (_googleApiClient.isConnected()) {
-                clearValuesAndLogout();
-            } else {
-                Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
-                    , Toast.LENGTH_SHORT).show();
-                _googleApiClient.connect();
-            }
-        } else if (getString(R.string.about).equals(event.message)) {
-            launchAboutActivity(this);
-        } else if (getString(R.string.report_problem).equals(event.message)) {
-            launchEmailIntent(this, getString(R.string.contact_proxy));
-        } else if (getString(R.string.invite_friend).equals(event.message)) {
-            launchInviteFriendIntent(this);
+        switch (event.drawerItem) {
+            case PROFILE:
+                User user = getLoggedInUser();
+                _analytics.userProfileViewed(user);
+                launchUserProfileActivity(this, user, user.id());
+                break;
+            case SHARE_PROFILE:
+                ShareLinkDialog.newInstance(getLoggedInUser().groups())
+                    .show(getSupportFragmentManager());
+                break;
+            case INVITE_FRIEND:
+                launchInviteFriendIntent(this);
+                break;
+            case TOUR:
+                launchIntroductionActivity(this);
+                break;
+            case REPORT_ISSUE:
+                launchEmailIntent(this, getString(R.string.contact_proxy));
+                break;
+            case LOGOUT:
+                logout();
+                break;
+            case HEADER:
+                //nada
+                break;
+            default:
+                Timber.e("Invalid drawer item");
+                break;
         }
-        else if(getString(R.string.tour).equals(event.message)){
-            launchIntroductionActivity(this);
+    }
+
+    /**
+     * Log out the logged in the user and go back to the LoginActivity.
+     */
+    public void logout() {
+        // and the google api is connected
+        if (_googleApiClient.isConnected()) {
+            clearValuesAndLogout();
+        } else {
+            Toast.makeText(MainActivity.this, "Not Connected To Google Service, Try Again"
+                , Toast.LENGTH_SHORT).show();
+            _googleApiClient.connect();
         }
     }
 
@@ -115,15 +135,6 @@ public class MainActivity extends GoogleApiActivity {
     protected void onPause() {
         super.onPause();
         _subscriptions.unsubscribe();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        try {
-            return super.dispatchTouchEvent(ev);
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     @Override

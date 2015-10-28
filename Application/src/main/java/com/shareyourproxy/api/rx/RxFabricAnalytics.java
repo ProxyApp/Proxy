@@ -16,12 +16,12 @@ import rx.functions.Action1;
 /**
  * Dump all the analytics for fabric's Answers platform here.
  */
-public class SaveFabricAnalytics {
+public class RxFabricAnalytics {
 
     /**
      * Private Constructor.
      */
-    private SaveFabricAnalytics() {
+    private RxFabricAnalytics() {
     }
 
     public static void logAnalytics(

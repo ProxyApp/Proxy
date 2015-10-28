@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 import com.shareyourproxy.app.AddChannelListActivity;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.app.GroupContactsActivity;
@@ -20,9 +21,13 @@ import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserProfileActivity;
 
+import static android.content.Intent.EXTRA_INITIAL_INTENTS;
+import static android.content.Intent.createChooser;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
+import static com.shareyourproxy.Intents.getClipboardIntent;
+import static com.shareyourproxy.Intents.getShareLinkIntent;
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 
 
@@ -248,8 +253,8 @@ public final class IntentLauncher {
             activity.getString(R.string.share_your_proxy));
         intent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.invite_friend_content));
         if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivity(Intent.createChooser(intent,
-                activity.getString(R.string.share_with)));
+            activity.startActivity(createChooser(intent,
+                activity.getString(R.string.invite_a_friend)));
         }
     }
 
@@ -478,6 +483,21 @@ public final class IntentLauncher {
             activity.startActivity(intent);
         }
 
+    }
+
+    /**
+     * Launch an Intent chooser dialog for a Proxy User to select a method of sharing a profile
+     * link. The link is an http address to a User's group channels.
+     *
+     * @param event message data, http link
+     */
+    public static void launchShareLinkIntent(Activity activity, ShareLinkEvent event) {
+        Intent[] copyAndPaste = new Intent[]{ getClipboardIntent(event.message) };
+        Intent chooser = createChooser(getShareLinkIntent(event.message),
+            activity.getString(R.string.dialog_sharelink_title))
+            .putExtra(EXTRA_INITIAL_INTENTS, copyAndPaste);
+
+        activity.startActivity(chooser);
     }
 
     /**

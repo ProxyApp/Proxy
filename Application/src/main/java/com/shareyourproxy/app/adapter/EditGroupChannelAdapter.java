@@ -1,13 +1,14 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.util.SortedList;
 import android.support.v7.util.SortedList.Callback;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,23 +24,26 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelToggle;
 import com.shareyourproxy.api.domain.model.ChannelType;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxGroupChannelSync;
+import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.util.ObjectUtils;
+import com.shareyourproxy.widget.DismissibleNotificationCard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.BindDimen;
+import butterknife.BindString;
 import timber.log.Timber;
 
-import static android.text.Html.fromHtml;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PUBLIC_GROUPS;
 
 public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int TYPE_LIST_ITEM = 1;
@@ -57,7 +61,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
         ItemClickListener listener, String groupLabel, HashMap<String, Channel> userChannels,
         HashSet<String> groupChannels, GroupEditType groupEditType) {
         _clickListener = listener;
-        _groupLabel = groupLabel;
+        _groupLabel = groupLabel == null ? "" : groupLabel;
         _groupEditType = groupEditType;
         _channels = new SortedList<>(
             ChannelToggle.class, getSortedCallback(), userChannels.size());
@@ -243,7 +247,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
         if (viewType == TYPE_LIST_HEADER) {
             if (_groupEditType.equals(GroupEditType.PUBLIC_GROUP)) {
                 view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.adapter_edit_group_channel_public_header, parent, false);
+                    .inflate(R.layout.adapter_dismissible_notification, parent, false);
                 return PublicHeaderViewHolder.newInstance(view, _clickListener);
             } else {
                 view = LayoutInflater.from(parent.getContext())
@@ -282,19 +286,34 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public void bindPublicHeaderViewData(PublicHeaderViewHolder holder) {
-        Context context = holder.view.getContext();
-        String nullMessage = context.getString(R.string.edit_public_channel_header);
-        holder.textView.setText(fromHtml(nullMessage));
-
-        Drawable draw = svgToBitmapDrawable(
-            context, R.raw.ic_chameleon, holder.chameleonSized);
-        holder.textView.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null);
+        holder.notificationCard.createNotificationCard(this, holder, PUBLIC_GROUPS, false, false);
     }
 
     private void bindHeaderViewData(HeaderViewHolder holder) {
+        Context context = holder.view.getContext();
         _groupLabelHeaderViewHolder = holder;
         holder.editText.setText(_groupLabel);
         holder.editText.addTextChangedListener(_textWatcher);
+        int end = holder.title.length();
+        SpannableStringBuilder sb = new SpannableStringBuilder(holder.title)
+            .append("\n").append(holder.button.toUpperCase(Locale.US));
+        TextAppearanceSpan titleSpan = new TextAppearanceSpan(context, R.style
+            .Proxy_TextAppearance_Body_Disabled);
+        TextAppearanceSpan buttonSpan = new TextAppearanceSpan(context, R.style
+            .Proxy_TextAppearance_Button_Blue);
+        sb.setSpan(titleSpan, 0, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(buttonSpan, end + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        holder.textViewContacts.setText(sb);
+        holder.textViewContacts.setOnClickListener(getContactsListener());
+    }
+
+    private View.OnClickListener getContactsListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RxBusDriver.getInstance().post(new ViewGroupContactsEvent());
+            }
+        };
     }
 
     public ChannelToggle getItemData(int position) {
@@ -395,10 +414,8 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public static final class PublicHeaderViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_edit_group_channel_public_header_textview)
-        TextView textView;
-        @BindDimen(R.dimen.common_svg_null_screen_small)
-        int chameleonSized;
+        @Bind(R.id.adapter_dismissible_notification_card)
+        DismissibleNotificationCard notificationCard;
 
         private PublicHeaderViewHolder(View view, ItemClickListener itemClickListener) {
             super(view, itemClickListener);
@@ -416,6 +433,12 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
         EditText editText;
         @Bind(R.id.adapter_group_edit_channel_header_floatlabel)
         TextInputLayout textInputLayout;
+        @Bind(R.id.adapter_group_edit_channel_header_contacts_button)
+        TextView textViewContacts;
+        @BindString(R.string.people_in_this_group)
+        String title;
+        @BindString(R.string.view_group_members)
+        String button;
 
         private HeaderViewHolder(View view, ItemClickListener itemClickListener) {
             super(view, itemClickListener);

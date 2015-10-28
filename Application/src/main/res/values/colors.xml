@@ -32,10 +32,6 @@
     <color name="common_leagueoflegends">#25008A</color>
     <color name="common_xbox">#107C10</color>
 
-
-    <!--material design guide lines-->
-    <!--http://www.google.com/design/spec/style/color.html#color-color-palette-->
-
     <!--PROXY COLORS-->
     <!--87 percent alpha for text-->
     <color name="common_proxy_zoidberg">#F5605A</color>
@@ -45,10 +41,14 @@
     <color name="common_proxy_light_primary">#424242</color>
     <color name="common_proxy_light_selected">#FFFFFF</color>
     <color name="common_proxy_light_disabled">#E0E0E0</color>
-    <color name="common_proxy_slide_one">#FFA724</color>
+    <color name="common_proxy_purple">#8E61D6</color>
+    <color name="common_proxy_orange">#FFA724</color>
+    <color name="common_proxy_slide_one">@color/common_proxy_orange</color>
     <color name="common_proxy_slide_two">#34AC71</color>
     <color name="common_proxy_slide_three">#4285f4</color>
 
+    <!--material design guide lines-->
+    <!--http://www.google.com/design/spec/style/color.html#color-color-palette-->
     <!--87 percent alpha for text-->
     <color name="common_text">#DE000000</color>
     <!--87 percent alpha for text inverse-->
@@ -130,13 +130,13 @@
     <color name="accent_deep_purple_primary_dark">#6200EA</color>
 
     <!--Common primary color deep purple (100,500,700)-->
-    <color name="common_pink_light">#F8BBD0</color>
-    <color name="common_pink">#673AB7</color>
-    <color name="common_pink_dark">#512DA8</color>
+    <color name="common_purple_light">#E1BEE7</color>
+    <color name="common_purple">#9C27B0</color>
+    <color name="common_purple_dark">#7B1FA2</color>
     <!--Accent deep purple (A100,A2200,A400,A700)-->
-    <color name="accent_pink_disabled">#B388FF</color>
-    <color name="accent_pink_background">#7C4DFF</color>
-    <color name="accent_pink_primary">#651FFF</color>
-    <color name="accent_pink_primary_dark">#6200EA</color>
+    <color name="accent_purple_disabled">#EA80FC</color>
+    <color name="accent_purple_background">#E040FB</color>
+    <color name="accent_purple_primary">#D500F9</color>
+    <color name="accent_purple_primary_dark">#AA00FF</color>
 
 </resources>

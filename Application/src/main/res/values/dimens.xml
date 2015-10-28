@@ -19,7 +19,6 @@
     <dimen name="common_rect_large">84dp</dimen>
     <dimen name="common_rect_huge">96dp</dimen>
     <dimen name="common_rect_xhuge">120dp</dimen>
-    <dimen name="common_fab_radius">@dimen/common_rect_small</dimen>
     <dimen name="common_circleimageview_item_radius">@dimen/common_rect_small</dimen>
     <dimen name="common_fab_elevation">@dimen/common_margin_xxtiny</dimen>
     <dimen name="common_drawer_elevation">@dimen/common_margin_xxtiny</dimen>
@@ -32,9 +31,12 @@
     <dimen name="common_svg_xxlarge">1080dp</dimen>
     <dimen name="common_svg_ultra_minor">720dp</dimen>
     <dimen name="common_svg_ultra">1080dp</dimen>
+    <dimen name="common_svg_null_screen_mini">400dp</dimen>
     <dimen name="common_svg_null_screen_small">500dp</dimen>
     <dimen name="common_svg_null_screen">600dp</dimen>
-    <dimen name="fragment_userprofile_header_background_size">260dp</dimen>
+    <dimen name="fragment_userprofile_header_user_background_size">208dp</dimen>
+    <dimen name="fragment_userprofile_header_contact_background_size">260dp</dimen>
+    <dimen name="fragment_userprofile_header_title_top_margin">138dp</dimen>
     <dimen name="fragment_userprofile_header_followers_top_margin">168dp</dimen>
     <dimen name="fragment_userprofile_header_button_top_margin">194dp</dimen>
 </resources>

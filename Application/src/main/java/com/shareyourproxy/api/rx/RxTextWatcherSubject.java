@@ -27,8 +27,8 @@ public class RxTextWatcherSubject {
         return DEFAULT_INSTANCE;
     }
 
-    public static Observable<String> toObserverable() {
-        return _rxBus.debounce(200, TimeUnit.MILLISECONDS, Schedulers.io())
+    public Observable<String> toObserverable() {
+        return _rxBus.debounce(400, TimeUnit.MILLISECONDS, Schedulers.io()).onBackpressureLatest()
             .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -37,7 +37,7 @@ public class RxTextWatcherSubject {
      *
      * @param searchText String.
      */
-    public static void post(String searchText) {
+    public void post(String searchText) {
         _rxBus.onNext(searchText);
     }
 }

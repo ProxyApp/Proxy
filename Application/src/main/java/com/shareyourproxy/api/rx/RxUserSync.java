@@ -15,7 +15,7 @@ import java.util.List;
 
 import rx.functions.Func1;
 
-import static com.shareyourproxy.api.RestClient.getUserService;
+import static com.shareyourproxy.api.RestClient.getHerokuUserervice;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
@@ -30,44 +30,48 @@ public class RxUserSync {
     }
 
     /**
-     * Download All Users from firebase and sync them to realm. Used for swipe refresh in the {@link
-     * com.shareyourproxy.app.fragment.MainContactsFragment} and {@link
+     * Download All User contacts from firebase and sync them to realm. Used for swipe refresh in
+     * the {@link com.shareyourproxy.app.fragment.MainContactsFragment} and {@link
      * com.shareyourproxy.app.fragment.MainGroupFragment}'s {@link android.support.v4.widget
      * .SwipeRefreshLayout}s
      *
-     * @param context        for realm instance
-     * @param loggedInUserId to identify the logged in user
+     * @param context      for realm instance
+     * @param loggedInUser user logged into the app
      * @return {@link UsersDownloadedEventCallback} to rxBus
      */
-    public static List<EventCallback> syncAllUsers(
-        Context context, RxBusDriver rxBus, String loggedInUserId) {
-        return getFirebaseUsers(context, rxBus)
+    public static List<EventCallback> syncAllContacts(
+        Context context, User loggedInUser) {
+        return getFirebaseUsers(context, loggedInUser)
             .map(saveRealmUsers(context))
-            .map(usersDownloaded(loggedInUserId))
+            .map(usersDownloaded(loggedInUser))
             .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
     }
 
     public static List<EventCallback> saveUser(
-        Context context, RxBusDriver rxBus, User newUser) {
-        return RestClient.getUserService(context, rxBus).updateUser(newUser.id(), newUser)
+        Context context, User newUser) {
+        return RestClient.getUserService(context).updateUser(newUser.id(), newUser)
             .map(saveRealmUser(context))
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    private static rx.Observable<HashMap<String, User>> getFirebaseUsers(
-        Context context, RxBusDriver rxBus) {
-        return getUserService(context, rxBus).listUsers();
+    private static rx.Observable<ArrayList<User>> getFirebaseUsers(
+        Context context, User user) {
+        return getHerokuUserervice(context).listUsers(user.contacts());
     }
 
-    private static Func1<HashMap<String, User>, HashMap<String, User>> saveRealmUsers(
+    private static Func1<ArrayList<User>, HashMap<String, User>> saveRealmUsers(
         final Context context) {
-        return new Func1<HashMap<String, User>, HashMap<String, User>>() {
+        return new Func1<ArrayList<User>, HashMap<String, User>>() {
             @Override
-            public HashMap<String, User> call(HashMap<String, User> users) {
-                updateRealmUser(context, users);
-                return users;
+            public HashMap<String, User> call(ArrayList<User> users) {
+                HashMap<String, User> usersMap = new HashMap<>(users.size());
+                for (User user : users) {
+                    usersMap.put(user.id(), user);
+                }
+                updateRealmUser(context, usersMap);
+                return usersMap;
             }
         };
     }
@@ -83,11 +87,10 @@ public class RxUserSync {
     }
 
     private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(
-        final String loggedInUserId) {
+        final User loggedInUser) {
         return new Func1<HashMap<String, User>, List<EventCallback>>() {
             @Override
             public List<EventCallback> call(HashMap<String, User> users) {
-                User loggedInUser = users.get(loggedInUserId);
                 UsersDownloadedEventCallback usersCallback =
                     new UsersDownloadedEventCallback(loggedInUser, users);
                 LoggedInUserUpdatedEventCallback loggedInUserCallback =

@@ -13,8 +13,8 @@ import auto.parcel.AutoParcel;
 @AutoValueClass(autoValueClass = AutoParcel_Message.class)
 public abstract class Message implements Parcelable {
 
-    public static Message create(String id, String contactId, String first, String last) {
-        return builder().id(id).contactId(contactId).firstName(first).lastName(last).build();
+    public static Message create(String id, String contactId, String fullName) {
+        return builder().id(id).contactId(contactId).fullName(fullName).build();
     }
 
     /**
@@ -41,18 +41,12 @@ public abstract class Message implements Parcelable {
     public abstract String contactId();
 
     /**
-     * Contact first name.
+     * Contact full name.
      *
      * @return name
      */
-    public abstract String firstName();
+    public abstract String fullName();
 
-    /**
-     * contact last name
-     *
-     * @return name
-     */
-    public abstract String lastName();
 
     /**
      * Message Builder.
@@ -77,20 +71,12 @@ public abstract class Message implements Parcelable {
         Builder contactId(String contactId);
 
         /**
-         * Set the contact first name
+         * Set the contacts full name
          *
-         * @param firstName of user
+         * @param fullName of user
          * @return contact first name
          */
-        Builder firstName(String firstName);
-
-        /**
-         * Set the contact last name
-         *
-         * @param lastName of user
-         * @return contact last name
-         */
-        Builder lastName(String lastName);
+        Builder fullName(String fullName);
 
         /**
          * BUILD.

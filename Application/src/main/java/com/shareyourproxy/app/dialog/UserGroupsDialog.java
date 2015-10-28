@@ -11,10 +11,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserGroupsAdapter;
@@ -46,6 +48,8 @@ public class UserGroupsDialog extends BaseDialogFragment {
         };
     @Bind(R.id.dialog_user_groups_recyclerview)
     BaseRecyclerView recyclerView;
+    @Bind(R.id.dialog_user_groups_message)
+    TextView message;
     // Color
     @BindColor(R.color.common_text)
     int colorText;
@@ -57,6 +61,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dispatchUpdatedUserGroups();
+                RxGoogleAnalytics.getInstance(getActivity()).contactGroupButtonHit();
             }
         };
 
@@ -90,8 +95,8 @@ public class UserGroupsDialog extends BaseDialogFragment {
      */
     private void dispatchUpdatedUserGroups() {
         User user = getUserArg();
-        getRxBus().post(new SaveGroupContactsCommand(getRxBus(), getLoggedInUser(),
-            _adapter.getDataArray(), user.id()));
+        getRxBus().post(new SaveGroupContactsCommand(getLoggedInUser(), _adapter.getData(),
+            user));
     }
 
     /**
@@ -120,23 +125,19 @@ public class UserGroupsDialog extends BaseDialogFragment {
         View view = getActivity().getLayoutInflater()
             .inflate(R.layout.dialog_user_groups, null, false);
         ButterKnife.bind(this, view);
-        String title = getString(R.string.dialog_edit_user_groups) + " " + getUserArg().first();
+        String title = getString(R.string.dialog_edit_user_groups, getUserArg().first());
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(title)
             .setView(view)
             .setPositiveButton(R.string.save, _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
-        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
-        dialog.setCanceledOnTouchOutside(false);
-        return dialog;
-    }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+        message.setText(getString(R.string.dialog_group_channel_message));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        return dialog;
     }
 
     @Override
@@ -152,7 +153,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
      * Setup the group list UI.
      */
     private void initializeRecyclerView() {
-        _adapter = UserGroupsAdapter.newInstance(getCheckedGroups());
+        _adapter = UserGroupsAdapter.newInstance(recyclerView, getCheckedGroups());
         //This Linear layout wraps content
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(_adapter);

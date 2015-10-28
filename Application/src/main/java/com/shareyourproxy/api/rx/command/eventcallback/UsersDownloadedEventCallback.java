@@ -10,6 +10,21 @@ import java.util.HashMap;
  * Created by Evan on 6/9/15.
  */
 public class UsersDownloadedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        UsersDownloadedEventCallback.class.getClassLoader();
+    public static final Creator<UsersDownloadedEventCallback> CREATOR =
+        new Creator<UsersDownloadedEventCallback>() {
+            @Override
+            public UsersDownloadedEventCallback createFromParcel(Parcel in) {
+                return new UsersDownloadedEventCallback(
+                    (User) in.readValue(CL), (HashMap<String, User>) in.readValue(CL));
+            }
+
+            @Override
+            public UsersDownloadedEventCallback[] newArray(int size) {
+                return new UsersDownloadedEventCallback[size];
+            }
+        };
     public final HashMap<String, User> users;
 
     public UsersDownloadedEventCallback(User loggedInUser, HashMap<String, User> users) {

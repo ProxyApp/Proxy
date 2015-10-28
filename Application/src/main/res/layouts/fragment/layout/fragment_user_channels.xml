@@ -3,18 +3,38 @@
     android:id="@+id/fragment_user_channel_coordinator"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.Proxy.Base.DarkActionBar">
 
-    <TextView
-        android:id="@+id/fragment_user_channel_empty_textview"
-        style="@style/TextAppearance.AppCompat.Title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/fragment_user_channel_empty_view_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="@dimen/common_rect_large"
-        android:drawablePadding="@dimen/common_margin_xxtiny"
-        android:gravity="center"
-        android:visibility="gone"/>
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/fragment_user_channel_empty_textview"
+            style="@style/Proxy.TextAppearance.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="@dimen/common_margin_tiny"
+            android:drawablePadding="@dimen/common_margin_xxtiny"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/fragment_user_channel_empty_button"
+            style="@style/Proxy.TextAppearance.Button.Inverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/common_margin_tiny"
+            android:background="@drawable/selector_button_blue"
+            android:paddingEnd="@dimen/common_margin_xxtiny"
+            android:paddingStart="@dimen/common_margin_xxtiny"
+            android:text="@string/add_channel"/>
+    </LinearLayout>
 
     <com.shareyourproxy.app.adapter.BaseRecyclerView
         android:id="@+id/fragment_user_channel_recyclerview"

@@ -71,9 +71,9 @@ public class RxActivityFeedSync {
                 Observable<List<ActivityFeedItem>> observe = null;
                 switch (channel.channelType()) {
                     case Twitter:
-                        if(twitterSession != null) {
+                        if (twitterSession != null) {
                             observe = getTwitterActivity(context, channel, twitterSession);
-                        }else{
+                        } else {
                             observe = Observable.just(ActivityFeedItem
                                 .createEmpty(channel.channelType()))
                                 .toList();
@@ -161,7 +161,8 @@ public class RxActivityFeedSync {
         };
     }
 
-    private Observable<List<ActivityFeedItem>> getTwitterActivity(Context context,
+    private Observable<List<ActivityFeedItem>> getTwitterActivity(
+        Context context,
         final Channel channel, TwitterSession session) {
         if (_sinceId == 0 || _maxId == 0) {
             return TwitterRestClient.newInstance(session)

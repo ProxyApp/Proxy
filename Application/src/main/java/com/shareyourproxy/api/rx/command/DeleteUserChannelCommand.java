@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
@@ -32,24 +31,22 @@ public class DeleteUserChannelCommand extends BaseCommand {
         };
     private final static java.lang.ClassLoader CL = DeleteUserChannelCommand.class.getClassLoader();
     public final Channel channel;
+    public final int position;
     public final User user;
 
-    public DeleteUserChannelCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull Channel channel) {
-        super(DeleteUserChannelCommand.class.getPackage().getName(),
-            DeleteUserChannelCommand.class.getName(), rxBus);
+    public DeleteUserChannelCommand(@NonNull User user, @NonNull Channel channel, int position) {
         this.user = user;
         this.channel = channel;
+        this.position = position;
     }
 
     private DeleteUserChannelCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL),
-            (User) in.readValue(CL), (Channel) in.readValue(CL));
+        this((User) in.readValue(CL), (Channel) in.readValue(CL), (int) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return deleteChannel(service, rxBus, user, channel);
+        return deleteChannel(service, user, channel, position);
     }
 
     @Override
@@ -59,8 +56,8 @@ public class DeleteUserChannelCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(channel);
+        dest.writeValue(position);
     }
 }

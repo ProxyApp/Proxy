@@ -3,7 +3,7 @@
 
     <!--Base Theme-->
     <style name="Theme.Proxy.Base" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/common_proxy_dark_primary</item>
+        <item name="colorPrimary">@color/common_gray_light</item>
         <item name="colorPrimaryDark">@android:color/black</item>
         <item name="colorAccent">@color/common_blue</item>
         <item name="android:textColorPrimary">@color/common_text_inverse</item>
@@ -15,21 +15,26 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReenterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReturnTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementExitTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_divider</item>
+              tools:targetApi="lollipop">@color/common_divider
+        </item>
     </style>
 
 
     <!--Used for the MainActivities custom style toolbar, Dark text, light background toolbar-->
     <style name="Theme.Proxy.Base.DarkActionBar" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/common_proxy_dark_primary</item>
+        <item name="colorPrimary">@color/common_gray_light</item>
         <item name="colorPrimaryDark">@android:color/black</item>
         <item name="colorAccent">@color/common_blue</item>
         <item name="android:windowBackground">@android:color/white</item>
@@ -39,22 +44,27 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReenterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReturnTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementExitTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_divider</item>
+              tools:targetApi="lollipop">@color/common_divider
+        </item>
     </style>
 
     <!--Used for activities that edit user info. Light text, dark background toolbar-->
     <style name="Theme.Proxy.Base.Light" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/common_proxy_light_primary</item>
+        <item name="colorPrimary">@color/common_gray_light</item>
         <item name="colorPrimaryDark">@android:color/black</item>
         <item name="colorAccent">@color/common_blue</item>
         <item name="android:windowBackground">@android:color/white</item>
@@ -64,23 +74,28 @@
         <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
         <item name="android:windowSharedElementEnterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReenterTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementReturnTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="android:windowSharedElementExitTransition"
-              tools:targetApi="lollipop">@transition/change_image_transform</item>
+              tools:targetApi="lollipop">@transition/change_image_transform
+        </item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:colorEdgeEffect"
-              tools:targetApi="lollipop">@color/common_divider</item>
+              tools:targetApi="lollipop">@color/common_divider
+        </item>
     </style>
 
     <style name="Widget.Proxy.SlidingTabView.Tab" parent="ThemeOverlay.AppCompat.Light">
-        <item name="colorPrimary">@color/common_proxy_dark_selected</item>
+        <item name="colorPrimary">@color/common_blue</item>
         <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="colorAccent">@color/common_proxy_dark_selected</item>
+        <item name="colorAccent">@color/common_blue</item>
     </style>
 
     <style name="Widget.Proxy.CheckedTextView.CheckedBox" parent="ThemeOverlay.AppCompat.Light">
@@ -89,17 +104,17 @@
         <item name="colorAccent">@color/common_blue</item>
     </style>
 
-    <style name="Widget.Proxy.App.Popup" parent="Theme.AppCompat.Light">
+    <style name="Widget.Proxy.App.Popup" parent="Widget.AppCompat.PopupMenu">
         <item name="android:textColorPrimary">@color/common_text</item>
         <item name="android:textColor">@color/common_text</item>
     </style>
 
-    <style name="Widget.Proxy.App.Dialog" parent="Theme.AppCompat.Light">
+    <style name="Widget.Proxy.App.Dialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/common_blue</item>
         <item name="android:textColorPrimary">@color/common_text</item>
         <item name="android:textColor">@color/common_text</item>
         <item name="colorControlNormal">@color/common_text_disabled</item>
-        <item name="colorControlHighlight">@color/common_blue</item>
+        <item name="colorControlHighlight">@color/common_text_disabled</item>
     </style>
 
     <style name="Widget.Proxy.EditText.FloatLabel" parent="android:TextAppearance.Small">
@@ -117,15 +132,69 @@
         <item name="colorAccent">@color/common_blue</item>
     </style>
 
+    <style name="Widget.Proxy.ProgressBar.Horizontal"
+           parent="Widget.AppCompat.ProgressBar.Horizontal">
+    </style>
+
+    <style name="Proxy.TextAppearance.Title" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Title.Inverse" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/common_text_inverse</item>
+    </style>
+    <style name="Proxy.TextAppearance.Title.Disabled" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/common_text_disabled</item>
+    </style>
     <style name="Proxy.TextAppearance.Headline" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Headline.Inverse" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textColor">@color/common_text_inverse</item>
     </style>
     <style name="Proxy.TextAppearance.Subhead" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Subhead.Inverse" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:textColor">@color/common_text_inverse</item>
     </style>
     <style name="Proxy.TextAppearance.Body" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textColor">@color/common_text</item>
     </style>
+    <style name="Proxy.TextAppearance.Body.Inverse" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/common_text_inverse</item>
+    </style>
     <style name="Proxy.TextAppearance.Body.Disabled" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textColor">@color/common_text_disabled</item>
     </style>
+    <style name="Proxy.TextAppearance.Body2" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Body2.Inverse" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/common_text_inverse</item>
+    </style>
+    <style name="Proxy.TextAppearance.Body2.Disabled" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/common_text_disabled</item>
+    </style>
+    <style name="Proxy.TextAppearance.Button" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textColor">@color/common_text</item>
+    </style>
+    <style name="Proxy.TextAppearance.Button.Inverse" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textColor">@color/common_text_inverse</item>
+    </style>
+    <style name="Proxy.TextAppearance.Button.Blue" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textColor">@color/common_blue</item>
+    </style>
+
+    <declare-styleable name="DismissibleNotificationCard">
+        <attr name="showDismiss" format="boolean"/>
+        <attr name="showAction" format="boolean"/>
+        <attr name="notification" format="enum">
+            <enum name="whoops" value="0"/>
+            <enum name="safe_info" value="1"/>
+            <enum name="share_profile" value="2"/>
+            <enum name="custom_url" value="3"/>
+            <enum name="invite_friends" value="4"/>
+        </attr>
+    </declare-styleable>
 
 </resources>

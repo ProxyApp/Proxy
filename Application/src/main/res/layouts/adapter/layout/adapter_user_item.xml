@@ -2,10 +2,8 @@
 <RelativeLayout android:id="@+id/adapter_user_item_container"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/common_circleimageview_item_radius"
-                android:background="@drawable/selector_whitebox_darkclick"
-                android:clickable="true"
-                android:minHeight="@dimen/common_rect_small">
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_whitebox_darkclick">
 
     <ImageView
         android:id="@+id/adapter_user_image"
@@ -13,29 +11,28 @@
         android:layout_height="@dimen/common_circleimageview_item_radius"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="@dimen/common_margin_xxtiny"
-        android:layout_marginStart="@dimen/common_margin_xxtiny"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"
-        android:transitionName="@string/user_image"
-        android:contentDescription="@string/user_image"/>
+        android:layout_marginStart="@dimen/common_margin_xxxtiny"
+        android:contentDescription="@string/user_image"
+        android:paddingBottom="@dimen/common_margin_xtiny"
+        android:paddingTop="@dimen/common_margin_xtiny"
+        android:transitionName="@string/user_image"/>
 
     <TextView
         android:id="@+id/adapter_user_name"
-        style="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/Proxy.TextAppearance.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_xxxtiny"
         android:layout_toEndOf="@id/adapter_user_image"
-        android:transitionName="@string/username"
-        android:textColor="@color/common_text"/>
+        android:transitionName="@string/username"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_margin_line"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_xxxtiny"
         android:layout_toEndOf="@id/adapter_user_image"
         android:background="@color/common_divider"/>
 </RelativeLayout>

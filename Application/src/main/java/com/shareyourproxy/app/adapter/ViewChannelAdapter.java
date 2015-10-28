@@ -2,8 +2,7 @@ package com.shareyourproxy.app.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v7.util.SortedList;
-import android.support.v7.util.SortedList.Callback;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
@@ -15,39 +14,34 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.util.ObjectUtils;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.Bind;
+import rx.functions.Action1;
+
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE;
 
 /**
  * Adapter for a users profile and their {@link Channel} package permissions.
  */
-public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
+public class ViewChannelAdapter extends NotificationRecyclerAdapter<Channel> {
     private final ItemLongClickListener _clickListener;
-    private Callback<Channel> _sortedListCallback;
-    private SortedList<Channel> _channels;
-    private boolean _needsRefresh = true;
 
     /**
      * Constructor for {@link ViewChannelAdapter}.
      *
      * @param listener click listener
      */
-    private ViewChannelAdapter(HashMap<String, Channel> channels, ItemLongClickListener listener) {
+    private ViewChannelAdapter(
+        BaseRecyclerView recyclerView, SharedPreferences sharedPreferences, boolean showHeader,
+        ItemLongClickListener listener) {
+        super(Channel.class, recyclerView, showHeader, false, sharedPreferences);
         _clickListener = listener;
-        if (channels != null) {
-            _channels = new SortedList<>(
-                Channel.class, getSortedCallback(), channels.size());
-        } else {
-            _channels = new SortedList<>(
-                Channel.class, getSortedCallback());
-        }
-        updateChannels(channels);
     }
 
     /**
@@ -56,102 +50,64 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
      * @return an {@link ViewChannelAdapter} with no data
      */
     public static ViewChannelAdapter newInstance(
-        HashMap<String, Channel> channels, ItemLongClickListener listener) {
-        return new ViewChannelAdapter(channels, listener);
+        BaseRecyclerView recyclerView, SharedPreferences sharedPreferences, boolean showHeader,
+        ItemLongClickListener listener) {
+        return new ViewChannelAdapter(recyclerView, sharedPreferences, showHeader, listener);
     }
 
     public void updateChannels(HashMap<String, Channel> channels) {
-        if (channels != null) {
-            _channels.beginBatchedUpdates();
-            _channels.clear();
-            for (Map.Entry<String, Channel> channel : channels.entrySet()) {
-                _channels.add(channel.getValue());
-            }
-            _channels.endBatchedUpdates();
-        }
-    }
-
-    public void addChannel(Channel channel) {
-        _channels.add(channel);
-    }
-
-    public void updateChannel(Channel oldChannel, Channel newChannel) {
-        _channels.updateItemAt(_channels.indexOf(oldChannel), newChannel);
-    }
-
-    public Callback<Channel> getSortedCallback() {
-        if (_sortedListCallback == null) {
-            _sortedListCallback = new Callback<Channel>() {
-                @Override
-                public int compare(Channel item1, Channel item2) {
-                    int weight1 = item1.channelType().getWeight();
-                    int weight2 = item2.channelType().getWeight();
-                    int compareFirst = ObjectUtils.compare(weight1, weight2);
-                    if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
-                        String label1 = item1.channelType().getLabel();
-                        String label2 = item2.channelType().getLabel();
-                        return label1.compareTo(label2);
-                    } else {
-                        return compareFirst;
-                    }
-                }
-
-                @Override
-                public void onInserted(int position, int count) {
-                    if (_needsRefresh) {
-                        notifyDataSetChanged();
-                        _needsRefresh = false;
-                    }
-                    notifyItemRangeInserted(position, count);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    if (getItemCount() == 0) {
-                        notifyDataSetChanged();
-                        _needsRefresh = true;
-                    } else {
-                        notifyItemRangeRemoved(position, count);
-                    }
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
-                }
-
-                @Override
-                public boolean areContentsTheSame(Channel item1, Channel item2) {
-                    return (item1.id().equals(item2.id())
-                        && item1.label().equals(item2.label())
-                        && item1.channelType().equals(item2.channelType()))
-                        && item1.actionAddress().equals(item2.actionAddress());
-                }
-
-                @Override
-                public boolean areItemsTheSame(Channel item1, Channel item2) {
-                    return item1.id().equals(item2.id());
-                }
-            };
-        }
-        return _sortedListCallback;
+        refreshData(channels.values());
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    protected BaseViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_channel_view_content, parent, false);
         return ContentViewHolder.newInstance(view, _clickListener);
     }
 
     @Override
+    protected int compare(Channel item1, Channel item2) {
+        int weight1 = item1.channelType().getWeight();
+        int weight2 = item2.channelType().getWeight();
+        int compareFirst = ObjectUtils.compare(weight1, weight2);
+        if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
+            String label1 = item1.label();
+            String label2 = item2.label();
+            int compareSecond = label1.compareTo(label2);
+            if( compareSecond == 0){
+                String action1 = item1.actionAddress();
+                String action2 = item2.actionAddress();
+                return action1.compareTo(action2);
+            }
+            else{
+                return compareSecond;
+            }
+        } else {
+            return compareFirst;
+        }
+    }
+
+    @Override
+    protected boolean areContentsTheSame(Channel item1, Channel item2) {
+        return (item1.id().equals(item2.id())
+            && item1.label().equals(item2.label())
+            && item1.channelType().equals(item2.channelType()))
+            && item1.actionAddress().equals(item2.actionAddress());
+    }
+
+    @Override
+    protected boolean areItemsTheSame(Channel item1, Channel item2) {
+        return item1.id().equals(item2.id());
+    }
+
+    @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        bindContentViewData((ContentViewHolder) holder, getItemData(position));
+        if (holder instanceof HeaderViewHolder) {
+            bindHeaderViewData((HeaderViewHolder) holder, SHARE_PROFILE, true, false);
+        } else if (holder instanceof ContentViewHolder) {
+            bindContentViewData((ContentViewHolder) holder, getItemData(position));
+        }
     }
 
     /**
@@ -174,25 +130,6 @@ public class ViewChannelAdapter extends BaseRecyclerViewAdapter {
             getChannelIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
         holder.channelContentText.setText(sb);
-    }
-
-    @Override
-    public int getItemCount() {
-        return _channels.size();
-    }
-
-    /**
-     * Get the desired {@link Channel} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link User}
-     */
-    public Channel getItemData(int position) {
-        return _channels.get(position);
-    }
-
-    public void removeChannel(Channel channel) {
-        _channels.remove(channel);
     }
 
     /**

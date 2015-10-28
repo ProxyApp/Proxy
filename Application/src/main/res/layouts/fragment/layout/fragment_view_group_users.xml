@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
     <android.support.v7.widget.Toolbar
-        android:id="@+id/fragment_contact_group_toolbar"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fragment_contacts_group_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:background="@color/common_proxy_light_primary"
@@ -17,21 +15,21 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"/>
 
     <com.shareyourproxy.app.adapter.BaseRecyclerView
-        android:id="@+id/fragment_contact_group_recyclerview"
+        android:id="@+id/fragment_contacts_group_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"/>
 
     <TextView
-        android:id="@+id/fragment_contact_group_empty_textview"
+        android:id="@+id/fragment_contacts_group_empty_textview"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:layout_marginTop="@dimen/common_rect_large"
         android:paddingEnd="@dimen/common_margin_xxtiny"
         android:paddingStart="@dimen/common_margin_xxtiny"
         android:textColor="@color/common_text_disabled"
         android:visibility="gone"/>
-</LinearLayout>
+
+</FrameLayout>

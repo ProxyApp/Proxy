@@ -36,13 +36,10 @@ import static com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter.getChannelI
 /**
  * Created by Evan on 10/13/15.
  */
-public class ActivityFeedAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class ActivityFeedAdapter extends SortedRecyclerAdapter<ActivityFeedItem> {
     public static final int VIEWTYPE_HEADER = 0;
     public static final int VIEWTYPE_CONTENT = 1;
     private final User _contact;
-    private SortedList<ActivityFeedItem> _feedItems;
-    private SortedList.Callback<ActivityFeedItem> _sortedListCallback;
-    private boolean _needsRefresh = true;
     private ItemClickListener _listener;
     private Date _currentDate = new Date();
 
@@ -51,15 +48,8 @@ public class ActivityFeedAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      *
      * @param feedItems a list of {@link ActivityFeedItem}s
      */
-    public ActivityFeedAdapter(
-        User contact, List<ActivityFeedItem> feedItems, ItemClickListener listener) {
-        if (feedItems != null) {
-            _feedItems = new SortedList<>(ActivityFeedItem.class, getSortedCallback(), feedItems
-                .size());
-        } else {
-            _feedItems = new SortedList<>(ActivityFeedItem.class, getSortedCallback(), 0);
-        }
-        refreshFeedData(feedItems);
+    public ActivityFeedAdapter(BaseRecyclerView recyclerView, User contact, ItemClickListener listener) {
+        super(ActivityFeedItem.class, recyclerView);
         _listener = listener;
         _contact = contact;
     }
@@ -71,83 +61,14 @@ public class ActivityFeedAdapter extends RecyclerView.Adapter<BaseViewHolder> {
      * @return an {@link ActivityFeedAdapter} with no data
      */
     public static ActivityFeedAdapter newInstance(
-        User contact,
-        List<ActivityFeedItem> feedItems, ItemClickListener listener) {
-        return new ActivityFeedAdapter(contact, feedItems, listener);
+        BaseRecyclerView recyclerView, User contact, ItemClickListener listener) {
+        return new ActivityFeedAdapter(recyclerView, contact, listener);
     }
 
     public void refreshFeedData(@NonNull List<ActivityFeedItem> feedItems) {
         //get an approximation to "now"
         _currentDate = new Date();
-        _feedItems.beginBatchedUpdates();
-        if (feedItems != null) {
-            _feedItems.addAll(feedItems);
-        }
-        _feedItems.endBatchedUpdates();
-    }
-
-    public SortedList.Callback<ActivityFeedItem> getSortedCallback() {
-        if (_sortedListCallback == null) {
-            _sortedListCallback = new SortedList.Callback<ActivityFeedItem>() {
-
-                @Override
-                public int compare(ActivityFeedItem item1, ActivityFeedItem item2) {
-                    Date date1 = item1.timestamp();
-                    Date date2 = item2.timestamp();
-                    if (date1 == null) {
-                        return -1;
-                    } else if (date2 == null) {
-                        return 1;
-                    } else {
-                        //reverse chronological
-                        return -date1.compareTo(date2);
-                    }
-                }
-
-                @Override
-                public void onInserted(int position, int count) {
-                    if (_needsRefresh) {
-                        notifyDataSetChanged();
-                        _needsRefresh = false;
-                    }
-                    notifyItemRangeInserted(position, count);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    if (getItemCount() == 0) {
-                        notifyDataSetChanged();
-                        _needsRefresh = true;
-                    } else {
-                        notifyItemRangeRemoved(position, count);
-                    }
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
-                }
-
-                @Override
-                public boolean areContentsTheSame(
-                    ActivityFeedItem oldItem, ActivityFeedItem newItem) {
-                    return oldItem.actionAddress().equalsIgnoreCase(newItem.actionAddress()) &&
-                        oldItem.channelType().equals(newItem.channelType());
-                }
-
-                @Override
-                public boolean areItemsTheSame(ActivityFeedItem oldItem, ActivityFeedItem newItem) {
-                    return oldItem.actionAddress().equalsIgnoreCase(newItem.actionAddress()) &&
-                        oldItem.channelType().equals(newItem.channelType());
-                }
-            };
-        }
-        return _sortedListCallback;
+        refreshData(feedItems);
     }
 
     @Override
@@ -187,19 +108,32 @@ public class ActivityFeedAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         holder.timestampText.setVisibility(View.GONE);
     }
 
-    /**
-     * Get the desired {@link Channel} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link User}
-     */
-    public ActivityFeedItem getItemData(int position) {
-        return _feedItems.get(position);
+    @Override
+    protected int compare(ActivityFeedItem item1, ActivityFeedItem item2) {
+        Date date1 = item1.timestamp();
+        Date date2 = item2.timestamp();
+        if (date1 == null) {
+            return -1;
+        } else if (date2 == null) {
+            return 1;
+        } else {
+            //reverse chronological
+            return -date1.compareTo(date2);
+        }
     }
 
-    public void removeItemData(int position){
-        _feedItems.removeItemAt(position);
+    @Override
+    protected boolean areContentsTheSame(ActivityFeedItem item1, ActivityFeedItem item2) {
+            return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
+                item1.channelType().equals(item2.channelType());
     }
+
+    @Override
+    protected boolean areItemsTheSame(ActivityFeedItem item1, ActivityFeedItem item2) {
+            return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
+                item1.channelType().equals(item2.channelType());
+    }
+
     /**
      * Set the Channel Intent link content.
      *
@@ -248,11 +182,6 @@ public class ActivityFeedAdapter extends RecyclerView.Adapter<BaseViewHolder> {
         } else {
             return context.getString(R.string.moments_ago);
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return _feedItems.size();
     }
 
     /**

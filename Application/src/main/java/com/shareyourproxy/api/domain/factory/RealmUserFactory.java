@@ -10,7 +10,6 @@ import io.realm.RealmList;
 import static com.shareyourproxy.api.domain.factory.RealmChannelFactory.getRealmChannels;
 import static com.shareyourproxy.api.domain.factory.RealmContactFactory.getRealmContacts;
 import static com.shareyourproxy.api.domain.factory.RealmGroupFactory.getRealmGroups;
-import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
 /**
  * Factory for creating {@link RealmUser}s.
@@ -28,7 +27,7 @@ public class RealmUserFactory {
             realmUser.setId(user.id());
             realmUser.setFirst(user.first());
             realmUser.setLast(user.last());
-            realmUser.setFullName(joinWithSpace(new String[]{ user.first(), user.last() }));
+            realmUser.setFullName(user.fullName());
             realmUser.setEmail(user.email());
             realmUser.setProfileURL(user.profileURL());
             realmUser.setCoverURL(user.coverURL());

@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:theme="@style/Widget.Proxy.App.Dialog">
     <android.support.design.widget.TextInputLayout
         android:id="@+id/adapter_group_edit_channel_header_floatlabel"
+        style="@style/Widget.Proxy.EditText.FloatLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/common_margin_xxtiny"
         android:layout_marginEnd="@dimen/common_margin_small"
-        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_tiny"
         android:layout_marginTop="@dimen/common_margin_tiny"
         app:hintTextAppearance="@style/Widget.Proxy.EditText.FloatLabel">
         <EditText
@@ -25,4 +26,13 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
-</FrameLayout>
+
+    <TextView
+        android:id="@+id/adapter_group_edit_channel_header_contacts_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_margin_tiny"
+        android:layout_marginStart="@dimen/common_margin_tiny"
+        android:layout_marginTop="@dimen/common_margin_xxtiny"
+        android:lineSpacingMultiplier="1.5"/>
+</LinearLayout>

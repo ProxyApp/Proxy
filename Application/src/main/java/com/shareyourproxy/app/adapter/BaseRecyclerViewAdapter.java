@@ -18,6 +18,7 @@ import static com.shareyourproxy.util.ViewUtils.getCircularDrawableImage;
  * Base abstraction for all recycler adapters.
  */
 public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+
     /**
      * Get a Circular SVG Drawable.
      *
@@ -26,7 +27,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * @param channelBackgroundColor background color value
      * @return circular image.drawable
      */
-    public static Drawable getChannelIconDrawable(
+    protected static Drawable getChannelIconDrawable(
         Context context, Channel channel, int channelBackgroundColor) {
         return getChannelIconDrawable(context, channel.channelType(), channelBackgroundColor);
     }
@@ -39,7 +40,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * @param channelBackgroundColor background color value
      * @return circular image.drawable
      */
-    public static Drawable getChannelIconDrawable(
+    protected static Drawable getChannelIconDrawable(
         Context context, ChannelType channelType, int channelBackgroundColor) {
         return getCircularDrawableImage(context, channelType.getResId(),
             channelType, channelBackgroundColor);
@@ -52,7 +53,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
      * @param channelType to switch on
      * @return color int
      */
-    public static int getChannelBackgroundColor(Context context, ChannelType channelType) {
+    protected static int getChannelBackgroundColor(Context context, ChannelType channelType) {
         switch (channelType) {
             case Custom:
                 return getColor(context, R.color.common_text_secondary);
@@ -64,7 +65,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
                 return getColor(context, R.color.common_red);
             case Web:
             case URL:
-                return getColor(context, R.color.common_text_secondary);
+                return getColor(context, R.color.common_blue_dark);
             case Facebook:
                 return getColor(context, R.color.common_facebook);
             case Twitter:
@@ -131,7 +132,7 @@ public abstract class BaseRecyclerViewAdapter extends RecyclerView.Adapter<BaseV
 
     }
 
-    public SpannableStringBuilder getChannelSpannableStringBuilder(
+    protected SpannableStringBuilder getChannelSpannableStringBuilder(
         Context context, String channelTypeString, String label, String address) {
         SpannableStringBuilder sb;
         int addressStart;

@@ -49,18 +49,15 @@ public class AddGroupChannelAndPublicCommand extends BaseCommand {
      * @param channel this events group
      */
     public AddGroupChannelAndPublicCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull ArrayList<GroupToggle> groups,
-        @NonNull Channel channel) {
-        super(AddGroupChannelAndPublicCommand.class.getPackage().getName(),
-            AddGroupChannelAndPublicCommand.class.getName(), rxBus);
+        @NonNull User user, @NonNull ArrayList<GroupToggle> groups, @NonNull Channel channel) {
         this.user = user;
         this.groups = groups;
         this.channel = channel;
     }
 
     private AddGroupChannelAndPublicCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL),
-            (ArrayList<GroupToggle>) in.readValue(CL), (Channel) in.readValue(CL));
+        this((User) in.readValue(CL), (ArrayList<GroupToggle>) in.readValue(CL),
+            (Channel) in.readValue(CL));
     }
 
     @Override
@@ -68,9 +65,9 @@ public class AddGroupChannelAndPublicCommand extends BaseCommand {
         List<EventCallback> results = new ArrayList<>();
         Channel publicChannel = createPublicChannel(channel, true);
         //TODO clean this mess up
-        results.addAll(addUserGroupsChannel(service, rxBus, user, groups, publicChannel));
+        results.addAll(addUserGroupsChannel(service, user, groups, publicChannel));
         UserGroupAddedEventCallback event = (UserGroupAddedEventCallback) results.get(0);
-        results.addAll(saveUserChannel(service, rxBus, event.user, channel, publicChannel));
+        results.addAll(saveUserChannel(service, event.user, channel, publicChannel));
         return results;
     }
 
@@ -81,7 +78,6 @@ public class AddGroupChannelAndPublicCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(groups);
         dest.writeValue(channel);

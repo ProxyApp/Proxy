@@ -1,10 +1,14 @@
 package com.shareyourproxy.app.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,21 +19,22 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import com.shareyourproxy.app.adapter.UserAdapter;
-import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.app.adapter.GroupContactsAdapter;
+import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
@@ -40,17 +45,23 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  * Display the {@link User} contacts added to the selected {@link Group}.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
-    @Bind(R.id.fragment_contact_group_toolbar)
+    @Bind(R.id.fragment_contacts_group_toolbar)
     Toolbar toolbar;
-    @Bind(R.id.fragment_contact_group_recyclerview)
+    @Bind(R.id.fragment_contacts_group_recyclerview)
     BaseRecyclerView recyclerView;
-    @Bind(R.id.fragment_contact_group_empty_textview)
+    @Bind(R.id.fragment_contacts_group_empty_textview)
     TextView emptyTextView;
-    @BindString(R.string.fragment_contact_group_empty_text)
+    @BindString(R.string.fragment_contact_group_empty_title)
+    String emptyTextTitle;
+    @BindString(R.string.fragment_contact_group_empty_message)
     String emptyTextMessage;
-    @BindDimen(R.dimen.common_svg_null_screen)
+    @BindDimen(R.dimen.common_svg_null_screen_small)
     int marginNullScreen;
-    private UserAdapter _adapter;
+    @BindColor(android.R.color.white)
+    int colorWhite;
+    @BindDimen(R.dimen.common_svg_large)
+    int marginSVGLarge;
+    private GroupContactsAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -90,9 +101,13 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
                         onUserSelected((UserSelectedEvent) event);
                     } else if (event instanceof GroupChannelsUpdatedEventCallback) {
                         channelsUpdated((GroupChannelsUpdatedEventCallback) event);
+                    } else if (event instanceof RecyclerViewDatasetChangedEvent) {
+                        recyclerView.updateViewState(((RecyclerViewDatasetChangedEvent) event));
                     }
                 }
             }));
+        _adapter.refreshData(queryUserContacts(
+            getActivity(), getGroupArg().contacts()).values());
     }
 
     /**
@@ -147,19 +162,26 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      */
     private void initializeRecyclerView() {
         initializeEmptyView();
+        _adapter = GroupContactsAdapter.newInstance(recyclerView, this);
+
+        recyclerView.setEmptyView(emptyTextView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = UserAdapter.newInstance(this);
-        _adapter.refreshUserList(queryUserContacts(
-            getActivity(), getGroupArg().contacts()));
-        recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(_adapter);
     }
 
     private void initializeEmptyView() {
-        emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
-            null, getFishDrawable(), null, null);
-        emptyTextView.setText(fromHtml(emptyTextMessage));
-        recyclerView.setEmptyView(emptyTextView);
+        Context context = getContext();
+        emptyTextView.setCompoundDrawablesWithIntrinsicBounds(null, getFishDrawable(), null, null);
+        SpannableStringBuilder sb = new SpannableStringBuilder(emptyTextTitle).append("\n")
+            .append(emptyTextMessage);
+
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+            0, emptyTextTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+            emptyTextTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+        emptyTextView.setText(sb);
     }
 
     /**
@@ -174,9 +196,8 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     @Override
     public void onItemClick(View view, int position) {
         UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
-        getRxBus().post(
-            new UserSelectedEvent(
-                holder.userImage, holder.userName, _adapter.getItemData(position)));
+        getRxBus().post(new UserSelectedEvent(
+            holder.userImage, holder.userName, _adapter.getItemData(position)));
     }
 
 }

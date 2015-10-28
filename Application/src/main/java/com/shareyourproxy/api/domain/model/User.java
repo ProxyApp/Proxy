@@ -10,6 +10,8 @@ import java.util.HashSet;
 
 import auto.parcel.AutoParcel;
 
+import static com.shareyourproxy.util.ObjectUtils.buildFullName;
+
 /**
  * Users have a basic profile that contains their specific {@link Channel}s, {@link Contact}s, and
  * {@link Group}s.
@@ -37,10 +39,13 @@ public abstract class User implements Parcelable {
         String id, String firstName, String lastName, String email, String profileURL,
         String coverURL, HashMap<String, Channel> channels, HashMap<String, Group> groups,
         HashSet<String> contacts, int version) {
-        return builder().id(id).first(firstName).last(lastName).email(email)
+        String fullName = buildFullName(firstName, lastName);
+
+        return builder().id(id).first(firstName).last(lastName).fullName(fullName).email(email)
             .profileURL(profileURL).coverURL(coverURL).channels(channels)
             .groups(groups).contacts(contacts).version(version).build();
     }
+
 
     /**
      * User builder.
@@ -72,6 +77,13 @@ public abstract class User implements Parcelable {
      */
     @Nullable
     public abstract String last();
+
+    /**
+     * Get users first + " " + last.
+     *
+     * @return last name
+     */
+    public abstract String fullName();
 
     /**
      * Get users email.
@@ -168,7 +180,16 @@ public abstract class User implements Parcelable {
          * @param lastName user last name
          * @return last name string
          */
+        @Nullable
         Builder last(String lastName);
+
+        /**
+         * Set users first + last.
+         *
+         * @param fullName user first + last
+         * @return last name string
+         */
+        Builder fullName(String fullName);
 
         /**
          * Set user email.
@@ -185,6 +206,7 @@ public abstract class User implements Parcelable {
          * @param profileURL profile image url
          * @return URL string
          */
+        @Nullable
         Builder profileURL(String profileURL);
 
         /**

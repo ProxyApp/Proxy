@@ -13,8 +13,8 @@ public class ContentDescriptionDrawable extends BitmapDrawable {
     private String _contentDescription = "";
 
     /**
-     * Create an image from a bitmap, setting initial target density based on the display
-     * metrics of the resources.
+     * Create an image from a bitmap, setting initial target density based on the display metrics of
+     * the resources.
      *
      * @param res display metrics
      * @param bmp Bitmap

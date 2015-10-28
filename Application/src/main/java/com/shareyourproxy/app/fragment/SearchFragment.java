@@ -5,26 +5,32 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.RxTextWatcherSubject;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
+import com.shareyourproxy.api.rx.event.TextViewEditorActionEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.UserAdapter;
-import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.app.adapter.SearchUserAdapter;
+import com.shareyourproxy.app.adapter.SearchUserAdapter.UserViewHolder;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
+import com.shareyourproxy.widget.CustomEditText;
 
 import java.util.HashMap;
 
@@ -35,11 +41,15 @@ import butterknife.BindInt;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import rx.Observer;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxQuery.searchUserString;
+import static com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers;
+import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY;
+import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.LOADING;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
@@ -50,13 +60,12 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class SearchFragment extends BaseFragment implements ItemClickListener {
 
-
     @Bind(R.id.fragment_search_bar_container)
     LinearLayout searchBarContainer;
     @Bind(R.id.fragment_search_back_button)
     ImageView imageViewBackButton;
     @Bind(R.id.fragment_search_edittext)
-    EditText editText;
+    CustomEditText editText;
     @Bind(R.id.fragment_search_clear_button)
     ImageView imageViewClearButton;
     @Bind(R.id.fragment_search_recyclerview)
@@ -65,17 +74,20 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     TextView emptyTextView;
     @Bind(R.id.fragment_search_empty_view_container)
     LinearLayout emptyViewContainer;
+    @Bind(R.id.fragment_search_loadingview)
+    ProgressBar loadingView;
     @BindInt(android.R.integer.config_shortAnimTime)
     int _animationDuration;
     @BindDimen(R.dimen.common_svg_null_screen_small)
     int sexBotSize;
     @BindDimen(R.dimen.common_svg_large)
-    int marginSVGLarge;
+    int dimenSvgLarge;
     @BindColor(R.color.common_gray)
     int colorGray;
-    private UserAdapter _adapter;
+    private SearchUserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
+    private boolean _needsUpdate = true;
 
     /**
      * Constructor.
@@ -89,21 +101,20 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return new {@link SearchFragment}
      */
     public static SearchFragment newInstance() {
-        SearchFragment search = new SearchFragment();
-        return search;
+        return new SearchFragment();
     }
 
     /**
      * Handle back button press in this fragments parent {@link SearchActivity}.
      */
     @OnClick(R.id.fragment_search_back_button)
-    public void onClickBack() {
+    void onClickBack() {
         hideSoftwareKeyboard(editText);
         getActivity().onBackPressed();
     }
 
     @OnClick(R.id.fragment_search_empty_button)
-    public void onClickInviteFriend() {
+    void onClickInviteFriend() {
         editText.setText("");
         IntentLauncher.launchInviteFriendIntent(getActivity());
     }
@@ -112,8 +123,10 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * Clear the search edit text and search for all users.
      */
     @OnClick(R.id.fragment_search_clear_button)
-    public void onClickClear() {
+    void onClickClear() {
         editText.setText("");
+        //TODO: Make this clear to the featured users.
+        _adapter.clearUserList();
     }
 
     /**
@@ -123,8 +136,9 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      */
     @OnTextChanged(value = R.id.fragment_search_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void onSearchStringChanged(Editable editable) {
-        _textWatcherSubject.post(editable.toString().trim());
+    void onSearchStringChanged(Editable editable) {
+        getRxBus().post(new RecyclerViewDatasetChangedEvent(_adapter, LOADING));
+        _textWatcherSubject.post(editable.toString());
     }
 
     @Override
@@ -140,6 +154,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * Initialize this view.
      */
     private void initialize() {
+        editText.setRxBus(getRxBus());
         _textWatcherSubject = RxTextWatcherSubject.getInstance();
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
@@ -154,13 +169,15 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     private void initializeRecyclerView() {
         emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
             null, getSexBotDrawable(), null, null);
+        _adapter = SearchUserAdapter.newInstance(recyclerView, this);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = UserAdapter.newInstance(this);
-        recyclerView.setAdapter(_adapter);
+        recyclerView.setEmptyView(emptyViewContainer);
+        recyclerView.setLoadingView(loadingView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(getDismissScrollListener());
-        recyclerView.setEmptyView(emptyViewContainer);
+        recyclerView.setAdapter(_adapter);
     }
 
     /**
@@ -186,7 +203,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return back arrow image.drawable
      */
     private Drawable getBackArrowDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_arrow_back, marginSVGLarge, colorGray);
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_arrow_back, dimenSvgLarge, colorGray);
     }
 
     /**
@@ -195,24 +212,48 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return clear button image.drawable
      */
     private Drawable getClearSearchDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_clear, marginSVGLarge, colorGray);
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_clear, dimenSvgLarge, colorGray);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = new CompositeSubscription();
+        _subscriptions = checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
 
-        User loggedInUser = getLoggedInUser();
+        final User loggedInUser = getLoggedInUser();
         if (loggedInUser != null) {
             _subscriptions.add(
-                _textWatcherSubject.toObserverable().map(
-                    searchUserString(getActivity(), loggedInUser.id()))
-                    .subscribe(getSearchObserver()));
+                _textWatcherSubject.toObserverable()
+                    .compose(RxHelper.<String>applySchedulers())
+                    .subscribe(getUsersObserver(loggedInUser)));
+            //search entered text
             _textWatcherSubject.post(editText.getText().toString().trim());
         }
+    }
+
+    public JustObserver<String> getUsersObserver(final User loggedInUser) {
+        return new JustObserver<String>() {
+            @Override
+            public void next(String queryName) {
+                String trimmedName = queryName.trim();
+                if (!trimmedName.isEmpty()) {
+                    _adapter.clearUserList();
+                    searchMatchingUsers(getActivity(), trimmedName, loggedInUser.id())
+                        .compose(RxHelper.<HashMap<String, User>>applySchedulers())
+                        .subscribe(getSearchObserver());
+                } else {
+                    //TODO:Change this to featured user list
+                    _adapter.clearUserList();
+                }
+            }
+
+            @Override
+            public void error(Throwable e) {
+                Timber.e("Search Observer error: %1$s", Log.getStackTraceString(e));
+            }
+        };
     }
 
     /**
@@ -220,16 +261,30 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      *
      * @return search observer
      */
-    private JustObserver<HashMap<String, User>> getSearchObserver() {
-        return new JustObserver<HashMap<String, User>>() {
+    private Observer<HashMap<String, User>> getSearchObserver() {
+
+        return new Observer<HashMap<String, User>>() {
             @Override
-            public void next(HashMap<String, User> users) {
-                _adapter.refreshUserList(users);
+            public void onCompleted() {
+                if (_adapter.getItemCount() == 0) {
+                    getRxBus().post(new RecyclerViewDatasetChangedEvent(_adapter,  EMPTY));
+                }
+                _needsUpdate = true;
             }
 
             @Override
-            public void error(Throwable e) {
+            public void onError(Throwable e) {
+                _needsUpdate = true;
+            }
 
+            @Override
+            public void onNext(HashMap<String, User> users) {
+                //this update flag clears the list each time a new user query is called
+                if (_needsUpdate) {
+                    _adapter.clearUserList();
+                    _needsUpdate = false;
+                }
+                _adapter.refreshData(users.values());
             }
         };
     }
@@ -247,6 +302,14 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                     onUserSelected((UserSelectedEvent) event);
                 } else if (event instanceof OnBackPressedEvent) {
                     imageViewClearButton.animate().alpha(0f).setDuration(_animationDuration);
+                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
+                    recyclerView.updateViewState(((RecyclerViewDatasetChangedEvent) event));
+                } else if (event instanceof TextViewEditorActionEvent) {
+                    if (editText.length() == 0 &&
+                        ((TextViewEditorActionEvent) event).keyEvent.getKeyCode() ==
+                            KeyEvent.KEYCODE_DEL) {
+                        _textWatcherSubject.post("");
+                    }
                 }
             }
         };

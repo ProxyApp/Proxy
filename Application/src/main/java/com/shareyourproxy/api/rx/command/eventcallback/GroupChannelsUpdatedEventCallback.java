@@ -12,6 +12,22 @@ import java.util.HashSet;
  * Group Name may have changed, channels updated.
  */
 public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        GroupChannelsUpdatedEventCallback.class.getClassLoader();
+    public static final Creator<GroupChannelsUpdatedEventCallback> CREATOR =
+        new Creator<GroupChannelsUpdatedEventCallback>() {
+            @Override
+            public GroupChannelsUpdatedEventCallback createFromParcel(Parcel in) {
+                return new GroupChannelsUpdatedEventCallback(
+                    (User) in.readValue(CL), (Group) in.readValue(CL),
+                    (HashSet<String>) in.readValue(CL),(GroupEditType) in.readValue(CL));
+            }
+
+            @Override
+            public GroupChannelsUpdatedEventCallback[] newArray(int size) {
+                return new GroupChannelsUpdatedEventCallback[size];
+            }
+        };
     public final Group group;
     public final HashSet<String> channels;
     public final GroupEditType groupEditType;

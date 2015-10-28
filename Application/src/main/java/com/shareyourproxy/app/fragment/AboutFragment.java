@@ -23,6 +23,7 @@ public class AboutFragment extends BaseFragment {
 
     /**
      * Return a new instance of this fragment for the parent {@link AboutActivity}.
+     *
      * @return AboutFragment
      */
     public static Fragment newInstance() {

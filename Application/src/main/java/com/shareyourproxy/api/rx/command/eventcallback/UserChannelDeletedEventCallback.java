@@ -10,11 +10,30 @@ import com.shareyourproxy.api.domain.model.User;
  * Created by Evan on 5/21/15.
  */
 public class UserChannelDeletedEventCallback extends UserEventCallback {
-    public final Channel channel;
+    private final static java.lang.ClassLoader CL =
+        UserChannelDeletedEventCallback.class.getClassLoader();
 
-    public UserChannelDeletedEventCallback(@NonNull User user, @NonNull Channel channel) {
+    public static final Creator<UserChannelDeletedEventCallback> CREATOR =
+        new Creator<UserChannelDeletedEventCallback>() {
+            @Override
+            public UserChannelDeletedEventCallback createFromParcel(Parcel in) {
+                return new UserChannelDeletedEventCallback(
+                    (User) in.readValue(CL), (Channel) in.readValue(CL), (int) in.readValue(CL));
+            }
+
+            @Override
+            public UserChannelDeletedEventCallback[] newArray(int size) {
+                return new UserChannelDeletedEventCallback[size];
+            }
+        };
+    public final Channel channel;
+    public final int position;
+
+    public UserChannelDeletedEventCallback(
+        @NonNull User user, @NonNull Channel channel, int position) {
         super(user);
         this.channel = channel;
+        this.position = position;
     }
 
     @Override
@@ -25,5 +44,6 @@ public class UserChannelDeletedEventCallback extends UserEventCallback {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(channel);
+        dest.writeValue(position);
     }
 }

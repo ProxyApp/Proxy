@@ -1,7 +1,6 @@
 package com.shareyourproxy.app;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -15,14 +14,13 @@ import android.view.ViewTreeObserver;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
-import com.shareyourproxy.Intents;
 import com.shareyourproxy.ProxyApplication;
-import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.domain.factory.AutoValueAdapterFactory;
 import com.shareyourproxy.api.domain.factory.AutoValueClass;
+import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
@@ -32,6 +30,8 @@ import io.realm.RealmConfiguration;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
+
+import static com.shareyourproxy.IntentLauncher.launchShareLinkIntent;
 
 /**
  * Base abstraction for all activities to inherit from.
@@ -121,22 +121,23 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Function to delete the main realm configuration.
      */
     protected void deleteRealm() {
-        Realm realm = Realm.getDefaultInstance();
-        RealmConfiguration config = realm.getConfiguration();
-        realm.close();
+        RealmConfiguration config = new RealmConfiguration.Builder(this)
+            .deleteRealmIfMigrationNeeded()
+            .schemaVersion(BuildConfig.VERSION_CODE)
+            .build();
         Realm.deleteRealm(config);
     }
 
     public User getSharedPrefJsonUser() {
-        User user=null;
+        User user = null;
         String jsonUser = getSharedPreferences()
             .getString(Constants.KEY_LOGGED_IN_USER, null);
         Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new AutoValueAdapterFactory())
+            .registerTypeAdapterFactory(new AutoValueTypeAdapterFactory())
             .create();
         try {
             user = (User) gson.fromJson(
-                jsonUser,User.class.getAnnotation(AutoValueClass.class).autoValueClass());
+                jsonUser, User.class.getAnnotation(AutoValueClass.class).autoValueClass());
         } catch (Exception e) {
             Timber.e(Log.getStackTraceString(e));
         }
@@ -148,7 +149,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(onNextEvent()));
+            .subscribe(onNextEvent(this)));
     }
 
     @Override
@@ -164,30 +165,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         getRxBus().post(new OnBackPressedEvent());
     }
 
-    private Action1<Object> onNextEvent() {
+    private Action1<Object> onNextEvent(final Activity activity) {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
                 if (event instanceof ShareLinkEvent) {
-                    launchShareLinkIntent((ShareLinkEvent) event);
+                    launchShareLinkIntent(activity, (ShareLinkEvent) event);
                 }
             }
         };
     }
 
-    /**
-     * Launch an Intent chooser dialog for a Proxy User to select a method of sharing a profile
-     * link. The link is an http address to a User's group channels.
-     *
-     * @param event message data, http link
-     */
-    private void launchShareLinkIntent(ShareLinkEvent event) {
-        Intent sendIntent =
-            Intents.getShareLinkIntent(event.message);
-
-        startActivity(
-            Intent.createChooser(
-                sendIntent, getString(R.string.dialog_sharelink_title)));
-    }
 
 }

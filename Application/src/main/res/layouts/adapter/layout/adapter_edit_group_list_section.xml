@@ -10,16 +10,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_xxtiny"
         android:contentDescription="@string/channel_section_image"/>
 
     <TextView
         android:id="@+id/adapter_edit_group_list_section_label"
-        style="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/Proxy.TextAppearance.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/common_margin_tiny"
-        android:textColor="@color/common_text"/>
+        android:layout_marginStart="@dimen/common_margin_tiny"/>
 
 </LinearLayout>

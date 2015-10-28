@@ -11,6 +11,21 @@ import java.util.HashMap;
  * Created by Evan on 6/18/15.
  */
 public class UserMessageAddedEventCallback extends EventCallback {
+    private final static java.lang.ClassLoader CL =
+        UserMessageAddedEventCallback.class.getClassLoader();
+    public static final Creator<UserMessageAddedEventCallback> CREATOR =
+        new Creator<UserMessageAddedEventCallback>() {
+            @Override
+            public UserMessageAddedEventCallback createFromParcel(Parcel in) {
+                return new UserMessageAddedEventCallback(
+                    (HashMap<String, Message>) in.readValue(CL));
+            }
+
+            @Override
+            public UserMessageAddedEventCallback[] newArray(int size) {
+                return new UserMessageAddedEventCallback[size];
+            }
+        };
     public final HashMap<String, Message> message;
 
     /**

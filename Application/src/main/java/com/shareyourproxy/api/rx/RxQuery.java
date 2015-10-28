@@ -4,12 +4,12 @@ package com.shareyourproxy.api.rx;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.UserFactory;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.domain.realm.RealmString;
 import com.shareyourproxy.api.domain.realm.RealmUser;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.functions.Func1;
@@ -60,8 +59,8 @@ public class RxQuery {
     }
 
     public static rx.Observable<HashMap<String, Channel>> queryPermissionedChannels(
-        Context context, final String loggedInUserId, final String contactId) {
-        return Observable.just(context).map(getRealmUser(contactId))
+        final User user, final String loggedInUserId) {
+        return Observable.just(user)
             .map(getPermissionedChannels(loggedInUserId))
             .compose(RxHelper.<HashMap<String, Channel>>applySchedulers());
     }
@@ -74,31 +73,32 @@ public class RxQuery {
                 ArrayList<String> permissionedIds = new ArrayList<>();
                 HashMap<String, Channel> permissionedChannels = new HashMap<>();
                 //escape early
-                if (contact.groups() == null ||
-                    (contact.groups().size() == 0 && contact.channels().size() == 0)) {
+                if (contact.channels().size() == 0) {
                     return permissionedChannels;
-                }else{
+                } else {
                     //check the contacts groups for the logged in user and gather the channel
                     // Id's of that group
-                    for (Map.Entry<String, Group> entryGroup : contact.groups().entrySet()) {
-                        HashSet<String> contacts = entryGroup.getValue().contacts();
-                        for (String contactId : contacts) {
-                            if (contactId.equals(loggedInUserId)) {
-                                permissionedIds.addAll(
-                                    entryGroup.getValue().channels());
+                    if (contact.groups() != null) {
+                        for (Group group : contact.groups().values()) {
+                            HashSet<String> contacts = group.contacts();
+                            if (contacts != null) {
+                                for (String contactId : contacts) {
+                                    if (contactId.equals(loggedInUserId)) {
+                                        permissionedIds.addAll(group.channels());
+                                    }
+                                }
+                            }
+                        }
+                        // for the above key set data, find the channels associated
+                        for (String channelId : permissionedIds) {
+                            Channel channel = contact.channels().get(channelId);
+                            if (channel != null) {
+                                permissionedChannels.put(channel.id(), channel);
                             }
                         }
                     }
-                    // for the above keyset data, find the channels associated
-                    for (String channelId : permissionedIds) {
-                        Channel channel = contact.channels().get(channelId);
-                        if (channel != null) {
-                            permissionedChannels.put(channel.id(), channel);
-                        }
-                    }
                     // add public channels
-                    for (Map.Entry<String, Channel> entryChannels : contact.channels().entrySet()) {
-                        Channel channel = entryChannels.getValue();
+                    for (Channel channel : contact.channels().values()) {
                         if (channel.isPublic()) {
                             permissionedChannels.put(channel.id(), channel);
                         }
@@ -114,32 +114,10 @@ public class RxQuery {
             .<User>applySchedulers()).toBlocking().single();
     }
 
-    public static Observable<Integer> getUserContactScore(Context context, final String userId){
-        return Observable.just(userId).map(getUserContactScore(context)).compose(RxHelper
+    public static Observable<Integer> getUserContactScore(Context context, final String userId) {
+        return RestClient.getHerokuUserervice(context).userFollowerCount(userId).compose(RxHelper
             .<Integer>applySchedulers());
     }
-
-    private static Func1<String, Integer> getUserContactScore(final Context context) {
-        return new Func1<String, Integer>() {
-            @Override
-            public Integer call(String userId) {
-                int score = 0;
-                Realm realm = Realm.getInstance(context);
-                realm.refresh();
-                RealmResults<RealmUser> realmUsers = realm.where(RealmUser.class).findAll();
-                for(RealmUser user : realmUsers){
-                    RealmList<RealmString> contactIds = user.getContacts();
-                    for(RealmString contactId : contactIds){
-                        if(userId.equals(contactId.getValue())){
-                            ++score;
-                        }
-                    }
-                }
-                return score;
-            }
-        };
-    }
-
 
     private static Func1<Context, User> getRealmUser(final String userId) {
         return new Func1<Context, User>() {
@@ -160,17 +138,35 @@ public class RxQuery {
         return user;
     }
 
-    public static Func1<String, HashMap<String, User>> searchUserString(
+    public static Observable<HashMap<String, User>> searchMatchingUsers(
+        final Context context, final String queryName, final String userId) {
+        return Observable.concat(
+            searchLocalMatchingUsers(context, queryName, userId),
+            searchRemoteMatchingUsers(context, queryName));
+
+    }
+
+    private static Observable<HashMap<String, User>> searchLocalMatchingUsers(
+        Context context, final String queryName, final String userId) {
+        return Observable.just(queryName).map(searchLocalUserString(context, userId));
+    }
+
+    private static Observable<HashMap<String, User>> searchRemoteMatchingUsers(
+        Context context, final String queryName) {
+        return Observable.just(queryName).map(searchRemoteUserString(context));
+    }
+
+    private static Func1<String, HashMap<String, User>> searchLocalUserString(
         final Context context, final String userId) {
         return new Func1<String, HashMap<String, User>>() {
             @Override
             public HashMap<String, User> call(String username) {
-                return updateSearchText(context, userId, username);
+                return matchLocalUsers(context, userId, username);
             }
         };
     }
 
-    private static HashMap<String, User> updateSearchText(
+    private static HashMap<String, User> matchLocalUsers(
         Context context, final String userId, CharSequence constraint) {
         RealmResults<RealmUser> realmUsers;
         Realm realm = Realm.getInstance(context);
@@ -178,17 +174,36 @@ public class RxQuery {
         realm.beginTransaction();
         realmUsers = realm.where(RealmUser.class)
             .notEqualTo("id", userId)
-            .beginGroup()
-            .contains("first", constraint.toString(), false)
-            .or().contains("last", constraint.toString(), false)
-            .or().contains("fullName", constraint.toString(), false)
-            .endGroup()
+            .beginsWith("fullName", constraint.toString(), false)
             .findAll();
-
         HashMap<String, User> users = UserFactory.createModelUsers(realmUsers);
         realm.commitTransaction();
         realm.close();
         return users;
+    }
+
+    private static Func1<String, HashMap<String, User>> searchRemoteUserString(
+        final Context context) {
+        return new Func1<String, HashMap<String, User>>() {
+            @Override
+            public HashMap<String, User> call(String queryName) {
+                return RestClient.getHerokuUserervice(context)
+                    .searchUsers(queryName).map(arrayToUserHashMap()).toBlocking().single();
+            }
+        };
+    }
+
+    public static Func1<ArrayList<User>, HashMap<String, User>> arrayToUserHashMap() {
+        return new Func1<ArrayList<User>, HashMap<String, User>>() {
+            @Override
+            public HashMap<String, User> call(ArrayList<User> users) {
+                HashMap<String, User> userMap = new HashMap<>(users.size());
+                for (User user : users) {
+                    userMap.put(user.id(), user);
+                }
+                return userMap;
+            }
+        };
     }
 
     public static List<GroupToggle> queryContactGroups(

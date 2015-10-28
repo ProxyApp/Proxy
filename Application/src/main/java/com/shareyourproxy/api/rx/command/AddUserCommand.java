@@ -33,20 +33,17 @@ public class AddUserCommand extends BaseCommand {
     private final static java.lang.ClassLoader CL = AddUserCommand.class.getClassLoader();
     public final User user;
 
-    public AddUserCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user) {
-        super(AddUserCommand.class.getPackage().getName(),
-            AddUserCommand.class.getName(), rxBus);
+    public AddUserCommand(@NonNull User user) {
         this.user = user;
     }
 
     private AddUserCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL));
+        this((User) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return saveUser(service, rxBus, user);
+        return saveUser(service, user);
     }
 
     @Override
@@ -56,7 +53,6 @@ public class AddUserCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
     }
 

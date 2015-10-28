@@ -10,7 +10,22 @@ import java.util.HashMap;
 /**
  * Created by Evan on 10/1/15.
  */
-public class PublicChannelsUpdatedEvent extends UserEventCallback{
+public class PublicChannelsUpdatedEvent extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        PublicChannelsUpdatedEvent.class.getClassLoader();
+    public static final Creator<PublicChannelsUpdatedEvent> CREATOR =
+        new Creator<PublicChannelsUpdatedEvent>() {
+            @Override
+            public PublicChannelsUpdatedEvent createFromParcel(Parcel in) {
+                return new PublicChannelsUpdatedEvent(
+                    (User) in.readValue(CL), (HashMap<String, Channel>) in.readValue(CL));
+            }
+
+            @Override
+            public PublicChannelsUpdatedEvent[] newArray(int size) {
+                return new PublicChannelsUpdatedEvent[size];
+            }
+        };
     public final HashMap<String, Channel> newChannels;
 
     public PublicChannelsUpdatedEvent(User user, HashMap<String, Channel> newChannels) {

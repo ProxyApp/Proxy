@@ -21,13 +21,20 @@
 -dontwarn butterknife.**
 -dontwarn com.squareup.**
 -dontwarn com.caverock.**
--keepnames public class * extends io.realm.RealmObject
--keep class io.realm.** { *; }
--keep class com.firebase.** { *; }
+-dontwarn rx.internal.**
 -dontwarn javax.**
 -dontwarn io.realm.**
+-dontwarn com.twitter.**
 -dontwarn com.fasterxml.jackson.databind.**
+
+
+-keep class io.realm.** { *; }
+-keep class com.firebase.** { *; }
+
 -keepnames class com.shaded.fasterxml.jackson.** { *; }
--dontwarn rx.internal.**
+-keepnames public class * extends io.realm.RealmObject
+
 -keepattributes Signature
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
 

@@ -30,7 +30,6 @@ import rx.functions.Func1;
 import static com.shareyourproxy.Intents.getUserProfileIntent;
 import static com.shareyourproxy.api.RestClient.getMessageService;
 import static com.shareyourproxy.api.rx.RxQuery.getRealmUser;
-import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 
 /**
  * Cold Rx.Observable calls to handle syncing messages for Users.
@@ -44,8 +43,8 @@ public class RxMessageSync {
     }
 
     public static List<EventCallback> getFirebaseMessages(
-        final Context context,@NonNull RxBusDriver rxBus, @NonNull final String userId) {
-        return getMessageService(context, rxBus)
+        final Context context, @NonNull final String userId) {
+        return getMessageService(context)
             .getUserMessages(userId).map(new Func1<Map<String, Message>, EventCallback>() {
                 @Override
                 public EventCallback call(Map<String, Message> messages) {
@@ -54,8 +53,7 @@ public class RxMessageSync {
                         return new UserMessagesDownloadedEventCallback(notifications);
                     }
                     for (Map.Entry<String, Message> message : messages.entrySet()) {
-                        String firstName = message.getValue().firstName();
-                        String lastName = message.getValue().lastName();
+                        String fullName = message.getValue().fullName();
                         PendingIntent intent = getPendingUserProfileIntent(
                             context, userId, message.getValue());
 
@@ -67,8 +65,8 @@ public class RxMessageSync {
                                 .setVibrate(new long[]{ 1000, 1000 })
                                 .setLights(Color.MAGENTA, 1000, 1000)
                                 .setContentTitle(context.getString(R.string.app_name))
-                                .setContentText(context.getString(R.string.added_to_contacts,
-                                    joinWithSpace(new String[]{ firstName, lastName })))
+                                .setContentText(context.getString(
+                                    R.string.added_you, fullName))
                                 .setContentIntent(intent);
 
                         notifications.add(_builder.build());
@@ -82,10 +80,10 @@ public class RxMessageSync {
     }
 
     public static List<EventCallback> saveFirebaseMessage(
-        Context context, RxBusDriver rxBus,String userId, Message message) {
+        Context context, String userId, Message message) {
         HashMap<String, Message> messages = new HashMap<>();
         messages.put(message.id(), message);
-        return getMessageService(context, rxBus)
+        return getMessageService(context)
             .addUserMessage(userId, messages)
             .map(getUserMessageCallback())
             .toList()
@@ -94,9 +92,9 @@ public class RxMessageSync {
     }
 
     public static Observable<Message> deleteAllFirebaseMessages(
-        Context context, RxBusDriver rxBus, User user) {
+        Context context, User user) {
         String contactId = user.id();
-        return getMessageService(context, rxBus)
+        return getMessageService(context)
             .deleteAllUserMessages(contactId)
             .compose(RxHelper.<Message>applySchedulers());
     }

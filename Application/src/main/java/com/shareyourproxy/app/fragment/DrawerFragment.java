@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.fragment;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +15,7 @@ import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.app.adapter.DrawerAdapter;
+import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -54,7 +54,7 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
         savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_drawer, container, false);
         ButterKnife.bind(this, view);
-        initializeRecyclerView(getResources());
+        initializeRecyclerView();
         return view;
     }
 
@@ -83,30 +83,27 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
     /**
      * Initialize a recyclerView with User data and menu options.
      */
-    private void initializeRecyclerView(Resources res) {
-        int icons[] =
-            new int[]{ R.raw.ic_account_circle, R.raw.ic_email, R.raw.ic_info, R.raw.ic_explore,
-                R.raw.ic_eject };
-        String[] strings = res.getStringArray(R.array.drawer_settings);
+    private void initializeRecyclerView() {
+        _adapter = DrawerAdapter.newInstance(getLoggedInUser(), this);
 
-        _adapter = DrawerAdapter.newInstance(getLoggedInUser(), strings, icons, this);
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        drawerRecyclerView.setAdapter(_adapter);
         drawerRecyclerView.setHasFixedSize(true);
         drawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        drawerRecyclerView.setAdapter(_adapter);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        getRxBus().post(new SelectDrawerItemEvent(view, position, _adapter.getSettingValue
-            (position)));
+        DrawerItem drawerItem = _adapter.getSettingValue(position);
+        getRxBus().post(new SelectDrawerItemEvent(
+            drawerItem, view, position, getString(drawerItem.getLabelRes())));
     }
 
     @Override
     public void onItemLongClick(View view, int position) {
-        String value = _adapter.getSettingValue(position);
-        if (!value.equals(DrawerAdapter.HEADER)) {
-            Toast.makeText(getActivity(), value, Toast.LENGTH_SHORT)
+        DrawerItem item = _adapter.getSettingValue(position);
+        if (!item.equals(DrawerItem.HEADER)) {
+            Toast.makeText(getActivity(), getString(item.getLabelRes()), Toast.LENGTH_SHORT)
                 .show();
         }
     }

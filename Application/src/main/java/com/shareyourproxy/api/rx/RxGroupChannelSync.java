@@ -43,10 +43,10 @@ public class RxGroupChannelSync {
     }
 
     public static List<EventCallback> addUserGroupsChannel(
-        final Context context, RxBusDriver rxBus, final User user,
+        final Context context, final User user,
         final ArrayList<GroupToggle> groups, final Channel channel) {
         return Observable.create(addChannelToSelectedGroups(groups, channel))
-            .map(zipAndSaveGroups(context, rxBus, user))
+            .map(zipAndSaveGroups(context, user))
             .toList().toBlocking().single();
     }
 
@@ -74,19 +74,19 @@ public class RxGroupChannelSync {
     }
 
     public static List<EventCallback> updateGroupChannels(
-        Context context, RxBusDriver rxBus, User user,
+        Context context, User user,
         String newTitle, Group oldGroup, HashSet<String> channels,
         GroupEditType groupEditType) {
         return Observable.zip(
             saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
-            saveFirebaseGroupChannels(context, user.id(), rxBus, newTitle, oldGroup, channels),
+            saveFirebaseGroupChannels(context, user.id(), newTitle, oldGroup, channels),
             zipAddGroupChannels(user, channels, groupEditType))
-            .map(saveSharedLink(context, rxBus))
+            .map(saveSharedLink(context))
             .toList().toBlocking().single();
     }
 
     public static List<EventCallback> updatePublicGroupChannels(
-        Context context, RxBusDriver rxBus, User user, ArrayList<ChannelToggle> channels) {
+        Context context, User user, ArrayList<ChannelToggle> channels) {
         HashMap<String, Channel> newChannels = new HashMap<>(channels.size());
         for (int i = 0; i < channels.size(); i++) {
             ChannelToggle channelToggle = channels.get(i);
@@ -98,7 +98,7 @@ public class RxGroupChannelSync {
         }
         return Observable.zip(
             saveRealmPublicGroupChannels(context, user, newChannels),
-            saveFirebasePublicChannels(context, user.id(), rxBus, newChannels),
+            saveFirebasePublicChannels(context, user.id(), newChannels),
             zipAddPublicChannels())
             .toList().toBlocking().single();
     }
@@ -109,13 +109,13 @@ public class RxGroupChannelSync {
     }
 
     private static Func1<HashMap<String, Group>, EventCallback> zipAndSaveGroups(
-        final Context context, final RxBusDriver rxBus, final User user) {
+        final Context context, final User user) {
         return new Func1<HashMap<String, Group>, EventCallback>() {
             @Override
             public EventCallback call(HashMap<String, Group> newGroups) {
                 return Observable.zip(
                     saveRealmGroupChannels(context, user, newGroups),
-                    saveFirebaseUserGroups(context, rxBus, user.id(), newGroups),
+                    saveFirebaseUserGroups(context, user.id(), newGroups),
                     zipAddGroupsChannel()).toBlocking().single();
             }
         };
@@ -131,12 +131,12 @@ public class RxGroupChannelSync {
     }
 
     private static Func1<GroupChannelsUpdatedEventCallback, EventCallback> saveSharedLink(
-        final Context context, final RxBusDriver rxBus) {
+        final Context context) {
         return new Func1<GroupChannelsUpdatedEventCallback, EventCallback>() {
             @Override
             public GroupChannelsUpdatedEventCallback call(GroupChannelsUpdatedEventCallback event) {
                 SharedLink link = SharedLink.create(event.user, event.group);
-                RestClient.getSharedLinkService(context, rxBus).addSharedLink(link.id(), link)
+                RestClient.getSharedLinkService(context).addSharedLink(link.id(), link)
                     .subscribe();
                 return event;
             }
@@ -178,8 +178,8 @@ public class RxGroupChannelSync {
     }
 
     private static Observable<Group> saveFirebaseUserGroups(
-        Context context, RxBusDriver rxBus, String userId, HashMap<String, Group> groups) {
-        return RestClient.getUserGroupService(context, rxBus).updateUserGroups(userId, groups);
+        Context context, String userId, HashMap<String, Group> groups) {
+        return RestClient.getUserGroupService(context).updateUserGroups(userId, groups);
     }
 
     private static Func2<User, HashMap<String, Channel>, EventCallback> zipAddPublicChannels() {
@@ -192,8 +192,8 @@ public class RxGroupChannelSync {
     }
 
     private static Observable<HashMap<String, Channel>> saveFirebasePublicChannels(
-        Context context, String userId, RxBusDriver rxBus, HashMap<String, Channel> newChannels) {
-        return getUserChannelService(context, rxBus).addUserChannels(userId, newChannels);
+        Context context, String userId, HashMap<String, Channel> newChannels) {
+        return getUserChannelService(context).addUserChannels(userId, newChannels);
     }
 
 
@@ -236,11 +236,11 @@ public class RxGroupChannelSync {
     }
 
     private static Observable<Group> saveFirebaseGroupChannels(
-        Context context, String userId, RxBusDriver rxBus, String newTitle,
+        Context context, String userId, String newTitle,
         Group group, HashSet<String> channels) {
         String groupId = group.id();
         Group newGroup = Group.copy(group, newTitle, channels);
-        return getUserGroupService(context, rxBus).addUserGroup(userId, groupId, newGroup);
+        return getUserGroupService(context).addUserGroup(userId, groupId, newGroup);
     }
 
     private static Func2<Group, Group, GroupChannelsUpdatedEventCallback> zipAddGroupChannels(

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.shareyourproxy"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
-    // it works on everything
-    <supports-screens android:largeScreens="true"
-                      android:normalScreens="true"
-                      android:smallScreens="true"
-                      android:xlargeScreens="true"/>
+    <supports-screens
+        android:anyDensity="true"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
@@ -14,7 +12,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
         android:name=".ProxyApplication"
@@ -23,8 +20,30 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Proxy.Base">
-        <service android:name="com.shareyourproxy.api.CommandIntentService"
-                 android:exported="false"/>
+        <!--Hack-->
+        <provider
+            android:name="com.google.android.gms.measurement.AppMeasurementContentProvider"
+            android:authorities="com.shareyourproxy.google_measurement_service"
+            android:exported="false"
+            tools:replace="android:authorities"/>
+        <!--Activities-->
+        <activity
+            android:name=".app.AboutActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.VIEW_ABOUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.AddChannelListActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.ADD_CHANNEL_LIST"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <!--Main Launcher-->
         <activity
             android:name="com.shareyourproxy.app.DispatchActivity"
             android:screenOrientation="sensorPortrait">
@@ -35,6 +54,36 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.EditGroupChannelsActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.EDIT_GROUP"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.facebook.FacebookActivity"
+                  android:configChanges=
+                      "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+        <activity
+            android:name=".app.GroupContactsActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.VIEW_GROUP_USERS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.IntroductionActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="com.shareyourproxy.intent.action.INTRODUCTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity
@@ -53,16 +102,6 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="com.shareyourproxy.app.UserProfileActivity"
-            android:screenOrientation="sensorPortrait">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.USER_PROFILE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
         <activity
             android:name="com.shareyourproxy.app.SearchActivity"
             android:screenOrientation="sensorPortrait">
@@ -71,65 +110,25 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".app.AddChannelListActivity"
+            android:name="com.shareyourproxy.app.UserProfileActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.ADD_CHANNEL_LIST"/>
+                <action android:name="com.shareyourproxy.intent.action.USER_PROFILE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".app.EditGroupChannelsActivity"
-            android:screenOrientation="sensorPortrait">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.EDIT_GROUP"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".app.GroupContactsActivity"
-            android:screenOrientation="sensorPortrait">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.VIEW_GROUP_USERS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".app.AboutActivity"
-            android:screenOrientation="sensorPortrait">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.VIEW_ABOUT"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".app.IntroductionActivity"
-            android:screenOrientation="sensorPortrait">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.INTRODUCTION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <service android:name=".api.NotificationService"
+        <!--Services-->
+        <service android:name="com.shareyourproxy.api.CommandIntentService"
+                 android:exported="false"/>
+        <service android:name="com.shareyourproxy.api.NotificationService"
                  android:exported="false">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </service>
-
-        <activity android:name="com.facebook.FacebookActivity"
-                  android:configChanges=
-                      "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <!--Meta-->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
