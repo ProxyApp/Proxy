@@ -3,11 +3,9 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.ChannelToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ import static com.shareyourproxy.api.rx.RxGroupChannelSync.updatePublicGroupChan
 /**
  * Created by Evan on 10/1/15.
  */
-public class SavePublicGroupChannelsCommand extends BaseCommand{
+public class SavePublicGroupChannelsCommand extends BaseCommand {
     public static final Parcelable.Creator<SavePublicGroupChannelsCommand> CREATOR =
         new Parcelable.Creator<SavePublicGroupChannelsCommand>() {
             @Override
@@ -38,22 +36,18 @@ public class SavePublicGroupChannelsCommand extends BaseCommand{
     private final ArrayList<ChannelToggle> channels;
 
 
-    public SavePublicGroupChannelsCommand(
-        @NonNull RxBusDriver rxBus, User user, ArrayList<ChannelToggle> channels) {
-        super(SavePublicGroupChannelsCommand.class.getPackage().getName(),
-            SavePublicGroupChannelsCommand.class.getName(), rxBus);
+    public SavePublicGroupChannelsCommand(User user, ArrayList<ChannelToggle> channels) {
         this.user = user;
         this.channels = channels;
     }
 
     private SavePublicGroupChannelsCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL),
-            (ArrayList<ChannelToggle>) in.readValue(CL));
+        this((User) in.readValue(CL), (ArrayList<ChannelToggle>) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return updatePublicGroupChannels(service, rxBus, user, channels);
+        return updatePublicGroupChannels(service, user, channels);
     }
 
     @Override
@@ -63,7 +57,6 @@ public class SavePublicGroupChannelsCommand extends BaseCommand{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(channels);
     }

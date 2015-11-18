@@ -7,7 +7,7 @@ import com.shareyourproxy.api.domain.model.User;
 /**
  * Created by Evan on 4/26/15.
  */
-public class UserSelectedEvent{
+public class UserSelectedEvent {
 
     public final User user;
     public final View imageView;

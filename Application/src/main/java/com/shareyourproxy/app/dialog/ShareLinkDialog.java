@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
@@ -37,6 +38,8 @@ public class ShareLinkDialog extends BaseDialogFragment {
     private static final String ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group";
     private final DialogInterface.OnClickListener _negativeClicked =
         getNegOnClickListener();
+    @Bind(R.id.dialog_sharelink_message)
+    TextView message;
     @Bind(R.id.dialog_sharelink_recyclerview)
     BaseRecyclerView recyclerView;
     @BindColor(R.color.common_text)
@@ -74,7 +77,7 @@ public class ShareLinkDialog extends BaseDialogFragment {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                getRxBus().post(new GenerateShareLinkCommand(getRxBus(), _adapter.getDataArray()));
+                getRxBus().post(new GenerateShareLinkCommand(getLoggedInUser(), _adapter.getData()));
             }
         };
     }
@@ -104,18 +107,20 @@ public class ShareLinkDialog extends BaseDialogFragment {
 
         // build dialog
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(getString(R.string.dialog_sharelink_title))
             .setView(view)
             .setPositiveButton(getString(R.string.share), _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
 
-        dialog.setCanceledOnTouchOutside(false);
+
+        message.setText(getString(R.string.dialog_sharelink_message));
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.setCanceledOnTouchOutside(false);
 
         return dialog;
     }
@@ -130,10 +135,10 @@ public class ShareLinkDialog extends BaseDialogFragment {
     }
 
     private void initializeRecyclerView() {
-        _adapter = ShareLinkAdapter.newInstance(getGroups());
+        _adapter = ShareLinkAdapter.newInstance(recyclerView, getGroups());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();
+        recyclerView.setAdapter(_adapter);
     }
 
     @SuppressWarnings("unchecked")
@@ -144,7 +149,6 @@ public class ShareLinkDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

@@ -3,11 +3,9 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 
@@ -42,11 +40,8 @@ public class SaveGroupChannelsCommand extends BaseCommand {
     private final GroupEditType groupEditType;
 
 
-    public SaveGroupChannelsCommand(
-        @NonNull RxBusDriver rxBus, User user, String newTitle, Group group,
+    public SaveGroupChannelsCommand(User user, String newTitle, Group group,
         HashSet<String> channels, GroupEditType groupEditType) {
-        super(SaveGroupChannelsCommand.class.getPackage().getName(),
-            SaveGroupChannelsCommand.class.getName(), rxBus);
         this.user = user;
         this.newTitle = newTitle;
         this.group = group;
@@ -55,16 +50,14 @@ public class SaveGroupChannelsCommand extends BaseCommand {
     }
 
     private SaveGroupChannelsCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL),
-            (User) in.readValue(CL), (String) in.readValue(CL),
+        this((User) in.readValue(CL), (String) in.readValue(CL),
             (Group) in.readValue(CL), (HashSet<String>) in.readValue(CL),
             (GroupEditType) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return updateGroupChannels(service, rxBus, user, newTitle,
-            group, channels, groupEditType);
+        return updateGroupChannels(service, user, newTitle, group, channels, groupEditType);
     }
 
     @Override
@@ -74,7 +67,6 @@ public class SaveGroupChannelsCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(newTitle);
         dest.writeValue(group);

@@ -163,7 +163,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
             String id = UUID.randomUUID().toString();
             Channel channel =
                 createModelInstance(id, labelContent, _channelType, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
     }
 
@@ -196,18 +196,18 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
 
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(_dialogTitle)
             .setView(view)
             .setPositiveButton(R.string.save, null)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
 
-        dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.setCanceledOnTouchOutside(false);
 
         // Setup Button Colors
         initializeEditTextColors();
@@ -242,7 +242,6 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

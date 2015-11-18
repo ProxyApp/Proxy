@@ -1,8 +1,6 @@
 package com.shareyourproxy.app.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v7.util.SortedList;
-import android.support.v7.util.SortedList.Callback;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,114 +17,44 @@ import butterknife.Bind;
 
 import static com.shareyourproxy.api.domain.model.Group.createPublicGroup;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS;
 
 /**
  * An Adapter to handle displaying {@link Group}s.
  */
-public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+public class GroupAdapter extends NotificationRecyclerAdapter<Group> {
 
-    private final BaseRecyclerView _recyclerView;
-    //Persisted Group Array Data
-    private SortedList<Group> _groups;
-    private ItemClickListener _listener;
-    private Callback<Group> _sortedListCallback;
-    private boolean _needsRefresh = true;
+    private final ItemClickListener _listener;
 
     /**
      * Constructor for {@link GroupAdapter}.
-     *
-     * @param groups a list of {@link Group}s
      */
     public GroupAdapter(
-        BaseRecyclerView recyclerView, HashMap<String, Group> groups, ItemClickListener listener) {
-        _recyclerView = recyclerView;
-        if (groups != null) {
-            _groups = new SortedList<>(Group.class, getSortedCallback(), groups.size());
-        } else {
-            _groups = new SortedList<>(Group.class, getSortedCallback(), 0);
-        }
-        refreshGroupData(groups);
+        BaseRecyclerView recyclerView, SharedPreferences sharedPreferences, boolean showHeader,
+        ItemClickListener listener) {
+        super(Group.class, recyclerView, showHeader, false, sharedPreferences);
         _listener = listener;
     }
 
     /**
      * Create a newInstance of a {@link GroupAdapter} with blank data.
      *
-     * @param groups initialize {@link com.shareyourproxy.api.domain.model.User} {@link
-     *               com.shareyourproxy.api.domain.model.Group}s
      * @return an {@link GroupAdapter} with no data
      */
     public static GroupAdapter newInstance(
-        BaseRecyclerView recyclerView, HashMap<String, Group> groups, ItemClickListener listener) {
-        return new GroupAdapter(recyclerView, groups, listener);
-    }
-
-    public Callback<Group> getSortedCallback() {
-        if (_sortedListCallback == null) {
-            _sortedListCallback = new Callback<Group>() {
-
-                @Override
-                public int compare(Group group1, Group group2) {
-                    return group1.label().compareToIgnoreCase(group2.label());
-                }
-
-                @Override
-                public void onInserted(int position, int count) {
-                    if (_needsRefresh) {
-                        notifyDataSetChanged();
-                        _needsRefresh = false;
-                    }
-                    notifyItemRangeInserted(position, count);
-                    _recyclerView.smoothScrollToPosition(position);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    if (getItemCount() == 0) {
-                        notifyDataSetChanged();
-                        _needsRefresh = true;
-                    } else {
-                        notifyItemRangeRemoved(position, count);
-                    }
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
-                }
-
-                @Override
-                public boolean areContentsTheSame(Group oldItem, Group newItem) {
-                    return (oldItem.id().equals(newItem.id())
-                        && oldItem.label().equals(newItem.label()));
-                }
-
-                @Override
-                public boolean areItemsTheSame(Group item1, Group item2) {
-                    //Sections will have the same ID but different categories
-                    return item1.id().equals(item2.id());
-                }
-            };
-        }
-        return _sortedListCallback;
-    }
-
-    @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.common_adapter_text_item, parent, false);
-        return GroupViewHolder.newInstance(view, _listener);
+        BaseRecyclerView recyclerView, SharedPreferences sharedPreferences, boolean showHeader,
+        ItemClickListener listener) {
+        return new GroupAdapter(recyclerView, sharedPreferences, showHeader, listener);
     }
 
     @Override
     public void onBindViewHolder(BaseViewHolder holder, int position) {
-        Group group = getItemData(position);
-        setLineItemViewData((GroupViewHolder) holder, group);
+        if (holder instanceof GroupViewHolder) {
+            Group group = getItemData(position);
+            setLineItemViewData((GroupViewHolder) holder, group);
+        } else if (holder instanceof HeaderViewHolder) {
+            bindHeaderViewData((HeaderViewHolder) holder, MAIN_GROUPS, true, false);
+        }
     }
 
     /**
@@ -140,48 +68,37 @@ public class GroupAdapter extends RecyclerView.Adapter<BaseViewHolder> {
     }
 
     @Override
-    public int getItemCount() {
-        return _groups.size();
+    protected BaseViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.common_adapter_text_item, parent, false);
+        return GroupViewHolder.newInstance(view, _listener);
     }
 
-    /**
-     * Get the desired {@link Group} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link Group}
-     */
-    public Group getItemData(int position) {
-        return _groups.get(position);
+    @Override
+    protected int compare(Group item1, Group item2) {
+        return item1.label().compareToIgnoreCase(item2.label());
     }
 
-    /**
-     * Add {@link Group} to this Adapter's array data set at the end of the set.
-     *
-     * @param group the {@link Group} to add
-     */
-    public void addGroupData(@NonNull Group group) {
-        _groups.add(group);
+    @Override
+    protected boolean areContentsTheSame(Group item1, Group item2) {
+        //Sections will have the same ID but different categories
+        return item1.id().equals(item2.id());
     }
 
-    /**
-     * Get the desired {@link Group} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link Group}
-     */
-    public Group getGroupData(int position) {
-        return _groups.get(position);
+    @Override
+    protected boolean areItemsTheSame(Group item1, Group item2) {
+        return (item1.id().equals(item2.id())
+            && item1.label().equals(item2.label()));
     }
 
-    public void refreshGroupData(@NonNull HashMap<String, Group> groups) {
-        _groups.clear();
-        _groups.beginBatchedUpdates();
-        if (groups != null) {
-                _groups.addAll(groups.values());
-        }
-        // There's a public group no matter what
-        _groups.add(createPublicGroup());
-        _groups.endBatchedUpdates();
+
+    public void refreshGroupData(final HashMap<String, Group> groups) {
+        HashMap<String, Group> newGroups =
+            new HashMap<String, Group>(groups.size()) {{putAll(groups);}};
+
+        Group publicGroup = createPublicGroup();
+        newGroups.put(publicGroup.id(), publicGroup);
+        refreshData(newGroups.values());
     }
 
     /**

@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-        android:color="@color/common_red_light">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape
             android:shape="rectangle">
-            <solid android:color="@color/common_red_light"/>
+            <solid android:color="@color/common_blue_light"/>
             <corners android:radius="5dp"/>
         </shape>
     </item>
     <item android:state_pressed="false">
         <shape
             android:shape="rectangle">
-            <solid android:color="@color/common_proxy_zoidberg"/>
+            <solid android:color="@color/common_blue"/>
             <corners android:radius="5dp"/>
         </shape>
     </item>
-</ripple>
+</selector>
 

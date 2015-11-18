@@ -33,24 +33,25 @@ public class RxGroupContactSync {
     }
 
     public static List<EventCallback> updateGroupContacts(
-        final Context context, RxBusDriver rxBus, final User user,
-        final ArrayList<GroupToggle> editGroups, final String contactId) {
+        final Context context, final User user,
+        final ArrayList<GroupToggle> editGroups, final User contact) {
         return Observable.just(editGroups)
-            .map(userUpdateContacts(user, contactId))
-            .map(saveUserToDB(context, rxBus))
-            .map(createGroupContactEvent(contactId))
+            .map(userUpdateContacts(user, contact.id()))
+            .map(saveUserToDB(context, contact))
+            .map(createGroupContactEvent(contact.id()))
             .toBlocking().single();
     }
 
     public static Func1<Pair<User, List<Group>>, Pair<User, List<Group>>> saveUserToDB(
-        final Context context, final RxBusDriver rxBus) {
+        final Context context, final User contact) {
         return new Func1<Pair<User, List<Group>>, Pair<User, List<Group>>>() {
             @Override
             public Pair<User, List<Group>> call(Pair<User, List<Group>> userListPair) {
                 User newUser = userListPair.first;
                 String userId = newUser.id();
                 updateRealmUser(context, newUser);
-                getUserService(context, rxBus).updateUser(userId, newUser).subscribe();
+                updateRealmUser(context, contact);
+                getUserService(context).updateUser(userId, newUser).subscribe();
                 return userListPair;
             }
         };

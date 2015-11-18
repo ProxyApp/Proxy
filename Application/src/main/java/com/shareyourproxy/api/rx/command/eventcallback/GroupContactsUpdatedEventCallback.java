@@ -11,7 +11,22 @@ import java.util.List;
  * Created by Evan on 6/10/15.
  */
 public class GroupContactsUpdatedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        GroupContactsUpdatedEventCallback.class.getClassLoader();
+    public static final Creator<GroupContactsUpdatedEventCallback> CREATOR =
+        new Creator<GroupContactsUpdatedEventCallback>() {
+            @Override
+            public GroupContactsUpdatedEventCallback createFromParcel(Parcel in) {
+                return new GroupContactsUpdatedEventCallback(
+                    (User) in.readValue(CL), (String) in.readValue(CL),
+                    (List<Group>) in.readValue(CL));
+            }
 
+            @Override
+            public GroupContactsUpdatedEventCallback[] newArray(int size) {
+                return new GroupContactsUpdatedEventCallback[size];
+            }
+        };
     public final List<Group> contactGroups;
     public final String contactId;
 

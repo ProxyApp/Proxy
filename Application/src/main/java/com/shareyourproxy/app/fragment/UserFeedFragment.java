@@ -6,6 +6,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +40,6 @@ import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static android.text.Html.fromHtml;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -49,9 +51,13 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     BaseRecyclerView recyclerView;
     @Bind(R.id.fragment_user_feed_empty_textview)
     TextView emptyTextView;
-    @BindString(R.string.fragment_userfeed_empty_text)
+    @BindString(R.string.fragment_userfeed_empty_title)
+    String loggedInNullTitle;
+    @BindString(R.string.fragment_userfeed_empty_message)
     String stringNullMessage;
-    @BindDimen(R.dimen.common_svg_null_screen)
+    @BindString(R.string.fragment_userprofile_contact_empty_title)
+    String contactNullTitle;
+    @BindDimen(R.dimen.common_svg_null_screen_small)
     int marginNullScreen;
     @BindString(R.string.twitter_login_error)
     String twitterLoginError;
@@ -127,7 +133,7 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
             @Override
             public void success(Result<TwitterSession> result) {
                 Twitter.getSessionManager().setActiveSession(result.data);
-                _adapter.removeItemData(_lastClickedAuthItem);
+                _adapter.removeItem(_lastClickedAuthItem);
                 getUserFeed(result.data);
             }
 
@@ -173,21 +179,38 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     private void initializeRecyclerView() {
         initializeEmptyView();
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = ActivityFeedAdapter.newInstance(_userContact, null, this);
+        _adapter = ActivityFeedAdapter.newInstance(recyclerView, _userContact, this);
         recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     private void initializeEmptyView() {
+        Context context = getContext();
         if (_isLoggedInUser) {
-            emptyTextView.setText(fromHtml(stringNullMessage));
+            SpannableStringBuilder sb = new SpannableStringBuilder(loggedInNullTitle).append("\n")
+                .append(stringNullMessage);
+
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+                0, loggedInNullTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+                loggedInNullTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+            emptyTextView.setText(sb);
             emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
                 null, getNullDrawable(R.raw.ic_ghost_doge), null, null);
         } else {
-            emptyTextView.setText(
-                fromHtml(getString(R.string.fragment_userprofile_contact_empty_text,
-                    _userContact.first())));
+            String contactNullMessage = getString(
+                R.string.fragment_userprofile_contact_empty_message, _userContact.first());
+            SpannableStringBuilder sb = new SpannableStringBuilder(contactNullTitle).append("\n")
+                .append(contactNullMessage);
+
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+                0, loggedInNullTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+                loggedInNullTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+            emptyTextView.setText(sb);
             emptyTextView.setCompoundDrawablesWithIntrinsicBounds(
                 null, getNullDrawable(R.raw.ic_ghost_sloth), null, null);
         }

@@ -1,5 +1,6 @@
 package com.shareyourproxy;
 
+import android.content.ComponentName;
 import android.content.Intent;
 
 import com.shareyourproxy.api.domain.model.User;
@@ -62,4 +63,15 @@ public class Intents {
         sendIntent.setType("text/plain");
         return sendIntent;
     }
+
+    public static Intent getClipboardIntent(String message) {
+        Intent clipboardIntent = new Intent();
+        clipboardIntent.setComponent(new ComponentName("com.google.android.apps.docs",
+            "com.google.android.apps.docs.app.SendTextToClipboardActivity"));
+        clipboardIntent.setAction(Intent.ACTION_SEND);
+        clipboardIntent.setType("text/plain");
+        clipboardIntent.putExtra(Intent.EXTRA_TEXT, message);
+        return clipboardIntent;
+    }
+
 }

@@ -13,7 +13,7 @@ public class TwitterRestClient extends TwitterApiClient {
 
     }
 
-    public static TwitterRestClient newInstance(Session session){
+    public static TwitterRestClient newInstance(Session session) {
         return new TwitterRestClient(session);
     }
 

@@ -30,36 +30,34 @@ public class RxUserGroupSync {
     private RxUserGroupSync() {
     }
 
-    public static List<EventCallback> addUserGroup(
-        Context context, RxBusDriver rxBus, User user, Group group) {
+    public static List<EventCallback> addUserGroup(Context context, User user, Group group) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, group, user),
-            saveFirebaseUserGroup(context, user.id(), rxBus, group),
+            saveFirebaseUserGroup(context, user.id(), group),
             zipAddUserGroup())
-            .map(saveSharedLink(context, rxBus))
+            .map(saveSharedLink(context))
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
-    public static List<EventCallback> deleteUserGroup(
-        Context context, RxBusDriver rxBus, User user, Group group) {
+    public static List<EventCallback> deleteUserGroup(Context context, User user, Group group) {
         return Observable.zip(
             deleteRealmUserGroup(context, group, user),
-            deleteFirebaseUserGroup(context, user.id(), rxBus, group),
+            deleteFirebaseUserGroup(context, user.id(), group),
             zipDeleteUserGroup())
-            .map(deleteSharedLink(context, rxBus))
+            .map(deleteSharedLink(context))
             .toList()
             .compose(RxHelper.<List<EventCallback>>applySchedulers())
             .toBlocking().single();
     }
 
     private static Func1<UserGroupDeletedEventCallback, EventCallback> deleteSharedLink(
-        final Context context, final RxBusDriver rxBus) {
+        final Context context) {
         return new Func1<UserGroupDeletedEventCallback, EventCallback>() {
             @Override
             public UserGroupDeletedEventCallback call(UserGroupDeletedEventCallback event) {
-                getSharedLinkService(context, rxBus)
+                getSharedLinkService(context)
                     .deleteSharedLink(event.group.id()).subscribe();
                 return event;
             }
@@ -67,12 +65,12 @@ public class RxUserGroupSync {
     }
 
     private static Func1<UserGroupAddedEventCallback, EventCallback> saveSharedLink(
-        final Context context, final RxBusDriver rxBus) {
+        final Context context) {
         return new Func1<UserGroupAddedEventCallback, EventCallback>() {
             @Override
             public UserGroupAddedEventCallback call(UserGroupAddedEventCallback event) {
                 SharedLink link = SharedLink.create(event.user, event.group);
-                getSharedLinkService(context, rxBus)
+                getSharedLinkService(context)
                     .addSharedLink(link.id(), link).subscribe();
                 return event;
             }
@@ -136,14 +134,14 @@ public class RxUserGroupSync {
     }
 
     private static rx.Observable<Group> saveFirebaseUserGroup(
-        Context context, String userId, RxBusDriver rxBus, Group group) {
-        return RestClient.getUserGroupService(context, rxBus)
+        Context context, String userId, Group group) {
+        return RestClient.getUserGroupService(context)
             .addUserGroup(userId, group.id(), group);
     }
 
     private static rx.Observable<Group> deleteFirebaseUserGroup(
-        Context context, String userId, RxBusDriver rxBus, Group group) {
-        RestClient.getUserGroupService(context, rxBus)
+        Context context, String userId, Group group) {
+        RestClient.getUserGroupService(context)
             .deleteUserGroup(userId, group.id()).subscribe();
         return Observable.just(group);
     }

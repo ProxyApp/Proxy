@@ -1,5 +1,6 @@
 package com.shareyourproxy.app;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,13 +24,15 @@ import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserCommand;
-import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.fragment.MainFragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.Bind;
@@ -40,9 +43,11 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.BuildConfig.VERSION_CODE;
-import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
+import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.api.RestClient.getHerokuUserervice;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 
@@ -51,6 +56,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class LoginActivity extends GoogleApiActivity {
 
+    private final RxGoogleAnalytics _analytics = RxGoogleAnalytics.getInstance(this);
     // View
     @Bind(R.id.activity_login_title)
     TextView proxyLogo;
@@ -65,7 +71,6 @@ public class LoginActivity extends GoogleApiActivity {
     private int _signInError;
     private CompositeSubscription _subscriptions;
     private GoogleApiClient _googleApiClient;
-
 
     /**
      * Sign in click listener.
@@ -133,10 +138,10 @@ public class LoginActivity extends GoogleApiActivity {
     }
 
     public void login() {
-        if (!getSharedPreferences().contains(KEY_PLAYED_INTRODUCTION)) {
+        if (getSharedPreferences().getBoolean(KEY_PLAY_INTRODUCTION, true)) {
             launchIntroductionActivity(this);
         } else {
-            launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+            launchMainActivity(this, MainFragment.ARG_SELECT_PROFILE_TAB, false, null);
         }
         finish();
     }
@@ -170,9 +175,9 @@ public class LoginActivity extends GoogleApiActivity {
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         if (currentUser != null) {
             String userId = GOOGLE_UID_PREFIX + currentUser.getId();
-            RestClient.getUserService(this, getRxBus()).getUser(userId)
+            RestClient.getUserService(this).getUser(userId)
                 .compose(RxHelper.<User>applySchedulers())
-                .subscribe(getUserObserver());
+                .subscribe(getUserObserver(this));
         } else {
             showErrorDialog(this, getString(R.string.login_error_retrieving_user));
             signInButton.setEnabled(true);
@@ -182,17 +187,18 @@ public class LoginActivity extends GoogleApiActivity {
         }
     }
 
-    private JustObserver<User> getUserObserver() {
+    private JustObserver<User> getUserObserver(final Activity context) {
         return new JustObserver<User>() {
             @Override
             public void next(User user) {
                 if (user == null) {
                     addUserToDatabase(createUserFromGoogle());
                 } else {
+                    updateRealmUser(context, user);
                     setLoggedInUser(user);
-                    RestClient.getUserService(LoginActivity.this, getRxBus())
+                    RestClient.getUserService(LoginActivity.this)
                         .updateUserVersion(user.id(), BuildConfig.VERSION_CODE).subscribe();
-                    getRxBus().post(new SyncAllUsersCommand(getRxBus(), user.id()));
+                    getRxBus().post(new SyncContactsCommand(user));
                 }
             }
 
@@ -249,8 +255,15 @@ public class LoginActivity extends GoogleApiActivity {
      */
     private void addUserToDatabase(User newUser) {
         setLoggedInUser(newUser);
-        getRxBus().post(new AddUserCommand(getRxBus(), newUser));
-        getRxBus().post(new SyncAllUsersCommand(getRxBus(), newUser.id()));
+        ArrayList<String> groupIds = new ArrayList<>(newUser.groups().size());
+        for (Group group : newUser.groups().values()) {
+            groupIds.add(group.id());
+        }
+        getHerokuUserervice(this).putSharedLinks(groupIds, newUser.id())
+            .compose(RxHelper.applySchedulers()).subscribe();
+        getRxBus().post(new AddUserCommand(newUser));
+        getRxBus().post(new SyncContactsCommand(newUser));
+        _analytics.userAdded(newUser);
     }
 
     /**

@@ -11,6 +11,21 @@ import com.shareyourproxy.api.domain.model.User;
  * A newChannel was added or updated. If oldChannel is non-null, then this is an update.
  */
 public class UserChannelAddedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL = UserChannelAddedEventCallback.class.getClassLoader();
+    public static final Creator<UserChannelAddedEventCallback> CREATOR =
+        new Creator<UserChannelAddedEventCallback>() {
+            @Override
+            public UserChannelAddedEventCallback createFromParcel(Parcel in) {
+                return new UserChannelAddedEventCallback(
+                    (User) in.readValue(CL), (Channel) in.readValue(CL),
+                    (Channel) in.readValue(CL));
+            }
+
+            @Override
+            public UserChannelAddedEventCallback[] newArray(int size) {
+                return new UserChannelAddedEventCallback[size];
+            }
+        };
     public final Channel newChannel;
     public final Channel oldChannel;
 

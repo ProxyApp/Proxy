@@ -23,9 +23,9 @@ import timber.log.Timber;
 public class NotificationService extends Service {
     private final INotificationService.Stub _binder = new INotificationService.Stub() {
         @Override
-        public ArrayList<Notification> getNotifications(RxBusDriver rxBus, String userId)
+        public ArrayList<Notification> getNotifications(String userId)
             throws RemoteException {
-            List<EventCallback> event = new GetUserMessagesCommand(rxBus,userId)
+            List<EventCallback> event = new GetUserMessagesCommand(userId)
                 .execute(NotificationService.this);
             EventCallback eventData = event.get(0);
 

@@ -6,6 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
+
 /**
  * {@link BaseRecyclerView} that handles empty views.
  */
@@ -14,18 +17,9 @@ public class BaseRecyclerView extends RecyclerView {
 
     private View _emptyView;
     private View _loadingView;
-    private boolean _hideRecyclerView = true;
-
-    /**
-     * Observer to monitor if we have an empty dataset.
-     */
-    private AdapterDataObserver _dataObserver = new AdapterDataObserver() {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            updateEmptyView();
-        }
-    };
+    private RxBusDriver _rxBus;
+    private ViewState _viewState;
+    private View _refreshView;
 
     /**
      * Constructor.
@@ -61,37 +55,100 @@ public class BaseRecyclerView extends RecyclerView {
      * Designate a view as the empty view. When the backing adapter has no data this view will be
      * made visible and the recycler view hidden.
      *
-     * @param emptyView the view to display when this array has no data
+     * @param emptyView the view to display when this adapter has no data
      */
     public void setEmptyView(@NonNull View emptyView) {
         _emptyView = emptyView;
-        _emptyView.setVisibility(View.GONE);
+    }
+
+    public void setRefreshView(@NonNull View refreshView) {
+        _refreshView = refreshView;
+    }
+
+    /**
+     * Designate a view as the loading view. When the backing adapter is loading data this view will
+     * be made visible and the recycler view hidden.
+     *
+     * @param loadingView the view to display when this adapter is loading data
+     */
+    public void setLoadingView(@NonNull View loadingView) {
+        _loadingView = loadingView;
     }
 
     @Override
     public void setAdapter(RecyclerView.Adapter adapter) {
-        if (getAdapter() != null) {
-            getAdapter().unregisterAdapterDataObserver(_dataObserver);
-        }
-        if (adapter != null) {
-            adapter.registerAdapterDataObserver(_dataObserver);
-        }
+        // make sure to set a loading or empty view before you call set adapter.
+        // That way it will show automatically. Loading views take precedence over empty views.
         super.setAdapter(adapter);
-        updateEmptyView();
-    }
-
-    public void hideRecyclerView(boolean hideRecyclerView) {
-        _hideRecyclerView = hideRecyclerView;
+        if (_loadingView != null) {
+            toggleVisibility(_loadingView);
+        } else if (_emptyView != null) {
+            toggleVisibility(_emptyView);
+        } else {
+            toggleVisibility(this);
+        }
     }
 
     /**
      * Show or hide the empty view.
      */
-    private void updateEmptyView() {
-        if (_emptyView != null && getAdapter() != null) {
-            boolean showEmptyView = getAdapter().getItemCount() == 0;
-            _emptyView.setVisibility(showEmptyView ? VISIBLE : GONE);
-            setVisibility(showEmptyView && _hideRecyclerView ? GONE : VISIBLE);
+    public void updateViewState(RecyclerViewDatasetChangedEvent event) {
+        _viewState = event.viewState;
+        switch (_viewState) {
+            case MAIN:
+                toggleVisibility(this);
+                break;
+            case EMPTY:
+                toggleVisibility(_emptyView);
+                break;
+            case LOADING:
+                toggleVisibility(_loadingView);
+                break;
         }
+    }
+
+    private void toggleVisibility(View view) {
+        if (view != null) {
+            clearViewTypeVisibility(view);
+            view.setVisibility(getViewVis(view));
+        }
+    }
+
+    private int getViewVis(View view) {
+        if (view.equals(this) && _refreshView != null) {
+            _refreshView.setVisibility(View.VISIBLE);
+        }
+        return View.VISIBLE;
+    }
+
+    /**
+     * Set all ViewState's visibility to be gone.
+     *
+     * @param view view that will be toggled visible
+     */
+    private void clearViewTypeVisibility(View view) {
+        if (view != this) {
+            this.setVisibility(View.GONE);
+            if (_refreshView != null) {
+                _refreshView.setVisibility(View.GONE);
+            }
+        }
+        if (_emptyView != view && _emptyView != null) {
+            _emptyView.setVisibility(View.GONE);
+        }
+        if (_loadingView != view && _loadingView != null) {
+            _loadingView.setVisibility(View.GONE);
+        }
+    }
+
+    public ViewState getViewType() {
+        return _viewState;
+    }
+
+    /**
+     * The type of view state this recycler view is in.
+     */
+    public enum ViewState {
+        MAIN, EMPTY, LOADING
     }
 }

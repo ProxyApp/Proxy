@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
@@ -46,23 +45,21 @@ public class AddGroupsChannelCommand extends BaseCommand {
      * @param channel this events group
      */
     public AddGroupsChannelCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull ArrayList<GroupToggle> groups,
+        @NonNull User user, @NonNull ArrayList<GroupToggle> groups,
         @NonNull Channel channel) {
-        super(AddGroupsChannelCommand.class.getPackage().getName(),
-            AddGroupsChannelCommand.class.getName(), rxBus);
         this.user = user;
         this.groups = groups;
         this.channel = channel;
     }
 
     private AddGroupsChannelCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL),
-            (ArrayList<GroupToggle>) in.readValue(CL), (Channel) in.readValue(CL));
+        this((User) in.readValue(CL), (ArrayList<GroupToggle>) in.readValue(CL),
+            (Channel) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return addUserGroupsChannel(service, rxBus, user, groups, channel);
+        return addUserGroupsChannel(service, user, groups, channel);
     }
 
     @Override
@@ -72,7 +69,6 @@ public class AddGroupsChannelCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(groups);
         dest.writeValue(channel);

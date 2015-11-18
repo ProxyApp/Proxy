@@ -20,7 +20,7 @@ public class BaseIntroductionFragment extends BaseFragment {
     /**
      * * Draw ImageView content, set text formatting and content.
      */
-   static void drawSlide(
+    static void drawSlide(
         Context context, ImageView imageView, TextView textView, int slideResource, int logoSize,
         String introTitle, String introBody) {
         //Draw Slide
@@ -30,7 +30,7 @@ public class BaseIntroductionFragment extends BaseFragment {
         SpannableStringBuilder sb = new SpannableStringBuilder(introTitle).append(introBody);
 
         //Title headline text appearance
-        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Headline),
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Headline_Inverse),
             0, introTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
         //Title headline spacing
@@ -38,7 +38,7 @@ public class BaseIntroductionFragment extends BaseFragment {
             Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
         //Body subhead text appearance
-        sb.setSpan(new TextAppearanceSpan(context, R.style.TextAppearance_AppCompat_Subhead),
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Subhead_Inverse),
             introTitle.length(), sb.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         textView.setText(sb);
     }

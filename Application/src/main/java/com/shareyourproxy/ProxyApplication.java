@@ -20,21 +20,21 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.facebook.FacebookSdk;
 import com.firebase.client.Firebase;
-import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
+import com.shareyourproxy.api.domain.factory.AutoValueClass;
+import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
 import com.shareyourproxy.api.domain.model.Message;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.domain.factory.AutoValueAdapterFactory;
-import com.shareyourproxy.api.domain.factory.AutoValueClass;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.AddUserMessageCommand;
 import com.shareyourproxy.api.rx.command.BaseCommand;
-import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
@@ -58,7 +58,7 @@ import static com.shareyourproxy.Constants.MASTER_KEY;
 import static com.shareyourproxy.api.CommandIntentService.ARG_COMMAND_CLASS;
 import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 import static com.shareyourproxy.api.rx.RxQuery.queryUser;
-import static com.shareyourproxy.api.rx.SaveFabricAnalytics.logAnalytics;
+import static com.shareyourproxy.api.rx.RxFabricAnalytics.logAnalytics;
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
@@ -97,7 +97,6 @@ public class ProxyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        //this complains its not initialized before everything else....wtf?
         Firebase.setAndroidContext(this);
         initialize();
     }
@@ -106,11 +105,10 @@ public class ProxyApplication extends Application {
         FacebookSdk.sdkInitialize(this);
         MultiDex.install(this);
 
-        _bus.toObservable().subscribe(getRequest(this));
+        _bus.toObservable().subscribe(getRequest());
         _sharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE);
 
         initializeBuildConfig();
-
         initializeRealm();
         initializeNotificationService();
     }
@@ -127,11 +125,12 @@ public class ProxyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
+        RxGoogleAnalytics analytics = RxGoogleAnalytics.getInstance(this);
         if (BuildConfig.USE_GOOGLE_ANALYTICS) {
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            analytics.newTracker(BuildConfig.GA_TRACKER_ID);
-            analytics.enableAdvertisingIdCollection(true);
-            analytics.enableAutoActivityReports(this);
+            analytics.getAnalytics().enableAdvertisingIdCollection(true);
+            analytics.getAnalytics().enableAutoActivityReports(this);
+        } else {
+            analytics.getAnalytics().setAppOptOut(true);
         }
         //Twitter and Crashlytics
         TwitterAuthConfig authConfig =
@@ -163,12 +162,12 @@ public class ProxyApplication extends Application {
                 if (_currentUser != null) {
                     try {
                         List<Notification> notifications =
-                            _notificationService.getNotifications(getRxBus(), _currentUser.id());
+                            _notificationService.getNotifications(_currentUser.id());
                         if (notifications != null && notifications.size() > 0) {
                             for (Notification notification : notifications) {
                                 _notificationManager.notify(notification.hashCode(), notification);
                             }
-                            deleteAllFirebaseMessages(ProxyApplication.this, getRxBus(),
+                            deleteAllFirebaseMessages(ProxyApplication.this,
                                 _currentUser).subscribe();
                         }
                     } catch (RemoteException e) {
@@ -184,7 +183,7 @@ public class ProxyApplication extends Application {
         };
     }
 
-    public Action1<Object> getRequest(final Context context) {
+    public Action1<Object> getRequest() {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
@@ -198,9 +197,9 @@ public class ProxyApplication extends Application {
     }
 
     private void userContactAddedEvent(UserContactAddedEventCallback event) {
-        baseCommandEvent(new AddUserMessageCommand(getRxBus(),
-            event.contactId, Message.create(UUID.randomUUID().toString(), event.user.id(),
-            event.user.first(), event.user.last())));
+        baseCommandEvent(new AddUserMessageCommand(event.contactId,
+            Message.create(UUID.randomUUID().toString(), event.user.id(),
+                event.user.fullName())));
     }
 
     private void baseCommandEvent(BaseCommand event) {
@@ -236,7 +235,7 @@ public class ProxyApplication extends Application {
         for (EventCallback event : events) {
             getRxBus().post(event);
         }
-        // log what happened successfully to fabric if we arent on debug
+        // log what happened successfully to fabric if we are not on debug
         if (!BuildConfig.DEBUG) {
             logAnalytics(Answers.getInstance(), realmUser, events);
         }
@@ -244,7 +243,7 @@ public class ProxyApplication extends Application {
 
     private void sendError(Bundle resultData) {
         BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
-        if (command instanceof SyncAllUsersCommand) {
+        if (command instanceof SyncContactsCommand) {
             getRxBus().post(new SyncAllUsersErrorEvent());
         }
     }
@@ -252,7 +251,7 @@ public class ProxyApplication extends Application {
     private void updateUser(User user) {
         setCurrentUser(user);
         Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new AutoValueAdapterFactory())
+            .registerTypeAdapterFactory(new AutoValueTypeAdapterFactory())
             .create();
         String userJson = gson.toJson(
             user, User.class.getAnnotation(AutoValueClass.class).autoValueClass());

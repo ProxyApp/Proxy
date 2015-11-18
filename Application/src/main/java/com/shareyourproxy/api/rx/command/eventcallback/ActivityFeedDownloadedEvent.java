@@ -7,9 +7,24 @@ import com.shareyourproxy.api.domain.model.ActivityFeedItem;
 import java.util.List;
 
 /**
- * Created by Evan on 10/12/15.
+ * The activities feed has been downloaded.
  */
-public class ActivityFeedDownloadedEvent extends EventCallback{
+public class ActivityFeedDownloadedEvent extends EventCallback {
+    private final static java.lang.ClassLoader CL =
+        ActivityFeedDownloadedEvent.class.getClassLoader();
+    public static final Creator<ActivityFeedDownloadedEvent> CREATOR =
+        new Creator<ActivityFeedDownloadedEvent>() {
+            @Override
+            public ActivityFeedDownloadedEvent createFromParcel(Parcel in) {
+                return new ActivityFeedDownloadedEvent(
+                    (List<ActivityFeedItem>) in.readValue(CL));
+            }
+
+            @Override
+            public ActivityFeedDownloadedEvent[] newArray(int size) {
+                return new ActivityFeedDownloadedEvent[size];
+            }
+        };
     public final List<ActivityFeedItem> feedItems;
 
     public ActivityFeedDownloadedEvent(List<ActivityFeedItem> feedItems) {
@@ -23,6 +38,6 @@ public class ActivityFeedDownloadedEvent extends EventCallback{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-            dest.writeValue(feedItems);
+        dest.writeValue(feedItems);
     }
 }

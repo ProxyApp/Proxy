@@ -2,9 +2,7 @@ package com.shareyourproxy.api.rx.command;
 
 import android.app.Service;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.List;
@@ -31,20 +29,17 @@ public class GetUserMessagesCommand extends BaseCommand {
     private final static java.lang.ClassLoader CL = GetUserMessagesCommand.class.getClassLoader();
     private final String userId;
 
-    public GetUserMessagesCommand(
-        @NonNull RxBusDriver rxBus,String userId) {
-        super(GetUserMessagesCommand.class.getPackage().getName(),
-            GetUserMessagesCommand.class.getName(),rxBus);
+    public GetUserMessagesCommand(String userId) {
         this.userId = userId;
     }
 
     private GetUserMessagesCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (String) in.readValue(CL));
+        this((String) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return getFirebaseMessages(service, rxBus, userId);
+        return getFirebaseMessages(service, userId);
     }
 
     @Override
@@ -54,7 +49,6 @@ public class GetUserMessagesCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest,flags);
         dest.writeValue(userId);
     }
 }

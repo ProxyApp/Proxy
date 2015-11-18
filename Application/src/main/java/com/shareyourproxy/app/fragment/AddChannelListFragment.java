@@ -169,7 +169,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
 
                 Channel channel = createModelInstance(
                     id, "", _clickedChannel.channelType(), handle);
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
             }
 
             @Override
@@ -185,10 +185,11 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
      * Initialize a recyclerView with {@link Channel} data.
      */
     private void initializeRecyclerView() {
+        _adapter = AddChannelAdapter.newInstance(recyclerView, getSharedPreferences(), this);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        _adapter = AddChannelAdapter.newInstance(this);
-        recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(_adapter);
     }
 
     @Override

@@ -21,8 +21,9 @@ import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.shareyourproxy.Constants.KEY_PLAYED_INTRODUCTION;
+import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.app.fragment.MainFragment.ARG_SELECT_PROFILE_TAB;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -59,8 +60,8 @@ public class MainIntroductionFragment extends BaseFragment {
     @OnClick(R.id.fragment_introduction_main_fab)
     public void onClickFab() {
         if (_selectedPage == (_adapter.getCount() - 1)) {
-            getSharedPreferences().edit().putBoolean(KEY_PLAYED_INTRODUCTION, true).apply();
-            launchMainActivity(getActivity(), MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+            launchMainActivity(getActivity(), ARG_SELECT_PROFILE_TAB, false, null);
+            getSharedPreferences().edit().putBoolean(KEY_PLAY_INTRODUCTION, false).commit();
             getActivity().finish();
         } else {
             viewPager.setCurrentItem(++_selectedPage, true);

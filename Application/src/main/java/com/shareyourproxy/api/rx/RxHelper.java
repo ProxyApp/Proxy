@@ -20,6 +20,7 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.RealmList;
 import rx.Observable;
+import rx.Single;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -37,10 +38,20 @@ import static com.shareyourproxy.api.domain.factory.RealmUserFactory.createRealm
  */
 public class RxHelper {
 
-    private static Firebase.AuthResultHandler _handler;
     public static final Firebase _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
+    private static Firebase.AuthResultHandler _handler;
 
     private RxHelper() {
+    }
+
+    public static <T> Single.Transformer<T, T> applySingleSchedulers() {
+        return new Single.Transformer<T, T>() {
+            @Override
+            public Single<T> call(Single<T> single) {
+                return single.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
+            }
+        };
     }
 
     public static <T> Observable.Transformer<T, T> applySchedulers() {
@@ -96,11 +107,10 @@ public class RxHelper {
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }
-                if(token != null) {
+                if (token != null) {
                     subscriber.onNext(token);
                     subscriber.onCompleted();
-                }
-                else{
+                } else {
                     subscriber.onError(new NullPointerException("Null Google Plus Token"));
                 }
             }
@@ -120,16 +130,16 @@ public class RxHelper {
 
     private static JustObserver<String> getGoogleOAuthObserver() {
         return new JustObserver<String>() {
-        @Override
-        public void next(String s) {
+            @Override
+            public void next(String s) {
 
-        }
+            }
 
-        @Override
-        public void error(Throwable e) {
-            Timber.e(e.getMessage());
-        }
-    };
+            @Override
+            public void error(Throwable e) {
+                Timber.e(e.getMessage());
+            }
+        };
     }
 
     private static Action1<String> getFirebaseToken(
@@ -158,6 +168,7 @@ public class RxHelper {
                     subscriber.onNext(token);
                     subscriber.onCompleted();
                 }
+
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
                     Timber.e(firebaseError.getMessage());

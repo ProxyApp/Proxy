@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.graphics.Palette;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,39 +21,40 @@ import com.shareyourproxy.widget.transform.CircleTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.Arrays;
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.BindColor;
 
-import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 
 /**
  * Adapter to handle creating a drawer with a User Header and User Settings.
  */
-public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    public static final String HEADER = "HEADER";
+public class DrawerAdapter extends BaseRecyclerViewAdapter {
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_LIST_ITEM = 1;
     private final ItemClickListener _clickListener;
+    private final List<DrawerItem> _drawerItems;
     private User _currentUser;
-    private String[] _strings;
     private Target _targetProfileImage;
     private Target _targetBackground;
-    private int[] _icons;
 
     /**
      * Constructor for {@link DrawerAdapter}.
      *
-     * @param currentUser   currently logged in User
-     * @param settingsArray array of drawer options
-     * @param icons
-     * @param listener      click listener
+     * @param currentUser currently logged in User
+     * @param listener    click listener
      */
-    private DrawerAdapter(
-        User currentUser, String[] settingsArray, int[] icons,
-        ItemClickListener listener) {
-        _strings = settingsArray;
-        _icons = icons;
+    private DrawerAdapter(User currentUser, ItemClickListener listener) {
+        _drawerItems = Arrays.asList(
+            DrawerItem.SHARE_PROFILE,
+            DrawerItem.INVITE_FRIEND,
+            DrawerItem.TOUR,
+            DrawerItem.REPORT_ISSUE,
+            DrawerItem.LOGOUT);
+
         _currentUser = currentUser;
         _clickListener = listener;
     }
@@ -62,14 +62,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * Create a newInstance of a {@link DrawerAdapter} with blank data.
      *
-     * @param currentUser   currently Logged in {@link User}
-     * @param settingsArray array of drawer options
-     * @param icons
+     * @param currentUser currently Logged in {@link User}
      * @return an {@link DrawerAdapter} with no data
      */
-    public static DrawerAdapter newInstance(
-        User currentUser, String[] settingsArray, int[] icons, ItemClickListener listener) {
-        return new DrawerAdapter(currentUser, settingsArray, icons, listener);
+    public static DrawerAdapter newInstance(User currentUser, ItemClickListener listener) {
+        return new DrawerAdapter(currentUser, listener);
     }
 
     /**
@@ -91,7 +88,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_drawer_header, parent, false);
@@ -104,7 +101,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
             bindHeaderViewHolder((HeaderViewHolder) holder);
         } else {
@@ -120,7 +117,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      */
     public void bindItemViewHolder(ItemViewHolder holder, int position) {
         Context context = holder.view.getContext();
-        String name = getItemStringValue(position);
+        String name = getItemStringValue(context, position);
         int resId = getItemIconValue(position);
 
         holder.name.setText(name);
@@ -135,10 +132,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void bindHeaderViewHolder(HeaderViewHolder holder) {
         Context context = holder.view.getContext();
         if (_currentUser != null) {
-            String fullname =
-                joinWithSpace(new String[]{ _currentUser.first(), _currentUser.last() });
-            holder.userName.setText(fullname);
 
+            holder.userName.setText(_currentUser.fullName());
             String profileURL = _currentUser.profileURL();
             String coverURL = _currentUser.coverURL();
 
@@ -165,12 +160,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public String getItemStringValue(int position) {
-        return _strings[position - 1];
+    private String getItemStringValue(Context context, int position) {
+        return context.getString(_drawerItems.get(position - 1).getLabelRes());
     }
 
-    public int getItemIconValue(int position) {
-        return _icons[position - 1];
+    private int getItemIconValue(int position) {
+        return _drawerItems.get(position - 1).getResId();
     }
 
     private Target getBackgroundTarget(final HeaderViewHolder viewHolder) {
@@ -236,13 +231,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        return position == TYPE_HEADER ? TYPE_HEADER : TYPE_LIST_ITEM;
+        return position == 0 ? TYPE_HEADER : TYPE_LIST_ITEM;
     }
 
     @Override
     public int getItemCount() {
         // +1 for the header
-        return _strings.length + 1;
+        return _drawerItems.size() + 1;
     }
 
     /**
@@ -251,12 +246,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * @param position position of item
      * @return _strings string
      */
-    public String getSettingValue(int position) {
-        if (position == 0) {
-            return HEADER;
-        } else {
-            return getItemStringValue(position);
-        }
+    public DrawerItem getSettingValue(int position) {
+        return (position == 0) ? DrawerItem.HEADER : _drawerItems.get(position - 1);
     }
 
     /**
@@ -267,6 +258,33 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void updateUser(User user) {
         _currentUser = user;
         notifyDataSetChanged();
+    }
+
+    public enum DrawerItem {
+        HEADER(R.raw.ic_chameleon, R.string.header),
+        PROFILE(R.raw.ic_account_circle, R.string.profile),
+        SHARE_PROFILE(R.raw.ic_share, R.string.share_profile),
+        INVITE_FRIEND(R.raw.ic_local_play, R.string.invite_a_friend),
+        TOUR(R.raw.ic_explore, R.string.tour),
+        REPORT_ISSUE(R.raw.ic_bug_report, R.string.report_issue),
+        LOGOUT(R.raw.ic_exit_to_app, R.string.logout);
+
+        private final int resId;
+        private final int labelRes;
+
+        DrawerItem(int iconRes, int labelRes) {
+            this.resId = iconRes;
+            this.labelRes = labelRes;
+        }
+
+        public int getResId() {
+            return resId;
+        }
+
+        public int getLabelRes() {
+            return labelRes;
+        }
+
     }
 
     /**

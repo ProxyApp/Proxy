@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -19,7 +20,6 @@ import com.shareyourproxy.app.BaseActivity;
 
 import java.util.List;
 
-import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
@@ -55,6 +55,16 @@ public abstract class BaseFragment extends Fragment {
     }
 
     /**
+     * Initialize the color sequence of the swipe refresh view.
+     */
+    public void initializeSwipeRefresh(SwipeRefreshLayout swipe, SwipeRefreshLayout
+        .OnRefreshListener listener) {
+        swipe.setOnRefreshListener(listener);
+        swipe.setColorSchemeResources(
+            R.color.common_text, R.color.common_blue, R.color.common_green);
+    }
+
+    /**
      * Get the logged in user.
      *
      * @return Logged in user
@@ -86,7 +96,7 @@ public abstract class BaseFragment extends Fragment {
     /**
      * Get a scroll listener that dismisses the software keyboard on scroll.
      *
-     * @return dismissable scroll listener.
+     * @return dismissible scroll listener.
      */
     protected RecyclerView.OnScrollListener getDismissScrollListener() {
         return new RecyclerView.OnScrollListener() {
@@ -114,7 +124,6 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     CompositeSubscription checkCompositeButton(CompositeSubscription sub) {

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.event.SearchClickedEvent;
 import com.shareyourproxy.app.MainActivity;
@@ -39,8 +40,9 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class MainFragment extends BaseFragment {
 
-    public static final int ARG_SELECT_CONTACTS_TAB = 0;
-    public static final int ARG_SELECT_GROUP_TAB = 1;
+    public static final int ARG_SELECT_PROFILE_TAB = 0;
+    public static final int ARG_SELECT_CONTACTS_TAB = 1;
+    public static final int ARG_SELECT_GROUP_TAB = 2;
     @Bind(R.id.include_toolbar)
     Toolbar toolbar;
     @Bind(R.id.activity_main_drawer_layout)
@@ -51,11 +53,11 @@ public class MainFragment extends BaseFragment {
     TabLayout slidingTabLayout;
     @Bind(R.id.fragment_main_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
-    @BindColor(R.color.common_proxy_dark_selected)
+    @BindColor(R.color.common_blue)
     int _selectedColor;
     @BindColor(R.color.common_proxy_dark_disabled)
     int _unselectedColor;
-    @BindDimen(R.dimen.common_svg_large)
+    @BindDimen(R.dimen.common_rect_small)
     int marginSVGLarge;
     private CompositeSubscription _subscriptions;
     private ContactSearchLayout _contactSearchLayout;
@@ -133,10 +135,16 @@ public class MainFragment extends BaseFragment {
      * data from user action.
      */
     private void initializeTabs() {
+
         ContentDescriptionDrawable userDrawable = getUserDrawable();
         String userDescription = userDrawable.getContentDescription();
+
+        ContentDescriptionDrawable contactDrawable = getContactDrawable();
+        String contactDescription = contactDrawable.getContentDescription();
+
         ContentDescriptionDrawable groupDrawable = getGroupDrawable();
         String groupDescription = groupDrawable.getContentDescription();
+
 
         slidingTabLayout.addTab(
             slidingTabLayout.newTab()
@@ -144,15 +152,23 @@ public class MainFragment extends BaseFragment {
                 .setContentDescription(userDescription));
         slidingTabLayout.addTab(
             slidingTabLayout.newTab()
+                .setIcon(contactDrawable)
+                .setContentDescription(contactDescription));
+        slidingTabLayout.addTab(
+            slidingTabLayout.newTab()
                 .setIcon(getGroupDrawable())
                 .setContentDescription(groupDescription));
 
+
         slidingTabLayout.setTabMode(TabLayout.MODE_FIXED);
         slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
+        viewPager.setOffscreenPageLimit(3);
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
         //set the default selected tab
-        slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
-            .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB)).select();
+        TabLayout.Tab tab = slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
+            .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB));
+        ViewUtils.tintDrawableCompat(tab.getIcon(), _selectedColor);
+        tab.select();
     }
 
     /**
@@ -184,8 +200,11 @@ public class MainFragment extends BaseFragment {
      * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
      */
     private void initializeFragments() {
+        User user = getLoggedInUser();
         List<BaseFragment> fragmentArray = Arrays.<BaseFragment>asList(
-                MainContactsFragment.newInstance(), MainGroupFragment.newInstance());
+            UserProfileFragment.newInstance(user, user.id(), false), MainContactsFragment
+                .newInstance(),
+            MainGroupFragment.newInstance());
         viewPager.setAdapter(
             BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
     }
@@ -196,6 +215,16 @@ public class MainFragment extends BaseFragment {
      * @return Drawable with a contentDescription
      */
     private ContentDescriptionDrawable getUserDrawable() {
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_account_circle, marginSVGLarge,
+            _unselectedColor).setContentDescription(getString(R.string.profile));
+    }
+
+    /**
+     * Parse a svg and return a Large sized {@link ContentDescriptionDrawable} .
+     *
+     * @return Drawable with a contentDescription
+     */
+    private ContentDescriptionDrawable getContactDrawable() {
         return svgToBitmapDrawable(getActivity(), R.raw.ic_group, marginSVGLarge, _unselectedColor)
             .setContentDescription(getString(R.string.contacts));
     }

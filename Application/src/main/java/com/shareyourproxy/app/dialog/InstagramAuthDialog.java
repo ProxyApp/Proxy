@@ -45,7 +45,6 @@ public class InstagramAuthDialog extends BaseDialogFragment {
      * Constructor.
      */
     public InstagramAuthDialog() {
-
     }
 
     public static InstagramAuthDialog newInstance() {
@@ -81,7 +80,7 @@ public class InstagramAuthDialog extends BaseDialogFragment {
                     final String[] parts1 = fragment.split("code=");
                     final String accessToken = parts1[1];
 
-                    RestClient.getInstagramAuthService(getActivity(), getRxBus())
+                    RestClient.getInstagramAuthService(getActivity())
                         .getAuth(INSTAGRAM_APP_ID, INSTAGRAM_APP_SECRET,
                             "authorization_code", WEBVIEW_REDIRECT, accessToken)
                         .subscribe(authObserver());
@@ -104,7 +103,6 @@ public class InstagramAuthDialog extends BaseDialogFragment {
         //Override the dialog wrapping content and cancel dismiss on click outside
         // of the dialog window
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
-        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -116,7 +114,7 @@ public class InstagramAuthDialog extends BaseDialogFragment {
                 InstagramUser user = event.user();
                 Channel channel = ChannelFactory.createModelInstance(user.id(), "",
                     ChannelType.Instagram, user.username());
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
                 getDialog().dismiss();
             }
 

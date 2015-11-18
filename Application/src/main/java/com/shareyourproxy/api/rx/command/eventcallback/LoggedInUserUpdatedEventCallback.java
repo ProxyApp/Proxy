@@ -9,7 +9,21 @@ import com.shareyourproxy.api.domain.model.User;
  * Created by Evan on 6/9/15.
  */
 public class LoggedInUserUpdatedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL =
+        LoggedInUserUpdatedEventCallback.class.getClassLoader();
+    public static final Creator<LoggedInUserUpdatedEventCallback> CREATOR =
+        new Creator<LoggedInUserUpdatedEventCallback>() {
+            @Override
+            public LoggedInUserUpdatedEventCallback createFromParcel(Parcel in) {
+                return new LoggedInUserUpdatedEventCallback(
+                    (User) in.readValue(CL));
+            }
 
+            @Override
+            public LoggedInUserUpdatedEventCallback[] newArray(int size) {
+                return new LoggedInUserUpdatedEventCallback[size];
+            }
+        };
     public LoggedInUserUpdatedEventCallback(@NonNull User user) {
         super(user);
     }

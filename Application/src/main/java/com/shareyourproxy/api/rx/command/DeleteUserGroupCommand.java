@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxUserGroupSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
@@ -38,21 +37,18 @@ public class DeleteUserGroupCommand extends BaseCommand {
      * @param user  logged in user
      * @param group this events group
      */
-    public DeleteUserGroupCommand(
-        @NonNull RxBusDriver rxBus, @NonNull User user, @NonNull Group group) {
-        super(DeleteUserGroupCommand.class.getPackage().getName(),
-            DeleteUserGroupCommand.class.getName(),rxBus);
+    public DeleteUserGroupCommand(@NonNull User user, @NonNull Group group) {
         this.user = user;
         this.group = group;
     }
 
     private DeleteUserGroupCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL), (Group) in.readValue(CL));
+        this((User) in.readValue(CL), (Group) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return RxUserGroupSync.deleteUserGroup(service, rxBus, user, group);
+        return RxUserGroupSync.deleteUserGroup(service, user, group);
     }
 
     @Override
@@ -62,7 +58,6 @@ public class DeleteUserGroupCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(user);
         dest.writeValue(group);
     }

@@ -7,8 +7,6 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -93,23 +91,15 @@ public class ViewUtils {
      * @return the circular bitmap resource
      */
     public static Bitmap getAlphaBitmapImage(Bitmap source) {
+        int width = source.getWidth();
+        int height = source.getHeight();
         Bitmap bitmap = Bitmap.createBitmap(
-            source.getWidth(), source.getHeight(), source.getConfig());
+            width, height, source.getConfig());
         Canvas canvas = new Canvas(bitmap);
-        canvas.drawBitmap(source, null, getDstFromSource(source), null);
+        canvas.drawBitmap(source, 0, 0, null);
         canvas.drawARGB(120, 0, 0, 0);
         source.recycle();
         return bitmap;
-    }
-
-    /**
-     * Return destination bitmap size from source bitmap dimensions.
-     *
-     * @param source bitmap
-     * @return Rectangle dimensions
-     */
-    public static RectF getDstFromSource(Bitmap source) {
-        return new RectF(new Rect(0, 0, source.getWidth(), source.getHeight()));
     }
 
     /**
@@ -182,7 +172,7 @@ public class ViewUtils {
         background.setColorFilter(backgroundColor, SRC);
 
         int backgroundRadius = context.getResources()
-            .getDimensionPixelSize(R.dimen.common_rect_small);
+            .getDimensionPixelSize(R.dimen.common_margin_xhuge);
 
         background.setIntrinsicWidth(backgroundRadius);
         background.setIntrinsicHeight(backgroundRadius);
@@ -210,7 +200,7 @@ public class ViewUtils {
         background.setColorFilter(backgroundColor, SRC);
 
         int backgroundRadius = context.getResources()
-            .getDimensionPixelSize(R.dimen.common_margin_medium);
+            .getDimensionPixelSize(R.dimen.common_margin_large);
         background.setIntrinsicWidth(backgroundRadius);
         background.setIntrinsicHeight(backgroundRadius);
 
@@ -262,7 +252,7 @@ public class ViewUtils {
         Drawable drawable = null;
         try {
             SVG svg = SVG.getFromResource(res, resourceId);
-            int densitySize = (int) (dpToPx(res, size) + 16f + .5f);
+            int densitySize = dpToPx(res, size);
 
             Bitmap bmp = Bitmap.createBitmap(dm, densitySize, densitySize, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);

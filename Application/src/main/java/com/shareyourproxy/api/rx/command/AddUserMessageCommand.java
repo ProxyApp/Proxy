@@ -37,21 +37,18 @@ public class AddUserMessageCommand extends BaseCommand {
      *
      * @param message to send
      */
-    public AddUserMessageCommand(
-        @NonNull RxBusDriver rxBus, @NonNull String userId, @NonNull Message message) {
-        super(AddUserMessageCommand.class.getPackage().getName(),
-            AddUserMessageCommand.class.getName(), rxBus);
+    public AddUserMessageCommand(@NonNull String userId, @NonNull Message message) {
         this.message = message;
         this.userId = userId;
     }
 
     private AddUserMessageCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (String) in.readValue(CL), (Message) in.readValue(CL));
+        this((String) in.readValue(CL), (Message) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
-        return saveFirebaseMessage(service, rxBus, userId, message);
+        return saveFirebaseMessage(service, userId, message);
     }
 
     @Override
@@ -61,7 +58,6 @@ public class AddUserMessageCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
         dest.writeValue(userId);
         dest.writeValue(message);
     }

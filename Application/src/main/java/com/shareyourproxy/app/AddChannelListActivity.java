@@ -7,7 +7,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
+import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
+import com.shareyourproxy.api.rx.event.AddChannelDialogSuccess;
+import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
+import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
 import com.shareyourproxy.app.fragment.AddChannelListFragment;
 import com.shareyourproxy.app.fragment.BaseFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
@@ -15,11 +19,14 @@ import com.shareyourproxy.app.fragment.UserProfileFragment;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static android.support.design.widget.Snackbar.make;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
@@ -28,8 +35,13 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
  */
 public class AddChannelListActivity extends BaseActivity {
 
+    private final RxGoogleAnalytics _analytics = RxGoogleAnalytics.getInstance(this);
     @Bind(R.id.activity_toolbar)
     Toolbar toolbar;
+    @BindString(R.string.add_channel)
+    String addChannel;
+    @BindString(R.string.add_another_channel)
+    String addAnotherChannel;
     private CompositeSubscription _subscriptions;
 
     @Override
@@ -49,7 +61,7 @@ public class AddChannelListActivity extends BaseActivity {
      * Initialize this view.
      */
     private void initialize() {
-        buildToolbar(toolbar, getString(R.string.add_channel), getMenuIcon(this, R.raw.ic_clear));
+        buildToolbar(toolbar, addChannel, getMenuIcon(this, R.raw.ic_clear));
     }
 
     @Override
@@ -66,7 +78,9 @@ public class AddChannelListActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        finishActivity();
+        //Finish activity and animate.
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
 
     @Override
@@ -86,11 +100,38 @@ public class AddChannelListActivity extends BaseActivity {
             .subscribe(new Action1<Object>() {
                 @Override
                 public void call(Object event) {
-                    if (event instanceof AddUserChannelCommand) {
-                        finishActivity();
+                    if (event instanceof UserChannelAddedEventCallback) {
+                        channelAdded((UserChannelAddedEventCallback) event);
+                    } else if (event instanceof AddChannelDialogSuccess) {
+                        showAddGroupChannelDialog((AddChannelDialogSuccess) event);
+                    } else if (event instanceof ChannelAddedEvent) {
+                        ChannelAddedEvent((ChannelAddedEvent) event);
                     }
                 }
             }));
+    }
+
+    public void showAddGroupChannelDialog(AddChannelDialogSuccess event) {
+        SaveGroupChannelDialog.newInstance(event.channel,
+            event.user).show(getSupportFragmentManager());
+    }
+
+    public void ChannelAddedEvent(ChannelAddedEvent event) {
+        showSnackBar(event);
+    }
+
+    private void showSnackBar(ChannelAddedEvent event) {
+        make(toolbar, getString(
+            R.string.blank_added, event.channel.channelType()), LENGTH_LONG).show();
+    }
+
+    public void channelAdded(UserChannelAddedEventCallback event) {
+        if (event.oldChannel == null) {
+            _analytics.channelAdded(event.newChannel.channelType());
+        } else {
+            _analytics.channelEdited(event.oldChannel.channelType());
+        }
+        toolbar.setTitle(addAnotherChannel);
     }
 
     @Override
@@ -98,14 +139,6 @@ public class AddChannelListActivity extends BaseActivity {
         super.onPause();
         _subscriptions.unsubscribe();
         _subscriptions = null;
-    }
-
-    /**
-     * Finish activity and animate.
-     */
-    private void finishActivity() {
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom);
     }
 
     @Override

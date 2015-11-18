@@ -1,7 +1,5 @@
 package com.shareyourproxy.util;
 
-import android.text.TextUtils;
-
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -20,14 +18,11 @@ public class ObjectUtils {
         super();
     }
 
-    /**
-     * Join the tokens with a space.
-     *
-     * @param tokens to join together
-     * @return spaced string of tokens
-     */
-    public static String joinWithSpace(Object[] tokens) {
-        return TextUtils.join(" ", tokens);
+    public static String buildFullName(String firstName, String lastName) {
+        return new StringBuilder(capitalize(firstName))
+            .append(" ")
+            .append(capitalize(lastName))
+            .toString().trim();
     }
 
     /**

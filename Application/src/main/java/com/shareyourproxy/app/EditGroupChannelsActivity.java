@@ -7,8 +7,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
+import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent;
 import com.shareyourproxy.app.fragment.EditGroupChannelsFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -20,6 +22,8 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
+import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
+import static com.shareyourproxy.IntentLauncher.launchEditGroupContactsActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.ADD_GROUP;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP;
@@ -80,18 +84,24 @@ public class EditGroupChannelsActivity extends BaseActivity {
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(onNextEvent()));
+            .subscribe(onNextEvent(this)));
     }
 
-    private Action1<Object> onNextEvent() {
+    private Action1<Object> onNextEvent(final EditGroupChannelsActivity activity) {
         return new Action1<Object>() {
             @Override
             public void call(Object event) {
                 if (event instanceof UserGroupDeletedEventCallback) {
                     userGroupDeleted((UserGroupDeletedEventCallback) event);
+                } else if (event instanceof ViewGroupContactsEvent) {
+                    launchEditGroupContactsActivity(activity, getSelectedGroup());
                 }
             }
         };
+    }
+
+    private Group getSelectedGroup() {
+        return getIntent().getExtras().getParcelable(ARG_SELECTED_GROUP);
     }
 
     @Override
@@ -122,7 +132,7 @@ public class EditGroupChannelsActivity extends BaseActivity {
             }
         }
 
-        getRxBus().post(new UpdateUserContactsCommand(getRxBus(),
+        getRxBus().post(new UpdateUserContactsCommand(
             getLoggedInUser(), contacts, getLoggedInUser().groups()));
         launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
         onBackPressed();

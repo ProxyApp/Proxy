@@ -7,7 +7,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 /**
  * Sync all users command has successfully completed.
  */
-public class SyncAllUsersSuccessEvent extends EventCallback{
+public class SyncAllUsersSuccessEvent extends EventCallback {
     @Override
     public int describeContents() {
         return 0;

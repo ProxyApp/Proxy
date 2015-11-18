@@ -10,7 +10,7 @@ import butterknife.ButterKnife;
  */
 public abstract class BaseViewHolder extends RecyclerView.ViewHolder
     implements View.OnClickListener, View.OnLongClickListener {
-    protected View view;
+    public View view;
     private ItemClickListener _itemClickListener;
     private ItemLongClickListener _itemLongClickListener;
 
@@ -80,6 +80,7 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder
         void onItemClick(View view, int position);
 
     }
+
 
     public interface ItemLongClickListener extends ItemClickListener {
         /**

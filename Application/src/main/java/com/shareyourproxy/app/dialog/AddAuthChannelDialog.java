@@ -114,7 +114,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         if (!TextUtils.isEmpty(actionContent.trim())) {
             Channel channel =
                 createModelInstance(_channel, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
         }
     }
 
@@ -134,7 +134,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         ButterKnife.bind(this, view);
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(getString(
                 R.string.dialog_addchannel_title_add_blank, _channel.channelType().getLabel()))
             .setView(view)
@@ -143,11 +143,11 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
             .setNeutralButton(R.string.common_help, _helpClicked)
             .create();
 
-        dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -168,7 +168,6 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

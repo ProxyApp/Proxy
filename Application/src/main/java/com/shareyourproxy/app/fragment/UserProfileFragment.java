@@ -6,14 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.Palette.PaletteAsyncListener;
 import android.support.v7.widget.Toolbar;
@@ -28,16 +29,25 @@ import android.widget.TextView;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
+import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
+import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
+import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.UserProfileActivity;
-import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
+import com.shareyourproxy.app.adapter.BaseRecyclerView;
+import com.shareyourproxy.app.adapter.ViewChannelAdapter;
+import com.shareyourproxy.app.dialog.ShareLinkDialog;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
 import com.shareyourproxy.widget.transform.AlphaTransform;
 import com.shareyourproxy.widget.transform.CircleTransform;
@@ -58,14 +68,47 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.support.design.widget.Snackbar.make;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID;
+import static com.shareyourproxy.Constants.ARG_SHOW_TOOLBAR;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.IntentLauncher.launchAddressIntent;
 import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
+import static com.shareyourproxy.IntentLauncher.launchElloIntent;
+import static com.shareyourproxy.IntentLauncher.launchEmailIntent;
+import static com.shareyourproxy.IntentLauncher.launchFBMessengerIntent;
+import static com.shareyourproxy.IntentLauncher.launchFacebookIntent;
+import static com.shareyourproxy.IntentLauncher.launchGithubIntent;
+import static com.shareyourproxy.IntentLauncher.launchGooglePlusIntent;
+import static com.shareyourproxy.IntentLauncher.launchHangoutsIntent;
+import static com.shareyourproxy.IntentLauncher.launchInstagramIntent;
+import static com.shareyourproxy.IntentLauncher.launchLinkedInIntent;
+import static com.shareyourproxy.IntentLauncher.launchMediumIntent;
+import static com.shareyourproxy.IntentLauncher.launchMeerkatIntent;
+import static com.shareyourproxy.IntentLauncher.launchNintendoNetworkIntent;
+import static com.shareyourproxy.IntentLauncher.launchPhoneIntent;
+import static com.shareyourproxy.IntentLauncher.launchPlaystationNetworkIntent;
+import static com.shareyourproxy.IntentLauncher.launchRedditIntent;
+import static com.shareyourproxy.IntentLauncher.launchSMSIntent;
+import static com.shareyourproxy.IntentLauncher.launchSkypeIntent;
+import static com.shareyourproxy.IntentLauncher.launchSnapChatIntent;
+import static com.shareyourproxy.IntentLauncher.launchSoundCloudIntent;
+import static com.shareyourproxy.IntentLauncher.launchSpotifyIntent;
+import static com.shareyourproxy.IntentLauncher.launchSteamIntent;
+import static com.shareyourproxy.IntentLauncher.launchTumblrIntent;
+import static com.shareyourproxy.IntentLauncher.launchTwitchIntent;
+import static com.shareyourproxy.IntentLauncher.launchTwitterIntent;
+import static com.shareyourproxy.IntentLauncher.launchVenmoIntent;
+import static com.shareyourproxy.IntentLauncher.launchWebIntent;
+import static com.shareyourproxy.IntentLauncher.launchWhatsAppIntent;
+import static com.shareyourproxy.IntentLauncher.launchXboxLiveIntent;
+import static com.shareyourproxy.IntentLauncher.launchYoIntent;
+import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
-import static com.shareyourproxy.util.ObjectUtils.joinWithSpace;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static java.util.Collections.singletonList;
@@ -75,11 +118,16 @@ import static java.util.Collections.singletonList;
  * Contact's to be added to be observed and added to groups logged in user groups.
  */
 public class UserProfileFragment extends BaseFragment {
-
+    @Bind(R.id.fragment_user_profile_swiperefresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.fragment_user_profile_appbar)
+    AppBarLayout appBarLayout;
     @Bind(R.id.fragment_user_profile_toolbar)
     Toolbar toolbar;
     @Bind(R.id.fragment_user_profile_header_image)
     ImageView userImage;
+    @Bind(R.id.fragment_user_profile_header_title)
+    TextView titleTextView;
     @Bind(R.id.fragment_user_profile_header_followers)
     TextView followersTextView;
     @Bind(R.id.fragment_user_profile_header_button)
@@ -92,8 +140,10 @@ public class UserProfileFragment extends BaseFragment {
     CoordinatorLayout coordinatorLayout;
     @Bind(R.id.fragment_user_profile_sliding_tabs)
     TabLayout slidingTabLayout;
-    @Bind(R.id.fragment_user_profile_fab)
-    FloatingActionButton floatingActionButton;
+    @Bind(R.id.fragment_user_profile_fab_add_channel)
+    FloatingActionButton floatingActionButtonAddChannel;
+    @Bind(R.id.fragment_user_profile_fab_share)
+    FloatingActionButton floatingActionButtonShare;
     @BindColor(R.color.common_blue)
     int colorBlue;
     @BindColor(android.R.color.white)
@@ -108,15 +158,32 @@ public class UserProfileFragment extends BaseFragment {
     String stringErrorCalculating;
     @BindDimen(R.dimen.common_svg_large)
     int marginSVGLarge;
+    @BindDimen(R.dimen.fragment_userprofile_header_user_background_size)
+    int marginUserHeight;
+    @BindDimen(R.dimen.fragment_userprofile_header_contact_background_size)
+    int marginContactHeight;
     private Target _target;
     private Target _backgroundTarget;
     private PaletteAsyncListener _paletteListener;
     private User _userContact;
     private CompositeSubscription _subscriptions;
+    SwipeRefreshLayout.OnRefreshListener _refreshListener = new SwipeRefreshLayout
+        .OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            User user = getLoggedInUser();
+            if (user != null) {
+                getRxBus().post(new SyncContactsCommand(getLoggedInUser()));
+                _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
+                    .subscribe(getContactScoreObserver()));
+            }
+        }
+    };
     private boolean _isLoggedInUser;
     private ArrayList<GroupToggle> _contactGroups = new ArrayList<>();
-    private List<? extends BaseFragment> fragmentArray;
     private Channel _deletedChannel;
+    private RxGoogleAnalytics _analytics;
+    private List<UserChannelsFragment> fragmentArray;
 
     /**
      * Empty Fragment Constructor.
@@ -129,13 +196,27 @@ public class UserProfileFragment extends BaseFragment {
      *
      * @return layouts.fragment
      */
-    public static UserProfileFragment newInstance() {
-        return new UserProfileFragment();
+    public static UserProfileFragment newInstance(
+        User contact, String loggedInUserId, boolean showToolbar) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ARG_USER_SELECTED_PROFILE, contact);
+        bundle.putString(ARG_LOGGEDIN_USER_ID, loggedInUserId);
+        bundle.putBoolean(ARG_SHOW_TOOLBAR, showToolbar);
+        UserProfileFragment fragment = new UserProfileFragment();
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
-    @OnClick(R.id.fragment_user_profile_fab)
-    public void onClick() {
+    @OnClick(R.id.fragment_user_profile_fab_add_channel)
+    public void onClickAdd() {
         launchChannelListActivity(getActivity());
+
+    }
+
+    @OnClick(R.id.fragment_user_profile_fab_share)
+    public void onClickShare() {
+        ShareLinkDialog.newInstance(_userContact.groups())
+            .show(getActivity().getSupportFragmentManager());
     }
 
     /**
@@ -147,8 +228,7 @@ public class UserProfileFragment extends BaseFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(),
-                    _deletedChannel));
+                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), _deletedChannel));
             }
         };
     }
@@ -161,12 +241,11 @@ public class UserProfileFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        _userContact = getActivity().getIntent().getExtras().getParcelable
-            (ARG_USER_SELECTED_PROFILE);
+        _userContact = getArguments().getParcelable(ARG_USER_SELECTED_PROFILE);
+        fragmentArray = singletonList(UserChannelsFragment.newInstance(_userContact));
         _isLoggedInUser = isLoggedInUser(_userContact);
-
-        String loggedInUserId = getActivity().getIntent().getExtras()
-            .getString(Constants.ARG_LOGGEDIN_USER_ID);
+        _analytics = RxGoogleAnalytics.getInstance(context);
+        String loggedInUserId = getArguments().getString(Constants.ARG_LOGGEDIN_USER_ID);
         checkLoggedInUserValue(loggedInUserId);
     }
 
@@ -188,7 +267,7 @@ public class UserProfileFragment extends BaseFragment {
             if (user != null && user.id().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
-                setLoggedInUser(getUserService(getActivity(), getRxBus())
+                setLoggedInUser(getUserService(getActivity())
                     .getUser(loggedInUserId).toBlocking().single());
             }
         }
@@ -208,17 +287,38 @@ public class UserProfileFragment extends BaseFragment {
      */
     private void initialize() {
         _subscriptions = checkCompositeButton(_subscriptions);
+        setHeaderHeight();
+        appBarLayout.addOnOffsetChangedListener(getOffsetListener());
         initializeFab();
-        setToolbarTitle();
+        setToolbarTitle(getArguments().getBoolean(ARG_SHOW_TOOLBAR, true));
+        followersTextView.setText(getString(R.string.user_profile_followers,
+            stringCalculating));
         initializeHeader();
-        initializeViewPager();
+        initializeSwipeRefresh(swipeRefreshLayout, _refreshListener);
+        initializeTabs();
+    }
+
+    private void setHeaderHeight() {
+        ViewGroup.LayoutParams lp = collapsingToolbarLayout.getLayoutParams();
+        lp.height = _isLoggedInUser ? marginUserHeight : marginContactHeight;
+        collapsingToolbarLayout.setLayoutParams(lp);
+    }
+
+    private AppBarLayout.OnOffsetChangedListener getOffsetListener() {
+        return new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+                swipeRefreshLayout.setEnabled(offset == 0);
+            }
+        };
     }
 
     private void initializeFab() {
         if (_isLoggedInUser) {
             initializeFabPlusIcon();
         } else {
-            floatingActionButton.setVisibility(View.GONE);
+            floatingActionButtonAddChannel.setVisibility(GONE);
+            floatingActionButtonShare.setVisibility(GONE);
         }
     }
 
@@ -226,17 +326,29 @@ public class UserProfileFragment extends BaseFragment {
      * Set the content image of this {@link FloatingActionButton}
      */
     private void initializeFabPlusIcon() {
-        Drawable drawable = svgToBitmapDrawable(
+        Drawable plus = svgToBitmapDrawable(
             getActivity(), R.raw.ic_add, marginSVGLarge, colorWhite);
-        floatingActionButton.setImageDrawable(drawable);
-        ViewCompat.setElevation(floatingActionButton, 10f);
+        floatingActionButtonAddChannel.setImageDrawable(plus);
+
+        Drawable share = svgToBitmapDrawable(
+            getActivity(), R.raw.ic_share, marginSVGLarge, colorBlue);
+        floatingActionButtonShare.setImageDrawable(share);
+        if (getLoggedInUser().channels() == null || getLoggedInUser().channels().size() == 0) {
+            floatingActionButtonShare.setVisibility(GONE);
+            floatingActionButtonAddChannel.setVisibility(GONE);
+        }
     }
 
-    private void setToolbarTitle() {
-        String title = joinWithSpace(new String[]{ _userContact.first(), _userContact.last() });
-        buildToolbar(toolbar, title, null);
-        followersTextView.setText(getString(R.string.user_profile_followers,
-            stringCalculating));
+    private void setToolbarTitle(boolean showToolbar) {
+        String title = _userContact.fullName();
+        if (showToolbar) {
+            buildToolbar(toolbar, title, null);
+        } else {
+            titleTextView.setVisibility(VISIBLE);
+            titleTextView.setText(title);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            toolbar.setVisibility(GONE);
+        }
     }
 
     /**
@@ -268,7 +380,7 @@ public class UserProfileFragment extends BaseFragment {
         }
         //update group button
         if (_isLoggedInUser) {
-            groupButton.setVisibility(View.GONE);
+            groupButton.setVisibility(GONE);
         } else {
             groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 getMenuIcon(getActivity(), R.raw.ic_groups), null, null, null);
@@ -279,30 +391,20 @@ public class UserProfileFragment extends BaseFragment {
             .subscribe(getContactScoreObserver()));
     }
 
-    private void initializeViewPager() {
-        initializeFragments();
-        initializeTabs();
-    }
-
     /**
      * Initialize this fragments tabs and their icons. Select the default tab based input intent
      * data from user action.
      */
     private void initializeTabs() {
-//        slidingTabLayout.addTab(
-//            slidingTabLayout.newTab()
-//                .setText(R.string.activity));
-        //TODO:REMOVE ME
-        slidingTabLayout.setVisibility(View.GONE);
+        slidingTabLayout.setVisibility(GONE);
         slidingTabLayout.addTab(
             slidingTabLayout.newTab()
                 .setText(R.string.channels));
 
         slidingTabLayout.setOnTabSelectedListener(getOnTabSelectedListener());
         viewPager.addOnPageChangeListener(new TabLayoutOnPageChangeListener(slidingTabLayout));
-        //set the defualt selected tab
-        slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
-            .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB)).select();
+        viewPager.setAdapter(
+            BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
     }
 
     /**
@@ -326,17 +428,6 @@ public class UserProfileFragment extends BaseFragment {
 
             }
         };
-    }
-
-    /**
-     * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
-     */
-    private void initializeFragments() {
-//        fragmentArray = asList(
-//            UserFeedFragment.newInstance(), UserChannelsFragment.newInstance());
-        fragmentArray = singletonList(UserChannelsFragment.newInstance());
-        viewPager.setAdapter(
-            BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));
     }
 
     private void getGroupEditContacts() {
@@ -444,6 +535,8 @@ public class UserProfileFragment extends BaseFragment {
         super.onPause();
         _subscriptions.unsubscribe();
         _subscriptions = null;
+        //if we're refreshing data, get rid of the UI
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     public JustObserver<Integer> getContactScoreObserver() {
@@ -470,11 +563,34 @@ public class UserProfileFragment extends BaseFragment {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
                 } else if (event instanceof UserChannelAddedEventCallback) {
                     addUserChannel(((UserChannelAddedEventCallback) event));
-                }else if (event instanceof UserChannelDeletedEventCallback) {
+                } else if (event instanceof UserChannelDeletedEventCallback) {
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
+                } else if (event instanceof SyncContactsCommand) {
+                    swipeRefreshLayout.setRefreshing(true);
+                } else if (event instanceof SyncAllUsersSuccessEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (event instanceof SyncAllUsersErrorEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (event instanceof SelectUserChannelEvent) {
+                    onChannelSelected((SelectUserChannelEvent) event);
+                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
+                    toggleFabVisibility((RecyclerViewDatasetChangedEvent) event);
                 }
             }
         };
+    }
+
+    public void toggleFabVisibility(RecyclerViewDatasetChangedEvent event) {
+        if (event.adapter instanceof ViewChannelAdapter) {
+            if (event.viewState.equals
+                (BaseRecyclerView.ViewState.EMPTY)) {
+                floatingActionButtonAddChannel.setVisibility(GONE);
+                floatingActionButtonShare.setVisibility(GONE);
+            } else {
+                floatingActionButtonAddChannel.setVisibility(VISIBLE);
+                floatingActionButtonShare.setVisibility(VISIBLE);
+            }
+        }
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
@@ -493,18 +609,15 @@ public class UserProfileFragment extends BaseFragment {
     private void addUserChannel(UserChannelAddedEventCallback event) {
         if (event.oldChannel != null) {
             showChangesSavedSnackBar(coordinatorLayout);
-        } else {
-            showAddedChannelSnackBar();
-            SaveGroupChannelDialog.newInstance(event.newChannel, event.user)
-                .show(getFragmentManager());
         }
     }
 
-    private void showAddedChannelSnackBar() {
-        make(coordinatorLayout, getString(R.string.channel_added), LENGTH_LONG).show();
-    }
-
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
+        if (event.contactGroups.size() > 0) {
+            _analytics.userContactAdded(event.user);
+        } else {
+            _analytics.userContactRemoved(event.user);
+        }
         updateGroupButtonText(event.contactGroups);
         _subscriptions.add(getUserContactScore(getActivity(), _userContact.id())
             .subscribe(getContactScoreObserver()));
@@ -516,7 +629,7 @@ public class UserProfileFragment extends BaseFragment {
             int groupSize = list.size();
             if (groupSize == 0) {
                 groupButton.setText(R.string.add_to_group);
-                groupButton.setBackgroundResource(R.drawable.selector_button_zoidberg);
+                groupButton.setBackgroundResource(R.drawable.selector_button_blue);
             } else if (groupSize == 1) {
                 groupButton.setText(list.get(0).label());
                 groupButton.setBackgroundResource(R.drawable.selector_button_grey);
@@ -526,7 +639,123 @@ public class UserProfileFragment extends BaseFragment {
             }
         } else {
             groupButton.setText(R.string.add_to_group);
-            groupButton.setBackgroundResource(R.drawable.selector_button_zoidberg);
+            groupButton.setBackgroundResource(R.drawable.selector_button_blue);
+        }
+    }
+
+    /**
+     * Handle channel selected events to launch the correct android process.
+     *
+     * @param event data
+     */
+    public void onChannelSelected(SelectUserChannelEvent event) {
+        ChannelType channelType = event.channel.channelType();
+        String actionAddress = event.channel.actionAddress();
+        switch (channelType) {
+            case Phone:
+                launchPhoneIntent(getActivity(), actionAddress);
+                break;
+            case SMS:
+                launchSMSIntent(getActivity(), actionAddress);
+                break;
+            case Email:
+                launchEmailIntent(getActivity(), actionAddress);
+                break;
+            case Web:
+            case URL:
+                launchWebIntent(getActivity(), actionAddress);
+                break;
+            case Facebook:
+                launchFacebookIntent(getActivity(), actionAddress);
+                break;
+            case Twitter:
+                launchTwitterIntent(getActivity(), actionAddress);
+                break;
+            case Meerkat:
+                launchMeerkatIntent(getActivity(), actionAddress);
+                break;
+            case Snapchat:
+                launchSnapChatIntent(getActivity(), actionAddress);
+                break;
+            case Spotify:
+                launchSpotifyIntent(getActivity(), actionAddress);
+                break;
+            case Reddit:
+                launchRedditIntent(getActivity(), actionAddress);
+                break;
+            case Linkedin:
+                launchLinkedInIntent(getActivity(), actionAddress);
+                break;
+            case FBMessenger:
+                launchFBMessengerIntent(getActivity(), actionAddress);
+                break;
+            case Googleplus:
+                launchGooglePlusIntent(getActivity(), actionAddress);
+                break;
+            case Github:
+                launchGithubIntent(getActivity(), actionAddress);
+                break;
+            case Address:
+                launchAddressIntent(getActivity(), actionAddress);
+                break;
+            case Youtube:
+                launchYoutubeIntent(getActivity(), actionAddress);
+                break;
+            case Instagram:
+                launchInstagramIntent(getActivity(), actionAddress);
+                break;
+            case Tumblr:
+                launchTumblrIntent(getActivity(), actionAddress);
+                break;
+            case Ello:
+                launchElloIntent(getActivity(), actionAddress);
+                break;
+            case Venmo:
+                launchVenmoIntent(getActivity(), actionAddress);
+                break;
+            case Medium:
+                launchMediumIntent(getActivity(), actionAddress);
+                break;
+            case Soundcloud:
+                launchSoundCloudIntent(getActivity(), actionAddress);
+                break;
+            case Skype:
+                launchSkypeIntent(getActivity(), actionAddress);
+                break;
+            case Yo:
+                launchYoIntent(getActivity(), actionAddress);
+                break;
+            case Custom:
+                break;
+            case Slack:
+                break;
+            case Hangouts:
+                launchHangoutsIntent(getActivity(), actionAddress);
+                break;
+            case Whatsapp:
+                launchWhatsAppIntent(getActivity(), actionAddress);
+                break;
+            case Periscope:
+                break;
+            case PlaystationNetwork:
+                launchPlaystationNetworkIntent(getActivity(), actionAddress);
+                break;
+            case NintendoNetwork:
+                launchNintendoNetworkIntent(getActivity(), actionAddress);
+                break;
+            case Steam:
+                launchSteamIntent(getActivity(), actionAddress);
+                break;
+            case Twitch:
+                launchTwitchIntent(getActivity(), actionAddress);
+                break;
+            case XboxLive:
+                launchXboxLiveIntent(getActivity(), actionAddress);
+                break;
+            case LeagueOfLegends:
+                // league is specifically a static profile and goes no where.
+            default:
+                break;
         }
     }
 

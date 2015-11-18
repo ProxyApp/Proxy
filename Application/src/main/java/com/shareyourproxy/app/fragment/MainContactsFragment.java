@@ -1,6 +1,7 @@
 package com.shareyourproxy.app.fragment;
 
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,35 +9,43 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.RxGoogleAnalytics;
+import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
+import com.shareyourproxy.api.rx.event.NotificationCardActionEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
-import com.shareyourproxy.app.adapter.UserAdapter;
-import com.shareyourproxy.app.adapter.UserAdapter.UserViewHolder;
+import com.shareyourproxy.app.adapter.UserContactsAdapter;
+import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
 import butterknife.Bind;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static android.text.Html.fromHtml;
+import static com.shareyourproxy.IntentLauncher.launchInviteFriendIntent;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS;
 
 /**
  * A recyclerView of Favorite {@link User}s.
@@ -48,29 +57,26 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.fragment_contact_main_empty_textview)
     TextView emptyTextView;
+    @Bind(R.id.fragment_contact_main_empty_view)
+    LinearLayout emptyView;
     @BindDimen(R.dimen.common_margin_medium)
     int catPadding;
-    @BindDimen(R.dimen.common_svg_null_screen)
+    @BindDimen(R.dimen.common_svg_null_screen_small)
     int marginNullScreen;
-    @BindString(R.string.fragment_contact_main_empty_text)
+    @BindString(R.string.fragment_contact_main_empty_title)
+    String nullTitle;
+    @BindString(R.string.fragment_contact_main_empty_message)
     String nullMessage;
-
     OnRefreshListener _refreshListener = new OnRefreshListener() {
         @Override
         public void onRefresh() {
-            recyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    User user = getLoggedInUser();
-                    if (user != null) {
-                        getRxBus().post(new SyncAllUsersCommand(
-                            getRxBus(), getLoggedInUser().id()));
-                    }
-                }
-            });
+            User user = getLoggedInUser();
+            if (user != null) {
+                getRxBus().post(new SyncContactsCommand(getLoggedInUser()));
+            }
         }
     };
-    private UserAdapter _adapter;
+    private UserContactsAdapter _adapter;
     private CompositeSubscription _subscriptions;
 
     /**
@@ -88,45 +94,54 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         return new MainContactsFragment();
     }
 
+    @OnClick(R.id.fragment_contact_main_empty_button)
+    public void onClickInviteFriend() {
+        launchInviteFriendIntent(getActivity());
+    }
+
     @Override
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.common_recyclerview, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_contacts_main, container, false);
         ButterKnife.bind(this, rootView);
         initializeRecyclerView();
-        initializeSwipeRefresh();
+        initializeSwipeRefresh(swipeRefreshLayout, _refreshListener);
         return rootView;
-    }
-
-    /**
-     * Initialize the color sequence of the swipe refresh view.
-     */
-    private void initializeSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener(_refreshListener);
-        swipeRefreshLayout.setColorSchemeResources(
-            R.color.common_text, R.color.common_blue, R.color.common_green);
     }
 
     /**
      * Initialize a recyclerView with User data.
      */
     private void initializeRecyclerView() {
+        boolean showHeader = !getSharedPreferences().getBoolean(INVITE_FRIENDS.getKey(), false);
+        _adapter = UserContactsAdapter.newInstance(recyclerView, getSharedPreferences(),
+            showHeader, this);
         initializeEmptyView();
+
+        recyclerView.setEmptyView(emptyView);
+        recyclerView.setRefreshView(swipeRefreshLayout);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.hideRecyclerView(false);
-        _adapter = UserAdapter.newInstance(this);
-        recyclerView.setAdapter(_adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(_adapter);
     }
 
     private void initializeEmptyView() {
+        Context context = getContext();
         Drawable draw = getCatDrawable();
         draw.setBounds(-catPadding, 0, draw.getIntrinsicWidth(), draw.getIntrinsicHeight());
         emptyTextView.setPadding(catPadding, 0, catPadding, 0);
         emptyTextView.setCompoundDrawables(null, draw, null, null);
-        emptyTextView.setText(fromHtml(nullMessage));
-        recyclerView.setEmptyView(emptyTextView);
+
+        SpannableStringBuilder sb = new SpannableStringBuilder(nullTitle).append("\n")
+            .append(nullMessage);
+
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body2),
+            0, nullTitle.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        sb.setSpan(new TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Body),
+            nullTitle.length() + 1, sb.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+        emptyTextView.setText(sb);
     }
 
     /**
@@ -135,7 +150,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * @return Drawable with a contentDescription
      */
     private Drawable getCatDrawable() {
-        return svgToBitmapDrawable(getActivity(), R.raw.ic_cat, marginNullScreen);
+        return svgToBitmapDrawable(getActivity(), R.raw.ic_gato, marginNullScreen);
     }
 
     @Override
@@ -150,12 +165,14 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
                         onUserSelected((UserSelectedEvent) event);
                     } else if (event instanceof LoggedInUserUpdatedEventCallback) {
                         userUpdated((LoggedInUserUpdatedEventCallback) event);
-                    } else if (event instanceof SyncAllUsersCommand) {
+                    } else if (event instanceof SyncContactsCommand) {
                         swipeRefreshLayout.setRefreshing(true);
                     } else if (event instanceof SyncAllUsersSuccessEvent) {
                         swipeRefreshLayout.setRefreshing(false);
                     } else if (event instanceof SyncAllUsersErrorEvent) {
                         swipeRefreshLayout.setRefreshing(false);
+                    } else if (event instanceof NotificationCardActionEvent) {
+                        launchInviteFriendIntent(getActivity());
                     }
                 }
             }));
@@ -188,9 +205,11 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     @Override
     public void onItemClick(View view, int position) {
         UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
+        User user = _adapter.getItemData(position);
+        RxGoogleAnalytics.getInstance(getActivity()).contactProfileViewed(user);
         getRxBus().post(
             new UserSelectedEvent(
-                holder.userImage, holder.userName, _adapter.getItemData(position)));
+                holder.userImage, holder.userName, user));
     }
 
     /**

@@ -12,9 +12,8 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxHelper;
-import com.shareyourproxy.api.rx.command.SyncAllUsersCommand;
+import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 import com.shareyourproxy.app.fragment.DispatchFragment;
@@ -25,8 +24,10 @@ import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchLoginActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the {@link
@@ -74,11 +75,13 @@ public class DispatchActivity extends GoogleApiActivity {
     @Override
     public void onConnectionSuspended(int i) {
         launchLoginActivity(this);
+        finish();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         launchLoginActivity(this);
+        finish();
     }
 
     @Override
@@ -115,48 +118,57 @@ public class DispatchActivity extends GoogleApiActivity {
     }
 
     private void login() {
-        launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+        launchMainActivity(this, MainFragment.ARG_SELECT_PROFILE_TAB, false, null);
         finish();
     }
 
     private Observable<User> loginObservable(final Activity activity) {
-        return Observable.create(new Observable.OnSubscribe<User>() {
-            @Override
-            public void call(final Subscriber<? super User> subscriber) {
-                try {
-                    //even if we have a user saved, if this isnt present, go to login.
-                    if (!getSharedPreferences().contains(Constants.KEY_PLAYED_INTRODUCTION)) {
-                        launchLoginActivity(activity);
-                    } else {
-                        //get the shared preferences user
-                        User user = null;
-                        String jsonUser = getSharedPreferences().getString(Constants
-                            .KEY_LOGGED_IN_USER, null);
-                        if (jsonUser != null) {
-                            try {
-                                user = getSharedPrefJsonUser();
-                            } catch (Exception e) {
-                                Timber.e(Log.getStackTraceString(e));
+        return Observable.create(
+            new Observable.OnSubscribe<User>() {
+                @Override
+                public void call(final Subscriber<? super User> subscriber) {
+                    try {
+                        //even if we have a user saved, if this isnt
+                        // present, go to login.
+                        if (getSharedPreferences().getBoolean
+                            (KEY_PLAY_INTRODUCTION, false)) {
+                            launchLoginActivity(activity);
+                            finish();
+                        } else {
+                            //get the shared preferences user
+                            User user = null;
+                            String jsonUser = getSharedPreferences()
+                                .getString(Constants
+                                    .KEY_LOGGED_IN_USER, null);
+                            if (jsonUser != null) {
+                                try {
+                                    user = getSharedPrefJsonUser();
+                                } catch (Exception e) {
+                                    Timber.e(Log.getStackTraceString(e));
+                                }
+                            }
+                            // if there is a user saved in shared prefs
+                            if (user != null) {
+                                RestClient.getUserService(activity)
+                                    .updateUserVersion(user.id(),
+                                        BuildConfig.VERSION_CODE)
+                                    .toBlocking().single();
+                                setLoggedInUser(user);
+                                updateRealmUser(activity, user);
+                                getRxBus().post(new SyncContactsCommand(user));
+                                subscriber.onNext(user);
+                            } else {
+                                launchLoginActivity(activity);
+                                finish();
                             }
                         }
-                        // if there is a user saved in shared prefs
-                        if (user != null) {
-                            RestClient.getUserService(activity, getRxBus())
-                                .updateUserVersion(user.id(), BuildConfig.VERSION_CODE)
-                                .toBlocking().single();
-                            setLoggedInUser(user);
-                            RxBusDriver rxBus = getRxBus();
-                            rxBus.post(new SyncAllUsersCommand(rxBus, user.id()));
-                            subscriber.onNext(user);
-                        } else {
-                            launchLoginActivity(activity);
-                        }
+                    } catch (Exception e) {
+                        subscriber.onError(e);
+                    } finally {
+                        subscriber.onCompleted();
                     }
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<User>applySchedulers());
+        ).compose(RxHelper.<User>applySchedulers());
     }
 }

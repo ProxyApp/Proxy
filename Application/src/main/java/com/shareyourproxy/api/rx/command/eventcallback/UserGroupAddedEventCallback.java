@@ -1,23 +1,37 @@
 package com.shareyourproxy.api.rx.command.eventcallback;
 
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 
 /**
- * Created by Evan on 6/8/15.
+ * User group channel updated.
  */
 public class UserGroupAddedEventCallback extends UserEventCallback {
+    private final static java.lang.ClassLoader CL = UserGroupAddedEventCallback.class.getClassLoader();
+    public static final Creator<UserGroupAddedEventCallback> CREATOR =
+        new Creator<UserGroupAddedEventCallback>() {
+            @Override
+            public UserGroupAddedEventCallback createFromParcel(Parcel in) {
+                return new UserGroupAddedEventCallback(
+                    (User) in.readValue(CL), (Group) in.readValue(CL));
+            }
+
+            @Override
+            public UserGroupAddedEventCallback[] newArray(int size) {
+                return new UserGroupAddedEventCallback[size];
+            }
+        };
     public final Group group;
+
 
     /**
      * Public constructor.
      *
      * @param group this events group
      */
-    public UserGroupAddedEventCallback(@NonNull User user, @NonNull Group group) {
+    public UserGroupAddedEventCallback(User user, Group group) {
         super(user);
         this.group = group;
     }

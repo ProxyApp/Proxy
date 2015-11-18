@@ -34,13 +34,13 @@ public class RxUserContactSync {
     }
 
     public static List<EventCallback> checkContacts(
-        final Context context, RxBusDriver rxBus, final User user,
+        final Context context, final User user,
         ArrayList<String> contacts, final HashMap<String, Group> userGroups) {
         return Observable.from(contacts)
             .map(findContactsToDelete(userGroups))
             .filter(filterMissingContacts())
             .map(unwrapPairedContact())
-            .flatMap(zipDeleteUserContact(context, rxBus, user))
+            .flatMap(zipDeleteUserContact(context, user))
             .toList().toBlocking().single();
     }
 
@@ -72,8 +72,8 @@ public class RxUserContactSync {
     }
 
     private static rx.Observable<String> deleteFirebaseUserContact(
-        Context context, RxBusDriver rxBus, String userId, String contactId) {
-        getUserContactService(context, rxBus).deleteUserContact(userId, contactId).subscribe();
+        Context context, String userId, String contactId) {
+        getUserContactService(context).deleteUserContact(userId, contactId).subscribe();
         return Observable.just(contactId);
     }
 
@@ -122,13 +122,13 @@ public class RxUserContactSync {
     }
 
     private static Func1<String, Observable<EventCallback>> zipDeleteUserContact(
-        final Context context, final RxBusDriver rxBus, final User user) {
+        final Context context, final User user) {
         return new Func1<String, Observable<EventCallback>>() {
             @Override
             public Observable<EventCallback> call(String contactId) {
                 return Observable.zip(
                     deleteRealmUserContact(context, user, contactId),
-                    deleteFirebaseUserContact(context, rxBus, user.id(), contactId),
+                    deleteFirebaseUserContact(context, user.id(), contactId),
                     zipDeleteUserContact());
             }
         };

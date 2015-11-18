@@ -4,15 +4,15 @@ import android.content.Context;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.RestClient;
+import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.SharedLink;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -24,26 +24,19 @@ import rx.functions.Func1;
 public class RxShareLink {
 
     public static List<EventCallback> getShareLinkMessageObservable(
-        final Context context, final RxBusDriver rxBus, final ArrayList<GroupToggle> groups) {
+        final Context context, final User user, final ArrayList<GroupToggle> groups) {
         return Observable.create(new Observable.OnSubscribe<EventCallback>() {
             @Override
             public void call(final Subscriber<? super EventCallback> subscriber) {
                 try {
                     ArrayList<String> groupIds = Observable.just(groups)
-                        .map(getCheckedGroups()).toBlocking().single();
-                    final HashMap<String, SharedLink> links =
-                        RestClient.getSharedLinkService(context, rxBus)
-                            .getSharedLinks().toBlocking().single();
+                        .map(getCheckedGroups(context)).toBlocking().single();
 
-                    String message = Observable.from(groupIds)
-                        .map(sortSharedLinks(links))
-                        .filter(RxHelper.filterNullObject())
-                        .buffer(groupIds.size())
-                        .map(buildMessage(context))
-                        .toBlocking().single();
+                    Observable.from(groupIds)
+                        .map(queryLinkIds(context, user.id()))
+                        .map(generateMessage(context))
+                        .subscribe(handleMessage(subscriber));
 
-                    subscriber.onNext(new ShareLinkEvent(message));
-                    subscriber.onCompleted();
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }
@@ -51,49 +44,62 @@ public class RxShareLink {
         }).toList().toBlocking().single();
     }
 
-    private static Func1<List<SharedLink>, String> buildMessage(final Context context) {
-        return new Func1<List<SharedLink>, String>() {
+    public static Func1<String, SharedLink> queryLinkIds(final Context context, final String
+        userId) {
+        return new Func1<String, SharedLink>() {
             @Override
-            public String call(List<SharedLink> sharedLinks) {
+            public SharedLink call(String groupId) {
+                return RestClient.getHerokuUserervice(context).
+                    getSharedLink(groupId, userId).toBlocking().single();
+            }
+        };
+    }
+
+    public static Subscriber<String> handleMessage(
+        final Subscriber<? super EventCallback> subscriber) {
+        return new Subscriber<String>() {
+            @Override
+            public void onCompleted() {
+                subscriber.onCompleted();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                subscriber.onError(e);
+            }
+
+            @Override
+            public void onNext(String message) {
+                subscriber.onNext(new ShareLinkEvent(message));
+            }
+        };
+    }
+
+    public static Func1<SharedLink, String> generateMessage(final Context context) {
+        return new Func1<SharedLink, String>() {
+            @Override
+            public String call(SharedLink link) {
                 StringBuilder sb = new StringBuilder();
-                for (SharedLink link : sharedLinks) {
-                    sb.append(context.getString(
-                        R.string.sharelink_message_link, link.id()));
-                    sb.append(System.getProperty("line.separator"));
-                    sb.append(System.getProperty("line.separator"));
-                }
+                sb.append(context.getString(R.string.sharelink_message_link, link.id()));
+                sb.append(System.getProperty("line.separator"));
+                sb.append(System.getProperty("line.separator"));
                 return sb.toString();
             }
         };
     }
 
-    private static Func1<String, SharedLink> sortSharedLinks(
-        final HashMap<String, SharedLink> links) {
-        return new Func1<String, SharedLink>() {
-            @Override
-            public SharedLink call(String groupId) {
-                for (Map.Entry<String, SharedLink> linkEntry : links.entrySet()) {
-                    SharedLink link = linkEntry.getValue();
-                    if (link.groupId().equals(groupId)) {
-                        return link;
-                    }
-                }
-                return null;
-            }
-        };
-    }
-
-    private static Func1<ArrayList<GroupToggle>, ArrayList<String>> getCheckedGroups() {
+    private static Func1<ArrayList<GroupToggle>, ArrayList<String>> getCheckedGroups(
+        final Context context) {
         return new Func1<ArrayList<GroupToggle>, ArrayList<String>>() {
             @Override
-            public ArrayList<String> call(
-                ArrayList<GroupToggle>
-                    groupToggles) {
-                ArrayList<String> checkedGroups = new ArrayList<>(groupToggles
-                    .size());
+            public ArrayList<String> call(ArrayList<GroupToggle> groupToggles) {
+                RxGoogleAnalytics analytics = RxGoogleAnalytics.getInstance(context);
+                ArrayList<String> checkedGroups = new ArrayList<>(groupToggles.size());
                 for (GroupToggle groupEntry : groupToggles) {
                     if (groupEntry.isChecked()) {
-                        checkedGroups.add(groupEntry.getGroup().id());
+                        Group group = groupEntry.getGroup();
+                        analytics.shareLinkGenerated(group);
+                        checkedGroups.add(group.id());
                     }
                 }
                 return checkedGroups;

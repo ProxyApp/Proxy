@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
@@ -18,6 +19,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.AddGroupChannelAndPublicCommand;
 import com.shareyourproxy.api.rx.command.AddGroupsChannelCommand;
+import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter;
 import com.shareyourproxy.util.ObjectUtils;
@@ -26,6 +28,7 @@ import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 
 
@@ -37,20 +40,25 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
         "com.shareyourproxy.savegroupchanneldialog.arg.channel";
     private static final String ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user";
     private static final String TAG = ObjectUtils.getSimpleName(SaveGroupChannelDialog.class);
-    private final DialogInterface.OnClickListener _negativeClicked =
-        new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        };
     @Bind(R.id.dialog_user_groups_recyclerview)
     BaseRecyclerView recyclerView;
+    @Bind(R.id.dialog_user_groups_message)
+    TextView message;
     @BindColor(R.color.common_text)
     int colorText;
     @BindColor(R.color.common_blue)
     int colorBlue;
+    @BindString(R.string.select_groups_for_channel)
+    String stringMessage;
     private Channel _channel;
+    private final DialogInterface.OnClickListener _negativeClicked =
+        new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                getRxBus().post(new ChannelAddedEvent(_user, _channel));
+                dialogInterface.dismiss();
+            }
+        };
     private User _user;
     private SaveGroupChannelAdapter _adapter;
     private final DialogInterface.OnClickListener _positiveClicked =
@@ -84,14 +92,16 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
     }
 
     private void dispatchUpdatedUserGroups() {
+
         RxBusDriver rxBus = getRxBus();
         if (_adapter.isPublicChecked()) {
             rxBus.post(new AddGroupChannelAndPublicCommand(
-                rxBus, _user, _adapter.getDataArray(), _channel));
+                _user, _adapter.getDataArray(), _channel));
         } else {
             rxBus.post(
-                new AddGroupsChannelCommand(rxBus, _user, _adapter.getDataArray(), _channel));
+                new AddGroupsChannelCommand(_user, _adapter.getDataArray(), _channel));
         }
+        rxBus.post(new ChannelAddedEvent(_user, _channel));
     }
 
     @Override
@@ -110,18 +120,19 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
             .inflate(R.layout.dialog_user_groups, null, false);
         ButterKnife.bind(this, view);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
-            .setTitle(R.string.select_groups_for_channel)
+            R.style.Widget_Proxy_App_Dialog)
+            .setTitle(R.string.select_groups)
             .setView(view)
             .setPositiveButton(getString(R.string.save), _positiveClicked)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
 
-        dialog.setCanceledOnTouchOutside(false);
+        message.setText(stringMessage);
         // Show the SW Keyboard on dialog start. Always.
+        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -140,17 +151,16 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
      * Setup the group list UI.
      */
     private void initializeRecyclerView() {
-        _adapter = SaveGroupChannelAdapter.newInstance(_user.groups());
-        //This Linear layout wraps content
+        _adapter = SaveGroupChannelAdapter.newInstance(recyclerView, _user.groups());
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(_adapter);
         recyclerView.hasFixedSize();
+        recyclerView.setAdapter(_adapter);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

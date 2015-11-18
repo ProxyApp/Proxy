@@ -2,8 +2,7 @@ package com.shareyourproxy.app.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v7.util.SortedList;
-import android.support.v7.util.SortedList.Callback;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +13,12 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.util.ObjectUtils;
+import com.shareyourproxy.widget.DismissibleNotificationCard;
+
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.Bind;
 
@@ -48,11 +50,13 @@ import static com.shareyourproxy.api.domain.model.ChannelType.Web;
 import static com.shareyourproxy.api.domain.model.ChannelType.Whatsapp;
 import static com.shareyourproxy.api.domain.model.ChannelType.XboxLive;
 import static com.shareyourproxy.api.domain.model.ChannelType.Youtube;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.CUSTOM_URL;
+import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SAFE_INFO;
 
 /**
  * Adapter that handles displaying channels.
  */
-public class AddChannelAdapter extends BaseRecyclerViewAdapter {
+public class AddChannelAdapter extends NotificationRecyclerAdapter<Channel> {
     private static final Channel PHONE = createModelInstance(Phone);
     private static final Channel SMS = createModelInstance(ChannelType.SMS);
     private static final Channel EMAIL = createModelInstance(Email);
@@ -73,7 +77,7 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
     private static final Channel MEDIUM = createModelInstance(Medium);
     private static final Channel SOUNDCLOUD = createModelInstance(Soundcloud);
     private static final Channel SKYPE = createModelInstance(Skype);
-    private static final Channel SNAPCHAT =createModelInstance(Snapchat);
+    private static final Channel SNAPCHAT = createModelInstance(Snapchat);
     private static final Channel WHATSAPP = createModelInstance(Whatsapp);
     private static final Channel LEAGUEOFLEGENDS = createModelInstance(LeagueOfLegends);
     private static final Channel PLAYSTATIONNETWORK = createModelInstance(PlaystationNetwork);
@@ -82,19 +86,20 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
     private static final Channel TWITCH = createModelInstance(Twitch);
     private static final Channel XBOXLIVE = createModelInstance(XboxLive);
 
-    private Callback<Channel> _sortedListCallback;
-    private SortedList<Channel> _channels = new SortedList<>(Channel.class, getSortedCallback());
+    List<Channel> channelList = Arrays.asList(
+        PHONE, SMS, EMAIL, WEB, FACEBOOK, TWITTER, MEERKAT, REDDIT, LINKEDIN,
+        GOOGLEPLUS, GITHUB, ADDRESS, YOUTUBE, INSTAGRAM, TUMBLR, ELLO,
+        VENMO, MEDIUM, SOUNDCLOUD, SKYPE, SNAPCHAT, WHATSAPP, LEAGUEOFLEGENDS,
+        PLAYSTATIONNETWORK, NINTENDONETWORK, STEAM, TWITCH, XBOXLIVE);
+
     private ItemClickListener _clickListener;
 
-    public AddChannelAdapter(ItemClickListener listener) {
+    public AddChannelAdapter(
+        boolean showHeader, boolean showFooter, BaseRecyclerView recyclerView,
+        SharedPreferences sharedPreferences, ItemClickListener listener) {
+        super(Channel.class, recyclerView, showHeader, showFooter, sharedPreferences);
         _clickListener = listener;
-        Channel[] channels = new Channel[]{
-            PHONE, SMS, EMAIL, WEB, FACEBOOK, TWITTER, MEERKAT, REDDIT, LINKEDIN,
-            GOOGLEPLUS, GITHUB, ADDRESS, YOUTUBE, INSTAGRAM, TUMBLR, ELLO,
-            VENMO, MEDIUM, SOUNDCLOUD, SKYPE, SNAPCHAT, WHATSAPP, LEAGUEOFLEGENDS,
-            PLAYSTATIONNETWORK, NINTENDONETWORK, STEAM, TWITCH,XBOXLIVE
-        };
-        _channels.addAll(channels);
+        refreshData(channelList);
     }
 
     /**
@@ -102,85 +107,78 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
      *
      * @return an {@link AddChannelAdapter} with no data
      */
-
     public static AddChannelAdapter newInstance(
-        ItemClickListener
-            listener) {
-        return new AddChannelAdapter(listener);
-    }
-
-    public Callback<Channel> getSortedCallback() {
-        if (_sortedListCallback == null) {
-            _sortedListCallback = new Callback<Channel>() {
-
-                @Override
-                public int compare(Channel item1, Channel item2) {
-                    int weight1 = item1.channelType().getWeight();
-                    int weight2 = item2.channelType().getWeight();
-                    int compareFirst = ObjectUtils.compare(weight1, weight2);
-                    if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
-                        return item1.label().compareToIgnoreCase(item2.label());
-                    } else {
-                        return compareFirst;
-                    }
-                }
-
-                @Override
-                public void onInserted(int position, int count) {
-                    notifyItemRangeInserted(position, count);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(position, count);
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
-                }
-
-                @Override
-                public boolean areContentsTheSame(Channel item1, Channel item2) {
-                    return (item1.id().equals(item2.id())
-                        && item1.label().equals(item2.label())
-                        && item1.channelType().equals(item2.channelType()));
-                }
-
-                @Override
-                public boolean areItemsTheSame(Channel item1, Channel item2) {
-                    return item1.id().equals(item2.id());
-                }
-            };
-        }
-        return _sortedListCallback;
+        BaseRecyclerView recyclerView, SharedPreferences sharedPreferences,
+        ItemClickListener listener) {
+        boolean showHeader = !sharedPreferences.getBoolean(DismissibleNotificationCard
+            .NotificationCard.SAFE_INFO.getKey(), false);
+        boolean showFooter = !sharedPreferences.getBoolean(DismissibleNotificationCard
+            .NotificationCard.CUSTOM_URL.getKey(), false);
+        return new AddChannelAdapter(
+            showHeader, showFooter, recyclerView, sharedPreferences, listener);
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    protected BaseViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.adapter_add_channel_list_item, parent, false);
         return ItemViewHolder.newInstance(view, _clickListener);
     }
 
     @Override
-    public void onBindViewHolder(BaseViewHolder holder, int position) {
-        bindItemViewData((ItemViewHolder) holder, getItemData(position));
+    protected int compare(Channel item1, Channel item2) {
+        return sortAlpha_WebToBottom(item1, item2);
     }
 
-    /**
-     * Get the desired {@link Channel} based off its position in a list.
-     *
-     * @param position the position in the list
-     * @return the desired {@link User}
-     */
-    public Channel getItemData(int position) {
-        return _channels.get(position);
+    public int sortAlpha_WebToBottom(Channel item1, Channel item2) {
+        boolean isWeb1 = (item1.channelType().equals(ChannelType.Web) ||
+            item1.channelType().equals(ChannelType.URL));
+        boolean isWeb2 = (item2.channelType().equals(ChannelType.Web) ||
+            item2.channelType().equals(ChannelType.URL));
+
+        String label1 = item1.channelType().getLabel();
+        String label2 = item2.channelType().getLabel();
+
+        int weight1 = item1.channelType().getWeight();
+        int weight2 = item2.channelType().getWeight();
+        int compareFirst = ObjectUtils.compare(weight1, weight2);
+
+        if (isWeb1 && isWeb2) {
+            return 0;
+        } else {
+            if (compareFirst == 0 || (weight1 > 3 && weight2 > 3)) {
+                if (isWeb2) {
+                    return -1;
+                } else {
+                    return label1.compareTo(label2);
+                }
+            } else {
+                return compareFirst;
+            }
+        }
+    }
+
+    @Override
+    protected boolean areContentsTheSame(Channel item1, Channel item2) {
+        return (item1.id().equals(item2.id())
+            && item1.label().equals(item2.label())
+            && item1.channelType().equals(item2.channelType()));
+    }
+
+    @Override
+    protected boolean areItemsTheSame(Channel item1, Channel item2) {
+        return item1.id().equals(item2.id());
+    }
+
+    @Override
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
+        if (holder instanceof HeaderViewHolder) {
+            bindHeaderViewData((HeaderViewHolder) holder, SAFE_INFO, true, false);
+        } else if (holder instanceof FooterViewHolder) {
+            bindFooterViewData((FooterViewHolder) holder, CUSTOM_URL, true, false);
+        } else {
+            bindItemViewData((ItemViewHolder) holder, getItemData(position));
+        }
     }
 
     /**
@@ -197,43 +195,6 @@ public class AddChannelAdapter extends BaseRecyclerViewAdapter {
             getChannelIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
         holder.itemLabel.setText(ObjectUtils.capitalize(channel.label()));
-    }
-
-    @Override
-    public int getItemCount() {
-        return _channels.size();
-    }
-
-    /**
-     * ViewHolder for the settings header.
-     */
-    public static final class SectionHeaderViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_add_channel_list_section_image)
-        ImageView sectionImage;
-        @Bind(R.id.adapter_add_channel_list_section_label)
-        TextView sectionLabel;
-
-        /**
-         * Constructor for the HeaderViewHolder.
-         *
-         * @param view              the inflated view
-         * @param itemClickListener click listener for this view
-         */
-        private SectionHeaderViewHolder(View view, ItemClickListener itemClickListener) {
-            super(view, itemClickListener);
-        }
-
-        /**
-         * Create a new Instance of the ViewHolder.
-         *
-         * @param view              inflated in {@link RecyclerView.Adapter#onCreateViewHolder}
-         * @param itemClickListener click listener for this view
-         * @return a ViewHolder instance
-         */
-        public static SectionHeaderViewHolder newInstance(
-            View view, ItemClickListener itemClickListener) {
-            return new SectionHeaderViewHolder(view, itemClickListener);
-        }
     }
 
     /**

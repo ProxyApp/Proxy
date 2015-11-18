@@ -20,7 +20,7 @@
             android:paddingEnd="@dimen/common_margin_small"
             android:paddingStart="@dimen/common_margin_small"
             android:transitionName="@string/hamburger"/>
-        <EditText
+        <com.shareyourproxy.widget.CustomEditText
             android:id="@+id/fragment_search_edittext"
             style="@style/Base.TextAppearance.AppCompat.Body1"
             android:layout_width="0dp"
@@ -28,11 +28,11 @@
             android:layout_marginStart="@dimen/common_margin_xxtiny"
             android:layout_weight="1"
             android:background="@null"
+            android:focusable="true"
             android:hint="@string/search_for_people"
             android:imeOptions="flagNoExtractUi|actionDone"
             android:inputType="textFilter"
             android:singleLine="true"
-            android:focusable="true"
             android:textColor="@color/common_text"
             android:textColorHint="@color/common_text_disabled"
             android:transitionName="@string/search_textview"/>
@@ -65,14 +65,15 @@
         android:orientation="vertical"
         android:paddingTop="@dimen/common_margin_tiny"
         android:visibility="gone">
+
         <TextView
             android:id="@+id/fragment_search_empty_textview"
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:gravity="center"
             android:drawablePadding="@dimen/common_margin_xxtiny"
+            android:gravity="center"
             android:text="@string/fragment_search_empty_text"
             android:textColor="@color/common_text_disabled"/>
 
@@ -82,11 +83,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/common_margin_xxtiny"
-            android:background="@drawable/selector_button_zoidberg"
+            android:background="@drawable/selector_button_blue"
             android:paddingEnd="@dimen/common_margin_xxtiny"
             android:paddingStart="@dimen/common_margin_xxtiny"
-            android:text="Send them an invite"/>
+            android:text="@string/send_them_an_invite"/>
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/fragment_search_loadingview"
+        style="@style/Widget.Proxy.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/common_rect_medium"
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
 </LinearLayout>

@@ -74,9 +74,8 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
      * @param groupLabel updated group name
      */
     private void saveGroupChannels(String groupLabel) {
-        getRxBus().post(new SaveGroupChannelsCommand(getRxBus(),
-            getLoggedInUser(), groupLabel, getSelectedGroup(),
-            _adapter.getSelectedChannels(), getGroupEditType()));
+        getRxBus().post(new SaveGroupChannelsCommand(getLoggedInUser(), groupLabel,
+            getSelectedGroup(), _adapter.getSelectedChannels(), getGroupEditType()));
         getActivity().onBackPressed();
     }
 
@@ -84,14 +83,9 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
      * Save public channels and go back.
      */
     private void savePublicGroupChannels() {
-        getRxBus().post(new SavePublicGroupChannelsCommand(getRxBus(), getLoggedInUser(),
-            _adapter.getToggledChannels()));
+        getRxBus().post(new SavePublicGroupChannelsCommand(
+            getLoggedInUser(), _adapter.getToggledChannels()));
         getActivity().onBackPressed();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     /**
@@ -121,8 +115,7 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
     public void onItemClick(View view, int position) {
         int viewType = _adapter.getItemViewType(position);
         if (viewType == TYPE_LIST_DELETE_FOOTER) {
-            getRxBus().post(new DeleteUserGroupCommand(getRxBus(),
-                getLoggedInUser(), getSelectedGroup()));
+            getRxBus().post(new DeleteUserGroupCommand(getLoggedInUser(), getSelectedGroup()));
         }
     }
 
@@ -136,9 +129,9 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
                 if (GroupEditType.PUBLIC_GROUP.equals(getGroupEditType())) {
                     savePublicGroupChannels();
                 } else {
-                    if(_adapter.getGroupLabel().trim().isEmpty()){
+                    if (_adapter.getGroupLabel().trim().isEmpty()) {
                         _adapter.promptGroupLabelError(getActivity());
-                    }else {
+                    } else {
                         saveGroupChannels(_adapter.getGroupLabel());
                     }
                 }

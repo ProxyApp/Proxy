@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.adapter;
 
-import android.support.v7.util.SortedList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,88 +18,36 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.shareyourproxy.api.domain.model.Group.createPublicGroup;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
 
 /**
  * Add a new channel to groups after its made.
  */
-public class SaveGroupChannelAdapter extends BaseRecyclerViewAdapter implements ItemClickListener {
-    private final GroupToggle _publicGroup;
-    private SortedList<GroupToggle> _groups;
-    private SortedList.Callback<GroupToggle> _sortedListCallback;
+public class SaveGroupChannelAdapter extends SortedRecyclerAdapter<GroupToggle> implements
+    ItemClickListener {
+    private GroupToggle _publicGroup = new GroupToggle(createPublicGroup(), false);
 
-    private SaveGroupChannelAdapter(ArrayList<GroupToggle> groups) {
-        // There's a public group no matter what
-        _publicGroup = new GroupToggle(Group.createPublicGroup(), false);
-        if (groups != null) {
-            _groups = new SortedList<>(GroupToggle.class, getSortedCallback(), groups.size() + 1);
-        } else {
-            _groups = new SortedList<>(GroupToggle.class, getSortedCallback(), 0);
-        }
-        _groups.beginBatchedUpdates();
-        _groups.addAll(groups);
-        _groups.add(_publicGroup);
-        _groups.endBatchedUpdates();
+    private SaveGroupChannelAdapter(
+        BaseRecyclerView recyclerView, ArrayList<GroupToggle> groupToggles) {
+        super(GroupToggle.class, recyclerView);
+        groupToggles.add(_publicGroup);
+        refreshGroupToggleData(groupToggles);
+
     }
 
-    public static SaveGroupChannelAdapter newInstance(HashMap<String, Group> groups) {
+    public static SaveGroupChannelAdapter newInstance
+        (BaseRecyclerView recyclerView, HashMap<String, Group> groups) {
         ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
         for (Map.Entry<String, Group> group : groups.entrySet()) {
             GroupToggle newEntry = new GroupToggle(group.getValue(), false);
             groupToggles.add(newEntry);
         }
-        return new SaveGroupChannelAdapter(groupToggles);
+        return new SaveGroupChannelAdapter(recyclerView, groupToggles);
     }
 
-    public SortedList.Callback<GroupToggle> getSortedCallback() {
-        if (_sortedListCallback == null) {
-            _sortedListCallback = new SortedList.Callback<GroupToggle>() {
-
-                @Override
-                public int compare(GroupToggle item1, GroupToggle item2) {
-                    if (item1.equals(_publicGroup)) {
-                        return 1;
-                    } else if (item2.equals(_publicGroup)) {
-                        return -1;
-                    }
-                    String label1 = item1.getGroup().label();
-                    String label2 = item2.getGroup().label();
-                    return label1.compareToIgnoreCase(label2);
-                }
-
-                @Override
-                public void onInserted(int position, int count) {
-                    notifyItemRangeInserted(position, count);
-                }
-
-                @Override
-                public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(position, count);
-                }
-
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(fromPosition, toPosition);
-                }
-
-                @Override
-                public void onChanged(int position, int count) {
-                    notifyItemRangeChanged(position, count);
-                }
-
-                @Override
-                public boolean areContentsTheSame(GroupToggle item1, GroupToggle item2) {
-                    return item1.getGroup().equals(item2.getGroup())
-                        && item1.isChecked() == item2.isChecked();
-                }
-
-                @Override
-                public boolean areItemsTheSame(GroupToggle item1, GroupToggle item2) {
-                    return item1.getGroup().equals(item2.getGroup());
-                }
-            };
-        }
-        return _sortedListCallback;
+    private void refreshGroupToggleData(ArrayList<GroupToggle> groupToggles) {
+        refreshData(groupToggles);
     }
 
     @Override
@@ -116,40 +63,52 @@ public class SaveGroupChannelAdapter extends BaseRecyclerViewAdapter implements 
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(capitalize(getDataItem(position).getGroup().label()));
-        holder.checkedTextView.setChecked(getDataItem(position).isChecked());
+        holder.checkedTextView.setText(capitalize(getItemData(position).getGroup().label()));
+        holder.checkedTextView.setChecked(getItemData(position).isChecked());
     }
 
     @Override
-    public int getItemCount() {
-        return _groups.size();
+    protected int compare(GroupToggle item1, GroupToggle item2) {
+        if (item1.equals(_publicGroup)) {
+            return 1;
+        } else if (item2.equals(_publicGroup)) {
+            return -1;
+        }
+        String label1 = item1.getGroup().label();
+        String label2 = item2.getGroup().label();
+        return label1.compareToIgnoreCase(label2);
     }
 
-
-    private GroupToggle getDataItem(int position) {
-        return _groups.get(position);
+    @Override
+    protected boolean areContentsTheSame(GroupToggle item1, GroupToggle item2) {
+        return item1.getGroup().equals(item2.getGroup())
+            && item1.isChecked() == item2.isChecked();
     }
 
-    //public should always be the last item
-    public boolean isPublicChecked() {
-        return _groups.get(_groups.size() - 1).isChecked();
+    @Override
+    protected boolean areItemsTheSame(GroupToggle item1, GroupToggle item2) {
+        return item1.getGroup().equals(item2.getGroup());
     }
 
     @Override
     public void onItemClick(View view, int position) {
         CheckedTextView text = ButterKnife.findById(view, R.id.adapter_user_groups_textview);
         text.setChecked(!text.isChecked());
-        GroupToggle group = getDataItem(position);
+        GroupToggle group = getItemData(position);
         group.setChecked(text.isChecked());
     }
 
     public ArrayList<GroupToggle> getDataArray() {
-        ArrayList<GroupToggle> groups = new ArrayList<>(_groups.size());
-        for (int i = 0; i < _groups.size(); ++i) {
-            groups.add(_groups.get(i));
+        ArrayList<GroupToggle> groups = getData();
+        if (!groups.isEmpty()) {
+            groups.remove(_publicGroup);
         }
-        groups.remove(_publicGroup);
         return groups;
+    }
+
+    //public should always be the last item
+    public boolean isPublicChecked() {
+        return getLastItem().isChecked();
     }
 
     /**

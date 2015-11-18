@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/adapter_drawer_item_image"
-        android:layout_width="@dimen/common_margin_medium"
-        android:layout_height="@dimen/common_margin_medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="@dimen/common_margin_xxtiny"
         android:layout_marginStart="@dimen/common_margin_tiny"
@@ -20,13 +20,12 @@
 
     <TextView
         android:id="@+id/adapter_drawer_item_name"
-        style="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/Proxy.TextAppearance.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="@dimen/common_margin_small"
+        android:layout_marginStart="@dimen/common_margin_tiny"
         android:paddingBottom="@dimen/common_margin_small"
-        android:paddingTop="@dimen/common_margin_small"
-        android:textColor="@color/common_text"/>
+        android:paddingTop="@dimen/common_margin_small"/>
 
 </LinearLayout>

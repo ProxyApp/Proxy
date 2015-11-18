@@ -22,7 +22,9 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
+import com.shareyourproxy.api.rx.event.AddChannelDialogSuccess;
 
 import java.util.UUID;
 
@@ -127,7 +129,10 @@ public class AddChannelDialog extends BaseDialogFragment {
             String id = UUID.randomUUID().toString();
             Channel channel =
                 createModelInstance(id, labelContent, _channelType, actionContent);
-            getRxBus().post(new AddUserChannelCommand(getRxBus(), getLoggedInUser(), channel));
+            RxBusDriver rxBus = getRxBus();
+            User user = getLoggedInUser();
+            rxBus.post(new AddUserChannelCommand(user, channel));
+            rxBus.post(new AddChannelDialogSuccess(user, channel));
         }
     }
 
@@ -149,18 +154,18 @@ public class AddChannelDialog extends BaseDialogFragment {
 
         editTextActionAddress.setOnEditorActionListener(_onEditorActionListener);
         AlertDialog dialog = new AlertDialog.Builder(getActivity(),
-            R.style.Base_Theme_AppCompat_Light_Dialog)
+            R.style.Widget_Proxy_App_Dialog)
             .setTitle(_dialogTitle)
             .setView(view)
             .setPositiveButton(getString(R.string.save), null)
             .setNegativeButton(android.R.string.cancel, _negativeClicked)
             .create();
 
-        dialog.setCanceledOnTouchOutside(false);
         // Show the SW Keyboard on dialog start. Always.
         dialog.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -387,7 +392,6 @@ public class AddChannelDialog extends BaseDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     /**

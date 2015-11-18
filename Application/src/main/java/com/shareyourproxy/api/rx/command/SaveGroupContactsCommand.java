@@ -2,11 +2,9 @@ package com.shareyourproxy.api.rx.command;
 
 import android.app.Service;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxGroupContactSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
@@ -33,27 +31,24 @@ public class SaveGroupContactsCommand extends BaseCommand {
         SaveGroupContactsCommand.class.getClassLoader();
 
     public final ArrayList<GroupToggle> groups;
-    public final String contactId;
+    public final User contact;
     public final User user;
 
-    public SaveGroupContactsCommand(
-        @NonNull RxBusDriver rxBus, User user, ArrayList<GroupToggle> groups, String contactId) {
-        super(SaveGroupContactsCommand.class.getPackage().getName(),
-            SaveGroupContactsCommand.class.getName(), rxBus);
+    public SaveGroupContactsCommand( User user, ArrayList<GroupToggle> groups, User contact) {
         this.user = user;
         this.groups = groups;
-        this.contactId = contactId;
+        this.contact = contact;
     }
 
     private SaveGroupContactsCommand(Parcel in) {
-        this((RxBusDriver) in.readValue(CL), (User) in.readValue(CL),
-            (ArrayList<GroupToggle>) in.readValue(CL), (String) in.readValue(CL));
+        this((User) in.readValue(CL),
+            (ArrayList<GroupToggle>) in.readValue(CL), (User) in.readValue(CL));
     }
 
     @Override
     public List<EventCallback> execute(Service service) {
         return RxGroupContactSync
-            .updateGroupContacts(service, rxBus, user, groups, contactId);
+            .updateGroupContacts(service, user, groups, contact);
     }
 
     @Override
@@ -63,10 +58,9 @@ public class SaveGroupContactsCommand extends BaseCommand {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest,flags);
         dest.writeValue(user);
         dest.writeValue(groups);
-        dest.writeValue(contactId);
+        dest.writeValue(contact);
     }
 
 }

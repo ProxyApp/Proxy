@@ -33,22 +33,22 @@ public class RxUserChannelSync {
     }
 
     public static List<EventCallback> saveUserChannel(
-        Context context,RxBusDriver rxBus, User oldUser, Channel oldChannel, Channel newChannel) {
+        Context context, User oldUser, Channel oldChannel, Channel newChannel) {
         return Observable.just(oldUser)
             .map(putUserChannel(newChannel))
             .map(addRealmUser(context))
-            .map(saveChannelToFirebase(context, rxBus, newChannel))
+            .map(saveChannelToFirebase(context, newChannel))
             .map(userChannelAddedEventCallback(oldChannel, newChannel))
             .toList().toBlocking().single();
     }
 
     public static List<EventCallback> deleteChannel(
-        Context context,RxBusDriver rxBus, User oldUser, Channel channel) {
+        Context context, User oldUser, Channel channel, int position) {
         return Observable.just(oldUser)
             .map(removeUserChannel(channel))
             .map(addRealmUser(context))
-            .map(deleteChannelFromFirebase(context, rxBus, channel))
-            .map(userChannelDeletedEventCallback(channel))
+            .map(deleteChannelFromFirebase(context, channel))
+            .map(userChannelDeletedEventCallback(channel, position))
             .toList().toBlocking().single();
     }
 
@@ -79,17 +79,17 @@ public class RxUserChannelSync {
     }
 
     private static Func1<User, User> saveChannelToFirebase(
-       final Context context, final RxBusDriver rxBus,final Channel channel) {
+        final Context context, final Channel channel) {
         return new Func1<User, User>() {
             @Override
             public User call(User user) {
                 String userId = user.id();
                 String channelId = channel.id();
 
-                getUserChannelService(context, rxBus)
+                getUserChannelService(context)
                     .addUserChannel(userId, channelId, channel)
                     .subscribe();
-                getUserGroupService(context, rxBus)
+                getUserGroupService(context)
                     .updateUserGroups(userId, user.groups())
                     .subscribe();
                 return user;
@@ -118,15 +118,15 @@ public class RxUserChannelSync {
     }
 
     private static Func1<User, User> deleteChannelFromFirebase(
-        final Context context, final RxBusDriver rxBus,  final Channel channel) {
+        final Context context, final Channel channel) {
         return new Func1<User, User>() {
             @Override
             public User call(User user) {
                 String userId = user.id();
                 String channelId = channel.id();
-                getUserChannelService(context, rxBus)
+                getUserChannelService(context)
                     .deleteUserChannel(userId, channelId).subscribe();
-                getUserGroupService(context, rxBus)
+                getUserGroupService(context)
                     .updateUserGroups(userId, user.groups())
                     .subscribe();
                 return user;
@@ -135,11 +135,11 @@ public class RxUserChannelSync {
     }
 
     private static Func1<User, EventCallback> userChannelDeletedEventCallback(
-        final Channel channel) {
+        final Channel channel, final int position) {
         return new Func1<User, EventCallback>() {
             @Override
             public EventCallback call(User user) {
-                return new UserChannelDeletedEventCallback(user, channel);
+                return new UserChannelDeletedEventCallback(user, channel, position);
             }
         };
     }
