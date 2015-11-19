@@ -37,30 +37,12 @@ public abstract class SortedRecyclerAdapter<T> extends BaseRecyclerViewAdapter {
 
                 @Override
                 public void onInserted(int position, int count) {
-                    if (_needsRefresh) {
-                        _needsRefresh = false;
-                        RecyclerViewDatasetChangedEvent event = new
-                            RecyclerViewDatasetChangedEvent(callback, MAIN);
-                        _rxBus.post(event);
-                        _recyclerView.updateViewState(event);
-                        callback.beforeDataSetChanged(position, count);
-                        notifyDataSetChanged();
-                    } else {
-                        callback.onInserted(position, count);
-                    }
+                    callback.onInserted(position, count);
                 }
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    if (getItemCount() == 0) {
-                        _needsRefresh = true;
-                        RecyclerViewDatasetChangedEvent event = new
-                            RecyclerViewDatasetChangedEvent(callback, EMPTY);
-                        _rxBus.post(event);
-                        _recyclerView.updateViewState(event);
-                    } else {
-                        callback.onRemoved(position, count);
-                    }
+                    callback.onRemoved(position, count);
                 }
 
                 @Override
@@ -93,11 +75,29 @@ public abstract class SortedRecyclerAdapter<T> extends BaseRecyclerViewAdapter {
     protected abstract int compare(T item1, T item2);
 
     protected void onInserted(int position, int count) {
-        notifyItemRangeInserted(position, count);
+        if (_needsRefresh) {
+            _needsRefresh = false;
+            RecyclerViewDatasetChangedEvent event = new
+                RecyclerViewDatasetChangedEvent(this, MAIN);
+            _rxBus.post(event);
+            _recyclerView.updateViewState(event);
+            beforeDataSetChanged(position, count);
+            notifyDataSetChanged();
+        } else {
+            notifyItemRangeInserted(position, count);
+        }
     }
 
     protected void onRemoved(int position, int count) {
-        notifyItemRangeRemoved(position, count);
+        if (getItemCount() == 0) {
+            _needsRefresh = true;
+            RecyclerViewDatasetChangedEvent event = new
+                RecyclerViewDatasetChangedEvent(this, EMPTY);
+            _rxBus.post(event);
+            _recyclerView.updateViewState(event);
+        } else {
+            notifyItemRangeRemoved(position, count);
+        }
     }
 
     protected void onMoved(int fromPosition, int toPosition) {
@@ -135,11 +135,14 @@ public abstract class SortedRecyclerAdapter<T> extends BaseRecyclerViewAdapter {
 
     final public void refreshData(Collection<T> datas) {
         _data.beginBatchedUpdates();
-        _data.clear();
         if (datas != null) {
             _data.addAll(datas);
         }
         _data.endBatchedUpdates();
+    }
+
+    public void setNeedsRefresh(boolean needsRefresh) {
+        _needsRefresh = needsRefresh;
     }
 
     final public void updateItem(@NonNull T oldItem, @NonNull T newItem) {

@@ -1,19 +1,21 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import com.shareyourproxy.widget.transform.CircleTransform;
-import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
+
+import static com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder;
+import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
 
 /**
  * Created by Evan on 11/10/15.
@@ -22,7 +24,7 @@ public class GroupContactsAdapter extends SortedRecyclerAdapter<User> {
     private final ItemClickListener _clickListener;
 
     public GroupContactsAdapter(BaseRecyclerView recyclerView, ItemClickListener listener) {
-        super(User.class,recyclerView);
+        super(User.class, recyclerView);
         _clickListener = listener;
     }
 
@@ -58,15 +60,12 @@ public class GroupContactsAdapter extends SortedRecyclerAdapter<User> {
         Context context = holder.view.getContext();
         holder.userName.setText(user.fullName());
         String profileURL = user.profileURL();
-        if (profileURL != null && !profileURL.isEmpty() && !profileURL.contains(".gif")) {
-            Picasso.with(context).load(profileURL)
-                .placeholder(R.mipmap.ic_proxy)
-                .transform(new CircleTransform())
-                .into(holder.userImage);
-        } else {
-            Picasso.with(context).load(R.mipmap.ic_proxy)
-                .into(holder.userImage);
-        }
+
+        holder.userImage.setHierarchy(getUserImageHierarchy(context));
+        holder.userImage.setController(newDraweeControllerBuilder()
+            .setUri(Uri.parse(profileURL))
+            .setAutoPlayAnimations(true)
+            .build());
     }
 
     @Override
@@ -97,7 +96,7 @@ public class GroupContactsAdapter extends SortedRecyclerAdapter<User> {
         @Bind(R.id.adapter_user_name)
         public TextView userName;
         @Bind(R.id.adapter_user_image)
-        public ImageView userImage;
+        public SimpleDraweeView userImage;
 
         /**
          * Constructor for the holder.

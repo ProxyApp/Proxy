@@ -8,8 +8,8 @@ import android.view.MenuItem;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.app.fragment.ContactProfileFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
-import com.shareyourproxy.app.fragment.UserProfileFragment;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 /**
  * Activity that handles displaying a {@link User} profile.
  */
-public class UserProfileActivity extends BaseActivity {
+public class UserContactActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
@@ -42,7 +42,7 @@ public class UserProfileActivity extends BaseActivity {
             User user = getUserExtra();
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_user_profile_container,
-                    UserProfileFragment.newInstance(user, getLoggedInUser().id(), true)).commit();
+                    ContactProfileFragment.newInstance(user, getLoggedInUser().id())).commit();
         }
     }
 

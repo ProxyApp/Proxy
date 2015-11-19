@@ -123,6 +123,7 @@ public class AddChannelDialog extends BaseDialogFragment {
      * Dispatch a Channel Added Event
      */
     private void addUserChannel() {
+        //TODO:CLEAN THIS MESS UP
         String actionContent = editTextActionAddress.getText().toString();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
@@ -132,6 +133,7 @@ public class AddChannelDialog extends BaseDialogFragment {
             RxBusDriver rxBus = getRxBus();
             User user = getLoggedInUser();
             rxBus.post(new AddUserChannelCommand(user, channel));
+            user.channels().put(channel.id(), channel);
             rxBus.post(new AddChannelDialogSuccess(user, channel));
         }
     }

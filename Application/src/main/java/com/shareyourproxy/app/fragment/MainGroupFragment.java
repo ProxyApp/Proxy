@@ -208,7 +208,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
 
     public void addGroups(UserGroupAddedEventCallback event) {
         Group group = event.group;
-        if (group != null) {
+        if (group.id() != null) {
             addGroup(group);
         }
     }

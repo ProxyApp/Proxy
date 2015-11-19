@@ -11,12 +11,14 @@ import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getHerokuUserervice;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
+import static java.util.Collections.singleton;
 
 /**
  * Cold Observables to sync users to firebase and realm.
@@ -41,10 +43,15 @@ public class RxUserSync {
      */
     public static List<EventCallback> syncAllContacts(
         Context context, User loggedInUser) {
-        return getFirebaseUsers(context, loggedInUser)
-            .map(saveRealmUsers(context))
-            .map(usersDownloaded(loggedInUser))
-            .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single();
+        HashSet<String> contacts = loggedInUser.contacts();
+
+        return (contacts != null && contacts.size() > 0) ?
+            getFirebaseUsers(context, loggedInUser)
+                .map(saveRealmUsers(context))
+                .map(usersDownloaded(loggedInUser))
+                .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single() :
+            new ArrayList<EventCallback>(singleton(
+                new SyncAllUsersSuccessEvent()));
     }
 
     public static List<EventCallback> saveUser(

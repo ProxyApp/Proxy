@@ -28,5 +28,5 @@ public abstract class JustObserver<T> implements Observer<T> {
 
     public abstract void next(T t);
 
-    public abstract void error(Throwable e);
+    public void error(Throwable e){}
 }

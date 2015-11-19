@@ -28,7 +28,7 @@ public class RxTextWatcherSubject {
     }
 
     public Observable<String> toObserverable() {
-        return _rxBus.debounce(400, TimeUnit.MILLISECONDS, Schedulers.io()).onBackpressureLatest()
+        return _rxBus.debounce(500, TimeUnit.MILLISECONDS, Schedulers.io()).onBackpressureLatest()
             .observeOn(AndroidSchedulers.mainThread());
     }
 

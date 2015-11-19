@@ -119,18 +119,12 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
 
     public JustObserver<SpotifyAuthResponse> authObserver() {
         return new JustObserver<SpotifyAuthResponse>() {
-
             @Override
             public void next(SpotifyAuthResponse event) {
                 Timber.i(event.toString());
                 RestClient.getSpotifyUserService(getActivity()).getUser(event
                     .access_token())
                     .subscribe(getUserObserver());
-            }
-
-            @Override
-            public void error(Throwable e) {
-
             }
         };
     }
@@ -145,11 +139,6 @@ public class SpotifyAuthDialog extends BaseDialogFragment {
                     ChannelType.Spotify, event.id());
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
                 getDialog().dismiss();
-            }
-
-            @Override
-            public void error(Throwable e) {
-
             }
         };
     }

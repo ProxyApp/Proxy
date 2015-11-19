@@ -72,14 +72,16 @@ public class RxQuery {
             public HashMap<String, Channel> call(User contact) {
                 ArrayList<String> permissionedIds = new ArrayList<>();
                 HashMap<String, Channel> permissionedChannels = new HashMap<>();
+                HashMap<String, Channel> channels = contact.channels();
                 //escape early
-                if (contact.channels().size() == 0) {
+                if (channels == null || channels.size() == 0) {
                     return permissionedChannels;
                 } else {
+                    HashMap<String, Group> groups = contact.groups();
                     //check the contacts groups for the logged in user and gather the channel
                     // Id's of that group
-                    if (contact.groups() != null) {
-                        for (Group group : contact.groups().values()) {
+                    if (groups != null && groups.size() > 0) {
+                        for (Group group : groups.values()) {
                             HashSet<String> contacts = group.contacts();
                             if (contacts != null) {
                                 for (String contactId : contacts) {
@@ -98,7 +100,7 @@ public class RxQuery {
                         }
                     }
                     // add public channels
-                    for (Channel channel : contact.channels().values()) {
+                    for (Channel channel : channels.values()) {
                         if (channel.isPublic()) {
                             permissionedChannels.put(channel.id(), channel);
                         }

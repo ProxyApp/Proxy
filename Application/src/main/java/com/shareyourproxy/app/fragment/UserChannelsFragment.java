@@ -41,7 +41,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
-import timber.log.Timber;
 
 import static android.view.View.GONE;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
@@ -149,8 +148,8 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     }
 
     private boolean isShowHeader(HashMap<String, Channel> channels) {
-        return _isLoggedInUser && channels.size() > 0 &&
-                !getSharedPreferences().getBoolean(SHARE_PROFILE.getKey(), false);
+        return channels != null && _isLoggedInUser && channels.size() > 0 &&
+            !getSharedPreferences().getBoolean(SHARE_PROFILE.getKey(), false);
     }
 
     private void initializeEmptyView() {
@@ -208,10 +207,6 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
                 _adapter.updateChannels(channels);
             }
 
-            @Override
-            public void error(Throwable e) {
-                Timber.e("Error downloading permissioned channels");
-            }
         };
     }
 
@@ -222,7 +217,7 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
         if (_isLoggedInUser) {
-            _adapter.updateChannels(getLoggedInUser().channels());
+            syncUsersContacts();
         } else {
             getSharedChannels();
         }
@@ -238,16 +233,22 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
                 } else if (event instanceof UserChannelDeletedEventCallback) {
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 } else if (event instanceof SyncAllUsersSuccessEvent) {
-                    _adapter.notifyDataSetChanged();
-                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
-                    toggleRecyclerViewState((RecyclerViewDatasetChangedEvent) event);
+                    if (_isLoggedInUser) {
+                        syncUsersContacts();
+                    }
                 }
             }
         };
     }
 
-    public void toggleRecyclerViewState(RecyclerViewDatasetChangedEvent event) {
-        recyclerView.updateViewState(event);
+    public void syncUsersContacts() {
+        HashMap<String, Channel> channels = getLoggedInUser().channels();
+        if (channels != null && channels.size() > 0) {
+            _adapter.updateChannels(channels);
+        } else {
+            recyclerView.updateViewState(new RecyclerViewDatasetChangedEvent(
+                _adapter, BaseRecyclerView.ViewState.EMPTY));
+        }
     }
 
     @Override

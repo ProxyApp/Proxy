@@ -17,7 +17,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback;
-import com.shareyourproxy.app.UserProfileActivity;
+import com.shareyourproxy.app.UserContactActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,7 +110,7 @@ public class RxMessageSync {
         Intent resultIntent =
             getUserProfileIntent(contact, loggedInUserId);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(UserProfileActivity.class);
+        stackBuilder.addParentStack(UserContactActivity.class);
         stackBuilder.addNextIntent(resultIntent);
         return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }

@@ -1,33 +1,31 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.v7.graphics.Palette;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import com.shareyourproxy.widget.transform.AlphaTransform;
-import com.shareyourproxy.widget.transform.CircleTransform;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindColor;
+import butterknife.BindDimen;
 
+import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
+import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
 
 /**
  * Adapter to handle creating a drawer with a User Header and User Settings.
@@ -38,8 +36,6 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
     private final ItemClickListener _clickListener;
     private final List<DrawerItem> _drawerItems;
     private User _currentUser;
-    private Target _targetProfileImage;
-    private Target _targetBackground;
 
     /**
      * Constructor for {@link DrawerAdapter}.
@@ -67,24 +63,6 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
      */
     public static DrawerAdapter newInstance(User currentUser, ItemClickListener listener) {
         return new DrawerAdapter(currentUser, listener);
-    }
-
-    /**
-     * Async return when palette has been loaded.
-     *
-     * @param viewHolder viewholder to manipulate
-     * @return palette listener
-     */
-    private Palette.PaletteAsyncListener getPaletteAsyncListener(
-        final HeaderViewHolder viewHolder, final int defualtColor) {
-        return new Palette.PaletteAsyncListener() {
-            public void onGenerated(Palette palette) {
-                if (_currentUser.coverURL() == null || _currentUser.coverURL().trim().isEmpty()) {
-                    viewHolder.backgroundContainer
-                        .setBackgroundColor(palette.getVibrantColor(defualtColor));
-                }
-            }
-        };
     }
 
     @Override
@@ -130,33 +108,25 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
      * @param holder view holder
      */
     public void bindHeaderViewHolder(HeaderViewHolder holder) {
-        Context context = holder.view.getContext();
         if (_currentUser != null) {
-
+            Context context = holder.view.getContext();
+            Resources res = holder.view.getResources();
             holder.userName.setText(_currentUser.fullName());
             String profileURL = _currentUser.profileURL();
             String coverURL = _currentUser.coverURL();
 
-            if (profileURL != null && !profileURL.trim().isEmpty() && !profileURL.contains("" +
-                ".gif")) {
-                Picasso.with(context).load(profileURL)
-                    .transform(CircleTransform.create())
-                    .placeholder(R.mipmap.ic_proxy)
-                    .into(getBitmapTargetView(holder));
-            } else {
-                Picasso.with(context).load(R.mipmap.ic_proxy)
-                    .into(getBitmapTargetView(holder));
-            }
+            holder.userImage.setHierarchy(getUserImageHierarchy(context));
+            holder.userImage.setController(Fresco.newDraweeControllerBuilder()
+                .setUri(Uri.parse(profileURL))
+                .build());
 
-            if (coverURL != null && !coverURL.trim().isEmpty() && !coverURL.contains(".gif")) {
-                Picasso.with(context).load(coverURL)
-                    .transform(AlphaTransform.create())
-                    .into(getBackgroundTarget(holder));
-            } else {
-                Picasso.with(context).load(R.mipmap.ic_proxy)
-                    .transform(AlphaTransform.create())
-                    .into(getBackgroundTarget(holder));
-            }
+
+            holder.backgroundImage.setHierarchy(getAlphaOverlayHierarchy(
+                holder.backgroundImage, res));
+            holder.backgroundImage.setController(Fresco.newDraweeControllerBuilder()
+                .setUri(Uri.parse(coverURL))
+                .setAutoPlayAnimations(true)
+                .build());
         }
     }
 
@@ -166,67 +136,6 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
 
     private int getItemIconValue(int position) {
         return _drawerItems.get(position - 1).getResId();
-    }
-
-    private Target getBackgroundTarget(final HeaderViewHolder viewHolder) {
-        if (_targetBackground == null) {
-            _targetBackground = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    viewHolder.backgroundContainer.setBackground(
-                        new BitmapDrawable(viewHolder.view.getContext().getResources(), bitmap));
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-        }
-        return _targetBackground;
-    }
-
-    /**
-     * Strong Reference Bitmap Target.
-     *
-     * @param viewHolder viewHolder to load bitmap into
-     * @return target
-     */
-    private Target getBitmapTargetView(final HeaderViewHolder viewHolder) {
-        if (_targetProfileImage == null) {
-            _targetProfileImage = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                    Bitmap bitmap = Bitmap.createBitmap(errorDrawable.getIntrinsicWidth(),
-                        errorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                    viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    Bitmap bitmap = Bitmap.createBitmap(placeHolderDrawable.getIntrinsicWidth(),
-                        placeHolderDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                    viewHolder.userImage.setImageBitmap(bitmap);
-                    new Palette.Builder(bitmap)
-                        .generate(getPaletteAsyncListener(viewHolder, viewHolder.purple));
-                }
-            };
-        }
-        return _targetProfileImage;
     }
 
     @Override
@@ -291,14 +200,16 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
      * ViewHolder for the settings header.
      */
     static class HeaderViewHolder extends BaseViewHolder {
-        @Bind(R.id.adapter_drawer_header_container)
-        LinearLayout backgroundContainer;
+        @Bind(R.id.adapter_drawer_header_background)
+        SimpleDraweeView backgroundImage;
         @Bind(R.id.adapter_drawer_header_image)
-        ImageView userImage;
+        SimpleDraweeView userImage;
         @Bind(R.id.adapter_drawer_header_name)
         TextView userName;
         @BindColor(R.color.common_deep_purple)
         int purple;
+        @BindDimen(R.dimen.common_circleimageview_settings_radius)
+        int radius;
 
         /**
          * Constructor for the HeaderViewHolder.

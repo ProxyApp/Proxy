@@ -93,9 +93,14 @@ public class GroupAdapter extends NotificationRecyclerAdapter<Group> {
 
 
     public void refreshGroupData(final HashMap<String, Group> groups) {
-        HashMap<String, Group> newGroups =
-            new HashMap<String, Group>(groups.size()) {{putAll(groups);}};
-
+        HashMap<String, Group> newGroups;
+        if (groups != null) {
+            newGroups = new HashMap<String, Group>(groups.size()) {{
+                putAll(groups);
+            }};
+        } else {
+            newGroups = new HashMap<>(1);
+        }
         Group publicGroup = createPublicGroup();
         newGroups.put(publicGroup.id(), publicGroup);
         refreshData(newGroups.values());

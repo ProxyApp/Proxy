@@ -2,7 +2,6 @@ package com.shareyourproxy.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -164,11 +163,6 @@ public abstract class GoogleApiActivity extends BaseActivity implements
                     getSharedPreferences().edit()
                         .putString(Constants.KEY_GOOGLE_PLUS_AUTH, token).commit();
                     _isTokenRefreshing = false;
-                }
-
-                @Override
-                public void error(Throwable e) {
-                    Timber.e(Log.getStackTraceString(e));
                 }
             };
         }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
+import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.AddGroupChannelAndPublicCommand;
@@ -25,6 +26,8 @@ import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter;
 import com.shareyourproxy.util.ObjectUtils;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.BindColor;
@@ -51,6 +54,7 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
     @BindString(R.string.select_groups_for_channel)
     String stringMessage;
     private Channel _channel;
+    private User _user;
     private final DialogInterface.OnClickListener _negativeClicked =
         new DialogInterface.OnClickListener() {
             @Override
@@ -59,7 +63,6 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
                 dialogInterface.dismiss();
             }
         };
-    private User _user;
     private SaveGroupChannelAdapter _adapter;
     private final DialogInterface.OnClickListener _positiveClicked =
         new DialogInterface.OnClickListener() {
@@ -92,16 +95,19 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
     }
 
     private void dispatchUpdatedUserGroups() {
-
         RxBusDriver rxBus = getRxBus();
-        if (_adapter.isPublicChecked()) {
-            rxBus.post(new AddGroupChannelAndPublicCommand(
-                _user, _adapter.getDataArray(), _channel));
-        } else {
-            rxBus.post(
-                new AddGroupsChannelCommand(_user, _adapter.getDataArray(), _channel));
-        }
         rxBus.post(new ChannelAddedEvent(_user, _channel));
+        if (_adapter.isAnyItemChecked()) {
+            ArrayList<GroupToggle> data = _adapter
+                .getDataArray();
+            if (_adapter.isPublicChecked()) {
+                rxBus.post(new AddGroupChannelAndPublicCommand(
+                    _user, data, _channel));
+            } else {
+                rxBus.post(
+                    new AddGroupsChannelCommand(_user, data, _channel));
+            }
+        }
     }
 
     @Override

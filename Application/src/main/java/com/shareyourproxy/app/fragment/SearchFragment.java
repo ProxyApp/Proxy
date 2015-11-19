@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -46,10 +47,14 @@ import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.graphics.PorterDuff.Mode.SRC_ATOP;
+import static android.support.v4.graphics.drawable.DrawableCompat.setTintList;
+import static android.support.v4.graphics.drawable.DrawableCompat.setTintMode;
+import static android.view.View.VISIBLE;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers;
 import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY;
-import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.LOADING;
+import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 import static com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard;
@@ -78,16 +83,19 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     ProgressBar loadingView;
     @BindInt(android.R.integer.config_shortAnimTime)
     int _animationDuration;
-    @BindDimen(R.dimen.common_svg_null_screen_small)
+    @BindDimen(R.dimen.common_svg_null_screen_mini)
     int sexBotSize;
     @BindDimen(R.dimen.common_svg_large)
     int dimenSvgLarge;
     @BindColor(R.color.common_gray)
     int colorGray;
+    @BindColor(R.color.common_blue)
+    ColorStateList colorBlue;
     private SearchUserAdapter _adapter;
     private CompositeSubscription _subscriptions;
     private RxTextWatcherSubject _textWatcherSubject;
     private boolean _needsUpdate = true;
+    private int _userCount;
 
     /**
      * Constructor.
@@ -137,8 +145,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     @OnTextChanged(value = R.id.fragment_search_edittext,
         callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     void onSearchStringChanged(Editable editable) {
-        getRxBus().post(new RecyclerViewDatasetChangedEvent(_adapter, LOADING));
         _textWatcherSubject.post(editable.toString());
+        loadingView.setVisibility(VISIBLE);
     }
 
     @Override
@@ -159,8 +167,13 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
-        editText.requestFocus();
+        tintProgressBar();
         showSoftwareKeyboard(editText);
+    }
+
+    public void tintProgressBar() {
+        setTintMode(loadingView.getIndeterminateDrawable(), SRC_ATOP);
+        setTintList(loadingView.getIndeterminateDrawable(), colorBlue);
     }
 
     /**
@@ -173,7 +186,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setEmptyView(emptyViewContainer);
-        recyclerView.setLoadingView(loadingView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(getDismissScrollListener());
@@ -239,19 +251,11 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
             public void next(String queryName) {
                 String trimmedName = queryName.trim();
                 if (!trimmedName.isEmpty()) {
-                    _adapter.clearUserList();
+                    _adapter.setQueryString(trimmedName);
                     searchMatchingUsers(getActivity(), trimmedName, loggedInUser.id())
                         .compose(RxHelper.<HashMap<String, User>>applySchedulers())
                         .subscribe(getSearchObserver());
-                } else {
-                    //TODO:Change this to featured user list
-                    _adapter.clearUserList();
                 }
-            }
-
-            @Override
-            public void error(Throwable e) {
-                Timber.e("Search Observer error: %1$s", Log.getStackTraceString(e));
             }
         };
     }
@@ -262,29 +266,39 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @return search observer
      */
     private Observer<HashMap<String, User>> getSearchObserver() {
-
         return new Observer<HashMap<String, User>>() {
             @Override
             public void onCompleted() {
-                if (_adapter.getItemCount() == 0) {
-                    getRxBus().post(new RecyclerViewDatasetChangedEvent(_adapter,  EMPTY));
-                }
                 _needsUpdate = true;
+                if (_userCount == 0) {
+                    recyclerView.updateViewState(
+                        new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
+                }
+                loadingView.setVisibility(View.GONE);
             }
 
             @Override
             public void onError(Throwable e) {
                 _needsUpdate = true;
+                recyclerView.updateViewState(
+                    new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
+                loadingView.setVisibility(View.GONE);
+                Timber.e("Error %1$s", Log.getStackTraceString(e));
             }
 
             @Override
             public void onNext(HashMap<String, User> users) {
-                //this update flag clears the list each time a new user query is called
-                if (_needsUpdate) {
-                    _adapter.clearUserList();
-                    _needsUpdate = false;
+                _userCount = users.size();
+                if (_userCount > 0) {
+                    if (_needsUpdate) {
+                        _adapter.clearUserList();
+                        _needsUpdate = false;
+                    }
+                    _adapter.refreshData(users.values());
+                    recyclerView.updateViewState(
+                        new RecyclerViewDatasetChangedEvent(_adapter, MAIN));
+                    recyclerView.scrollToPosition(0);
                 }
-                _adapter.refreshData(users.values());
             }
         };
     }
@@ -302,13 +316,17 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                     onUserSelected((UserSelectedEvent) event);
                 } else if (event instanceof OnBackPressedEvent) {
                     imageViewClearButton.animate().alpha(0f).setDuration(_animationDuration);
-                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
-                    recyclerView.updateViewState(((RecyclerViewDatasetChangedEvent) event));
                 } else if (event instanceof TextViewEditorActionEvent) {
-                    if (editText.length() == 0 &&
-                        ((TextViewEditorActionEvent) event).keyEvent.getKeyCode() ==
-                            KeyEvent.KEYCODE_DEL) {
-                        _textWatcherSubject.post("");
+                    if (((TextViewEditorActionEvent) event).keyEvent.getKeyCode() ==
+                        KeyEvent.KEYCODE_DEL) {
+                        if (editText.length() == 0) {
+                            _adapter.clearUserList();
+                            recyclerView.updateViewState(
+                                new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
+                            loadingView.setVisibility(View.GONE);
+                        } else {
+                            loadingView.setVisibility(VISIBLE);
+                        }
                     }
                 }
             }

@@ -115,11 +115,6 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
             public void next(ActivityFeedDownloadedEvent event) {
                 activityFeedDownloaded(event);
             }
-
-            @Override
-            public void error(Throwable e) {
-
-            }
         };
     }
 
