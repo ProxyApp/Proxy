@@ -50,6 +50,7 @@ import timber.log.Timber;
 import static android.graphics.PorterDuff.Mode.SRC_ATOP;
 import static android.support.v4.graphics.drawable.DrawableCompat.setTintList;
 import static android.support.v4.graphics.drawable.DrawableCompat.setTintMode;
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
 import static com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers;
@@ -135,6 +136,9 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         editText.setText("");
         //TODO: Make this clear to the featured users.
         _adapter.clearUserList();
+        loadingView.setVisibility(GONE);
+        recyclerView.updateViewState(
+            new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
     }
 
     /**
@@ -168,7 +172,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
         tintProgressBar();
-        showSoftwareKeyboard(editText);
     }
 
     public void tintProgressBar() {
@@ -243,6 +246,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
             //search entered text
             _textWatcherSubject.post(editText.getText().toString().trim());
         }
+        showSoftwareKeyboard(editText);
     }
 
     public JustObserver<String> getUsersObserver(final User loggedInUser) {
@@ -274,7 +278,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                     recyclerView.updateViewState(
                         new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
                 }
-                loadingView.setVisibility(View.GONE);
+                loadingView.setVisibility(GONE);
             }
 
             @Override
@@ -282,7 +286,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                 _needsUpdate = true;
                 recyclerView.updateViewState(
                     new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
-                loadingView.setVisibility(View.GONE);
+                loadingView.setVisibility(GONE);
                 Timber.e("Error %1$s", Log.getStackTraceString(e));
             }
 
@@ -323,7 +327,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                             _adapter.clearUserList();
                             recyclerView.updateViewState(
                                 new RecyclerViewDatasetChangedEvent(_adapter, EMPTY));
-                            loadingView.setVisibility(View.GONE);
+                            loadingView.setVisibility(GONE);
                         } else {
                             loadingView.setVisibility(VISIBLE);
                         }

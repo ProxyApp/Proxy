@@ -125,7 +125,6 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
                 holder.backgroundImage, res));
             holder.backgroundImage.setController(Fresco.newDraweeControllerBuilder()
                 .setUri(Uri.parse(coverURL))
-                .setAutoPlayAnimations(true)
                 .build());
         }
     }

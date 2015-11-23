@@ -191,7 +191,7 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.0.1'
     //Square
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.squareup.okhttp:okhttp:2.6.0'
     //Facebook
     compile 'com.facebook.fresco:fresco:0.8.1+'
     compile "com.facebook.fresco:imagepipeline-okhttp:0.8.1+"

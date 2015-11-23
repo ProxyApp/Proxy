@@ -37,7 +37,7 @@ import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
 import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.content.ContextCompat.getDrawable;
-import static com.facebook.drawee.drawable.ScalingUtils.ScaleType.CENTER;
+import static com.facebook.drawee.drawable.ScalingUtils.ScaleType.CENTER_CROP;
 import static com.facebook.drawee.drawable.ScalingUtils.ScaleType.FIT_CENTER;
 import static com.facebook.drawee.generic.RoundingParams.asCircle;
 
@@ -45,9 +45,6 @@ import static com.facebook.drawee.generic.RoundingParams.asCircle;
  * Utility class for view functions.
  */
 public class ViewUtils {
-
-    //used to alpha svg compound drawables that have similar text with an alpha value
-    public static final int ALPHA_0X42 = 66;
 
     /**
      * Private Constructor
@@ -317,6 +314,14 @@ public class ViewUtils {
             getColor(context, R.color.common_text_secondary_inverse));
     }
 
+    public static GenericDraweeHierarchy getUserImageHierarchyNoFade(Context context) {
+        Drawable placeHolder = getDrawable(context, R.mipmap.ic_proxy);
+        return new GenericDraweeHierarchyBuilder(context.getResources())
+            .setRoundingParams(asCircle())
+            .setActualImageScaleType(FIT_CENTER)
+            .build();
+    }
+
     public static GenericDraweeHierarchy getUserImageHierarchy(Context context) {
         Drawable placeHolder = getDrawable(context, R.mipmap.ic_proxy);
         return new GenericDraweeHierarchyBuilder(context.getResources())
@@ -337,7 +342,7 @@ public class ViewUtils {
         return new GenericDraweeHierarchyBuilder(res)
             .setOverlay(alphaDrawable)
             .setBackground(new ColorDrawable(Color.GRAY))
-            .setActualImageScaleType(CENTER)
+            .setActualImageScaleType(CENTER_CROP)
             .build();
     }
 
