@@ -8,19 +8,24 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
+import com.facebook.drawee.generic.GenericDraweeHierarchy;
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
@@ -31,6 +36,10 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.support.v4.content.ContextCompat.getDrawable;
+import static com.facebook.drawee.drawable.ScalingUtils.ScaleType.CENTER;
+import static com.facebook.drawee.drawable.ScalingUtils.ScaleType.FIT_CENTER;
+import static com.facebook.drawee.generic.RoundingParams.asCircle;
 
 /**
  * Utility class for view functions.
@@ -306,6 +315,30 @@ public class ViewUtils {
         int size = res.getDimensionPixelSize(R.dimen.common_svg_large);
         return svgToBitmapDrawable(context, resId, size,
             getColor(context, R.color.common_text_secondary_inverse));
+    }
+
+    public static GenericDraweeHierarchy getUserImageHierarchy(Context context) {
+        Drawable placeHolder = getDrawable(context, R.mipmap.ic_proxy);
+        return new GenericDraweeHierarchyBuilder(context.getResources())
+            .setFadeDuration(300)
+            .setRoundingParams(asCircle())
+            .setPlaceholderImage(placeHolder, FIT_CENTER)
+            .setActualImageScaleType(FIT_CENTER)
+            .build();
+    }
+
+    public static GenericDraweeHierarchy getAlphaOverlayHierarchy(
+        View viewGroup, Resources res) {
+        ShapeDrawable alphaDrawable = new ShapeDrawable(new RectShape());
+        ViewGroup.LayoutParams lp = viewGroup.getLayoutParams();
+        alphaDrawable.setIntrinsicHeight(lp.height);
+        alphaDrawable.setIntrinsicWidth(lp.width);
+        alphaDrawable.getPaint().setARGB(40, 0, 0, 0);
+        return new GenericDraweeHierarchyBuilder(res)
+            .setOverlay(alphaDrawable)
+            .setBackground(new ColorDrawable(Color.GRAY))
+            .setActualImageScaleType(CENTER)
+            .build();
     }
 
 }

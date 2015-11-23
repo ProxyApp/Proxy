@@ -22,7 +22,6 @@ import com.shareyourproxy.util.ViewUtils;
 import com.shareyourproxy.widget.ContactSearchLayout;
 import com.shareyourproxy.widget.ContentDescriptionDrawable;
 
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -33,6 +32,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchSearchActivity;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
+import static java.util.Arrays.asList;
 
 /**
  * Add a {@link MainContactsFragment} and {@link MainGroupFragment} to this fragment's {@link
@@ -104,11 +104,6 @@ public class MainFragment extends BaseFragment {
                         _contactSearchLayout.getSearchTextView(),
                         _contactSearchLayout.getMenuImageView());
                 }
-            }
-
-            @Override
-            public void error(Throwable e) {
-
             }
         };
     }
@@ -201,9 +196,9 @@ public class MainFragment extends BaseFragment {
      */
     private void initializeFragments() {
         User user = getLoggedInUser();
-        List<BaseFragment> fragmentArray = Arrays.<BaseFragment>asList(
-            UserProfileFragment.newInstance(user, user.id(), false), MainContactsFragment
-                .newInstance(),
+        List<BaseFragment> fragmentArray = asList(
+            MainUserProfileFragment.newInstance(user, user.id()),
+            MainContactsFragment.newInstance(),
             MainGroupFragment.newInstance());
         viewPager.setAdapter(
             BasePagerAdapter.newInstance(fragmentArray, getChildFragmentManager()));

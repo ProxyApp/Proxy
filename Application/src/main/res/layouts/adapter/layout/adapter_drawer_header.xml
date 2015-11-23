@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     android:id="@+id/adapter_drawer_header_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="220dp"
-    android:orientation="vertical"
-    android:gravity="bottom">
+    android:layout_height="220dp" android:orientation="vertical">
 
-    <ImageView
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/adapter_drawer_header_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/channel_header_image"/>
+
+
+    <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/adapter_drawer_header_image"
         android:layout_width="@dimen/common_circleimageview_settings_radius"
         android:layout_height="@dimen/common_circleimageview_settings_radius"
-        android:layout_gravity="bottom"
+        android:layout_gravity="bottom|start"
+        android:layout_marginBottom="@dimen/common_margin_xxhuge"
         android:layout_marginStart="@dimen/common_margin_tiny"
-        android:contentDescription="@string/drawer_header_image"/>
+        android:contentDescription="@string/channel_header_image"/>
 
     <TextView
         android:id="@+id/adapter_drawer_header_name"
         style="@style/Proxy.TextAppearance.Subhead.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="bottom|start"
         android:layout_marginBottom="@dimen/common_margin_tiny"
         android:layout_marginStart="@dimen/common_margin_tiny"
-        android:layout_marginTop="@dimen/common_margin_xxtiny"/>
+        android:gravity="start"/>
 
-</LinearLayout>
+</FrameLayout>

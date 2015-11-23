@@ -117,11 +117,6 @@ public class InstagramAuthDialog extends BaseDialogFragment {
                 getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel));
                 getDialog().dismiss();
             }
-
-            @Override
-            public void error(Throwable e) {
-
-            }
         };
     }
 

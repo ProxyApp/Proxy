@@ -4,7 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.app.UserProfileActivity;
+import com.shareyourproxy.app.UserContactActivity;
 
 import static com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
@@ -37,7 +37,7 @@ public class Intents {
     }
 
     /**
-     * Get intent to launch {@link UserProfileActivity}.
+     * Get intent to launch {@link UserContactActivity}.
      *
      * @param user           profile to view
      * @param loggedInUserId logged in user id

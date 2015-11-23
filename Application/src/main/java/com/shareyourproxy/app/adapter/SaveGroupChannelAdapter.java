@@ -106,6 +106,16 @@ public class SaveGroupChannelAdapter extends SortedRecyclerAdapter<GroupToggle> 
         return groups;
     }
 
+    public boolean isAnyItemChecked() {
+        ArrayList<GroupToggle> groups = getData();
+        for (GroupToggle group : groups) {
+            if (group.isChecked()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //public should always be the last item
     public boolean isPublicChecked() {
         return getLastItem().isChecked();

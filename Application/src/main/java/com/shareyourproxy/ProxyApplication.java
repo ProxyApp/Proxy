@@ -19,11 +19,15 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.facebook.FacebookSdk;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.firebase.client.Firebase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
+import com.shareyourproxy.api.RestClient;
 import com.shareyourproxy.api.domain.factory.AutoValueClass;
 import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
 import com.shareyourproxy.api.domain.model.Message;
@@ -56,9 +60,9 @@ import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.MASTER_KEY;
 import static com.shareyourproxy.api.CommandIntentService.ARG_COMMAND_CLASS;
+import static com.shareyourproxy.api.rx.RxFabricAnalytics.logAnalytics;
 import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 import static com.shareyourproxy.api.rx.RxQuery.queryUser;
-import static com.shareyourproxy.api.rx.RxFabricAnalytics.logAnalytics;
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
@@ -111,6 +115,14 @@ public class ProxyApplication extends Application {
         initializeBuildConfig();
         initializeRealm();
         initializeNotificationService();
+        initializeFresco();
+    }
+
+    public void initializeFresco() {
+        ImagePipelineConfig config = OkHttpImagePipelineConfigFactory
+            .newBuilder(this, RestClient.getClient(getRxBus(), getSharedPreferences()))
+        .build();
+        Fresco.initialize(this, config);
     }
 
     public void initializeRealm() {
@@ -174,11 +186,6 @@ public class ProxyApplication extends Application {
                         Timber.e(Log.getStackTraceString(e));
                     }
                 }
-            }
-
-            @Override
-            public void error(Throwable e) {
-                Timber.e("Notification Observable Error");
             }
         };
     }

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/fragment_search_bar_container"
@@ -45,59 +44,58 @@
             android:paddingEnd="@dimen/common_margin_small"
             android:paddingStart="@dimen/common_margin_small"/>
     </LinearLayout>
+    <FrameLayout android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="@dimen/common_rect_small">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/common_margin_line"
-        android:background="@color/common_divider"/>
+        <com.shareyourproxy.app.adapter.BaseRecyclerView
+            android:id="@+id/fragment_search_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-    <com.shareyourproxy.app.adapter.BaseRecyclerView
-        android:id="@+id/fragment_search_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <LinearLayout
-        android:id="@+id/fragment_search_empty_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/common_margin_tiny"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/fragment_search_empty_textview"
-            style="@style/TextAppearance.AppCompat.Title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/fragment_search_empty_view_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:drawablePadding="@dimen/common_margin_xxtiny"
-            android:gravity="center"
-            android:text="@string/fragment_search_empty_text"
-            android:textColor="@color/common_text_disabled"/>
+            android:orientation="vertical"
+            android:paddingTop="@dimen/common_margin_tiny"
+            android:visibility="gone">
 
-        <Button
-            android:id="@+id/fragment_search_empty_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/common_margin_xxtiny"
-            android:background="@drawable/selector_button_blue"
-            android:paddingEnd="@dimen/common_margin_xxtiny"
-            android:paddingStart="@dimen/common_margin_xxtiny"
-            android:text="@string/send_them_an_invite"/>
+            <TextView
+                android:id="@+id/fragment_search_empty_textview"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawablePadding="@dimen/common_margin_xxtiny"
+                android:gravity="center"
+                android:text="@string/fragment_search_empty_text"
+                android:textColor="@color/common_text_disabled"/>
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/fragment_search_empty_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/common_margin_xxtiny"
+                android:background="@drawable/selector_button_blue"
+                android:paddingEnd="@dimen/common_margin_xxtiny"
+                android:paddingStart="@dimen/common_margin_xxtiny"
+                android:text="@string/send_invite"/>
 
-    <ProgressBar
-        android:id="@+id/fragment_search_loadingview"
-        style="@style/Widget.Proxy.ProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/common_rect_medium"
-        android:indeterminate="true"
-        android:visibility="gone"/>
-
-</LinearLayout>
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/fragment_search_loadingview"
+            style="@style/Widget.Proxy.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/common_margin_huge"
+            android:layout_gravity="top"
+            android:layout_marginTop="-12dp"
+            android:indeterminate="true"
+            android:visibility="gone"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/common_margin_line"
+            android:background="@color/common_divider"/>
+    </FrameLayout>
+</FrameLayout>

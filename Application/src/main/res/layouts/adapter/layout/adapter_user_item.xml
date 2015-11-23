@@ -3,9 +3,10 @@
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/selector_whitebox_darkclick">
+                android:background="@drawable/selector_whitebox_darkclick"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
+    <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/adapter_user_image"
         android:layout_width="@dimen/common_circleimageview_item_radius"
         android:layout_height="@dimen/common_circleimageview_item_radius"
@@ -15,7 +16,9 @@
         android:contentDescription="@string/user_image"
         android:paddingBottom="@dimen/common_margin_xtiny"
         android:paddingTop="@dimen/common_margin_xtiny"
-        android:transitionName="@string/user_image"/>
+        android:transitionName="@string/user_image"
+        app:actualImageScaleType="fitCenter"
+        app:roundAsCircle="true"/>
 
     <TextView
         android:id="@+id/adapter_user_name"

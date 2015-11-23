@@ -1,19 +1,23 @@
 package com.shareyourproxy.app.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
-import com.shareyourproxy.widget.transform.CircleTransform;
-import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
+
+import static com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder;
+import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.LOADING;
+import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
 
 
 /**
@@ -21,10 +25,13 @@ import butterknife.Bind;
  */
 public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
     private final ItemClickListener _clickListener;
+    private final BaseRecyclerView _recyclerView;
+    private String _queryString = "";
 
     public SearchUserAdapter(BaseRecyclerView recyclerView, ItemClickListener listener) {
         super(User.class, recyclerView);
         _clickListener = listener;
+        _recyclerView = recyclerView;
     }
 
     /**
@@ -61,17 +68,14 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
     }
 
     private void bindUserImage(UserViewHolder holder, User user) {
-        String profileURL = user.profileURL();
         Context context = holder.view.getContext();
-        if (profileURL != null && !profileURL.isEmpty() && !profileURL.contains(".gif")) {
-            Picasso.with(context).load(profileURL)
-                .placeholder(R.mipmap.ic_proxy)
-                .transform(new CircleTransform())
-                .into(holder.userImage);
-        } else {
-            Picasso.with(context).load(R.mipmap.ic_proxy)
-                .into(holder.userImage);
-        }
+        String profileURL = user.profileURL();
+
+        holder.userImage.setHierarchy(getUserImageHierarchy(context));
+        holder.userImage.setController(newDraweeControllerBuilder()
+            .setUri(Uri.parse(profileURL))
+            .setAutoPlayAnimations(true)
+            .build());
     }
 
     public void clearUserList() {
@@ -81,13 +85,40 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
 
     @Override
     protected int compare(User item1, User item2) {
-        int comapreFirst = item1.first().compareToIgnoreCase(item2.first());
-
-        if (comapreFirst == 0) {
-            return item1.last().compareToIgnoreCase(item2.last());
+        int compareFirst = sortQueriedString(item1, item2);
+        if (compareFirst == 0) {
+            return item1.fullName().compareToIgnoreCase(item2.fullName());
         } else {
-            return comapreFirst;
+            return compareFirst;
         }
+    }
+
+    public int sortQueriedString(User item1, User item2) {
+        if (_queryString.length() > 1) {
+            int item1Count = getStartsWithCount(item1.fullName());
+            int item2Count = getStartsWithCount(item2.fullName());
+            if (item1Count == item2Count) {
+                return 0;
+            } else if (item1Count > item2Count) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    public int getStartsWithCount(String fullname) {
+        int count = 0;
+        char[] fullnameArray = fullname.toUpperCase().toCharArray();
+        char[] queryStringArray = _queryString.toUpperCase().toCharArray();
+        for (int i = 0; i < queryStringArray.length; i++) {
+            if (fullnameArray[i] == queryStringArray[i]) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     @Override
@@ -100,6 +131,22 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
         return item1.id().equals(item2.id());
     }
 
+    public void setQueryString(String queryString) {
+        _queryString = queryString;
+    }
+
+    @Override
+    protected void onRemoved(int position, int count) {
+        if (getItemCount() == 0) {
+            setNeedsRefresh(true);
+            RecyclerViewDatasetChangedEvent event = new
+                RecyclerViewDatasetChangedEvent(this, LOADING);
+            _recyclerView.updateViewState(event);
+        } else {
+            notifyItemRangeRemoved(position, count);
+        }
+    }
+
     /**
      * ViewHolder for the entered {@link User} data.
      */
@@ -108,7 +155,7 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
         @Bind(R.id.adapter_user_name)
         public TextView userName;
         @Bind(R.id.adapter_user_image)
-        public ImageView userImage;
+        public SimpleDraweeView userImage;
 
         /**
          * Constructor for the holder.
@@ -131,5 +178,4 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
             return new UserViewHolder(view, itemClickListener);
         }
     }
-
 }

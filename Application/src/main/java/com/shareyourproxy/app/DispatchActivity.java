@@ -109,11 +109,6 @@ public class DispatchActivity extends GoogleApiActivity {
                     login();
                 }
             }
-
-            @Override
-            public void error(Throwable e) {
-                Timber.e(e.getMessage());
-            }
         };
     }
 

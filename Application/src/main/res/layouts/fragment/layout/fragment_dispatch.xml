@@ -10,10 +10,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/common_margin_medium"
         android:contentDescription="@string/proxy_logo"
         android:drawablePadding="@dimen/common_margin_xxtiny"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/common_margin_medium"
         android:text="@string/proxy_hook"/>
 
     <ProgressBar
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_rect_small"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="-24dp"
+        android:layout_marginBottom="-25dp"
         android:indeterminate="true"/>
 
 </FrameLayout>

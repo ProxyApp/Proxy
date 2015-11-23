@@ -19,7 +19,7 @@ import com.shareyourproxy.app.GroupContactsActivity;
 import com.shareyourproxy.app.LoginActivity;
 import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
-import com.shareyourproxy.app.UserProfileActivity;
+import com.shareyourproxy.app.UserContactActivity;
 
 import static android.content.Intent.EXTRA_INITIAL_INTENTS;
 import static android.content.Intent.createChooser;
@@ -655,7 +655,7 @@ public final class IntentLauncher {
     }
 
     /**
-     * Launch the {@link UserProfileActivity}.
+     * Launch the {@link UserContactActivity}.
      *
      * @param activity The context used to start this intent
      * @param user     that was selected
@@ -668,7 +668,7 @@ public final class IntentLauncher {
     }
 
     /**
-     * Launch the {@link UserProfileActivity}.
+     * Launch the {@link UserContactActivity}.
      *
      * @param activity The context used to start this intent
      * @param user     that was selected

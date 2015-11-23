@@ -26,7 +26,14 @@
                 app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-                <ImageView
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/fragment_user_profile_header_background"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/channel_header_image"/>
+
+                <com.facebook.drawee.view.SimpleDraweeView
                     android:id="@+id/fragment_user_profile_header_image"
                     android:layout_width="@dimen/common_circleimageview_settings_radius"
                     android:layout_height="@dimen/common_circleimageview_settings_radius"
@@ -34,7 +41,6 @@
                     android:layout_marginStart="@dimen/common_margin_tiny"
                     android:layout_marginTop="@dimen/common_margin_xxxhuge"
                     android:contentDescription="@string/channel_header_image"
-                    android:fitsSystemWindows="true"
                     android:transitionName="@string/user_image"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="2"/>
@@ -77,6 +83,7 @@
                     android:fitsSystemWindows="true"
                     android:paddingEnd="@dimen/common_margin_xxtiny"
                     android:paddingStart="@dimen/common_margin_xxtiny"
+                    android:visibility="gone"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="2"/>
 
@@ -90,22 +97,14 @@
                 </android.support.v7.widget.Toolbar>
 
             </android.support.design.widget.CollapsingToolbarLayout>
-            <android.support.design.widget.TabLayout
-                android:id="@+id/fragment_user_profile_sliding_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/Widget.Proxy.SlidingTabView.Tab"
-                app:layout_anchor="@+id/fragment_user_profile_toolbar"
-                app:layout_anchorGravity="bottom"
-                app:tabGravity="fill"/>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/fragment_user_profile_viewpager"
+        <FrameLayout
+            android:id="@+id/fragment_user_profile_user_channels"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        </android.support.v4.view.ViewPager>
+        </FrameLayout>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fragment_user_profile_fab_share"
@@ -116,6 +115,7 @@
             android:layout_marginEnd="@dimen/common_margin_tiny"
             android:fitsSystemWindows="true"
             android:scaleType="center"
+            android:visibility="gone"
             app:backgroundTint="@color/common_gray_light"
             app:borderWidth="0dp"
             app:fabSize="normal"
@@ -133,6 +133,7 @@
             android:layout_marginEnd="@dimen/common_margin_tiny"
             android:fitsSystemWindows="true"
             android:scaleType="center"
+            android:visibility="gone"
             app:backgroundTint="@color/common_blue"
             app:borderWidth="0dp"
             app:fabSize="normal"

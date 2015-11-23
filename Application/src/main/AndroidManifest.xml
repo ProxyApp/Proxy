@@ -111,7 +111,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.shareyourproxy.app.UserProfileActivity"
+            android:name=".app.UserContactActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.USER_PROFILE"/>

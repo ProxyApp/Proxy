@@ -14,15 +14,12 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.ChannelType;
-import com.shareyourproxy.api.rx.RxBusDriver;
-import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.util.ObjectUtils;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
-import rx.functions.Action1;
 
 import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE;
 
@@ -56,7 +53,7 @@ public class ViewChannelAdapter extends NotificationRecyclerAdapter<Channel> {
     }
 
     public void updateChannels(HashMap<String, Channel> channels) {
-        refreshData(channels.values());
+            refreshData(channels.values());
     }
 
     @Override
@@ -75,12 +72,11 @@ public class ViewChannelAdapter extends NotificationRecyclerAdapter<Channel> {
             String label1 = item1.label();
             String label2 = item2.label();
             int compareSecond = label1.compareTo(label2);
-            if( compareSecond == 0){
+            if (compareSecond == 0) {
                 String action1 = item1.actionAddress();
                 String action2 = item2.actionAddress();
                 return action1.compareTo(action2);
-            }
-            else{
+            } else {
                 return compareSecond;
             }
         } else {

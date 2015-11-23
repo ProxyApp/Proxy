@@ -123,23 +123,9 @@ public class RxHelper {
             @Override
             public void call(final Subscriber<? super String> subscriber) {
                 refreshGooglePlusToken(context, client).doOnNext(
-                    getFirebaseToken(subscriber, sharedPref)).subscribe(getGoogleOAuthObserver());
+                    getFirebaseToken(subscriber, sharedPref)).subscribe();
             }
         }).compose(RxHelper.<String>applySchedulers());
-    }
-
-    private static JustObserver<String> getGoogleOAuthObserver() {
-        return new JustObserver<String>() {
-            @Override
-            public void next(String s) {
-
-            }
-
-            @Override
-            public void error(Throwable e) {
-                Timber.e(e.getMessage());
-            }
-        };
     }
 
     private static Action1<String> getFirebaseToken(

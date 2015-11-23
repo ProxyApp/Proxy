@@ -23,7 +23,7 @@ android {
     def versionMajor = 0
     def versionMinor = 2
     def versionPatch = 7
-    def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+    def versionBuild = 1 // bump for dogfood builds, public betas, etc.
 
     defaultConfig {
         minSdkVersion 17
@@ -31,6 +31,15 @@ android {
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         multiDexEnabled true
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi'
+            universalApk false
+        }
     }
 
     sourceSets {
@@ -182,8 +191,11 @@ dependencies {
     compile 'com.jakewharton.timber:timber:4.0.1'
     //Square
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
+    //Facebook
+    compile 'com.facebook.fresco:fresco:0.8.1+'
+    compile "com.facebook.fresco:imagepipeline-okhttp:0.8.1+"
+    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
     //RxJava
     compile 'io.reactivex:rxjava:1.0.15'
     compile 'io.reactivex:rxandroid:1.0.1'
@@ -191,13 +203,12 @@ dependencies {
     compile 'com.github.frankiesardo:auto-parcel:0.3.1'
     apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
     //Realm DB
-    compile 'io.realm:realm-android:0.84.1'
+    compile 'io.realm:realm-android:0.85.0'
     //SVG
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Third party
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     compile 'com.firebase:firebase-client-android:2.4.+'
-    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
     compile('com.twitter.sdk.android:twitter:1.8.0@aar') {
         transitive = true;
     }

@@ -137,8 +137,24 @@ public abstract class NotificationRecyclerAdapter<T> extends SortedRecyclerAdapt
     }
 
     @Override
+    protected void onInserted(int position, int count) {
+        super.onInserted(getViewPositionOffset(position), count);
+    }
+
+    @Override
     protected void onRemoved(int position, int count) {
         super.onRemoved(getViewPositionOffset(position), count);
+    }
+
+    @Override
+    public void onMoved(int fromPosition, int toPosition) {
+        super.onMoved(getViewPositionOffset(fromPosition),
+            getViewPositionOffset(toPosition));
+    }
+
+    @Override
+    public void onChanged(int position, int count) {
+        super.onChanged(getViewPositionOffset(position), count);
     }
 
     @Override
