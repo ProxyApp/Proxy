@@ -51,12 +51,10 @@
     <string name="delete_group">Delete group</string>
     <string name="description_clear_search">clear search bar</string>
     <string name="dial">Dial</string>
-    <string name="dialog_addchannel_hint_address_blank_handle">%1$s Handle</string>
-    <string name="dialog_addchannel_hint_address_blank_username">%1$s Username</string>
     <string name="dialog_addchannel_hint_address_custom">Add Custom Channel Address</string>
     <string name="dialog_addchannel_hint_address_default">@string/edit_channel_address</string>
     <string name="dialog_addchannel_hint_address_email">@string/email_address</string>
-    <string name="dialog_addchannel_hint_address_phone">@string/phone_number</string>
+    <string name="dialog_channel_hint_address_phone">@string/phone_number</string>
     <string name="dialog_addchannel_hint_address_reddit_subreddit">Subreddit (Do not include /r/)
     </string>
     <string name="dialog_addchannel_hint_address_reddit_username">Username (Do not include /u/)
@@ -72,6 +70,8 @@
     <string name="dialog_addchannel_title_add_blank">Add %1$s</string>
     <string name="dialog_addchannel_title_default">Add Channel</string>
     <string name="dialog_addchannel_title_web">Add URL</string>
+    <string name="dialog_channel_hint_address_blank_handle">%1$s Handle</string>
+    <string name="dialog_channel_hint_address_blank_username">%1$s Username</string>
     <string name="dialog_editchannel_hint_address_custom">Add Custom Channel Address</string>
     <string name="dialog_editchannel_hint_address_default">@string/edit_channel_address</string>
     <string name="dialog_editchannel_hint_address_email">@string/email_address</string>

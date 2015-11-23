@@ -154,6 +154,9 @@
     <style name="Proxy.TextAppearance.Subhead" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textColor">@color/common_text</item>
     </style>
+    <style name="Proxy.TextAppearance.Subhead.Disabled" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:textColor">@color/common_text_disabled</item>
+    </style>
     <style name="Proxy.TextAppearance.Subhead.Inverse" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textColor">@color/common_text_inverse</item>
     </style>

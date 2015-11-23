@@ -85,7 +85,7 @@ import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
-import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
+import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade;
 
 /**
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
@@ -437,7 +437,7 @@ public abstract class UserProfileFragment extends BaseFragment {
     void initializeHeader() {
         String profileURL = _userContact.profileURL();
         if (profileURL != null) {
-            userImage.setHierarchy(getUserImageHierarchy(getActivity()));
+            userImage.setHierarchy(getUserImageHierarchyNoFade(getActivity()));
 
             ImageRequest request = ImageRequestBuilder
                 .newBuilderWithSource(Uri.parse(profileURL))

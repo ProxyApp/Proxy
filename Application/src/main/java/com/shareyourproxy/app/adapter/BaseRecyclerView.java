@@ -1,13 +1,22 @@
 package com.shareyourproxy.app.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
+import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
+
+import static android.support.v4.content.ContextCompat.getColor;
 
 /**
  * {@link BaseRecyclerView} that handles empty views.
@@ -150,5 +159,48 @@ public class BaseRecyclerView extends RecyclerView {
      */
     public enum ViewState {
         MAIN, EMPTY, LOADING
+    }
+
+
+    public static class SubHeadItemDecoration extends RecyclerView.ItemDecoration {
+        public static final int PADDING = 8;
+        private final int _textWidth;
+        private final int _textHeight;
+        Paint _paint;
+        private String _title;
+
+        @SuppressLint("InflateParams")
+        public SubHeadItemDecoration(Context context, String title) {
+            TextView textView = (TextView) LayoutInflater.from(context)
+                .inflate(R.layout.common_textview_body1_disabled, null, false);
+            _paint = textView.getPaint();
+            _paint.setColor(getColor(context, R.color.common_text_disabled));
+            Rect textBounds = new Rect();
+            _paint.getTextBounds(title, 0, title.length(), textBounds);
+            _textWidth = Math.abs(textBounds.width());
+            _textHeight = Math.abs(textBounds.height());
+            _title = title;
+        }
+
+        @Override
+        public void onDrawOver(Canvas canvas, RecyclerView recyclerView, State state) {
+            super.onDrawOver(canvas, recyclerView, state);
+            final int size = recyclerView.getHeight() + recyclerView.getPaddingTop() +
+                recyclerView.getPaddingBottom();
+
+            canvas.drawText(_title, 60, 60, _paint);
+        }
+
+        @Override
+        public void getItemOffsets(
+            Rect outRect, View view, RecyclerView recyclerView, State state) {
+            super.getItemOffsets(outRect, view, recyclerView, state);
+            if (recyclerView.getChildLayoutPosition(view) == 0) {
+                outRect.set(0, 0, 0, _textHeight);
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                lp.topMargin = _textHeight + PADDING;
+            }
+        }
+
     }
 }

@@ -161,7 +161,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), colorText);
         // Set TextInput hint
         floatLabelAddress.setHint(getString(
-            R.string.dialog_addchannel_hint_address_blank_handle,
+            R.string.dialog_channel_hint_address_blank_handle,
             _channel.channelType().getLabel()));
     }
 
