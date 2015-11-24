@@ -318,6 +318,7 @@ public class ViewUtils {
         Drawable placeHolder = getDrawable(context, R.mipmap.ic_proxy);
         return new GenericDraweeHierarchyBuilder(context.getResources())
             .setRoundingParams(asCircle())
+            .setFailureImage(placeHolder, FIT_CENTER)
             .setActualImageScaleType(FIT_CENTER)
             .build();
     }
@@ -328,6 +329,7 @@ public class ViewUtils {
             .setFadeDuration(300)
             .setRoundingParams(asCircle())
             .setPlaceholderImage(placeHolder, FIT_CENTER)
+            .setFailureImage(placeHolder, FIT_CENTER)
             .setActualImageScaleType(FIT_CENTER)
             .build();
     }

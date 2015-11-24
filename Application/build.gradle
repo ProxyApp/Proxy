@@ -1,4 +1,4 @@
-apply plugin: 'android-sdk-manager'
+//apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.jakewharton.hugo'
@@ -37,8 +37,8 @@ android {
         abi {
             enable true
             reset()
-            include 'armeabi'
-            universalApk false
+            include 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'x86', 'x86_64'
+            universalApk true
         }
     }
 

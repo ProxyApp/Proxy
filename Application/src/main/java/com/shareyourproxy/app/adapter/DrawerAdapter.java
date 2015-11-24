@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
@@ -23,6 +22,7 @@ import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.BindDimen;
 
+import static com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder;
 import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
@@ -112,19 +112,18 @@ public class DrawerAdapter extends BaseRecyclerViewAdapter {
             Context context = holder.view.getContext();
             Resources res = holder.view.getResources();
             holder.userName.setText(_currentUser.fullName());
-            String profileURL = _currentUser.profileURL();
-            String coverURL = _currentUser.coverURL();
 
+            String profileURL = _currentUser.profileURL();
             holder.userImage.setHierarchy(getUserImageHierarchy(context));
-            holder.userImage.setController(Fresco.newDraweeControllerBuilder()
-                .setUri(Uri.parse(profileURL))
+            holder.userImage.setController(newDraweeControllerBuilder()
+                .setUri(profileURL == null ? null : Uri.parse(profileURL))
                 .build());
 
-
+            String coverURL = _currentUser.coverURL();
             holder.backgroundImage.setHierarchy(getAlphaOverlayHierarchy(
                 holder.backgroundImage, res));
-            holder.backgroundImage.setController(Fresco.newDraweeControllerBuilder()
-                .setUri(Uri.parse(coverURL))
+            holder.backgroundImage.setController(newDraweeControllerBuilder()
+                .setUri(coverURL == null ? null : Uri.parse(coverURL))
                 .build());
         }
     }

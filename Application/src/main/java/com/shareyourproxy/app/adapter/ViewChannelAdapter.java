@@ -53,7 +53,7 @@ public class ViewChannelAdapter extends NotificationRecyclerAdapter<Channel> {
     }
 
     public void updateChannels(HashMap<String, Channel> channels) {
-            refreshData(channels.values());
+        refreshData(channels.values());
     }
 
     @Override
