@@ -553,7 +553,7 @@ public final class IntentLauncher {
      * @param userId   soundcloud user id
      */
     public static void launchSoundCloudIntent(Activity activity, String userId) {
-        StringBuilder sb = new StringBuilder("http:snapchat.com/add/").append(userId);
+        StringBuilder sb = new StringBuilder("http:soundcloud.com/").append(userId);
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sb.toString()));
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
