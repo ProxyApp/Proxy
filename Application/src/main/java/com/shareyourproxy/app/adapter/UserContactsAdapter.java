@@ -91,10 +91,11 @@ public class UserContactsAdapter extends NotificationRecyclerAdapter<User> {
         Context context = holder.view.getContext();
         holder.userName.setText(user.fullName());
         String profileURL = user.profileURL();
+        Uri uri = (profileURL == null) ? null : Uri.parse(profileURL);
 
         holder.userImage.setHierarchy(getUserImageHierarchy(context));
         holder.userImage.setController(newDraweeControllerBuilder()
-            .setUri(Uri.parse(profileURL))
+            .setUri(uri)
             .setAutoPlayAnimations(true)
             .build());
     }

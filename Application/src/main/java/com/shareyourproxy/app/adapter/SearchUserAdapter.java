@@ -73,7 +73,7 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
 
         holder.userImage.setHierarchy(getUserImageHierarchy(context));
         holder.userImage.setController(newDraweeControllerBuilder()
-            .setUri(Uri.parse(profileURL))
+            .setUri(profileURL == null ? null : Uri.parse(profileURL))
             .setAutoPlayAnimations(true)
             .build());
     }

@@ -85,6 +85,7 @@ import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
+import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade;
 
 /**
@@ -435,28 +436,32 @@ public abstract class UserProfileFragment extends BaseFragment {
      * Initialize the Header view data and state.
      */
     void initializeHeader() {
+        //update profile user image
         String profileURL = _userContact.profileURL();
-        if (profileURL != null) {
+        if(this instanceof MainUserProfileFragment) {
+            userImage.setHierarchy(getUserImageHierarchy(getActivity()));
+        }else{
             userImage.setHierarchy(getUserImageHierarchyNoFade(getActivity()));
+        }
 
+        if (profileURL != null) {
             ImageRequest request = ImageRequestBuilder
                 .newBuilderWithSource(Uri.parse(profileURL))
                 .setPostprocessor(getPaletteProcessor())
                 .build();
-
             userImage.setController(newDraweeControllerBuilder()
                 .setImageRequest(request)
                 .build());
         }
+
+        //update profile background
         String coverURL = _userContact.coverURL();
-        if (coverURL != null) {
-            userBackground.setHierarchy(getAlphaOverlayHierarchy(
-                collapsingToolbarLayout, getResources()));
-            userBackground.setController(newDraweeControllerBuilder()
-                .setUri(Uri.parse(coverURL))
-                .setAutoPlayAnimations(true)
-                .build());
-        }
+        userBackground.setHierarchy(getAlphaOverlayHierarchy(
+            collapsingToolbarLayout, getResources()));
+        userBackground.setController(newDraweeControllerBuilder()
+            .setUri(coverURL == null ? null : Uri.parse(coverURL))
+            .setAutoPlayAnimations(true)
+            .build());
     }
 
     @Override
