@@ -42,7 +42,11 @@ public class RxBusDriver implements Parcelable {
     }
 
     public Observable<Object> toObservable() {
-        return _rxBus.onBackpressureLatest().compose(RxHelper.applySchedulers());
+        return _rxBus.onBackpressureLatest().compose(RxHelper.subThreadObserveMain());
+    }
+
+    public Observable<Object> toIOThreadObservable() {
+        return _rxBus.onBackpressureLatest().compose(RxHelper.subThreadObserveThread());
     }
 
     /**

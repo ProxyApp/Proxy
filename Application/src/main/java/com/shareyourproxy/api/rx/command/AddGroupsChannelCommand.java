@@ -58,7 +58,7 @@ public class AddGroupsChannelCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return addUserGroupsChannel(service, user, groups, channel);
     }
 

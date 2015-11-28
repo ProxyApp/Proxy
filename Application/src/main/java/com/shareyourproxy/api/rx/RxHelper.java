@@ -26,6 +26,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.KEY_GOOGLE_PLUS_AUTH;
@@ -44,7 +45,7 @@ public class RxHelper {
     private RxHelper() {
     }
 
-    public static <T> Single.Transformer<T, T> applySingleSchedulers() {
+    public static <T> Single.Transformer<T, T> subThreadObserveMainSingle() {
         return new Single.Transformer<T, T>() {
             @Override
             public Single<T> call(Single<T> single) {
@@ -54,7 +55,7 @@ public class RxHelper {
         };
     }
 
-    public static <T> Observable.Transformer<T, T> applySchedulers() {
+    public static <T> Observable.Transformer<T, T> subThreadObserveMain() {
         return new Observable.Transformer<T, T>() {
             @Override
             public Observable<T> call(Observable<T> observable) {
@@ -62,6 +63,24 @@ public class RxHelper {
                     .observeOn(AndroidSchedulers.mainThread());
             }
         };
+    }
+
+    public static <T> Observable.Transformer<T, T> subThreadObserveThread() {
+        return new Observable.Transformer<T, T>() {
+            @Override
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
+            }
+        };
+    }
+
+    public static CompositeSubscription checkCompositeButton(CompositeSubscription sub) {
+        if (sub == null) {
+            return new CompositeSubscription();
+        } else {
+            return sub;
+        }
     }
 
     public static <T> Func1<T, Boolean> filterNullObject() {
@@ -125,7 +144,7 @@ public class RxHelper {
                 refreshGooglePlusToken(context, client).doOnNext(
                     getFirebaseToken(subscriber, sharedPref)).subscribe();
             }
-        }).compose(RxHelper.<String>applySchedulers());
+        }).compose(RxHelper.<String>subThreadObserveMain());
     }
 
     private static Action1<String> getFirebaseToken(

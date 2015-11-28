@@ -38,7 +38,7 @@ public class GetUserMessagesCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return getFirebaseMessages(service, userId);
     }
 

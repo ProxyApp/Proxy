@@ -8,8 +8,6 @@ import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +17,6 @@ import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getUserService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
-import static java.util.Arrays.asList;
 
 /**
  * Update Group contacts and User contacts when they've been added or removed to any groups.
@@ -32,7 +29,7 @@ public class RxGroupContactSync {
     private RxGroupContactSync() {
     }
 
-    public static List<EventCallback> updateGroupContacts(
+    public static EventCallback updateGroupContacts(
         final Context context, final User user,
         final ArrayList<GroupToggle> editGroups, final User contact) {
         return Observable.just(editGroups)
@@ -84,23 +81,13 @@ public class RxGroupContactSync {
         };
     }
 
-    private static Func1<Pair<User, List<Group>>, List<EventCallback>>
+    private static Func1<Pair<User, List<Group>>, EventCallback>
     createGroupContactEvent(final String contactId) {
-        return new Func1<Pair<User, List<Group>>, List<EventCallback>>() {
+        return new Func1<Pair<User, List<Group>>, EventCallback>() {
             @Override
-            public List<EventCallback> call(Pair<User, List<Group>> groups) {
-                if (groups.second.size() > 0) {
-                    return new ArrayList<EventCallback>(
-                        asList(new UserContactAddedEventCallback(groups.first, contactId),
-                            new GroupContactsUpdatedEventCallback(
-                                groups.first, contactId, groups.second)));
-                } else {
-                    //contact in group list is empty, so the contact has been removed from groups
-                    return new ArrayList<EventCallback>(
-                        asList(new UserContactDeletedEventCallback(groups.first, contactId),
-                            new GroupContactsUpdatedEventCallback(
-                                groups.first, contactId, groups.second)));
-                }
+            public EventCallback call(Pair<User, List<Group>> groups) {
+                return new GroupContactsUpdatedEventCallback(
+                    groups.first, contactId, groups.second);
             }
         };
     }

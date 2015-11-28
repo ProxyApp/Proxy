@@ -1,12 +1,11 @@
 package com.shareyourproxy.app;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccess;
@@ -16,12 +15,9 @@ import com.shareyourproxy.app.fragment.AddChannelListFragment;
 import com.shareyourproxy.app.fragment.BaseFragment;
 import com.shareyourproxy.app.fragment.UserProfileFragment;
 
-import java.util.List;
-
 import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -97,9 +93,9 @@ public class AddChannelListActivity extends BaseActivity {
             _subscriptions = new CompositeSubscription();
         }
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
+            .subscribe(new JustObserver<Object>() {
                 @Override
-                public void call(Object event) {
+                public void next(Object event) {
                     if (event instanceof UserChannelAddedEventCallback) {
                         channelAdded((UserChannelAddedEventCallback) event);
                     } else if (event instanceof AddChannelDialogSuccess) {
@@ -139,19 +135,5 @@ public class AddChannelListActivity extends BaseActivity {
         super.onPause();
         _subscriptions.unsubscribe();
         _subscriptions = null;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        initializeSubscriptions();
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null && fragments.size() > 0) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null) {
-                    fragment.onActivityResult(requestCode, resultCode, data);
-                }
-            }
-        }
     }
 }

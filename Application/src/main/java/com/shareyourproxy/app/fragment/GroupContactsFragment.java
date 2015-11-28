@@ -18,6 +18,7 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
@@ -32,7 +33,6 @@ import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
@@ -94,20 +94,24 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof UserSelectedEvent) {
-                        onUserSelected((UserSelectedEvent) event);
-                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
-                        channelsUpdated((GroupChannelsUpdatedEventCallback) event);
-                    } else if (event instanceof RecyclerViewDatasetChangedEvent) {
-                        recyclerView.updateViewState(((RecyclerViewDatasetChangedEvent) event));
-                    }
-                }
-            }));
+            .subscribe(getBusObserver()));
         _adapter.refreshData(queryUserContacts(
             getActivity(), getGroupArg().contacts()).values());
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void next(Object event) {
+                if (event instanceof UserSelectedEvent) {
+                    onUserSelected((UserSelectedEvent) event);
+                } else if (event instanceof GroupChannelsUpdatedEventCallback) {
+                    channelsUpdated((GroupChannelsUpdatedEventCallback) event);
+                } else if (event instanceof RecyclerViewDatasetChangedEvent) {
+                    recyclerView.updateViewState(((RecyclerViewDatasetChangedEvent) event));
+                }
+            }
+        };
     }
 
     /**

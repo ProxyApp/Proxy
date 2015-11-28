@@ -1,10 +1,12 @@
 package com.shareyourproxy.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,13 +23,15 @@ import com.shareyourproxy.ProxyApplication;
 import com.shareyourproxy.api.domain.factory.AutoValueClass;
 import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -165,10 +169,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         getRxBus().post(new OnBackPressedEvent());
     }
 
-    private Action1<Object> onNextEvent(final Activity activity) {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent(final Activity activity) {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof ShareLinkEvent) {
                     launchShareLinkIntent(activity, (ShareLinkEvent) event);
                 }
@@ -176,5 +180,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         };
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null && fragments.size() > 0) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
+                }
+            }
+        }
+    }
 }

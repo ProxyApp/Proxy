@@ -15,17 +15,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.AddUserGroupCommand;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
-import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import com.shareyourproxy.app.adapter.GroupAdapter;
@@ -37,12 +37,12 @@ import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static com.shareyourproxy.Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP;
 import static com.shareyourproxy.Constants.ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED;
+import static com.shareyourproxy.IntentLauncher.launchEditGroupChannelsActivity;
 import static com.shareyourproxy.api.domain.model.Group.PUBLIC;
 import static com.shareyourproxy.api.domain.model.Group.createBlank;
 import static com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.ADD_GROUP;
@@ -104,8 +104,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
      */
     @OnClick(R.id.fragment_group_main_fab)
     public void onClick() {
-        IntentLauncher.launchEditGroupChannelsActivity(
-            getActivity(), createBlank(), ADD_GROUP);
+        launchEditGroupChannelsActivity(getActivity(), createBlank(), ADD_GROUP);
     }
 
     /**
@@ -185,25 +184,29 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof UserGroupAddedEventCallback) {
-                        addGroups((UserGroupAddedEventCallback) event);
-                    } else if (event instanceof GroupChannelsUpdatedEventCallback) {
-                        updateGroups(((GroupChannelsUpdatedEventCallback) event));
-                    } else if (event instanceof LoggedInUserUpdatedEventCallback) {
-                        updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
-                    } else if (event instanceof SyncContactsCommand) {
-                        swipeRefreshLayout.setRefreshing(true);
-                    } else if (event instanceof SyncAllUsersSuccessEvent) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    } else if (event instanceof SyncAllUsersErrorEvent) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-            }));
+            .subscribe(getBusObserver()));
         _adapter.refreshGroupData(getLoggedInUser().groups());
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void next(Object event) {
+                if (event instanceof UserGroupAddedEventCallback) {
+                    addGroups((UserGroupAddedEventCallback) event);
+                } else if (event instanceof GroupChannelsUpdatedEventCallback) {
+                    updateGroup(((GroupChannelsUpdatedEventCallback) event));
+                } else if (event instanceof LoggedInUserUpdatedEventCallback) {
+                    updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
+                } else if (event instanceof SyncContactsCommand) {
+                    swipeRefreshLayout.setRefreshing(true);
+                } else if (event instanceof SyncAllContactsSuccessEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (event instanceof SyncAllContactsErrorEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        };
     }
 
     public void addGroups(UserGroupAddedEventCallback event) {
@@ -228,8 +231,8 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
      *
      * @param event group to add
      */
-    public void updateGroups(GroupChannelsUpdatedEventCallback event) {
-        _adapter.addItem(event.group);
+    public void updateGroup(GroupChannelsUpdatedEventCallback event) {
+        _adapter.updateItem(event.oldGroup, event.group);
         if (event.groupEditType == ADD_GROUP) {
             showAddedGroupSnackBar();
         } else {
@@ -276,9 +279,9 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
     public void onItemClick(View view, int position) {
         Group group = _adapter.getItemData(position);
         if (group.id().equals(PUBLIC)) {
-            IntentLauncher.launchEditGroupChannelsActivity(getActivity(), group, PUBLIC_GROUP);
+            launchEditGroupChannelsActivity(getActivity(), group, PUBLIC_GROUP);
         } else {
-            IntentLauncher.launchEditGroupChannelsActivity(getActivity(), group, EDIT_GROUP);
+            launchEditGroupChannelsActivity(getActivity(), group, EDIT_GROUP);
         }
     }
 

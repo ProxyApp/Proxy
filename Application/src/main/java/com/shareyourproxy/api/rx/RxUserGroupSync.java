@@ -11,8 +11,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
 
-import java.util.List;
-
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -21,7 +19,7 @@ import static com.shareyourproxy.api.RestClient.getSharedLinkService;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
- * Created by Evan on 6/8/15.
+ * Add and delete user groups.
  */
 public class RxUserGroupSync {
     /**
@@ -30,25 +28,23 @@ public class RxUserGroupSync {
     private RxUserGroupSync() {
     }
 
-    public static List<EventCallback> addUserGroup(Context context, User user, Group group) {
+    public static EventCallback addUserGroup(Context context, User user, Group group) {
         return rx.Observable.zip(
             saveRealmUserGroup(context, group, user),
             saveFirebaseUserGroup(context, user.id(), group),
             zipAddUserGroup())
             .map(saveSharedLink(context))
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
+            .compose(RxHelper.<EventCallback>subThreadObserveMain())
             .toBlocking().single();
     }
 
-    public static List<EventCallback> deleteUserGroup(Context context, User user, Group group) {
+    public static EventCallback deleteUserGroup(Context context, User user, Group group) {
         return Observable.zip(
             deleteRealmUserGroup(context, group, user),
             deleteFirebaseUserGroup(context, user.id(), group),
             zipDeleteUserGroup())
             .map(deleteSharedLink(context))
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
+            .compose(RxHelper.<EventCallback>subThreadObserveMain())
             .toBlocking().single();
     }
 
@@ -99,7 +95,7 @@ public class RxUserGroupSync {
         Context context, Group group, User user) {
         return Observable.just(group)
             .map(addRealmUserGroup(context, user))
-            .compose(RxHelper.<User>applySchedulers());
+            .compose(RxHelper.<User>subThreadObserveMain());
     }
 
     private static Func1<Group, User> addRealmUserGroup(
@@ -118,7 +114,7 @@ public class RxUserGroupSync {
         Context context, Group group, User user) {
         return Observable.just(group)
             .map(deleteRealmUserGroup(context, user))
-            .compose(RxHelper.<User>applySchedulers());
+            .compose(RxHelper.<User>subThreadObserveMain());
     }
 
     private static Func1<Group, User> deleteRealmUserGroup(

@@ -13,13 +13,13 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.dialog.ShareLinkDialog;
-import com.shareyourproxy.app.fragment.DrawerFragment;
+import com.shareyourproxy.app.fragment.MainDrawerFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -45,7 +45,7 @@ public class MainActivity extends GoogleApiActivity {
         _googleApiClient = getGoogleApiClient();
         if (savedInstanceState == null) {
             MainFragment mainFragment = MainFragment.newInstance();
-            DrawerFragment drawerFragment = DrawerFragment.newInstance();
+            MainDrawerFragment drawerFragment = MainDrawerFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, mainFragment)
                 .replace(R.id.activity_main_drawer_fragment_container, drawerFragment)
@@ -121,14 +121,18 @@ public class MainActivity extends GoogleApiActivity {
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof SelectDrawerItemEvent) {
-                        onDrawerItemSelected((SelectDrawerItemEvent) event);
-                    }
+            .subscribe(getBusObserver()));
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void next(Object event) {
+                if (event instanceof SelectDrawerItemEvent) {
+                    onDrawerItemSelected((SelectDrawerItemEvent) event);
                 }
-            }));
+            }
+        };
     }
 
     @Override

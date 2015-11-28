@@ -7,15 +7,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.shareyourproxy.INotificationService;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.GetUserMessagesCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Created by Evan on 6/18/15.
@@ -25,20 +21,16 @@ public class NotificationService extends Service {
         @Override
         public ArrayList<Notification> getNotifications(String userId)
             throws RemoteException {
-            List<EventCallback> event = new GetUserMessagesCommand(userId)
+            EventCallback eventData = new GetUserMessagesCommand(userId)
                 .execute(NotificationService.this);
-            EventCallback eventData = event.get(0);
-
             if (eventData != null) {
                 ArrayList<Notification> notifications =
                     ((UserMessagesDownloadedEventCallback) eventData).notifications;
                 if (notifications != null) {
-                    Timber.i("Message Downloaded");
                     return notifications;
                 }
             }
-            Timber.i("No Messages");
-            return new ArrayList<>();
+            return null;
         }
     };
 

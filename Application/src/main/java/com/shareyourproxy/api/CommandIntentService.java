@@ -11,8 +11,6 @@ import android.util.Log;
 import com.shareyourproxy.api.rx.command.BaseCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.ArrayList;
-
 import timber.log.Timber;
 
 /**
@@ -27,7 +25,7 @@ public class CommandIntentService extends IntentService {
         "com.shareyourproxy.api.CommandIntentService.command_class";
     public static final String ARG_RESULT_RECEIVER =
         "com.shareyourproxy.api.CommandIntentService.api.result_receiver";
-    public static final String ARG_RESULT_BASE_EVENTS =
+    public static final String ARG_RESULT_BASE_EVENT =
         "com.shareyourproxy.api.CommandIntentService.api.base_events";
 
     public CommandIntentService() {
@@ -40,9 +38,9 @@ public class CommandIntentService extends IntentService {
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
 
         try {
-            ArrayList<EventCallback> events = (ArrayList<EventCallback>) command.execute(this);
+            EventCallback event = command.execute(this);
             Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(ARG_RESULT_BASE_EVENTS, events);
+            bundle.putParcelable(ARG_RESULT_BASE_EVENT, event);
             result.send(Activity.RESULT_OK, bundle);
         } catch (Exception e) {
             logError(intent, result, e);

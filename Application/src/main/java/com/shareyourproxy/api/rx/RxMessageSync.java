@@ -21,7 +21,6 @@ import com.shareyourproxy.app.UserContactActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
@@ -42,7 +41,7 @@ public class RxMessageSync {
     private RxMessageSync() {
     }
 
-    public static List<EventCallback> getFirebaseMessages(
+    public static EventCallback getFirebaseMessages(
         final Context context, @NonNull final String userId) {
         return getMessageService(context)
             .getUserMessages(userId).map(new Func1<Map<String, Message>, EventCallback>() {
@@ -51,43 +50,43 @@ public class RxMessageSync {
                     ArrayList<Notification> notifications = new ArrayList<>();
                     if (messages == null) {
                         return new UserMessagesDownloadedEventCallback(notifications);
-                    }
-                    for (Map.Entry<String, Message> message : messages.entrySet()) {
-                        String fullName = message.getValue().fullName();
-                        PendingIntent intent = getPendingUserProfileIntent(
-                            context, userId, message.getValue());
+                    }else {
+                        for (Map.Entry<String, Message> message : messages.entrySet()) {
+                            String fullName = message.getValue().fullName();
+                            PendingIntent intent = getPendingUserProfileIntent(
+                                context, userId, message.getValue());
 
-                        NotificationCompat.Builder _builder =
-                            new NotificationCompat.Builder(context)
-                                .setLargeIcon(getProxyIcon(context))
-                                .setSmallIcon(R.mipmap.ic_proxy_notification)
-                                .setAutoCancel(true)
-                                .setVibrate(new long[]{ 1000, 1000 })
-                                .setLights(Color.MAGENTA, 1000, 1000)
-                                .setContentTitle(context.getString(R.string.app_name))
-                                .setContentText(context.getString(
-                                    R.string.added_you, fullName))
-                                .setContentIntent(intent);
+                            NotificationCompat.Builder _builder =
+                                new NotificationCompat.Builder(context)
+                                    .setLargeIcon(getProxyIcon(context))
+                                    .setSmallIcon(R.mipmap.ic_proxy_notification)
+                                    .setAutoCancel(true)
+                                    .setVibrate(new long[]{ 1000, 1000 })
+                                    .setLights(Color.MAGENTA, 1000, 1000)
+                                    .setContentTitle(context.getString(R.string.app_name))
+                                    .setContentText(context.getString(
+                                        R.string.added_you, fullName))
+                                    .setContentIntent(intent);
 
-                        notifications.add(_builder.build());
+                            notifications.add(_builder.build());
+                        }
+                        return new UserMessagesDownloadedEventCallback(notifications);
                     }
-                    return new UserMessagesDownloadedEventCallback(notifications);
                 }
             })
-            .toList()
+            .compose(RxHelper.<EventCallback>subThreadObserveMain())
             .toBlocking()
             .single();
     }
 
-    public static List<EventCallback> saveFirebaseMessage(
+    public static EventCallback saveFirebaseMessage(
         Context context, String userId, Message message) {
         HashMap<String, Message> messages = new HashMap<>();
         messages.put(message.id(), message);
         return getMessageService(context)
             .addUserMessage(userId, messages)
             .map(getUserMessageCallback())
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
+            .compose(RxHelper.<EventCallback>subThreadObserveMain())
             .toBlocking().single();
     }
 
@@ -96,7 +95,7 @@ public class RxMessageSync {
         String contactId = user.id();
         return getMessageService(context)
             .deleteAllUserMessages(contactId)
-            .compose(RxHelper.<Message>applySchedulers());
+            .compose(RxHelper.<Message>subThreadObserveMain());
     }
 
     private static Bitmap getProxyIcon(Context context) {

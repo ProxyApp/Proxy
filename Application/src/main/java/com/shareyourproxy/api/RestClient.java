@@ -22,11 +22,9 @@ import com.shareyourproxy.api.service.UserGroupService;
 import com.shareyourproxy.api.service.UserService;
 import com.squareup.okhttp.OkHttpClient;
 
-import java.util.concurrent.TimeUnit;
-
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 
 /**
  * Rest client for users.
@@ -100,66 +98,64 @@ public class RestClient {
             .create(HerokuUserService.class);
     }
 
-    public static RestAdapter buildRestClient(Context context, Gson gson) {
+    public static Retrofit buildRestClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         RxBusDriver rxBus = RxBusDriver.getInstance();
-        return new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
-            .setEndpoint(BuildConfig.FIREBASE_ENDPOINT)
-            .setConverter(new GsonConverter(gson))
-            .setRequestInterceptor(new FirebaseInterceptor(sharedPrefs))
+        return new Retrofit.Builder()
+            .baseUrl(BuildConfig.FIREBASE_ENDPOINT)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(getClient(rxBus, sharedPrefs))
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
 
-    public static RestAdapter buildHerokuRestClient(
+    public static Retrofit buildHerokuRestClient(
         Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         RxBusDriver rxBus = RxBusDriver.getInstance();
-        return new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
-            .setEndpoint(HEROKU_URL)
-            .setConverter(new GsonConverter(gson))
-            .setRequestInterceptor(new FirebaseInterceptor(sharedPrefs))
+        return new Retrofit.Builder()
+            .baseUrl(HEROKU_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(getClient(rxBus, sharedPrefs))
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
 
-    public static RestAdapter buildInstagramAuthClient(Context context, Gson gson) {
+    public static Retrofit buildInstagramAuthClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         RxBusDriver rxBus = RxBusDriver.getInstance();
-        return new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
-            .setEndpoint(INSTAGRAM_AUTH_URL)
-            .setConverter(new GsonConverter(gson))
+        return new Retrofit.Builder().baseUrl(INSTAGRAM_AUTH_URL)
+            .baseUrl(INSTAGRAM_AUTH_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(getClient(rxBus, sharedPrefs))
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
 
-    public static RestAdapter buildSpotifyUserClient(Context context, Gson gson) {
+    public static Retrofit buildSpotifyUserClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         RxBusDriver rxBus = RxBusDriver.getInstance();
-        return new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
-            .setEndpoint(SPOTIFY_URL)
-            .setConverter(new GsonConverter(gson))
+        return new Retrofit.Builder()
+            .baseUrl(SPOTIFY_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(getClient(rxBus, sharedPrefs))
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
 
-    public static RestAdapter buildSpotifyAuthClient(Context context, Gson gson) {
+    public static Retrofit buildSpotifyAuthClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
         RxBusDriver rxBus = RxBusDriver.getInstance();
-        return new RestAdapter.Builder()
-            .setLogLevel(RestAdapter.LogLevel.FULL)
-            .setClient(new OkClient(getClient(rxBus, sharedPrefs)))
-            .setEndpoint(SPOTIFY_AUTH_URL)
-            .setConverter(new GsonConverter(gson))
+        return new Retrofit.Builder()
+            .baseUrl(SPOTIFY_AUTH_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(getClient(rxBus, sharedPrefs))
+            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
 
@@ -171,10 +167,9 @@ public class RestClient {
     }
 
     public static OkHttpClient getClient(RxBusDriver rxBus, SharedPreferences sharedPrefs) {
-        OkHttpClient client = new OkHttpClient();
-        client.setConnectTimeout(10, TimeUnit.SECONDS);
-        client.setReadTimeout(10, TimeUnit.SECONDS);
-        client.setAuthenticator(new FirebaseAuthenticator(rxBus, sharedPrefs));
+        OkHttpClient client = new OkHttpClient()
+            .setAuthenticator(new FirebaseAuthenticator(rxBus, sharedPrefs));
+        client.networkInterceptors().add(new FirebaseInterceptor(sharedPrefs));
         return client;
     }
 }

@@ -44,7 +44,7 @@ public class GenerateShareLinkCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return getShareLinkMessageObservable(service, user, groups);
     }
 

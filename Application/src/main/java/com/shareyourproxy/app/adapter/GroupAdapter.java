@@ -81,14 +81,12 @@ public class GroupAdapter extends NotificationRecyclerAdapter<Group> {
 
     @Override
     protected boolean areContentsTheSame(Group item1, Group item2) {
-        //Sections will have the same ID but different categories
-        return item1.id().equals(item2.id());
+        return item1.label().equals(item2.label());
     }
 
     @Override
     protected boolean areItemsTheSame(Group item1, Group item2) {
-        return (item1.id().equals(item2.id())
-            && item1.label().equals(item2.label()));
+        return item1.id().equals(item2.id());
     }
 
 

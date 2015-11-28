@@ -12,7 +12,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserContactDeletedEventCa
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
@@ -33,7 +32,7 @@ public class RxUserContactSync {
     private RxUserContactSync() {
     }
 
-    public static List<EventCallback> checkContacts(
+    public static EventCallback checkContacts(
         final Context context, final User user,
         ArrayList<String> contacts, final HashMap<String, Group> userGroups) {
         return Observable.from(contacts)
@@ -41,7 +40,8 @@ public class RxUserContactSync {
             .filter(filterMissingContacts())
             .map(unwrapPairedContact())
             .flatMap(zipDeleteUserContact(context, user))
-            .toList().toBlocking().single();
+            .toBlocking()
+            .single();
     }
 
     private static Func2<User, String, EventCallback> zipDeleteUserContact() {

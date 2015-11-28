@@ -42,7 +42,7 @@ public class AddUserCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return saveUser(service, user);
     }
 

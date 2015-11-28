@@ -55,14 +55,14 @@ public class RxQuery {
                 realm.close();
                 return contacts;
             }
-        }).toBlocking().first();
+        }).toBlocking().single();
     }
 
     public static rx.Observable<HashMap<String, Channel>> queryPermissionedChannels(
         final User user, final String loggedInUserId) {
         return Observable.just(user)
             .map(getPermissionedChannels(loggedInUserId))
-            .compose(RxHelper.<HashMap<String, Channel>>applySchedulers());
+            .compose(RxHelper.<HashMap<String, Channel>>subThreadObserveMain());
     }
 
     private static Func1<User, HashMap<String, Channel>> getPermissionedChannels(
@@ -113,12 +113,12 @@ public class RxQuery {
 
     public static User queryUser(Context context, final String userId) {
         return Observable.just(context).map(getRealmUser(userId)).compose(RxHelper
-            .<User>applySchedulers()).toBlocking().single();
+            .<User>subThreadObserveMain()).toBlocking().single();
     }
 
     public static Observable<Integer> getUserContactScore(Context context, final String userId) {
         return RestClient.getHerokuUserervice(context).userFollowerCount(userId).compose(RxHelper
-            .<Integer>applySchedulers());
+            .<Integer>subThreadObserveMain());
     }
 
     private static Func1<Context, User> getRealmUser(final String userId) {

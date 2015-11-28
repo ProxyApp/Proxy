@@ -5,11 +5,11 @@ import android.os.Parcel;
 
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxGroupContactSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import static com.shareyourproxy.api.rx.RxGroupContactSync.updateGroupContacts;
 
 /**
  * Created by Evan on 6/8/15.
@@ -46,9 +46,8 @@ public class SaveGroupContactsCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
-        return RxGroupContactSync
-            .updateGroupContacts(service, user, groups, contact);
+    public EventCallback execute(Service service) {
+        return updateGroupContacts(service, user, groups, contact);
     }
 
     @Override

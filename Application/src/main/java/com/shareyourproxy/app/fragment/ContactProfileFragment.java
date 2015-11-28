@@ -9,6 +9,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.app.UserContactActivity;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
@@ -19,7 +20,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.BindDimen;
 import butterknife.OnClick;
-import rx.functions.Action1;
 
 import static android.view.View.VISIBLE;
 import static com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID;
@@ -143,10 +143,10 @@ public class ContactProfileFragment extends UserProfileFragment {
         getRxBus().toObservable().subscribe(onNextEvent());
     }
 
-    private Action1<Object> onNextEvent() {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
                 }

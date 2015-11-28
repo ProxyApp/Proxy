@@ -7,18 +7,16 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import rx.functions.Func1;
 
 import static com.shareyourproxy.api.RestClient.getHerokuUserervice;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
-import static java.util.Collections.singleton;
 
 /**
  * Cold Observables to sync users to firebase and realm.
@@ -41,7 +39,7 @@ public class RxUserSync {
      * @param loggedInUser user logged into the app
      * @return {@link UsersDownloadedEventCallback} to rxBus
      */
-    public static List<EventCallback> syncAllContacts(
+    public static EventCallback syncAllContacts(
         Context context, User loggedInUser) {
         HashSet<String> contacts = loggedInUser.contacts();
 
@@ -49,17 +47,15 @@ public class RxUserSync {
             getFirebaseUsers(context, loggedInUser)
                 .map(saveRealmUsers(context))
                 .map(usersDownloaded(loggedInUser))
-                .compose(RxHelper.<List<EventCallback>>applySchedulers()).toBlocking().single() :
-            new ArrayList<EventCallback>(singleton(
-                new SyncAllUsersSuccessEvent()));
+                .compose(RxHelper.<EventCallback>subThreadObserveMain()).toBlocking().single() :
+            new SyncAllContactsSuccessEvent();
     }
 
-    public static List<EventCallback> saveUser(
+    public static EventCallback saveUser(
         Context context, User newUser) {
         return RestClient.getUserService(context).updateUser(newUser.id(), newUser)
             .map(saveRealmUser(context))
-            .toList()
-            .compose(RxHelper.<List<EventCallback>>applySchedulers())
+            .compose(RxHelper.<EventCallback>subThreadObserveMain())
             .toBlocking().single();
     }
 
@@ -93,20 +89,12 @@ public class RxUserSync {
         };
     }
 
-    private static Func1<HashMap<String, User>, List<EventCallback>> usersDownloaded(
+    private static Func1<HashMap<String, User>, EventCallback> usersDownloaded(
         final User loggedInUser) {
-        return new Func1<HashMap<String, User>, List<EventCallback>>() {
+        return new Func1<HashMap<String, User>, EventCallback>() {
             @Override
-            public List<EventCallback> call(HashMap<String, User> users) {
-                UsersDownloadedEventCallback usersCallback =
-                    new UsersDownloadedEventCallback(loggedInUser, users);
-                LoggedInUserUpdatedEventCallback loggedInUserCallback =
-                    new LoggedInUserUpdatedEventCallback(loggedInUser);
-                ArrayList<EventCallback> list = new ArrayList<>();
-                list.add(usersCallback);
-                list.add(loggedInUserCallback);
-                list.add(new SyncAllUsersSuccessEvent());
-                return list;
+            public EventCallback call(HashMap<String, User> users) {
+                return new UsersDownloadedEventCallback(loggedInUser, users);
             }
         };
     }
