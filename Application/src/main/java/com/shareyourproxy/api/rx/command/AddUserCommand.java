@@ -6,15 +6,12 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxUserSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserSync.saveUser;
 
 /**
- * Created by Evan on 6/9/15.
+ * Add a user to firebase.
  */
 public class AddUserCommand extends BaseCommand {
     public static final Parcelable.Creator<AddUserCommand> CREATOR =
@@ -43,7 +40,7 @@ public class AddUserCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return saveUser(service, user);
+        return RxUserSync.INSTANCE.saveUser(service, user);
     }
 
     @Override

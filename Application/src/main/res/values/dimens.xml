@@ -1,7 +1,6 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="common_margin_line">1dp</dimen>
-    <dimen name="common_margin_bold_line">2dp</dimen>
     <dimen name="common_margin_xxxtiny">4dp</dimen>
     <dimen name="common_margin_xxtiny">8dp</dimen>
     <dimen name="common_margin_xtiny">12dp</dimen>
@@ -15,17 +14,11 @@
     <dimen name="common_margin_xxxhuge">44dp</dimen>
     <dimen name="common_rect_tiny">48dp</dimen>
     <dimen name="common_rect_small">60dp</dimen>
-    <dimen name="common_rect_medium">72dp</dimen>
     <dimen name="common_rect_large">84dp</dimen>
     <dimen name="common_rect_huge">96dp</dimen>
-    <dimen name="common_rect_xhuge">120dp</dimen>
     <dimen name="common_circleimageview_item_radius">@dimen/common_rect_small</dimen>
-    <dimen name="common_fab_elevation">@dimen/common_margin_xxtiny</dimen>
-    <dimen name="common_drawer_elevation">@dimen/common_margin_xxtiny</dimen>
     <dimen name="common_drawer_width">312dp</dimen>
     <dimen name="common_circleimageview_settings_radius">@dimen/common_rect_huge</dimen>
-    <dimen name="common_svg_small">@dimen/common_margin_medium</dimen>
-    <dimen name="common_svg_medium">@dimen/common_margin_xhuge</dimen>
     <dimen name="common_svg_large">@dimen/common_rect_tiny</dimen>
     <dimen name="common_svg_xlarge">900dp</dimen>
     <dimen name="common_svg_xxlarge">1080dp</dimen>
@@ -33,7 +26,6 @@
     <dimen name="common_svg_ultra">1080dp</dimen>
     <dimen name="common_svg_null_screen_mini">400dp</dimen>
     <dimen name="common_svg_null_screen_small">500dp</dimen>
-    <dimen name="common_svg_null_screen">600dp</dimen>
     <dimen name="fragment_userprofile_header_user_background_size">208dp</dimen>
     <dimen name="fragment_userprofile_header_contact_background_size">260dp</dimen>
     <dimen name="fragment_userprofile_header_title_top_margin">138dp</dimen>

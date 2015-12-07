@@ -36,6 +36,7 @@ public class RestClient {
     public static final String SPOTIFY_AUTH_URL = "https://accounts.spotify.com/api";
     public static final String INSTAGRAM_AUTH_URL = "https://api.instagram.com/oauth/";
     public static final String HEROKU_URL = "https://proxy-api.herokuapp.com/";
+    private static final RxBusDriver _rxBus = RxBusDriver.INSTANCE;
 
     /**
      * Constructor.
@@ -101,11 +102,10 @@ public class RestClient {
     public static Retrofit buildRestClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
-        RxBusDriver rxBus = RxBusDriver.getInstance();
         return new Retrofit.Builder()
             .baseUrl(BuildConfig.FIREBASE_ENDPOINT)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(getClient(rxBus, sharedPrefs))
+            .client(getClient(_rxBus, sharedPrefs))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
@@ -114,11 +114,10 @@ public class RestClient {
         Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
-        RxBusDriver rxBus = RxBusDriver.getInstance();
         return new Retrofit.Builder()
             .baseUrl(HEROKU_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(getClient(rxBus, sharedPrefs))
+            .client(getClient(_rxBus, sharedPrefs))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
@@ -126,11 +125,10 @@ public class RestClient {
     public static Retrofit buildInstagramAuthClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
-        RxBusDriver rxBus = RxBusDriver.getInstance();
         return new Retrofit.Builder().baseUrl(INSTAGRAM_AUTH_URL)
             .baseUrl(INSTAGRAM_AUTH_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(getClient(rxBus, sharedPrefs))
+            .client(getClient(_rxBus, sharedPrefs))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
@@ -138,11 +136,10 @@ public class RestClient {
     public static Retrofit buildSpotifyUserClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
-        RxBusDriver rxBus = RxBusDriver.getInstance();
         return new Retrofit.Builder()
             .baseUrl(SPOTIFY_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(getClient(rxBus, sharedPrefs))
+            .client(getClient(_rxBus, sharedPrefs))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }
@@ -150,11 +147,10 @@ public class RestClient {
     public static Retrofit buildSpotifyAuthClient(Context context, Gson gson) {
         SharedPreferences sharedPrefs =
             context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE);
-        RxBusDriver rxBus = RxBusDriver.getInstance();
         return new Retrofit.Builder()
             .baseUrl(SPOTIFY_AUTH_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(getClient(rxBus, sharedPrefs))
+            .client(getClient(_rxBus, sharedPrefs))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build();
     }

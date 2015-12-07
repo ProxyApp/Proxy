@@ -12,12 +12,12 @@ import android.widget.Toast;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.event.ShareLinkEvent;
+import com.shareyourproxy.api.rx.event.ShareLinkEventCallback;
 import com.shareyourproxy.app.AddChannelListActivity;
+import com.shareyourproxy.app.AggregateFeedActivity;
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import com.shareyourproxy.app.GroupContactsActivity;
 import com.shareyourproxy.app.LoginActivity;
-import com.shareyourproxy.app.MainActivity;
 import com.shareyourproxy.app.SearchActivity;
 import com.shareyourproxy.app.UserContactActivity;
 
@@ -335,7 +335,7 @@ public final class IntentLauncher {
     }
 
     /**
-     * Launch the {@link MainActivity}.
+     * Launch the {@link AggregateFeedActivity}.
      *
      * @param activity The context used to start this intent
      */
@@ -486,12 +486,11 @@ public final class IntentLauncher {
     }
 
     /**
-     * Launch an Intent chooser dialog for a Proxy User to select a method of sharing a profile
-     * link. The link is an http address to a User's group channels.
+     * Launch an Intent chooser dialog for a Proxy User to select a method of sharing a profile link. The link is an http address to a User's group channels.
      *
      * @param event message data, http link
      */
-    public static void launchShareLinkIntent(Activity activity, ShareLinkEvent event) {
+    public static void launchShareLinkIntent(Activity activity, ShareLinkEventCallback event) {
         Intent[] copyAndPaste = new Intent[]{ getClipboardIntent(event.message) };
         Intent chooser = createChooser(getShareLinkIntent(event.message),
             activity.getString(R.string.dialog_sharelink_title))

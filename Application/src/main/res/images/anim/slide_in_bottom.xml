@@ -5,7 +5,7 @@
         android:fromYDelta="50%"
         android:interpolator="@android:interpolator/accelerate_cubic"
         android:toYDelta="0%"
-        />
+    />
     <alpha
         android:duration="@android:integer/config_shortAnimTime"
         android:fromAlpha="0"

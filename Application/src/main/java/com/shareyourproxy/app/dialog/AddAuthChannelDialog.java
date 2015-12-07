@@ -61,8 +61,7 @@ public class AddAuthChannelDialog extends BaseDialogFragment {
     int colorBlue;
     private Channel _channel;
     /**
-     * EditorActionListener that detects when the software keyboard's done or enter button is
-     * pressed.
+     * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private final TextView.OnEditorActionListener _onEditorActionListener =
         new TextView.OnEditorActionListener() {

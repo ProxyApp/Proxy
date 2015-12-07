@@ -26,7 +26,7 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
-import com.shareyourproxy.api.rx.event.ShareLinkEvent;
+import com.shareyourproxy.api.rx.event.ShareLinkEventCallback;
 
 import java.util.List;
 
@@ -65,9 +65,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * This prevents the Android status bar and navigation bar from flashing during a transition
-     * animation bundled in {@link IntentLauncher#launchSearchActivity(Activity, View, View, View)}
-     * and {@link IntentLauncher#launchUserProfileActivity(Activity, User, String, View, View)}.
+     * This prevents the Android status bar and navigation bar from flashing during a transition animation bundled in {@link
+     * IntentLauncher#launchSearchActivity(Activity, View, View, View)} and {@link IntentLauncher#launchUserProfileActivity(Activity, User, String, View,
+     * View)}.
      */
     public void preventStatusBarFlash(final Activity activity) {
         ActivityCompat.postponeEnterTransition(activity);
@@ -173,8 +173,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         return new JustObserver<Object>() {
             @Override
             public void next(Object event) {
-                if (event instanceof ShareLinkEvent) {
-                    launchShareLinkIntent(activity, (ShareLinkEvent) event);
+                if (event instanceof ShareLinkEventCallback) {
+                    launchShareLinkIntent(activity, (ShareLinkEventCallback) event);
                 }
             }
         };

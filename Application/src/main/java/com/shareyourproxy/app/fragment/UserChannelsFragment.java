@@ -20,6 +20,8 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
@@ -44,8 +46,6 @@ import rx.subscriptions.CompositeSubscription;
 import static android.view.View.GONE;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
-import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
-import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE;
 
@@ -77,6 +77,8 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     private User _userContact;
     private ViewChannelAdapter _adapter;
     private CompositeSubscription _subscriptions;
+    private RxQuery _rxQuery = RxQuery.INSTANCE;
+    private RxHelper _rxHelper = RxHelper.INSTANCE;
 
     /**
      * Constructor.
@@ -196,7 +198,7 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     }
 
     public void getSharedChannels() {
-        _subscriptions.add(queryPermissionedChannels(_userContact, getLoggedInUser().id())
+        _subscriptions.add(_rxQuery.queryPermissionedChannels(_userContact, getLoggedInUser().id())
             .subscribe(permissionedObserver()));
     }
 
@@ -213,7 +215,7 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = checkCompositeButton(_subscriptions);
+        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
         if (_isLoggedInUser) {

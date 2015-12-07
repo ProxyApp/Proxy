@@ -15,7 +15,7 @@ public class UserGroupDeletedEventCallback extends UserEventCallback {
             @Override
             public UserGroupDeletedEventCallback createFromParcel(Parcel in) {
                 return new UserGroupDeletedEventCallback(
-                    (User) in.readValue(CL),(Group) in.readValue(CL));
+                    (User) in.readValue(CL), (Group) in.readValue(CL));
             }
 
             @Override

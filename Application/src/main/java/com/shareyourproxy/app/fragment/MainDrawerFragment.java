@@ -12,7 +12,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
-import com.shareyourproxy.app.MainActivity;
+import com.shareyourproxy.app.AggregateFeedActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.app.adapter.DrawerAdapter;
@@ -40,7 +40,7 @@ public class MainDrawerFragment extends BaseFragment implements ItemLongClickLis
     }
 
     /**
-     * Create a new instance of this fragment for parent {@link MainActivity}.
+     * Create a new instance of this fragment for parent {@link AggregateFeedActivity}.
      *
      * @return drawer fragment
      */

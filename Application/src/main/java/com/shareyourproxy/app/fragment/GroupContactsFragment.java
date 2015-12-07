@@ -19,6 +19,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
@@ -37,7 +38,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_SELECTED_GROUP;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.util.ObjectUtils.capitalize;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
@@ -45,6 +45,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  * Display the {@link User} contacts added to the selected {@link Group}.
  */
 public class GroupContactsFragment extends BaseFragment implements ItemClickListener {
+    private final RxQuery _rxQuery = RxQuery.INSTANCE;
     @Bind(R.id.fragment_contacts_group_toolbar)
     Toolbar toolbar;
     @Bind(R.id.fragment_contacts_group_recyclerview)
@@ -95,7 +96,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(getBusObserver()));
-        _adapter.refreshData(queryUserContacts(
+        _adapter.refreshData(_rxQuery.queryUserContacts(
             getActivity(), getGroupArg().contacts()).values());
     }
 
@@ -115,8 +116,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     }
 
     /**
-     * A Group has been edited in {@link EditGroupChannelsFragment}. Update this fragments intent
-     * data and title.
+     * A Group has been edited in {@link EditGroupChannelsFragment}. Update this fragments intent data and title.
      *
      * @param event group data
      */
@@ -143,9 +143,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
     }
 
     /**
-     * Get the group selected and bundled in this activities {@link
-     * IntentLauncher#launchEditGroupContactsActivity(Activity,
-     * Group)} call.
+     * Get the group selected and bundled in this activities {@link IntentLauncher#launchEditGroupContactsActivity(Activity, Group)} call.
      *
      * @return selected group
      */

@@ -14,12 +14,12 @@
         android:id="@+id/fragment_introduction_main_pageindicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/common_margin_xxhuge"
         android:layout_gravity="bottom"
-        app:radius="@dimen/common_margin_xxxtiny"
-        app:pageColor="@color/common_divider"
-        app:paddingEnd="@dimen/common_margin_xxtiny"
+        android:layout_marginBottom="@dimen/common_margin_xxhuge"
         app:fillColor="@android:color/white"
+        app:paddingEnd="@dimen/common_margin_xxtiny"
+        app:pageColor="@color/common_divider"
+        app:radius="@dimen/common_margin_xxxtiny"
         app:strokeWidth="0dp"/>
 
     <android.support.design.widget.FloatingActionButton

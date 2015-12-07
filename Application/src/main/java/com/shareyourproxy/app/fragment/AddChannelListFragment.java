@@ -142,7 +142,7 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
 
             @Override
             public void onError(FacebookException exception) {
-                Timber.e("Facebook LogIn Failed: " + exception.getMessage());
+                Timber.e("Facebook LogIn Failed: %1$s", exception.getMessage());
             }
         };
     }

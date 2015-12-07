@@ -50,6 +50,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     public static final int TYPE_LIST_HEADER = 2;
     public static final int TYPE_LIST_DELETE_FOOTER = 3;
     private final GroupEditType _groupEditType;
+    private final RxBusDriver _rxBus = RxBusDriver.INSTANCE;
     private ItemClickListener _clickListener;
     private Callback<ChannelToggle> _sortedListCallback;
     private SortedList<ChannelToggle> _channels;
@@ -216,7 +217,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
      * @return list length
      */
     private int getListLength() {
-        return _channels.size() + getExtraItemsCount() - 1;
+        return getExtraItemsCount() - 1;
     }
 
     /**
@@ -225,7 +226,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
      * @return list size
      */
     private int getListSize() {
-        return _channels.size() + getExtraItemsCount();
+        return getExtraItemsCount();
     }
 
     private int getExtraItemsCount() {
@@ -238,7 +239,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
             // just show the header EditTextView
             count = 1;
         }
-        return count;
+        return _channels.size() + count;
     }
 
     @Override
@@ -311,7 +312,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RxBusDriver.getInstance().post(new ViewGroupContactsEvent());
+                _rxBus.post(new ViewGroupContactsEvent());
             }
         };
     }
@@ -359,7 +360,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
             public void onClick(View view) {
                 int position = viewHolder.getItemPosition() - 1;
                 Switch itemSwitch = viewHolder.itemSwitch;
-                Timber.i("position:" + position);
+                Timber.i("position: %1$s", position);
 
                 boolean toggle = !itemSwitch.isChecked();
                 itemSwitch.setChecked(toggle);
@@ -381,7 +382,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
     }
 
     public HashSet<String> getSelectedChannels() {
-        return RxGroupChannelSync.getSelectedChannels(_channels);
+        return RxGroupChannelSync.INSTANCE.getSelectedChannels(_channels);
     }
 
     public ArrayList<ChannelToggle> getToggledChannels() {

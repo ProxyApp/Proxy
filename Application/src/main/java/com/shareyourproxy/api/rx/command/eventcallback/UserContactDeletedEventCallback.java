@@ -15,7 +15,7 @@ public class UserContactDeletedEventCallback extends UserEventCallback {
             @Override
             public UserContactDeletedEventCallback createFromParcel(Parcel in) {
                 return new UserContactDeletedEventCallback(
-                    (User) in.readValue(CL),(String) in.readValue(CL));
+                    (User) in.readValue(CL), (String) in.readValue(CL));
             }
 
             @Override

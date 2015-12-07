@@ -29,6 +29,8 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
+import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
@@ -82,15 +84,13 @@ import static com.shareyourproxy.IntentLauncher.launchXboxLiveIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.api.RestClient.getUserService;
-import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
-import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade;
 
 /**
- * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User
- * Contact's to be added to be observed and added to groups logged in user groups.
+ * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User Contact's to be added to be observed and added to groups logged
+ * in user groups.
  */
 public abstract class UserProfileFragment extends BaseFragment {
     @Bind(R.id.fragment_user_profile_toolbar)
@@ -124,6 +124,9 @@ public abstract class UserProfileFragment extends BaseFragment {
     private Channel _deletedChannel;
     private Palette.PaletteAsyncListener _paletteListener;
     private User _userContact;
+    private UserChannelsFragment userChannelsFragment;
+    private BasePostprocessor _postProcessor;
+    private RxQuery _rxQuery = RxQuery.INSTANCE;
     SwipeRefreshLayout.OnRefreshListener _refreshListener = new SwipeRefreshLayout
         .OnRefreshListener() {
         @Override
@@ -132,12 +135,11 @@ public abstract class UserProfileFragment extends BaseFragment {
             if (user != null) {
                 getRxBus().post(new SyncContactsCommand(user));
             }
-            getUserContactScore(getActivity(), _userContact.id())
+            _rxQuery.getUserContactScore(getActivity(), _userContact.id())
                 .subscribe(getContactScoreObserver());
         }
     };
-    private UserChannelsFragment userChannelsFragment;
-    private BasePostprocessor _postProcessor;
+    private RxHelper _rxHelper = RxHelper.INSTANCE;
 
 
     /**
@@ -181,21 +183,21 @@ public abstract class UserProfileFragment extends BaseFragment {
     }
 
     void onCreateView(View rootView) {
-        _analytics = RxGoogleAnalytics.getInstance(getActivity());
+        _analytics = new RxGoogleAnalytics(getActivity());
         followersTextView.setText(getString(R.string.user_profile_followers,
             stringCalculating));
         appBarLayout.addOnOffsetChangedListener(getOffsetListener());
         initializeSwipeRefresh(swipeRefreshLayout, _refreshListener);
         initializeUserChannels();
         //followers score
-        getUserContactScore(getActivity(), _userContact.id())
+        _rxQuery.getUserContactScore(getActivity(), _userContact.id())
             .subscribe(getContactScoreObserver());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = checkCompositeButton(_subscriptions);
+        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
     }
@@ -217,8 +219,7 @@ public abstract class UserProfileFragment extends BaseFragment {
     }
 
     /**
-     * If we entered this activity fragment through a notification, make sure the logged in user has
-     * a value.
+     * If we entered this activity fragment through a notification, make sure the logged in user has a value.
      *
      * @param loggedInUserId logged in user id.
      */
@@ -278,7 +279,7 @@ public abstract class UserProfileFragment extends BaseFragment {
         } else {
             _analytics.userContactRemoved(event.user);
         }
-        getUserContactScore(getActivity(), _userContact.id())
+        _rxQuery.getUserContactScore(getActivity(), _userContact.id())
             .subscribe(getContactScoreObserver());
     }
 
@@ -505,7 +506,6 @@ public abstract class UserProfileFragment extends BaseFragment {
 
             @Override
             public void error(Throwable e) {
-                //TODO: sometimes this returns before the parent activity is attached
                 if (getActivity() != null) {
                     followersTextView.setText(getString(R.string.user_profile_followers,
                         stringErrorCalculating));

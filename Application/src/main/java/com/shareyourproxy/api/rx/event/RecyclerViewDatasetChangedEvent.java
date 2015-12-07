@@ -11,7 +11,8 @@ public class RecyclerViewDatasetChangedEvent {
     public final BaseRecyclerView.ViewState viewState;
     public final BaseRecyclerViewAdapter adapter;
 
-    public RecyclerViewDatasetChangedEvent(BaseRecyclerViewAdapter adapter, BaseRecyclerView
+    public RecyclerViewDatasetChangedEvent(
+        BaseRecyclerViewAdapter adapter, BaseRecyclerView
         .ViewState viewState) {
         this.viewState = viewState;
         this.adapter = adapter;

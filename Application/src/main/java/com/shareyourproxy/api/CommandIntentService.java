@@ -14,9 +14,8 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import timber.log.Timber;
 
 /**
- * Take in a {@link BaseCommand} and call its {@link BaseCommand#execute(Service)} method. Get a
- * List of EventCallback data and return the result in the ProxyApplication's EventCallback
- * Subscription.
+ * Take in a {@link BaseCommand} and call its {@link BaseCommand#execute(Service)} method. Get a List of EventCallback data and return the result in the
+ * ProxyApplication's EventCallback Subscription.
  */
 public class CommandIntentService extends IntentService {
 

@@ -3,11 +3,9 @@ package com.shareyourproxy.api.rx.command;
 import android.app.Service;
 import android.os.Parcel;
 
+import com.shareyourproxy.api.rx.RxMessageSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxMessageSync.getFirebaseMessages;
 
 /**
  * Created by Evan on 6/18/15.
@@ -39,7 +37,7 @@ public class GetUserMessagesCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return getFirebaseMessages(service, userId);
+        return RxMessageSync.INSTANCE.getFirebaseMessages(service, userId);
     }
 
     @Override

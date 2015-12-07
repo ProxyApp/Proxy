@@ -35,12 +35,9 @@
     <!--PROXY COLORS-->
     <!--87 percent alpha for text-->
     <color name="common_proxy_zoidberg">#F5605A</color>
-    <color name="common_proxy_dark_primary">#EEEEEE</color>
     <color name="common_proxy_dark_selected">#424242</color>
     <color name="common_proxy_dark_disabled">#757575</color>
     <color name="common_proxy_light_primary">#424242</color>
-    <color name="common_proxy_light_selected">#FFFFFF</color>
-    <color name="common_proxy_light_disabled">#E0E0E0</color>
     <color name="common_proxy_purple">#8E61D6</color>
     <color name="common_proxy_orange">#FFA724</color>
     <color name="common_proxy_slide_one">@color/common_proxy_orange</color>
@@ -61,82 +58,25 @@
     <color name="common_text_disabled">#42000000</color>
     <!--12 percent alpha for dividers-->
     <color name="common_divider">#1F000000</color>
-    <!--standard icon color-->
-    <color name="common_icon">#010101</color>
 
     <!--Common primary color gray (100,500,700)-->
     <color name="common_gray_light">#F5F5F5</color>
     <color name="common_gray">#9E9E9E</color>
     <color name="common_gray_dark">#616161</color>
-
-    <!--Common primary color indigo (100,500,700)-->
-    <color name="common_indigo_light">#C5CAE9</color>
+    <!--Common primary color indigo (500)-->
     <color name="common_indigo">#3F51B5</color>
-    <color name="common_indigo_dark">#303F9F</color>
-    <!--Accent indigo (A100,A2200,A400,A700)-->
-    <color name="accent_indigo_disabled">#8C9EFF</color>
-    <color name="accent_indigo_background">#536DFE</color>
-    <color name="accent_indigo_primary">#3D5AFE</color>
-    <color name="accent_indigo_primary_dark">#304FFE</color>
-
     <!--Common primary color blue (100,500,700)-->
     <color name="common_blue_light">#BBDEFB</color>
     <color name="common_blue">#2196F3</color>
     <color name="common_blue_dark">#1976D2</color>
-    <!--Accent blue (A100,A2200,A400,A700)-->
-    <color name="accent_blue_disabled">#82B1FF</color>
-    <color name="accent_blue_background">#448AFF</color>
-    <color name="accent_blue_primary">#2979FF</color>
-    <color name="accent_blue_primary_dark">#2962FF</color>
-
-    <!--Common primary color light-blue (100,500,700)-->
-    <color name="common_light_blue_light">#B3E5FC</color>
+    <!--Common primary color light-blue (500)-->
     <color name="common_light_blue">#03A9F4</color>
-    <color name="common_light_blue_dark">#0288D1</color>
-    <!--Accent blue (A100,A2200,A400,A700)-->
-    <color name="accent_light_blue_disabled">#80D8FF</color>
-    <color name="accent_light_blue_background">#40C4FF</color>
-    <color name="accent_light_blue_primary">#00B0FF</color>
-    <color name="accent_light_blue_primary_dark">#0091EA</color>
-
-    <!--Common primary color red (100,500,700)-->
+    <!--Common primary color red (100,500)-->
     <color name="common_red_light">#FFCDD2</color>
     <color name="common_red">#F44336</color>
-    <color name="common_red_dark">#D32F2F</color>
-    <!--Accent red (A100,A2200,A400,A700)-->
-    <color name="accent_red_disabled">#FF8A80</color>
-    <color name="accent_red_background">#FF5252</color>
-    <color name="accent_red_primary">#FF1744</color>
-    <color name="accent_red_primary_dark">#D50000</color>
-
-    <!--Common primary color green (100,500,700)-->
-    <color name="common_green_light">#C8E6C9</color>
+    <!--Common primary color green (500)-->
     <color name="common_green">#4CAF50</color>
-    <color name="common_green_dark">#388E3C</color>
-    <!--Accent green (A100,A2200,A400,A700)-->
-    <color name="accent_green_disabled">#B9F6CA</color>
-    <color name="accent_green_background">#69F0AE</color>
-    <color name="accent_green_primary">#00E676</color>
-    <color name="accent_green_primary_dark">#00C853</color>
-
-    <!--Common primary color deep purple (100,500,700)-->
-    <color name="common_deep_purple_light">#D1C4E9</color>
+    <!--Common primary color deep purple (500)-->
     <color name="common_deep_purple">#673AB7</color>
-    <color name="common_deep_purple_dark">#512DA8</color>
-    <!--Accent deep purple (A100,A2200,A400,A700)-->
-    <color name="accent_deep_purple_disabled">#B388FF</color>
-    <color name="accent_deep_purple_background">#7C4DFF</color>
-    <color name="accent_deep_purple_primary">#651FFF</color>
-    <color name="accent_deep_purple_primary_dark">#6200EA</color>
-
-    <!--Common primary color deep purple (100,500,700)-->
-    <color name="common_purple_light">#E1BEE7</color>
-    <color name="common_purple">#9C27B0</color>
-    <color name="common_purple_dark">#7B1FA2</color>
-    <!--Accent deep purple (A100,A2200,A400,A700)-->
-    <color name="accent_purple_disabled">#EA80FC</color>
-    <color name="accent_purple_background">#E040FB</color>
-    <color name="accent_purple_primary">#D500F9</color>
-    <color name="accent_purple_primary_dark">#AA00FF</color>
 
 </resources>

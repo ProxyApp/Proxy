@@ -5,12 +5,8 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Message;
-import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxMessageSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
-
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxMessageSync.saveFirebaseMessage;
 
 /**
  * Created by Evan on 6/18/15.
@@ -48,7 +44,7 @@ public class AddUserMessageCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return saveFirebaseMessage(service, userId, message);
+        return RxMessageSync.INSTANCE.saveFirebaseMessage(service, userId, message);
     }
 
     @Override

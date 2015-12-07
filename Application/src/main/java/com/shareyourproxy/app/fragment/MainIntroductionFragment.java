@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.fragment;
 
+import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,9 +22,11 @@ import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
-import static com.shareyourproxy.app.fragment.MainFragment.ARG_SELECT_PROFILE_TAB;
+import static com.shareyourproxy.app.fragment.AggregateFeedFragment.ARG_SELECT_PROFILE_TAB;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -82,7 +85,7 @@ public class MainIntroductionFragment extends BaseFragment {
     }
 
     /**
-     * Add fragments to the List backing the {@link MainFragment#slidingTabLayout}.
+     * Add fragments to the List backing the {@link AggregateFeedFragment#slidingTabLayout}.
      */
     private void initializeFragments() {
         List<BaseFragment> fragmentArray = Arrays.<BaseFragment>asList(
@@ -121,17 +124,23 @@ public class MainIntroductionFragment extends BaseFragment {
         };
     }
 
+    @TargetApi(LOLLIPOP)
     private void drawDoneButton() {
         floatingActionButton.setImageDrawable(svgToBitmapDrawable(getActivity(), R.raw.ic_done,
             marginSVGLarge, colorWhite));
-        floatingActionButton.setBackgroundTintList(colorSelected);
         ViewCompat.setAlpha(floatingActionButton, 1f);
+        if (SDK_INT >= LOLLIPOP) {
+            floatingActionButton.setBackgroundTintList(colorSelected);
+        }
     }
 
+    @TargetApi(LOLLIPOP)
     private void drawNextButton() {
         floatingActionButton.setImageDrawable(svgToBitmapDrawable(getActivity(),
             R.raw.ic_chevron_right, marginSVGLarge, colorWhite));
-        floatingActionButton.setBackgroundTintList(colorTransparent);
         ViewCompat.setAlpha(floatingActionButton, .3f);
+        if (SDK_INT >= LOLLIPOP) {
+            floatingActionButton.setBackgroundTintList(colorTransparent);
+        }
     }
 }

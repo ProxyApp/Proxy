@@ -10,6 +10,7 @@ import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback;
 import com.shareyourproxy.app.UserContactActivity;
 import com.shareyourproxy.app.dialog.UserGroupsDialog;
@@ -24,13 +25,13 @@ import butterknife.OnClick;
 import static android.view.View.VISIBLE;
 import static com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.shareyourproxy.api.rx.RxQuery.queryContactGroups;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
  * Display a contacts profile and channels.
  */
 public class ContactProfileFragment extends UserProfileFragment {
+    private final RxQuery _rxQuery = RxQuery.INSTANCE;
     @Bind(R.id.fragment_user_profile_header_button)
     Button groupButton;
     @BindDimen(R.dimen.fragment_userprofile_header_contact_background_size)
@@ -104,7 +105,7 @@ public class ContactProfileFragment extends UserProfileFragment {
 
     private List<Group> getGroupEditContacts() {
         _toggleGroups.clear();
-        List<GroupToggle> list = queryContactGroups(
+        List<GroupToggle> list = _rxQuery.queryContactGroups(
             getLoggedInUser(), getContact());
         _toggleGroups.addAll(list);
         ArrayList<Group> selectedGroupsList = new ArrayList<>(list.size());

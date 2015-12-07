@@ -56,8 +56,7 @@ public abstract class CustomTypeAdapterFactory<C>
     }
 
     /**
-     * Override this to muck with {@code toSerialize} before it is written to the outgoing JSON
-     * stream.
+     * Override this to muck with {@code toSerialize} before it is written to the outgoing JSON stream.
      */
     protected void beforeWrite(C source, JsonElement toSerialize) {
     }

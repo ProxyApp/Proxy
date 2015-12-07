@@ -61,8 +61,7 @@ public class BaseRecyclerView extends RecyclerView {
     }
 
     /**
-     * Designate a view as the empty view. When the backing adapter has no data this view will be
-     * made visible and the recycler view hidden.
+     * Designate a view as the empty view. When the backing adapter has no data this view will be made visible and the recycler view hidden.
      *
      * @param emptyView the view to display when this adapter has no data
      */
@@ -75,8 +74,7 @@ public class BaseRecyclerView extends RecyclerView {
     }
 
     /**
-     * Designate a view as the loading view. When the backing adapter is loading data this view will
-     * be made visible and the recycler view hidden.
+     * Designate a view as the loading view. When the backing adapter is loading data this view will be made visible and the recycler view hidden.
      *
      * @param loadingView the view to display when this adapter is loading data
      */

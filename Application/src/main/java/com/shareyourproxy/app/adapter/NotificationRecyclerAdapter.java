@@ -37,7 +37,7 @@ public abstract class NotificationRecyclerAdapter<T> extends SortedRecyclerAdapt
         _isHeaderVisible = showHeader;
         _isFooterVisible = showFooter;
         _prefs = sharedPreferences;
-        RxBusDriver.getInstance().toObservable().subscribe(getBusObserver());
+        RxBusDriver.INSTANCE.toObservable().subscribe(getBusObserver());
     }
 
     public JustObserver<Object> getBusObserver() {

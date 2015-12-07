@@ -1,10 +1,11 @@
 package com.shareyourproxy.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
@@ -30,7 +30,8 @@ import com.shareyourproxy.api.rx.command.AddUserCommand;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
-import com.shareyourproxy.app.fragment.MainFragment;
+import com.shareyourproxy.app.fragment.AggregateFeedFragment;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,12 +43,14 @@ import butterknife.OnClick;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
+import static android.util.Log.getStackTraceString;
+import static com.google.android.gms.common.GooglePlayServicesUtil.getErrorDialog;
+import static com.google.android.gms.common.GooglePlayServicesUtil.isUserRecoverableError;
 import static com.shareyourproxy.BuildConfig.VERSION_CODE;
 import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchIntroductionActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 import static com.shareyourproxy.api.RestClient.getHerokuUserervice;
-import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 
@@ -56,7 +59,8 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class LoginActivity extends GoogleApiActivity {
 
-    private final RxGoogleAnalytics _analytics = RxGoogleAnalytics.getInstance(this);
+    private final RxGoogleAnalytics _analytics = new RxGoogleAnalytics(this);
+    private final RxHelper _rxHelper = RxHelper.INSTANCE;
     // View
     @Bind(R.id.activity_login_title)
     TextView proxyLogo;
@@ -71,6 +75,7 @@ public class LoginActivity extends GoogleApiActivity {
     private int _signInError;
     private CompositeSubscription _subscriptions;
     private GoogleApiClient _googleApiClient;
+    ;
 
     /**
      * Sign in click listener.
@@ -79,6 +84,8 @@ public class LoginActivity extends GoogleApiActivity {
     protected void onClickSignIn() {
         if (!_googleApiClient.isConnecting()) {
             _googleApiClient.connect();
+        } else if (_googleApiClient.isConnected()) {
+            getAccountsPermission();
         }
     }
 
@@ -93,6 +100,19 @@ public class LoginActivity extends GoogleApiActivity {
     private void initialize() {
         initializeValues();
         drawLogo();
+    }
+
+    private void getAccountsPermission() {
+        RxPermissions.getInstance(this)
+            .request(Manifest.permission.GET_ACCOUNTS)
+            .subscribe(new JustObserver<Boolean>() {
+                @Override
+                public void next(Boolean bool) {
+                    if (bool) {
+                        loginToFirebaseSubscription(LoginActivity.this);
+                    }
+                }
+            });
     }
 
     private void initializeValues() {
@@ -122,9 +142,8 @@ public class LoginActivity extends GoogleApiActivity {
         return new JustObserver<Object>() {
             @Override
             public void next(Object event) {
-                if (event instanceof SyncAllContactsSuccessEvent) {
-                    login();
-                } else if (event instanceof SyncAllContactsErrorEvent) {
+                if (event instanceof SyncAllContactsSuccessEvent ||
+                    event instanceof SyncAllContactsErrorEvent) {
                     login();
                 }
             }
@@ -141,7 +160,7 @@ public class LoginActivity extends GoogleApiActivity {
         if (getSharedPreferences().getBoolean(KEY_PLAY_INTRODUCTION, true)) {
             launchIntroductionActivity(this);
         } else {
-            launchMainActivity(this, MainFragment.ARG_SELECT_PROFILE_TAB, false, null);
+            launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_PROFILE_TAB, false, null);
         }
         finish();
     }
@@ -163,7 +182,7 @@ public class LoginActivity extends GoogleApiActivity {
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        loginToFirebase(this);
+        getAccountsPermission();
     }
 
     /**
@@ -174,9 +193,10 @@ public class LoginActivity extends GoogleApiActivity {
         signInButton.setEnabled(false);
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
         if (currentUser != null) {
-            String userId = GOOGLE_UID_PREFIX + currentUser.getId();
+            String userId = new StringBuilder(GOOGLE_UID_PREFIX)
+                .append(currentUser.getId()).toString();
             RestClient.getUserService(this).getUser(userId)
-                .compose(RxHelper.<User>subThreadObserveMain())
+                .compose(_rxHelper.<User>observeMain())
                 .subscribe(getUserObserver(this));
         } else {
             showErrorDialog(this, getString(R.string.login_error_retrieving_user));
@@ -189,16 +209,17 @@ public class LoginActivity extends GoogleApiActivity {
 
     private JustObserver<User> getUserObserver(final Activity context) {
         return new JustObserver<User>() {
+
             @Override
             public void next(User user) {
                 if (user == null) {
                     addUserToDatabase(createUserFromGoogle());
                 } else {
-                    updateRealmUser(context, user);
+                    _rxHelper.updateRealmUser(context, user);
                     setLoggedInUser(user);
                     RestClient.getUserService(LoginActivity.this)
                         .updateUserVersion(user.id(), BuildConfig.VERSION_CODE)
-                        .compose(RxHelper.<String>subThreadObserveMain()).subscribe();
+                        .compose(_rxHelper.<String>observeMain()).subscribe();
                     getRxBus().post(new SyncContactsCommand(user));
                 }
             }
@@ -220,21 +241,22 @@ public class LoginActivity extends GoogleApiActivity {
     private User createUserFromGoogle() {
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(_googleApiClient);
-        String userId = GOOGLE_UID_PREFIX + currentUser.getId();
+        String userId = new StringBuilder(GOOGLE_UID_PREFIX)
+            .append(currentUser.getId()).toString();
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
         String email = Plus.AccountApi.getAccountName(_googleApiClient);
         String profileURL = getLargeImageURL(currentUser);
         Person.Cover cover = currentUser.getCover();
         String coverURL = null;
-        Timber.e("has cover:" + currentUser.hasCover());
+        Timber.e("has cover: %1$s", currentUser.hasCover());
         if (cover != null) {
             CoverPhoto coverPhoto = cover.getCoverPhoto();
             if (coverPhoto != null) {
                 coverURL = coverPhoto.getUrl();
             }
         }
-        //Create a new {@link User} with empty groups, contacts, and channels
+        //Create a new User with empty groups, contacts, and channels
         return User.create(userId, firstName, lastName, email, profileURL, coverURL,
             null, getDefaultGroups(), null, VERSION_CODE);
     }
@@ -261,7 +283,7 @@ public class LoginActivity extends GoogleApiActivity {
             groupIds.add(group.id());
         }
         getHerokuUserervice(this).putSharedLinks(groupIds, newUser.id())
-            .compose(RxHelper.subThreadObserveMain()).subscribe();
+            .compose(_rxHelper.observeMain()).subscribe();
         getRxBus().post(new AddUserCommand(newUser));
         getRxBus().post(new SyncContactsCommand(newUser));
         _analytics.userAdded(newUser);
@@ -278,15 +300,14 @@ public class LoginActivity extends GoogleApiActivity {
     }
 
     /**
-     * onConnectionFailed is called when our Activity could not connect to Google Play services.
-     * onConnectionFailed indicates that the user needs to select an account, grant permissions or
-     * resolve an onError in order to sign in.
+     * onConnectionFailed is called when our Activity could not connect to Google Play services. onConnectionFailed indicates that the user needs to select an
+     * account, grant permissions or resolve an onError in order to sign in.
      */
     @Override
     public void onConnectionFailed(ConnectionResult result) {
         // Refer to the javadoc for ConnectionResult to see what onError codes might
         // be returned in onConnectionFailed.
-        Timber.i("onConnectionFailed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+        Timber.i("onConnectionFailed, Error Code = %1$s", result.getErrorCode());
 
         if (result.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
             // An API requested for GoogleApiClient is not available. The device's current
@@ -314,10 +335,9 @@ public class LoginActivity extends GoogleApiActivity {
     }
 
     /**
-     * Starts an appropriate intent or dialog for user interaction to resolve the current onError
-     * preventing the user from being signed in.  This could be a dialog allowing the user to select
-     * an account, an activity allowing the user to consent to the permissions being requested by
-     * your app, a setting to enable device networking, etc.
+     * Starts an appropriate intent or dialog for user interaction to resolve the current onError preventing the user from being signed in.  This could be a
+     * dialog allowing the user to select an account, an activity allowing the user to consent to the permissions being requested by your app, a setting to
+     * enable device networking, etc.
      */
     private void resolveSignInError() {
         if (_signInIntent != null) {
@@ -325,7 +345,6 @@ public class LoginActivity extends GoogleApiActivity {
             // resolve an onError.  For example if the user needs to
             // select an account to sign in with, or if they need to consent
             // to the permissions your app is requesting.
-
             try {
                 // Send the pending intent that we stored on the most recent
                 // OnConnectionFailed callback.  This will allow the user to
@@ -333,8 +352,8 @@ public class LoginActivity extends GoogleApiActivity {
                 // Google Play services.
                 startIntentSenderForResult(_signInIntent.getIntentSender(),
                     REQUESTCODE_SIGN_IN, null, 0, 0, 0);
-            } catch (IntentSender.SendIntentException e) {
-                Timber.i("Sign in intent could not be sent: " + e.getLocalizedMessage());
+            } catch (SendIntentException e) {
+                Timber.i("Sign in intent could not be sent: %1$s", getStackTraceString(e));
                 // The intent was canceled before it was sent.  Attempt to connect to
                 // get an updated ConnectionResult.
                 _googleApiClient.connect();
@@ -344,14 +363,8 @@ public class LoginActivity extends GoogleApiActivity {
             // onError types, so we show the default Google Play services onError
             // dialog which may still start an intent on our behalf if the
             // user can resolve the issue.
-            if (GooglePlayServicesUtil.isUserRecoverableError(_signInError)) {
-                GooglePlayServicesUtil.getErrorDialog(_signInError, this, REQUESTCODE_SIGN_IN,
-                    new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            Timber.e("Google Play services resolution cancelled");
-                        }
-                    });
+            if (isUserRecoverableError(_signInError)) {
+                getErrorDialog(_signInError, this, REQUESTCODE_SIGN_IN, getOnCancelListener());
             } else {
                 showErrorDialog(this, getString(R.string.login_error_failed_connection));
                 signInButton.setEnabled(true);
@@ -362,9 +375,17 @@ public class LoginActivity extends GoogleApiActivity {
         }
     }
 
+    private DialogInterface.OnCancelListener getOnCancelListener() {
+        return new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                Timber.e("Google Play services resolution cancelled");
+            }
+        };
+    }
+
     @Override
-    protected void onActivityResult(
-        int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (!_googleApiClient.isConnecting()) {
             _googleApiClient.connect();
         }

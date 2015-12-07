@@ -12,8 +12,8 @@ import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent;
+import com.shareyourproxy.app.fragment.AggregateFeedFragment;
 import com.shareyourproxy.app.fragment.EditGroupChannelsFragment;
-import com.shareyourproxy.app.fragment.MainFragment;
 
 import java.util.ArrayList;
 
@@ -124,7 +124,7 @@ public class EditGroupChannelsActivity extends BaseActivity {
 
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
         updateUserContacts(event);
-        launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
+        launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_GROUP_TAB, true, event.group);
         onBackPressed();
     }
 

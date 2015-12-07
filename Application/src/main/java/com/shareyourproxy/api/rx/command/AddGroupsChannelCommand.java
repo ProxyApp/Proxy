@@ -8,12 +8,10 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxGroupChannelSync.addUserGroupsChannel;
 
 /**
  * Created by Evan on 7/8/15.
@@ -59,7 +57,7 @@ public class AddGroupsChannelCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return addUserGroupsChannel(service, user, groups, channel);
+        return RxGroupChannelSync.INSTANCE.addUserGroupsChannel(service, user, groups, channel);
     }
 
     @Override

@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/common_margin_tiny"
         android:layout_marginBottom="@dimen/common_margin_xtiny"
+        android:layout_marginStart="@dimen/common_margin_tiny"
         android:layout_marginTop="@dimen/common_margin_xtiny"
         android:contentDescription="@string/user_image"/>
 

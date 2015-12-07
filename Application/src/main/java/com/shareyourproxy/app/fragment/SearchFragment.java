@@ -21,6 +21,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.RxTextWatcherSubject;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
@@ -52,8 +53,6 @@ import static android.support.v4.graphics.drawable.DrawableCompat.setTintMode;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
-import static com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers;
 import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY;
 import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
@@ -66,6 +65,7 @@ import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
  */
 public class SearchFragment extends BaseFragment implements ItemClickListener {
 
+    public RxQuery rxQuery = RxQuery.INSTANCE;
     @Bind(R.id.fragment_search_bar_container)
     LinearLayout searchBarContainer;
     @Bind(R.id.fragment_search_back_button)
@@ -94,7 +94,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     ColorStateList colorBlue;
     private SearchUserAdapter _adapter;
     private CompositeSubscription _subscriptions;
-    private RxTextWatcherSubject _textWatcherSubject;
+    private RxTextWatcherSubject _textWatcherSubject = RxTextWatcherSubject.INSTANCE;
+    private RxHelper rxHelper = RxHelper.INSTANCE;
     private boolean _needsUpdate = true;
     private int _userCount;
 
@@ -167,7 +168,6 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      */
     private void initialize() {
         editText.setRxBus(getRxBus());
-        _textWatcherSubject = RxTextWatcherSubject.getInstance();
         imageViewBackButton.setImageDrawable(getBackArrowDrawable());
         imageViewClearButton.setImageDrawable(getClearSearchDrawable());
         initializeRecyclerView();
@@ -233,7 +233,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = checkCompositeButton(_subscriptions);
+        _subscriptions = rxHelper.checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(onNextEvent()));
 
@@ -241,7 +241,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         if (loggedInUser != null) {
             _subscriptions.add(
                 _textWatcherSubject.toObserverable()
-                    .compose(RxHelper.<String>subThreadObserveMain())
+                    .compose(rxHelper.<String>observeMain())
                     .subscribe(getUsersObserver(loggedInUser)));
             //search entered text
             _textWatcherSubject.post(editText.getText().toString().trim());
@@ -251,13 +251,14 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
 
     public JustObserver<String> getUsersObserver(final User loggedInUser) {
         return new JustObserver<String>() {
+
             @Override
             public void next(String queryName) {
                 String trimmedName = queryName.trim();
                 if (!trimmedName.isEmpty()) {
                     _adapter.setQueryString(trimmedName);
-                    searchMatchingUsers(getActivity(), trimmedName, loggedInUser.id())
-                        .compose(RxHelper.<HashMap<String, User>>subThreadObserveMain())
+                    rxQuery.searchMatchingUsers(getActivity(), trimmedName, loggedInUser.id())
+                        .compose(rxHelper.<HashMap<String, User>>observeMain())
                         .subscribe(getSearchObserver());
                 }
             }

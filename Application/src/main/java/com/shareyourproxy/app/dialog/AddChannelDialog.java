@@ -70,8 +70,7 @@ public class AddChannelDialog extends BaseDialogFragment {
     String _required;
     private ChannelType _channelType;
     /**
-     * EditorActionListener that detects when the software keyboard's done or enter button is
-     * pressed.
+     * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private final OnEditorActionListener _onEditorActionListener =
         new OnEditorActionListener() {

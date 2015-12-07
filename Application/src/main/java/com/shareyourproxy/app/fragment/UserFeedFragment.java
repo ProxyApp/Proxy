@@ -20,6 +20,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxActivityFeedSync;
+import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.eventcallback.ActivityFeedDownloadedEvent;
 import com.shareyourproxy.app.adapter.ActivityFeedAdapter;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
@@ -43,7 +44,6 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -72,6 +72,7 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     private ActivityFeedAdapter _adapter;
     private TwitterLoginButton twitterLoginButton;
     private int _lastClickedAuthItem;
+    private RxHelper _rxHelper = RxHelper.INSTANCE;
 
     /**
      * Constructor.
@@ -106,8 +107,8 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     }
 
     public void getUserFeed(TwitterSession session) {
-        _subscriptions = checkCompositeButton(_subscriptions);
-        _subscriptions.add(RxActivityFeedSync.getInstance()
+        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
+        _subscriptions.add(RxActivityFeedSync.INSTANCE
             .getChannelFeed(getActivity(), session, _userContact.channels())
             .subscribe(ActivityFeedObserver()));
     }
@@ -161,7 +162,7 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = checkCompositeButton(_subscriptions);
+        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
     }
 
     @Override

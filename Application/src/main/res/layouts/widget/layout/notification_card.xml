@@ -9,7 +9,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/common_margin_tiny"
-            android:paddingEnd="@dimen/common_margin_medium"
+            android:paddingEnd="@dimen/common_margin_tiny"
+            android:paddingStart="@dimen/common_margin_tiny"
             android:paddingTop="@dimen/common_margin_tiny">
 
             <ImageView
@@ -17,7 +18,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="@dimen/common_margin_xxtiny"/>
+                android:layout_marginTop="@dimen/common_margin_xxtiny"
+                android:contentDescription="@string/about"/>
 
             <TextView
                 android:id="@+id/widget_notification_content_title"
@@ -27,7 +29,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/widget_notification_imageview"
                 android:paddingEnd="@dimen/common_margin_tiny"
-                android:paddingStart="@dimen/common_margin_tiny"/>
+                android:paddingStart="0dp"/>
 
             <TextView
                 android:id="@+id/widget_notification_content_message"
@@ -39,7 +41,7 @@
                 android:layout_marginTop="@dimen/common_margin_xxtiny"
                 android:layout_toStartOf="@id/widget_notification_imageview"
                 android:paddingEnd="@dimen/common_margin_tiny"
-                android:paddingStart="@dimen/common_margin_tiny"/>
+                android:paddingStart="0dp"/>
 
             <TextView
                 android:id="@+id/widget_notification_action_text"
@@ -49,7 +51,6 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true"
                 android:layout_below="@id/widget_notification_content_message"
-                android:layout_marginStart="@dimen/common_margin_tiny"
                 android:paddingTop="@dimen/common_margin_tiny"
                 android:text="@string/send_invite"/>
 
@@ -60,7 +61,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_below="@id/widget_notification_content_message"
-                android:layout_marginStart="@dimen/common_margin_tiny"
                 android:layout_toEndOf="@id/widget_notification_action_text"
                 android:paddingTop="@dimen/common_margin_tiny"
                 android:text="@string/dismiss"/>

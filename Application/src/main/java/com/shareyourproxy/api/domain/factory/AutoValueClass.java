@@ -9,16 +9,14 @@ import java.lang.annotation.Target;
 /**
  * Marks an {@link @AutoValue}-annotated type for proper Gson serialization.
  * <p/>
- * This annotation is needed because the {@linkplain Retention retention} of {@code @AutoValue} does
- * not allow reflection at runtime.
+ * This annotation is needed because the {@linkplain Retention retention} of {@code @AutoValue} does not allow reflection at runtime.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface AutoValueClass {
 
     /**
-     * A reference to the AutoValue-generated class (e.g. AutoValue_MyClass). This is necessary to
-     * handle obfuscation of the class names.
+     * A reference to the AutoValue-generated class (e.g. AutoValue_MyClass). This is necessary to handle obfuscation of the class names.
      */
     Class autoValueClass();
 }

@@ -1,1 +1,79 @@
-{"project_info":{"project_id":"b-a-broracus-martini-17","project_number":"881576159325","name":"Proxy"},"client":[{"client_info":{"mobilesdk_app_id":"1:881576159325:android:4c74e0d09ee77476","client_id":"android:com.shareyourproxy","client_type":1,"android_client_info":{"package_name":"com.shareyourproxy"}},"oauth_client":[{"client_id":"881576159325-96sig76kci7h62edkhdhvbvaebnd6kdl.apps.googleusercontent.com","client_type":1,"android_info":{"package_name":"com.shareyourproxy","certificate_hash":"C0D7DF87189F3D51507455BE185266F99E420AC2"}},{"client_id":"881576159325-3umgubj3sv4aj12g27gs8gpe10a36u3j.apps.googleusercontent.com","client_type":1,"android_info":{"package_name":"com.shareyourproxy","certificate_hash":"E086E2494490A9DEC8C3B1AC2F2372042EE27B76"}},{"client_id":"881576159325-hvbq2pe8c1pg8fvhgfou194rq31ig8bh.apps.googleusercontent.com","client_type":1,"android_info":{"package_name":"com.shareyourproxy","certificate_hash":"E1F89F40AA25EE41C74151A334D5EF88F086D9AF"}}],"api_key":[],"services":{"analytics_service":{"status":2,"analytics_property":{"tracking_id":"UA-61743303-1"}},"cloud_messaging_service":{"status":2,"apns_config":[]},"appinvite_service":{"status":2,"other_platform_oauth_client":[{"client_id":"881576159325-fq9g99iupbot4lsrj9gi2q3ueg26n2uh.apps.googleusercontent.com","client_type":2,"ios_info":{"bundle_id":"com.shareyourproxy.Proxy","app_store_id":""}}]},"google_signin_service":{"status":2},"ads_service":{"status":1}}}],"client_info":[],"ARTIFACT_VERSION":"1"}
+{
+  "project_info": {
+    "project_id": "b-a-broracus-martini-17",
+    "project_number": "881576159325",
+    "name": "Proxy"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881576159325:android:4c74e0d09ee77476",
+        "client_id": "android:com.shareyourproxy",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.shareyourproxy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "881576159325-96sig76kci7h62edkhdhvbvaebnd6kdl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shareyourproxy",
+            "certificate_hash": "C0D7DF87189F3D51507455BE185266F99E420AC2"
+          }
+        },
+        {
+          "client_id": "881576159325-3umgubj3sv4aj12g27gs8gpe10a36u3j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shareyourproxy",
+            "certificate_hash": "E086E2494490A9DEC8C3B1AC2F2372042EE27B76"
+          }
+        },
+        {
+          "client_id": "881576159325-hvbq2pe8c1pg8fvhgfou194rq31ig8bh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shareyourproxy",
+            "certificate_hash": "E1F89F40AA25EE41C74151A334D5EF88F086D9AF"
+          }
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-61743303-1"
+          }
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "881576159325-fq9g99iupbot4lsrj9gi2q3ueg26n2uh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shareyourproxy.Proxy",
+                "app_store_id": ""
+              }
+            }
+          ]
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

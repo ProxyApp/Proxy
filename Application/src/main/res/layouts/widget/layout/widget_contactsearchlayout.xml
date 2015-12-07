@@ -9,10 +9,10 @@
         android:layout_gravity="center_vertical"
         android:background="@drawable/ripple"
         android:contentDescription="@string/menu"
+        android:paddingBottom="@dimen/common_margin_xxtiny"
+        android:paddingEnd="@dimen/common_margin_tiny"
         android:paddingStart="@dimen/common_margin_tiny"
         android:paddingTop="@dimen/common_margin_xxtiny"
-        android:paddingRight="@dimen/common_margin_tiny"
-        android:paddingBottom="@dimen/common_margin_xxtiny"
         android:transitionName="@string/hamburger"/>
 
     <TextView

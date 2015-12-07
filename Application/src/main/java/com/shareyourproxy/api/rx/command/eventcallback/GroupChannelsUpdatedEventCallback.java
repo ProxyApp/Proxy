@@ -20,7 +20,7 @@ public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
             public GroupChannelsUpdatedEventCallback createFromParcel(Parcel in) {
                 return new GroupChannelsUpdatedEventCallback(
                     (User) in.readValue(CL), (Group) in.readValue(CL), (Group) in.readValue(CL),
-                    (HashSet<String>) in.readValue(CL),(GroupEditType) in.readValue(CL));
+                    (HashSet<String>) in.readValue(CL), (GroupEditType) in.readValue(CL));
             }
 
             @Override

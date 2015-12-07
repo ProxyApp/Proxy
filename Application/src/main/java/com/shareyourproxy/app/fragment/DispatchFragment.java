@@ -10,7 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.app.MainActivity;
+import com.shareyourproxy.app.AggregateFeedActivity;
 
 import butterknife.Bind;
 import butterknife.BindColor;
@@ -23,8 +23,7 @@ import static android.support.v4.graphics.drawable.DrawableCompat.setTintMode;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
- * Handle dispatching a {@link com.shareyourproxy.app.LoginActivity} or a {@link MainActivity} base
- * off the current user.
+ * Handle dispatching a {@link com.shareyourproxy.app.LoginActivity} or a {@link AggregateFeedActivity} base off the current user.
  */
 public class DispatchFragment extends BaseFragment {
     @BindDimen(R.dimen.common_svg_ultra)

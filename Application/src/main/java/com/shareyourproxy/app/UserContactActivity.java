@@ -4,10 +4,9 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.MenuItem;
 
-import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.app.fragment.AggregateFeedFragment;
 import com.shareyourproxy.app.fragment.ContactProfileFragment;
-import com.shareyourproxy.app.fragment.MainFragment;
 
 import timber.log.Timber;
 
@@ -23,21 +22,20 @@ public class UserContactActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
         ActivityCompat.finishAfterTransition(this);
-        //if we launched from a notification go back to the MainActivity explicitly
+        //if we launched from a notification go back to the AggregateFeedActivity explicitly
         if (this.isTaskRoot()) {
-            launchMainActivity(this, MainFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+            launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_CONTACTS_TAB, false, null);
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
         preventStatusBarFlash(this);
         if (savedInstanceState == null) {
             User user = getUserExtra();
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_user_profile_container,
+                .replace(android.R.id.content,
                     ContactProfileFragment.newInstance(user, getLoggedInUser().id())).commit();
         }
     }

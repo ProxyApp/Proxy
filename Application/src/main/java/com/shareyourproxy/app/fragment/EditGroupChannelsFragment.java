@@ -29,8 +29,7 @@ import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.app.adapter.EditGroupChannelAdapter.TYPE_LIST_DELETE_FOOTER;
 
 /**
- * Display a list of {@link Group} {@link Channel}s and whether they are in our out of the selected
- * groups permissions.
+ * Display a list of {@link Group} {@link Channel}s and whether they are in our out of the selected groups permissions.
  */
 public class EditGroupChannelsFragment extends BaseFragment implements ItemClickListener {
 
