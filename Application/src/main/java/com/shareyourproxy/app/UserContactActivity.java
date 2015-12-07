@@ -1,17 +1,13 @@
 package com.shareyourproxy.app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.view.MenuItem;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.fragment.ContactProfileFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
-
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -63,18 +59,5 @@ public class UserContactActivity extends BaseActivity {
                 Timber.e("Option item selected is unknown");
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null && fragments.size() > 0) {
-            for (Fragment fragment : fragments) {
-                if (fragment != null) {
-                    fragment.onActivityResult(requestCode, resultCode, data);
-                }
-            }
-        }
     }
 }

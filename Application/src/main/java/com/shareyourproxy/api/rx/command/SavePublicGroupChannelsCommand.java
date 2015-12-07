@@ -46,7 +46,7 @@ public class SavePublicGroupChannelsCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return updatePublicGroupChannels(service, user, channels);
     }
 

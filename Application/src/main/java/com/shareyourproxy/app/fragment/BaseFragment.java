@@ -20,8 +20,6 @@ import com.shareyourproxy.app.BaseActivity;
 
 import java.util.List;
 
-import rx.subscriptions.CompositeSubscription;
-
 import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
 
 /**
@@ -57,7 +55,8 @@ public abstract class BaseFragment extends Fragment {
     /**
      * Initialize the color sequence of the swipe refresh view.
      */
-    public void initializeSwipeRefresh(SwipeRefreshLayout swipe, SwipeRefreshLayout
+    public void initializeSwipeRefresh(
+        SwipeRefreshLayout swipe, SwipeRefreshLayout
         .OnRefreshListener listener) {
         swipe.setOnRefreshListener(listener);
         swipe.setColorSchemeResources(
@@ -122,16 +121,14 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
+        ProxyApplication.watchForLeak(this);
     }
 
-    CompositeSubscription checkCompositeButton(CompositeSubscription sub) {
-        if (sub == null) {
-            return new CompositeSubscription();
-        } else {
-            return sub;
-        }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     /**

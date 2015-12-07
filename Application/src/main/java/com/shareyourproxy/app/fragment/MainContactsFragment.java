@@ -19,12 +19,13 @@ import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.NotificationCardActionEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 import com.shareyourproxy.api.rx.event.UserSelectedEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.UserContactsAdapter;
@@ -38,7 +39,6 @@ import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchInviteFriendIntent;
@@ -158,25 +158,29 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof UserSelectedEvent) {
-                        onUserSelected((UserSelectedEvent) event);
-                    } else if (event instanceof LoggedInUserUpdatedEventCallback) {
-                        userUpdated((LoggedInUserUpdatedEventCallback) event);
-                    } else if (event instanceof SyncContactsCommand) {
-                        swipeRefreshLayout.setRefreshing(true);
-                    } else if (event instanceof SyncAllUsersSuccessEvent) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    } else if (event instanceof SyncAllUsersErrorEvent) {
-                        swipeRefreshLayout.setRefreshing(false);
-                    } else if (event instanceof NotificationCardActionEvent) {
-                        launchInviteFriendIntent(getActivity());
-                    }
-                }
-            }));
+            .subscribe(getBusObserver()));
         checkRefresh(getLoggedInUser());
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void next(Object event) {
+                if (event instanceof UserSelectedEvent) {
+                    onUserSelected((UserSelectedEvent) event);
+                } else if (event instanceof LoggedInUserUpdatedEventCallback) {
+                    userUpdated((LoggedInUserUpdatedEventCallback) event);
+                } else if (event instanceof SyncContactsCommand) {
+                    swipeRefreshLayout.setRefreshing(true);
+                } else if (event instanceof SyncAllContactsSuccessEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (event instanceof SyncAllContactsErrorEvent) {
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (event instanceof NotificationCardActionEvent) {
+                    launchInviteFriendIntent(getActivity());
+                }
+            }
+        };
     }
 
     /**

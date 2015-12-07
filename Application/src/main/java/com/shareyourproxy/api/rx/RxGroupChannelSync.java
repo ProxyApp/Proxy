@@ -21,7 +21,6 @@ import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -42,12 +41,12 @@ public class RxGroupChannelSync {
     private RxGroupChannelSync() {
     }
 
-    public static List<EventCallback> addUserGroupsChannel(
+    public static UserGroupAddedEventCallback addUserGroupsChannel(
         final Context context, final User user,
         final ArrayList<GroupToggle> groups, final Channel channel) {
         return Observable.create(addChannelToSelectedGroups(groups, channel))
             .map(zipAndSaveGroups(context, user))
-            .toList().toBlocking().single();
+            .toBlocking().single();
     }
 
     public static Observable.OnSubscribe<HashMap<String, Group>> addChannelToSelectedGroups(
@@ -73,19 +72,19 @@ public class RxGroupChannelSync {
         };
     }
 
-    public static List<EventCallback> updateGroupChannels(
+    public static EventCallback updateGroupChannels(
         Context context, User user,
         String newTitle, Group oldGroup, HashSet<String> channels,
         GroupEditType groupEditType) {
         return Observable.zip(
             saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
             saveFirebaseGroupChannels(context, user.id(), newTitle, oldGroup, channels),
-            zipAddGroupChannels(user, channels, groupEditType))
+            zipAddGroupChannels(user, channels,oldGroup, groupEditType))
             .map(saveSharedLink(context))
-            .toList().toBlocking().single();
+            .toBlocking().single();
     }
 
-    public static List<EventCallback> updatePublicGroupChannels(
+    public static EventCallback updatePublicGroupChannels(
         Context context, User user, ArrayList<ChannelToggle> channels) {
         HashMap<String, Channel> newChannels = new HashMap<>(channels.size());
         for (int i = 0; i < channels.size(); i++) {
@@ -99,8 +98,7 @@ public class RxGroupChannelSync {
         return Observable.zip(
             saveRealmPublicGroupChannels(context, user, newChannels),
             saveFirebasePublicChannels(context, user.id(), newChannels),
-            zipAddPublicChannels())
-            .toList().toBlocking().single();
+            zipAddPublicChannels()).toBlocking().single();
     }
 
     public static HashSet<String> getSelectedChannels(
@@ -108,11 +106,11 @@ public class RxGroupChannelSync {
         return Observable.just(channels).map(getSelectedChannels()).toBlocking().single();
     }
 
-    private static Func1<HashMap<String, Group>, EventCallback> zipAndSaveGroups(
+    private static Func1<HashMap<String, Group>, UserGroupAddedEventCallback> zipAndSaveGroups(
         final Context context, final User user) {
-        return new Func1<HashMap<String, Group>, EventCallback>() {
+        return new Func1<HashMap<String, Group>, UserGroupAddedEventCallback>() {
             @Override
-            public EventCallback call(HashMap<String, Group> newGroups) {
+            public UserGroupAddedEventCallback call(HashMap<String, Group> newGroups) {
                 return Observable.zip(
                     saveRealmGroupChannels(context, user, newGroups),
                     saveFirebaseUserGroups(context, user.id(), newGroups),
@@ -121,8 +119,8 @@ public class RxGroupChannelSync {
         };
     }
 
-    private static Func2<User, Group, EventCallback> zipAddGroupsChannel() {
-        return new Func2<User, Group, EventCallback>() {
+    private static Func2<User, Group, UserGroupAddedEventCallback> zipAddGroupsChannel() {
+        return new Func2<User, Group, UserGroupAddedEventCallback>() {
             @Override
             public UserGroupAddedEventCallback call(User user, Group group) {
                 return new UserGroupAddedEventCallback(user, group);
@@ -244,11 +242,11 @@ public class RxGroupChannelSync {
     }
 
     private static Func2<Group, Group, GroupChannelsUpdatedEventCallback> zipAddGroupChannels(
-        final User user, final HashSet<String> channels, final GroupEditType groupEditType) {
+        final User user, final HashSet<String> channels, final Group oldGroup, final GroupEditType groupEditType) {
         return new Func2<Group, Group, GroupChannelsUpdatedEventCallback>() {
             @Override
             public GroupChannelsUpdatedEventCallback call(Group group, Group group2) {
-                return new GroupChannelsUpdatedEventCallback(user, group, channels, groupEditType);
+                return new GroupChannelsUpdatedEventCallback(user, oldGroup, group, channels, groupEditType);
             }
         };
     }

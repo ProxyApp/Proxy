@@ -9,8 +9,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 
-import java.util.List;
-
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -32,24 +30,24 @@ public class RxUserChannelSync {
     private RxUserChannelSync() {
     }
 
-    public static List<EventCallback> saveUserChannel(
+    public static UserChannelAddedEventCallback saveUserChannel(
         Context context, User oldUser, Channel oldChannel, Channel newChannel) {
         return Observable.just(oldUser)
             .map(putUserChannel(newChannel))
             .map(addRealmUser(context))
             .map(saveChannelToFirebase(context, newChannel))
             .map(userChannelAddedEventCallback(oldChannel, newChannel))
-            .toList().toBlocking().single();
+            .toBlocking().single();
     }
 
-    public static List<EventCallback> deleteChannel(
+    public static EventCallback deleteChannel(
         Context context, User oldUser, Channel channel, int position) {
         return Observable.just(oldUser)
             .map(removeUserChannel(channel))
             .map(addRealmUser(context))
             .map(deleteChannelFromFirebase(context, channel))
             .map(userChannelDeletedEventCallback(channel, position))
-            .toList().toBlocking().single();
+            .toBlocking().single();
     }
 
     private static Func1<User, User> addRealmUser(final Context context) {
@@ -97,11 +95,11 @@ public class RxUserChannelSync {
         };
     }
 
-    private static Func1<User, EventCallback> userChannelAddedEventCallback(
+    private static Func1<User, UserChannelAddedEventCallback> userChannelAddedEventCallback(
         final Channel oldChannel, final Channel newChannel) {
-        return new Func1<User, EventCallback>() {
+        return new Func1<User, UserChannelAddedEventCallback>() {
             @Override
-            public EventCallback call(User user) {
+            public UserChannelAddedEventCallback call(User user) {
                 return new UserChannelAddedEventCallback(user, oldChannel, newChannel);
             }
         };

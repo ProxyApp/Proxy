@@ -5,7 +5,7 @@ import android.content.Context;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.shareyourproxy.R;
+import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
@@ -27,7 +27,7 @@ public class RxGoogleAnalytics {
      */
     private RxGoogleAnalytics(Context context) {
         analytics = GoogleAnalytics.getInstance(context);
-        tracker = analytics.newTracker(R.xml.global_tracker);
+        tracker = analytics.newTracker(BuildConfig.GA_TRACKER_ID);
     }
 
     public static RxGoogleAnalytics getInstance(Context context) {
@@ -61,7 +61,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription channelAdded(final ChannelType channelType) {
@@ -79,7 +79,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription channelEdited(final ChannelType oldChannelType) {
@@ -97,7 +97,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription userProfileViewed(final User user) {
@@ -115,7 +115,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription contactProfileViewed(final User user) {
@@ -133,7 +133,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription userContactAdded(final User user) {
@@ -151,7 +151,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription userContactRemoved(final User user) {
@@ -169,7 +169,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription shareLinkGenerated(final Group group) {
@@ -187,7 +187,7 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 
     public Subscription contactGroupButtonHit() {
@@ -205,6 +205,6 @@ public class RxGoogleAnalytics {
                     singleSubscriber.onError(e);
                 }
             }
-        }).compose(RxHelper.<Boolean>applySingleSchedulers()).subscribe();
+        }).compose(RxHelper.<Boolean>subThreadObserveMainSingle()).subscribe();
     }
 }

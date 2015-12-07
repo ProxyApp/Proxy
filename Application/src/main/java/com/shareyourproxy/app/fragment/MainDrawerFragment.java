@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent;
 import com.shareyourproxy.app.MainActivity;
@@ -19,14 +20,13 @@ import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 
 /**
  * Drawer Fragment to handle displaying a user profile with options.
  */
-public class DrawerFragment extends BaseFragment implements ItemLongClickListener {
+public class MainDrawerFragment extends BaseFragment implements ItemLongClickListener {
 
     @Bind(R.id.fragment_drawer_recyclerview)
     BaseRecyclerView drawerRecyclerView;
@@ -36,7 +36,7 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
     /**
      * Constructor.
      */
-    public DrawerFragment() {
+    public MainDrawerFragment() {
     }
 
     /**
@@ -44,8 +44,8 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
      *
      * @return drawer fragment
      */
-    public static DrawerFragment newInstance() {
-        return new DrawerFragment();
+    public static MainDrawerFragment newInstance() {
+        return new MainDrawerFragment();
     }
 
     @Override
@@ -63,14 +63,18 @@ public class DrawerFragment extends BaseFragment implements ItemLongClickListene
         super.onResume();
         _subscriptions = new CompositeSubscription();
         _subscriptions.add(getRxBus().toObservable()
-            .subscribe(new Action1<Object>() {
-                @Override
-                public void call(Object event) {
-                    if (event instanceof LoggedInUserUpdatedEventCallback) {
-                        _adapter.updateUser(((LoggedInUserUpdatedEventCallback) event).user);
-                    }
+            .subscribe(getBusObserver()));
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
+            @Override
+            public void next(Object event) {
+                if (event instanceof LoggedInUserUpdatedEventCallback) {
+                    _adapter.updateUser(((LoggedInUserUpdatedEventCallback) event).user);
                 }
-            }));
+            }
+        };
     }
 
     @Override

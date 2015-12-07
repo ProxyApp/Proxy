@@ -43,6 +43,8 @@ import java.util.UUID;
 import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import retrofit.Response;
+import retrofit.Retrofit;
 import timber.log.Timber;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance;
@@ -177,6 +179,15 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
                 Timber.e(Log.getStackTraceString(exception));
                 ErrorDialog.newInstance(twitterLoginError,
                     twitterLoginErrorMessage).show(getActivity().getSupportFragmentManager());
+            }
+
+            @Override
+            public void onResponse(Response<TwitterSession> response, Retrofit retrofit) {
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
             }
         });
     }

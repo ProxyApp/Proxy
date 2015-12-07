@@ -8,8 +8,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCall
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
-import java.util.ArrayList;
-
 import rx.Observable;
 import rx.functions.Action1;
 
@@ -25,8 +23,13 @@ public class RxFabricAnalytics {
     }
 
     public static void logAnalytics(
-        final Answers answers, final User realmUser, ArrayList<EventCallback> events) {
-        Observable.from(events).doOnNext(new Action1<EventCallback>() {
+        final Answers answers, final User realmUser, EventCallback event) {
+        Observable.just(event).doOnNext(LogEvent(answers, realmUser)).compose(RxHelper
+            .subThreadObserveMain()).subscribe();
+    }
+
+    public static Action1<EventCallback> LogEvent(final Answers answers, final User realmUser) {
+        return new Action1<EventCallback>() {
             @Override
             public void call(EventCallback event) {
                 if (event instanceof UserChannelAddedEventCallback) {
@@ -37,7 +40,7 @@ public class RxFabricAnalytics {
                     answers.logCustom(new CustomEvent("Share Public Link"));
                 }
             }
-        }).compose(RxHelper.applySchedulers()).subscribe();
+        };
     }
 
     private static void logContactAddedEvent(Answers answers, User realmUser) {

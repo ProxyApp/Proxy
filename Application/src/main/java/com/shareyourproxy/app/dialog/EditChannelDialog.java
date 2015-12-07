@@ -77,7 +77,7 @@ public class EditChannelDialog extends BaseDialogFragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == KeyEvent.KEYCODE_ENTER
                     || actionId == KeyEvent.KEYCODE_ENDCALL) {
-                    saveChannelAndExit();
+                    updateChannelAndExit();
                     return true;
                 }
                 return false;
@@ -87,7 +87,7 @@ public class EditChannelDialog extends BaseDialogFragment {
         new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveChannelAndExit();
+                updateChannelAndExit();
             }
         };
     private String _dialogTitle;
@@ -134,16 +134,13 @@ public class EditChannelDialog extends BaseDialogFragment {
         String actionContent = editTextActionAddress.getText().toString().trim();
         String labelContent = editTextLabel.getText().toString().trim();
         if (!TextUtils.isEmpty(actionContent.trim())) {
-            Channel channel;
-            if (_channel.channelType().equals(ChannelType.Facebook)) {
-                channel = createModelInstance(_channel.id(), _channel.label(),
-                    _channel.channelType(), actionContent);
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
-            } else {
-                channel = createModelInstance(_channel.id(), labelContent, _channel.channelType(),
-                    actionContent);
-                getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
-            }
+            String id = _channel.id();
+            ChannelType channelType = _channel.channelType();
+            Channel channel = _channel.channelType().equals(ChannelType.Facebook) ?
+                createModelInstance(id, _channel.label(), channelType, actionContent) :
+                createModelInstance(id, labelContent, channelType, actionContent);
+            //post and save
+            getRxBus().post(new AddUserChannelCommand(getLoggedInUser(), channel, _channel));
         }
     }
 
@@ -194,7 +191,7 @@ public class EditChannelDialog extends BaseDialogFragment {
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(_positiveClicked);
     }
 
-    public void saveChannelAndExit() {
+    public void updateChannelAndExit() {
         boolean addressHasText = editTextActionAddress.getText().toString().trim().length() > 0;
         if (!addressHasText) {
             floatLabelAddress.setError(stringRequired);

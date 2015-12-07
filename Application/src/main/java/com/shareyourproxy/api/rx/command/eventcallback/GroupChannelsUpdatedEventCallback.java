@@ -19,7 +19,7 @@ public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
             @Override
             public GroupChannelsUpdatedEventCallback createFromParcel(Parcel in) {
                 return new GroupChannelsUpdatedEventCallback(
-                    (User) in.readValue(CL), (Group) in.readValue(CL),
+                    (User) in.readValue(CL), (Group) in.readValue(CL), (Group) in.readValue(CL),
                     (HashSet<String>) in.readValue(CL),(GroupEditType) in.readValue(CL));
             }
 
@@ -31,11 +31,13 @@ public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
     public final Group group;
     public final HashSet<String> channels;
     public final GroupEditType groupEditType;
+    public final Group oldGroup;
 
     public GroupChannelsUpdatedEventCallback(
-        User user, Group group, HashSet<String> channels, GroupEditType groupEditType) {
+        User user, Group oldGroup, Group newGroup, HashSet<String> channels, GroupEditType groupEditType) {
         super(user);
-        this.group = group;
+        this.oldGroup = oldGroup;
+        this.group = newGroup;
         this.channels = channels;
         this.groupEditType = groupEditType;
     }
@@ -47,6 +49,7 @@ public class GroupChannelsUpdatedEventCallback extends UserEventCallback {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(oldGroup);
         dest.writeValue(group);
         dest.writeValue(channels);
         dest.writeValue(groupEditType);

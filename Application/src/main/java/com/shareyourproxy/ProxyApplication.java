@@ -1,6 +1,5 @@
 package com.shareyourproxy;
 
-import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,10 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
@@ -23,31 +20,20 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.firebase.client.Firebase;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.shareyourproxy.api.CommandIntentService;
 import com.shareyourproxy.api.NotificationService;
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.domain.factory.AutoValueClass;
-import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
-import com.shareyourproxy.api.domain.model.Message;
+import com.shareyourproxy.api.RxDataManager;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.RxHelper;
-import com.shareyourproxy.api.rx.command.AddUserMessageCommand;
-import com.shareyourproxy.api.rx.command.BaseCommand;
-import com.shareyourproxy.api.rx.command.SyncContactsCommand;
-import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
-import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback;
-import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -55,26 +41,24 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.MASTER_KEY;
-import static com.shareyourproxy.api.CommandIntentService.ARG_COMMAND_CLASS;
-import static com.shareyourproxy.api.rx.RxFabricAnalytics.logAnalytics;
 import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
-import static com.shareyourproxy.api.rx.RxQuery.queryUser;
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 public class ProxyApplication extends Application {
 
+    private static RefWatcher _refWatcher;
     private final RxBusDriver _bus = RxBusDriver.getInstance();
     private User _currentUser;
     private SharedPreferences _sharedPreferences;
     private INotificationService _notificationService;
     private Subscription _notificationSubscription;
     private NotificationManager _notificationManager;
+    private RxDataManager _rxDataManager;
     /**
      * Class for interacting with the main interface of the service.
      */
@@ -86,8 +70,8 @@ public class ProxyApplication extends Application {
             // service through an IDL interface, so get a client-side
             // representation of that from the raw service object.
             _notificationService = INotificationService.Stub.asInterface(service);
-            _notificationSubscription =
-                getNotificationsObservable().subscribe(intervalObserver(_notificationService));
+            _notificationSubscription = getNotificationsObservable()
+                .subscribe(intervalObserver(ProxyApplication.this, _notificationService));
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -97,6 +81,11 @@ public class ProxyApplication extends Application {
             _notificationSubscription.unsubscribe();
         }
     };
+
+    public static void watchForLeak(Object object) {
+        if (_refWatcher != null)
+            _refWatcher.watch(object);
+    }
 
     @Override
     public void onCreate() {
@@ -108,10 +97,11 @@ public class ProxyApplication extends Application {
     public void initialize() {
         FacebookSdk.sdkInitialize(this);
         MultiDex.install(this);
-
-        _bus.toObservable().subscribe(getRequest());
+        if (BuildConfig.USE_LEAK_CANARY) {
+            _refWatcher = LeakCanary.install(this);
+        }
         _sharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE);
-
+        _rxDataManager = RxDataManager.newInstance(this,_sharedPreferences,_bus);
         initializeBuildConfig();
         initializeRealm();
         initializeNotificationService();
@@ -121,7 +111,7 @@ public class ProxyApplication extends Application {
     public void initializeFresco() {
         ImagePipelineConfig config = OkHttpImagePipelineConfigFactory
             .newBuilder(this, RestClient.getClient(getRxBus(), getSharedPreferences()))
-        .build();
+            .build();
         Fresco.initialize(this, config);
     }
 
@@ -163,10 +153,13 @@ public class ProxyApplication extends Application {
     }
 
     public Observable<Long> getNotificationsObservable() {
-        return Observable.interval(3, TimeUnit.MINUTES).compose(RxHelper.<Long>applySchedulers());
+        return Observable.interval(3, TimeUnit.MINUTES)
+            .compose(RxHelper.<Long>subThreadObserveThread());
     }
 
-    public JustObserver<Long> intervalObserver(final INotificationService _notificationService) {
+    public JustObserver<Long> intervalObserver(
+        final Application app, final INotificationService
+        _notificationService) {
         return new JustObserver<Long>() {
             @Override
             public void next(Long timesCalled) {
@@ -179,8 +172,7 @@ public class ProxyApplication extends Application {
                             for (Notification notification : notifications) {
                                 _notificationManager.notify(notification.hashCode(), notification);
                             }
-                            deleteAllFirebaseMessages(ProxyApplication.this,
-                                _currentUser).subscribe();
+                            deleteAllFirebaseMessages(app, _currentUser).subscribe();
                         }
                     } catch (RemoteException e) {
                         Timber.e(Log.getStackTraceString(e));
@@ -188,84 +180,6 @@ public class ProxyApplication extends Application {
                 }
             }
         };
-    }
-
-    public Action1<Object> getRequest() {
-        return new Action1<Object>() {
-            @Override
-            public void call(Object event) {
-                if (event instanceof BaseCommand) {
-                    baseCommandEvent((BaseCommand) event);
-                } else if (event instanceof UserContactAddedEventCallback) {
-                    userContactAddedEvent((UserContactAddedEventCallback) event);
-                }
-            }
-        };
-    }
-
-    private void userContactAddedEvent(UserContactAddedEventCallback event) {
-        baseCommandEvent(new AddUserMessageCommand(event.contactId,
-            Message.create(UUID.randomUUID().toString(), event.user.id(),
-                event.user.fullName())));
-    }
-
-    private void baseCommandEvent(BaseCommand event) {
-        Timber.i("BaseCommand:" + event);
-        Intent intent = new Intent(ProxyApplication.this, CommandIntentService.class);
-        intent.putExtra(ARG_COMMAND_CLASS, event);
-        intent.putExtra(
-            CommandIntentService.ARG_RESULT_RECEIVER, new ResultReceiver(null) {
-                @Override
-                protected void onReceiveResult(int resultCode, final Bundle resultData) {
-                    if (resultCode == Activity.RESULT_OK) {
-                        commandSuccessful(resultData);
-                    } else if (resultCode == Activity.RESULT_CANCELED) {
-                        sendError(resultData);
-                    } else {
-                        Timber.e("Error receiving result");
-                        sendError(resultData);
-                    }
-                }
-            });
-        startService(intent);
-    }
-
-    private void commandSuccessful(Bundle resultData) {
-        ArrayList<EventCallback> events =
-            resultData.getParcelableArrayList(
-                CommandIntentService.ARG_RESULT_BASE_EVENTS);
-        // update the logged in user from data saved to realm from the BaseCommand issued.
-        User realmUser = queryUser(
-            ProxyApplication.this, _currentUser.id());
-        updateUser(realmUser);
-        // issue event data to the main messaging system
-        for (EventCallback event : events) {
-            getRxBus().post(event);
-        }
-        // log what happened successfully to fabric if we are not on debug
-        if (!BuildConfig.DEBUG) {
-            logAnalytics(Answers.getInstance(), realmUser, events);
-        }
-    }
-
-    private void sendError(Bundle resultData) {
-        BaseCommand command = resultData.getParcelable(ARG_COMMAND_CLASS);
-        if (command instanceof SyncContactsCommand) {
-            getRxBus().post(new SyncAllUsersErrorEvent());
-        }
-    }
-
-    private void updateUser(User user) {
-        setCurrentUser(user);
-        Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new AutoValueTypeAdapterFactory())
-            .create();
-        String userJson = gson.toJson(
-            user, User.class.getAnnotation(AutoValueClass.class).autoValueClass());
-        _sharedPreferences
-            .edit()
-            .putString(Constants.KEY_LOGGED_IN_USER, userJson)
-            .apply();
     }
 
     /**
@@ -295,5 +209,6 @@ public class ProxyApplication extends Application {
     public SharedPreferences getSharedPreferences() {
         return _sharedPreferences;
     }
+
 
 }

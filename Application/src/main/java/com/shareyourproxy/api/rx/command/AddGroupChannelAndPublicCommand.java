@@ -8,19 +8,17 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel;
 import static com.shareyourproxy.api.rx.RxGroupChannelSync.addUserGroupsChannel;
 import static com.shareyourproxy.api.rx.RxUserChannelSync.saveUserChannel;
 
 /**
- * Created by Evan on 7/8/15.
+ * Update users groups channel.
  */
 public class AddGroupChannelAndPublicCommand extends BaseCommand {
     public static final Parcelable.Creator<AddGroupChannelAndPublicCommand> CREATOR =
@@ -61,14 +59,11 @@ public class AddGroupChannelAndPublicCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
-        List<EventCallback> results = new ArrayList<>();
+    public EventCallback execute(Service service) {
         Channel publicChannel = createPublicChannel(channel, true);
-        //TODO clean this mess up
-        results.addAll(addUserGroupsChannel(service, user, groups, publicChannel));
-        UserGroupAddedEventCallback event = (UserGroupAddedEventCallback) results.get(0);
-        results.addAll(saveUserChannel(service, event.user, channel, publicChannel));
-        return results;
+        UserGroupAddedEventCallback updatedUser =
+            addUserGroupsChannel(service, user, groups, publicChannel);
+        return saveUserChannel(service, updatedUser.user, channel, publicChannel);
     }
 
     @Override

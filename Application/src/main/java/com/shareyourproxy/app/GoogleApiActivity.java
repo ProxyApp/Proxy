@@ -24,7 +24,6 @@ import com.shareyourproxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;
 
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -82,7 +81,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
      */
     public void loginToFirebase(final GoogleApiActivity activity) {
         RxHelper.refreshGooglePlusToken(activity, _googleApiClient)
-            .compose(RxHelper.<String>applySchedulers()).subscribe(loginObserver(activity));
+            .compose(RxHelper.<String>subThreadObserveMain()).subscribe(loginObserver(activity));
     }
 
     public JustObserver<String> loginObserver(final GoogleApiActivity activity) {
@@ -121,6 +120,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     @Override
     protected void onActivityResult(
         int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         _googleIntentInProgress = false;
     }
 
@@ -139,10 +139,10 @@ public abstract class GoogleApiActivity extends BaseActivity implements
             .subscribe(onNextEvent(this)));
     }
 
-    private Action1<Object> onNextEvent(final GoogleApiActivity activity) {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent(final GoogleApiActivity activity) {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof RefreshFirebaseAuthenticationEvent) {
                     if (!_isTokenRefreshing) {
                         _isTokenRefreshing = true;

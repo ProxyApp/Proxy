@@ -45,7 +45,7 @@ public class DeleteUserChannelCommand extends BaseCommand {
     }
 
     @Override
-    public List<EventCallback> execute(Service service) {
+    public EventCallback execute(Service service) {
         return deleteChannel(service, user, channel, position);
     }
 

@@ -3,6 +3,7 @@ package com.shareyourproxy.app;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
@@ -14,8 +15,8 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
-import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 import com.shareyourproxy.app.fragment.DispatchFragment;
 import com.shareyourproxy.app.fragment.MainFragment;
 
@@ -27,6 +28,7 @@ import timber.log.Timber;
 import static com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION;
 import static com.shareyourproxy.IntentLauncher.launchLoginActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
 
 /**
@@ -35,7 +37,7 @@ import static com.shareyourproxy.api.rx.RxHelper.updateRealmUser;
  * and download a current user. Delete cached Realm data on startup.
  */
 public class DispatchActivity extends GoogleApiActivity {
-    private CompositeSubscription _subscriptions;
+    private CompositeSubscription _subscriptions = new CompositeSubscription();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +57,23 @@ public class DispatchActivity extends GoogleApiActivity {
      */
     private void initialize() {
         deleteRealm();
+        goFullScreen();
+    }
+
+    private void goFullScreen() {
+        View decorView = getWindow().getDecorView();
+// Hide both the navigation bar and the status bar.
+// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+// a general rule, you should design your app to hide the status bar whenever you
+// hide the navigation bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     @Override
     public void onAuthenticated(AuthData authData) {
+
         _subscriptions.add(loginObservable(this).subscribe());
     }
 
@@ -87,7 +102,7 @@ public class DispatchActivity extends GoogleApiActivity {
     @Override
     public void onResume() {
         super.onResume();
-        _subscriptions = new CompositeSubscription();
+        _subscriptions = checkCompositeButton(_subscriptions);
         _subscriptions.add(getRxBus().toObservable()
             .subscribe(getRxBusObserver()));
     }
@@ -103,9 +118,9 @@ public class DispatchActivity extends GoogleApiActivity {
         return new JustObserver<Object>() {
             @Override
             public void next(Object event) {
-                if (event instanceof SyncAllUsersSuccessEvent) {
+                if (event instanceof SyncAllContactsSuccessEvent) {
                     login();
-                } else if (event instanceof SyncAllUsersErrorEvent) {
+                } else if (event instanceof SyncAllContactsErrorEvent) {
                     login();
                 }
             }
@@ -164,6 +179,6 @@ public class DispatchActivity extends GoogleApiActivity {
                     }
                 }
             }
-        ).compose(RxHelper.<User>applySchedulers());
+        ).compose(RxHelper.<User>subThreadObserveMain());
     }
 }

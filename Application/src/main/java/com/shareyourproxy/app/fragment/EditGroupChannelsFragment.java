@@ -126,21 +126,24 @@ public class EditGroupChannelsFragment extends BaseFragment implements ItemClick
                 getActivity().onBackPressed();
                 break;
             case R.id.menu_edit_group_channel_save:
-                if (GroupEditType.PUBLIC_GROUP.equals(getGroupEditType())) {
-                    savePublicGroupChannels();
-                } else {
-                    if (_adapter.getGroupLabel().trim().isEmpty()) {
-                        _adapter.promptGroupLabelError(getActivity());
-                    } else {
-                        saveGroupChannels(_adapter.getGroupLabel());
-                    }
-                }
-
+                savePressed();
                 break;
             default:
                 Timber.e("Option item selected is unknown");
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void savePressed() {
+        if (GroupEditType.PUBLIC_GROUP.equals(getGroupEditType())) {
+            savePublicGroupChannels();
+        } else {
+            if (_adapter.getGroupLabel().trim().isEmpty()) {
+                _adapter.promptGroupLabelError(getActivity());
+            } else {
+                saveGroupChannels(_adapter.getGroupLabel());
+            }
+        }
     }
 
 }

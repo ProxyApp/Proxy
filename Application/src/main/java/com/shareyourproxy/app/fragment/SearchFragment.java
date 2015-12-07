@@ -43,7 +43,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import rx.Observer;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -53,6 +52,7 @@ import static android.support.v4.graphics.drawable.DrawableCompat.setTintMode;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
+import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers;
 import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY;
 import static com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN;
@@ -241,7 +241,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
         if (loggedInUser != null) {
             _subscriptions.add(
                 _textWatcherSubject.toObserverable()
-                    .compose(RxHelper.<String>applySchedulers())
+                    .compose(RxHelper.<String>subThreadObserveMain())
                     .subscribe(getUsersObserver(loggedInUser)));
             //search entered text
             _textWatcherSubject.post(editText.getText().toString().trim());
@@ -257,7 +257,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                 if (!trimmedName.isEmpty()) {
                     _adapter.setQueryString(trimmedName);
                     searchMatchingUsers(getActivity(), trimmedName, loggedInUser.id())
-                        .compose(RxHelper.<HashMap<String, User>>applySchedulers())
+                        .compose(RxHelper.<HashMap<String, User>>subThreadObserveMain())
                         .subscribe(getSearchObserver());
                 }
             }
@@ -312,10 +312,10 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      *
      * @return next event observer
      */
-    private Action1<Object> onNextEvent() {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof UserSelectedEvent) {
                     onUserSelected((UserSelectedEvent) event);
                 } else if (event instanceof OnBackPressedEvent) {

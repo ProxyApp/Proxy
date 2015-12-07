@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE;
@@ -35,10 +35,8 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  * Add and remove newChannel permissions from a group.
  */
 public class EditGroupChannelsActivity extends BaseActivity {
-    // View
     @Bind(R.id.activity_toolbar)
     Toolbar toolbar;
-    // Transient
     private CompositeSubscription _subscriptions;
 
     @Override
@@ -87,10 +85,10 @@ public class EditGroupChannelsActivity extends BaseActivity {
             .subscribe(onNextEvent(this)));
     }
 
-    private Action1<Object> onNextEvent(final EditGroupChannelsActivity activity) {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent(final EditGroupChannelsActivity activity) {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof UserGroupDeletedEventCallback) {
                     userGroupDeleted((UserGroupDeletedEventCallback) event);
                 } else if (event instanceof ViewGroupContactsEvent) {
@@ -125,6 +123,12 @@ public class EditGroupChannelsActivity extends BaseActivity {
     }
 
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
+        updateUserContacts(event);
+        launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
+        onBackPressed();
+    }
+
+    private void updateUserContacts(UserGroupDeletedEventCallback event) {
         ArrayList<String> contacts = new ArrayList<>();
         if (event.group.contacts() != null) {
             for (String contactId : event.group.contacts()) {
@@ -134,8 +138,6 @@ public class EditGroupChannelsActivity extends BaseActivity {
 
         getRxBus().post(new UpdateUserContactsCommand(
             getLoggedInUser(), contacts, getLoggedInUser().groups()));
-        launchMainActivity(this, MainFragment.ARG_SELECT_GROUP_TAB, true, event.group);
-        onBackPressed();
     }
 
     public enum GroupEditType {

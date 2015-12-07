@@ -101,6 +101,7 @@ public class UserContactsAdapter extends NotificationRecyclerAdapter<User> {
     }
 
     public void refreshUserList(HashMap<String, User> users) {
+        getSortedList().clear();
         refreshData(users.values());
     }
 

@@ -7,13 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent;
 import com.shareyourproxy.widget.DismissibleNotificationCard;
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard;
 
 import butterknife.Bind;
-import rx.functions.Action1;
 
 import static android.view.View.GONE;
 
@@ -37,14 +37,18 @@ public abstract class NotificationRecyclerAdapter<T> extends SortedRecyclerAdapt
         _isHeaderVisible = showHeader;
         _isFooterVisible = showFooter;
         _prefs = sharedPreferences;
-        RxBusDriver.getInstance().toObservable().subscribe(new Action1<Object>() {
+        RxBusDriver.getInstance().toObservable().subscribe(getBusObserver());
+    }
+
+    public JustObserver<Object> getBusObserver() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof NotificationCardDismissEvent) {
                     removeNotificationCard(_prefs, (NotificationCardDismissEvent) event);
                 }
             }
-        });
+        };
     }
 
     public void removeNotificationCard(

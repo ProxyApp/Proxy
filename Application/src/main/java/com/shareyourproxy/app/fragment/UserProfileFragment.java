@@ -35,15 +35,14 @@ import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEvent
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersErrorEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -83,6 +82,7 @@ import static com.shareyourproxy.IntentLauncher.launchXboxLiveIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoIntent;
 import static com.shareyourproxy.IntentLauncher.launchYoutubeIntent;
 import static com.shareyourproxy.api.RestClient.getUserService;
+import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.api.rx.RxQuery.getUserContactScore;
 import static com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy;
 import static com.shareyourproxy.util.ViewUtils.getUserImageHierarchy;
@@ -132,7 +132,7 @@ public abstract class UserProfileFragment extends BaseFragment {
             if (user != null) {
                 getRxBus().post(new SyncContactsCommand(user));
             }
-            getUserContactScore(getActivity(), getContact().id())
+            getUserContactScore(getActivity(), _userContact.id())
                 .subscribe(getContactScoreObserver());
         }
     };
@@ -188,7 +188,7 @@ public abstract class UserProfileFragment extends BaseFragment {
         initializeSwipeRefresh(swipeRefreshLayout, _refreshListener);
         initializeUserChannels();
         //followers score
-        getUserContactScore(getActivity(), getContact().id())
+        getUserContactScore(getActivity(), _userContact.id())
             .subscribe(getContactScoreObserver());
     }
 
@@ -210,7 +210,7 @@ public abstract class UserProfileFragment extends BaseFragment {
     }
 
     private void initializeUserChannels() {
-        userChannelsFragment = UserChannelsFragment.newInstance(getContact());
+        userChannelsFragment = UserChannelsFragment.newInstance(_userContact);
         getChildFragmentManager().beginTransaction()
             .replace(R.id.fragment_user_profile_user_channels,
                 userChannelsFragment).commit();
@@ -249,10 +249,10 @@ public abstract class UserProfileFragment extends BaseFragment {
     }
 
 
-    private Action1<Object> onNextEvent() {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof GroupContactsUpdatedEventCallback) {
                     groupContactsUpdatedEvent((GroupContactsUpdatedEventCallback) event);
                 } else if (event instanceof UserChannelAddedEventCallback) {
@@ -261,9 +261,9 @@ public abstract class UserProfileFragment extends BaseFragment {
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
                 } else if (event instanceof SyncContactsCommand) {
                     swipeRefreshLayout.setRefreshing(true);
-                } else if (event instanceof SyncAllUsersSuccessEvent) {
+                } else if (event instanceof SyncAllContactsSuccessEvent) {
                     swipeRefreshLayout.setRefreshing(false);
-                } else if (event instanceof SyncAllUsersErrorEvent) {
+                } else if (event instanceof SyncAllContactsErrorEvent) {
                     swipeRefreshLayout.setRefreshing(false);
                 } else if (event instanceof SelectUserChannelEvent) {
                     onChannelSelected((SelectUserChannelEvent) event);
@@ -278,7 +278,7 @@ public abstract class UserProfileFragment extends BaseFragment {
         } else {
             _analytics.userContactRemoved(event.user);
         }
-        getUserContactScore(getActivity(), getContact().id())
+        getUserContactScore(getActivity(), _userContact.id())
             .subscribe(getContactScoreObserver());
     }
 
@@ -438,9 +438,9 @@ public abstract class UserProfileFragment extends BaseFragment {
     void initializeHeader() {
         //update profile user image
         String profileURL = _userContact.profileURL();
-        if(this instanceof MainUserProfileFragment) {
+        if (this instanceof MainUserProfileFragment) {
             userImage.setHierarchy(getUserImageHierarchy(getActivity()));
-        }else{
+        } else {
             userImage.setHierarchy(getUserImageHierarchyNoFade(getActivity()));
         }
 

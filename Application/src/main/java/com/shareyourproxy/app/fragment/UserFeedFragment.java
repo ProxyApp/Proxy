@@ -37,10 +37,13 @@ import butterknife.Bind;
 import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import retrofit.Response;
+import retrofit.Retrofit;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
+import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 
 /**
@@ -125,6 +128,16 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
         twitterLoginButton = new TwitterLoginButton(getActivity());
         twitterLoginButton.setVisibility(View.GONE);
         twitterLoginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void onResponse(Response<TwitterSession> response, Retrofit retrofit) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+
             @Override
             public void success(Result<TwitterSession> result) {
                 Twitter.getSessionManager().setActiveSession(result.data);

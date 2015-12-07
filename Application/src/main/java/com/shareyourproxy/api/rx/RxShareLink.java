@@ -12,7 +12,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.event.ShareLinkEvent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -23,7 +22,7 @@ import rx.functions.Func1;
  */
 public class RxShareLink {
 
-    public static List<EventCallback> getShareLinkMessageObservable(
+    public static EventCallback getShareLinkMessageObservable(
         final Context context, final User user, final ArrayList<GroupToggle> groups) {
         return Observable.create(new Observable.OnSubscribe<EventCallback>() {
             @Override
@@ -41,7 +40,7 @@ public class RxShareLink {
                     subscriber.onError(e);
                 }
             }
-        }).toList().toBlocking().single();
+        }).toBlocking().single();
     }
 
     public static Func1<String, SharedLink> queryLinkIds(final Context context, final String

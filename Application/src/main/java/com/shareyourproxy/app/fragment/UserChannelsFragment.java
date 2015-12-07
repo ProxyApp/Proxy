@@ -24,7 +24,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCall
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent;
-import com.shareyourproxy.api.rx.event.SyncAllUsersSuccessEvent;
+import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener;
 import com.shareyourproxy.app.adapter.ViewChannelAdapter;
@@ -39,12 +39,12 @@ import butterknife.BindDimen;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static android.view.View.GONE;
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
 import static com.shareyourproxy.IntentLauncher.launchChannelListActivity;
+import static com.shareyourproxy.api.rx.RxHelper.checkCompositeButton;
 import static com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE;
@@ -224,15 +224,15 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
         recyclerView.scrollToPosition(0);
     }
 
-    private Action1<Object> onNextEvent() {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof UserChannelAddedEventCallback) {
                     addUserChannel(((UserChannelAddedEventCallback) event));
                 } else if (event instanceof UserChannelDeletedEventCallback) {
                     deleteUserChannel(((UserChannelDeletedEventCallback) event));
-                } else if (event instanceof SyncAllUsersSuccessEvent) {
+                } else if (event instanceof SyncAllContactsSuccessEvent) {
                     if (_isLoggedInUser) {
                         syncUsersContacts();
                     }

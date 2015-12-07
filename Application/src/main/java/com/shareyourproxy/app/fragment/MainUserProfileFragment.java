@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.app.UserContactActivity;
 import com.shareyourproxy.app.adapter.BaseRecyclerView;
@@ -19,7 +20,6 @@ import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.BindDimen;
 import butterknife.OnClick;
-import rx.functions.Action1;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -128,10 +128,10 @@ public class MainUserProfileFragment extends UserProfileFragment {
     }
 
 
-    private Action1<Object> onNextEvent() {
-        return new Action1<Object>() {
+    private JustObserver<Object> onNextEvent() {
+        return new JustObserver<Object>() {
             @Override
-            public void call(Object event) {
+            public void next(Object event) {
                 if (event instanceof RecyclerViewDatasetChangedEvent) {
                     toggleFabVisibility((RecyclerViewDatasetChangedEvent) event);
                 }
