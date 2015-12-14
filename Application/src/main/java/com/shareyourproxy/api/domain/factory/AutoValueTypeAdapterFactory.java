@@ -7,8 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.shareyourproxy.api.domain.model.User;
 
 /**
- * Gson adapter factory responsible for deserializing json responses into immutable autovalue
- * objects.
+ * Gson adapter factory responsible for deserializing json responses into immutable autovalue objects.
  */
 public class AutoValueTypeAdapterFactory implements TypeAdapterFactory {
     @Override

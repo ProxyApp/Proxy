@@ -4,8 +4,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Channels are other apps and services that you will use to communicate with {@link
- * RealmContact}s.
+ * Channels are other apps and services that you will use to communicate with {@link RealmContact}s.
  */
 public class RealmChannel extends RealmObject {
 

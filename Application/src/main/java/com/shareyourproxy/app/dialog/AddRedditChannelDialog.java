@@ -74,8 +74,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     String _required;
     private ChannelType _channelType;
     /**
-     * EditorActionListener that detects when the software keyboard's done or enter button is
-     * pressed.
+     * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private final TextView.OnEditorActionListener _onEditorActionListener =
         new TextView.OnEditorActionListener() {

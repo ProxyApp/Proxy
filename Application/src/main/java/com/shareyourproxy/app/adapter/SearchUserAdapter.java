@@ -13,6 +13,8 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent;
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 
+import java.util.Locale;
+
 import butterknife.Bind;
 
 import static com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder;
@@ -111,8 +113,8 @@ public class SearchUserAdapter extends SortedRecyclerAdapter<User> {
 
     public int getStartsWithCount(String fullname) {
         int count = 0;
-        char[] fullnameArray = fullname.toUpperCase().toCharArray();
-        char[] queryStringArray = _queryString.toUpperCase().toCharArray();
+        char[] fullnameArray = fullname.toUpperCase(Locale.US).toCharArray();
+        char[] queryStringArray = _queryString.toUpperCase(Locale.US).toCharArray();
         for (int i = 0; i < queryStringArray.length; i++) {
             if (fullnameArray[i] == queryStringArray[i]) {
                 ++count;

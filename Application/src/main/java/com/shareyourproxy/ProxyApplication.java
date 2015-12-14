@@ -22,12 +22,13 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.firebase.client.Firebase;
 import com.shareyourproxy.api.NotificationService;
 import com.shareyourproxy.api.RestClient;
-import com.shareyourproxy.api.RxDataManager;
+import com.shareyourproxy.api.RxAppDataManager;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.RxMessageSync;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 import com.twitter.sdk.android.Twitter;
@@ -44,7 +45,6 @@ import rx.Subscription;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.MASTER_KEY;
-import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
@@ -52,13 +52,15 @@ import static com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages;
 public class ProxyApplication extends Application {
 
     private static RefWatcher _refWatcher;
-    private final RxBusDriver _bus = RxBusDriver.getInstance();
+    private final RxBusDriver _bus = RxBusDriver.INSTANCE;
+    private final RxHelper _rxHelper = RxHelper.INSTANCE;
+    private final RxMessageSync _rxMessageSync = RxMessageSync.INSTANCE;
     private User _currentUser;
     private SharedPreferences _sharedPreferences;
     private INotificationService _notificationService;
     private Subscription _notificationSubscription;
     private NotificationManager _notificationManager;
-    private RxDataManager _rxDataManager;
+    private RxAppDataManager _rxDataManager;
     /**
      * Class for interacting with the main interface of the service.
      */
@@ -101,7 +103,7 @@ public class ProxyApplication extends Application {
             _refWatcher = LeakCanary.install(this);
         }
         _sharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE);
-        _rxDataManager = RxDataManager.newInstance(this,_sharedPreferences,_bus);
+        _rxDataManager = RxAppDataManager.newInstance(this, _sharedPreferences, _bus);
         initializeBuildConfig();
         initializeRealm();
         initializeNotificationService();
@@ -127,7 +129,7 @@ public class ProxyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        RxGoogleAnalytics analytics = RxGoogleAnalytics.getInstance(this);
+        RxGoogleAnalytics analytics = new RxGoogleAnalytics(this);
         if (BuildConfig.USE_GOOGLE_ANALYTICS) {
             analytics.getAnalytics().enableAdvertisingIdCollection(true);
             analytics.getAnalytics().enableAutoActivityReports(this);
@@ -154,16 +156,17 @@ public class ProxyApplication extends Application {
 
     public Observable<Long> getNotificationsObservable() {
         return Observable.interval(3, TimeUnit.MINUTES)
-            .compose(RxHelper.<Long>subThreadObserveThread());
+            .compose(_rxHelper.<Long>observeIO());
     }
 
     public JustObserver<Long> intervalObserver(
         final Application app, final INotificationService
         _notificationService) {
         return new JustObserver<Long>() {
+
             @Override
             public void next(Long timesCalled) {
-                Timber.i("Checking for notifications, attempt:" + timesCalled.intValue());
+                Timber.i("Checking for notifications, attempt: %1$s", timesCalled.intValue());
                 if (_currentUser != null) {
                     try {
                         List<Notification> notifications =
@@ -172,7 +175,7 @@ public class ProxyApplication extends Application {
                             for (Notification notification : notifications) {
                                 _notificationManager.notify(notification.hashCode(), notification);
                             }
-                            deleteAllFirebaseMessages(app, _currentUser).subscribe();
+                            _rxMessageSync.deleteAllFirebaseMessages(app, _currentUser).subscribe();
                         }
                     } catch (RemoteException e) {
                         Timber.e(Log.getStackTraceString(e));

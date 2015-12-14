@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.SearchClickedEvent;
-import com.shareyourproxy.app.MainActivity;
+import com.shareyourproxy.app.AggregateFeedActivity;
 
 import butterknife.Bind;
 import butterknife.BindDimen;
@@ -33,7 +33,7 @@ import static com.shareyourproxy.util.ViewUtils.getMenuIconDark;
 
 
 /**
- * Search view to insert in the {@link MainActivity}.
+ * Search view to insert in the {@link AggregateFeedActivity}.
  */
 public class ContactSearchLayout extends FrameLayout {
 
@@ -52,6 +52,10 @@ public class ContactSearchLayout extends FrameLayout {
     private DrawerLayout _drawerLayout;
     private RxBusDriver _rxBus;
     private View _view;
+
+    public ContactSearchLayout(Context context) {
+        super(context);
+    }
 
     public ContactSearchLayout(Context context, RxBusDriver rxBus, DrawerLayout drawerLayout) {
         super(context);

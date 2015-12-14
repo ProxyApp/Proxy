@@ -21,6 +21,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
+import com.shareyourproxy.api.rx.RxQuery;
 import com.shareyourproxy.api.rx.command.SyncContactsCommand;
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback;
 import com.shareyourproxy.api.rx.event.NotificationCardActionEvent;
@@ -43,7 +44,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.shareyourproxy.IntentLauncher.launchInviteFriendIntent;
 import static com.shareyourproxy.IntentLauncher.launchUserProfileActivity;
-import static com.shareyourproxy.api.rx.RxQuery.queryUserContacts;
 import static com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener;
 import static com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable;
 import static com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS;
@@ -79,6 +79,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     };
     private UserContactsAdapter _adapter;
     private CompositeSubscription _subscriptions;
+    private RxQuery _rxQuery = RxQuery.INSTANCE;
 
     /**
      * Constructor.
@@ -191,7 +192,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     public void checkRefresh(User user) {
         HashSet<String> contacts = user.contacts();
         if (contacts != null) {
-            _adapter.refreshUserList(queryUserContacts(getActivity(), contacts));
+            _adapter.refreshUserList(_rxQuery.queryUserContacts(getActivity(), contacts));
         }
     }
 
@@ -212,7 +213,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     public void onItemClick(View view, int position) {
         UserViewHolder holder = (UserViewHolder) recyclerView.getChildViewHolder(view);
         User user = _adapter.getItemData(position);
-        RxGoogleAnalytics.getInstance(getActivity()).contactProfileViewed(user);
+        new RxGoogleAnalytics(getActivity()).contactProfileViewed(user);
         getRxBus().post(new UserSelectedEvent(holder.userImage, holder.userName, user));
     }
 

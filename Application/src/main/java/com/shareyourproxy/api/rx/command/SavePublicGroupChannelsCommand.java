@@ -6,12 +6,11 @@ import android.os.Parcelable;
 
 import com.shareyourproxy.api.domain.model.ChannelToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxGroupChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.shareyourproxy.api.rx.RxGroupChannelSync.updatePublicGroupChannels;
 
 /**
  * Created by Evan on 10/1/15.
@@ -47,7 +46,7 @@ public class SavePublicGroupChannelsCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return updatePublicGroupChannels(service, user, channels);
+        return RxGroupChannelSync.INSTANCE.updatePublicGroupChannels(service, user, channels);
     }
 
     @Override

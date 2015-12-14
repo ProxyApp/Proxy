@@ -20,7 +20,7 @@ public abstract class SortedRecyclerAdapter<T> extends BaseRecyclerViewAdapter {
     private SortedList<T> _data;
     private boolean _needsRefresh = true;
     private SortedList.Callback<T> _sortedListCallback;
-    private RxBusDriver _rxBus = RxBusDriver.getInstance();
+    private RxBusDriver _rxBus = RxBusDriver.INSTANCE;
 
     public SortedRecyclerAdapter(Class<T> clazz, BaseRecyclerView recyclerView) {
         _recyclerView = recyclerView;

@@ -15,7 +15,7 @@ public class UserContactAddedEventCallback extends UserEventCallback {
             @Override
             public UserContactAddedEventCallback createFromParcel(Parcel in) {
                 return new UserContactAddedEventCallback(
-                    (User) in.readValue(CL),(String) in.readValue(CL));
+                    (User) in.readValue(CL), (String) in.readValue(CL));
             }
 
             @Override

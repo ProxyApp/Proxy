@@ -15,10 +15,9 @@ public class GroupContactsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_group_users);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_view_group_users_container,
+                .replace(android.R.id.content,
                     GroupContactsFragment.newInstance()).commit();
         }
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="ResourceType">
+        <!-- Remove this when this is fixed: https://github.com/JakeWharton/butterknife/issues/338 -->
+        <ignore path="**/*$$ViewBinder.java"/>
+    </issue>
+
+    <issue id="UnusedResources">
+        <ignore path="**/res/values/strings.xml"/>
+        <ignore path="**/res/layouts/menu/menu_activity_aggregate_feed.xml"/>
+        <ignore path="**/res/google-services/dev/debug/values/values.xml"/>
+    </issue>
+
+    <issue id="UnusedAttribute">
+        <ignore path="**.xml"/>
+    </issue>
+    <issue id="InlinedApi">
+        <ignore path="**/IntentLauncher.java"/>
+    </issue>
+
+    <issue id="GoogleAppIndexingWarning">
+        <ignore path="**/AndroidManifest.xml"/>
+    </issue>
+
+    <issue id="Overdraw">
+        <ignore path="**/adapter_edit_group_channel_footer.xml"/>
+        <ignore path="**/fragment_dispatch.xml"/>
+        <ignore path="**/fragment_introduction_first.xml"/>
+        <ignore path="**/fragment_introduction_second.xml"/>
+        <ignore path="**/fragment_introduction_third.xml"/>
+    </issue>
+    <issue id="LabelFor">
+        <ignore path="**/dialog_add_channel.xml"/>
+        <ignore path="**/dialog_add_reddit_channel.xml"/>
+        <ignore path="**/dialog_auth_channel.xml"/>
+    </issue>
+    <issue id="RelativeOverlap">
+        <ignore path="**/adapter_activity_feed_item.xml"/>
+    </issue>
+</lint>

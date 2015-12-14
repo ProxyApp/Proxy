@@ -24,6 +24,7 @@ public class LoggedInUserUpdatedEventCallback extends UserEventCallback {
                 return new LoggedInUserUpdatedEventCallback[size];
             }
         };
+
     public LoggedInUserUpdatedEventCallback(@NonNull User user) {
         super(user);
     }

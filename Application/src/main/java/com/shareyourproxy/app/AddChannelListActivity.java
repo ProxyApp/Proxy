@@ -26,12 +26,11 @@ import static android.support.design.widget.Snackbar.make;
 import static com.shareyourproxy.util.ViewUtils.getMenuIcon;
 
 /**
- * Activity that displays a list of Channels for a user to add to their {@link
- * UserProfileFragment}.
+ * Activity that displays a list of Channels for a user to add to their {@link UserProfileFragment}.
  */
 public class AddChannelListActivity extends BaseActivity {
 
-    private final RxGoogleAnalytics _analytics = RxGoogleAnalytics.getInstance(this);
+    private final RxGoogleAnalytics _analytics = new RxGoogleAnalytics(this);
     @Bind(R.id.activity_toolbar)
     Toolbar toolbar;
     @BindString(R.string.add_channel)

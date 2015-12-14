@@ -7,14 +7,11 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxUserContactSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserContactSync.checkContacts;
 
 /**
  * Update a user's contacts.
@@ -38,7 +35,8 @@ public class UpdateUserContactsCommand extends BaseCommand {
     public final ArrayList<String> contacts;
     public final HashMap<String, Group> userGroups;
 
-    public UpdateUserContactsCommand(@NonNull User user, @NonNull ArrayList<String> contacts,
+    public UpdateUserContactsCommand(
+        @NonNull User user, @NonNull ArrayList<String> contacts,
         @NonNull HashMap<String, Group> userGroups) {
         this.user = user;
         this.contacts = contacts;
@@ -52,7 +50,7 @@ public class UpdateUserContactsCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return checkContacts(service, user, contacts, userGroups);
+        return RxUserContactSync.INSTANCE.checkContacts(service, user, contacts, userGroups);
     }
 
     @Override

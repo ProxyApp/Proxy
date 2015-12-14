@@ -8,8 +8,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Users have a basic profile that contains their specific {@link RealmChannel}s, {@link
- * RealmContact}s, and {@link RealmGroup}s.
+ * Users have a basic profile that contains their specific {@link RealmChannel}s, {@link RealmContact}s, and {@link RealmGroup}s.
  */
 public class RealmUser extends RealmObject {
     @PrimaryKey

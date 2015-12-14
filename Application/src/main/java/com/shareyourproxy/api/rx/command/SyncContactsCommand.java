@@ -8,10 +8,6 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserSync.syncAllContacts;
-
 /**
  * Sync All Users data from firebase to Realm and return the logged in User.
  */
@@ -44,7 +40,7 @@ public class SyncContactsCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return syncAllContacts(service, user);
+        return RxUserSync.INSTANCE.syncAllContacts(service, user);
     }
 
     @Override

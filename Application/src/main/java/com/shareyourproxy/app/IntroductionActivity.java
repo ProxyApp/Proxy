@@ -5,7 +5,6 @@ import android.os.Bundle;
 import com.firebase.client.AuthData;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.shareyourproxy.R;
 import com.shareyourproxy.app.fragment.MainIntroductionFragment;
 
 import timber.log.Timber;
@@ -20,12 +19,11 @@ public class IntroductionActivity extends GoogleApiActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_introduction);
         _googleApiClient = getGoogleApiClient();
         if (savedInstanceState == null) {
             MainIntroductionFragment mainFragment = MainIntroductionFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_introduction_container, mainFragment)
+                .replace(android.R.id.content, mainFragment)
                 .commit();
         }
     }

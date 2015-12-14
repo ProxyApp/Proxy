@@ -6,11 +6,9 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxUserChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserChannelSync.deleteChannel;
 
 /**
  * Delete a channel associated with a user.
@@ -46,7 +44,7 @@ public class DeleteUserChannelCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return deleteChannel(service, user, channel, position);
+        return RxUserChannelSync.INSTANCE.deleteChannel(service, user, channel, position);
     }
 
     @Override

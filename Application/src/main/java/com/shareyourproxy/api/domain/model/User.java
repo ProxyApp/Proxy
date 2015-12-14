@@ -13,8 +13,7 @@ import auto.parcel.AutoParcel;
 import static com.shareyourproxy.util.ObjectUtils.buildFullName;
 
 /**
- * Users have a basic profile that contains their specific {@link Channel}s, {@link Contact}s, and
- * {@link Group}s.
+ * Users have a basic profile that contains their specific {@link Channel}s, {@link Contact}s, and {@link Group}s.
  */
 @AutoParcel
 @AutoValueClass(autoValueClass = AutoParcel_User.class)

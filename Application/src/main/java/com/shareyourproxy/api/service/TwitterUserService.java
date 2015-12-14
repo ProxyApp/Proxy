@@ -9,8 +9,7 @@ import retrofit.http.Query;
 import rx.Observable;
 
 /**
- * Twitter OAuthed Service request {https://dev.twitter
- * .com/rest/reference/get/statuses/user_timeline}.
+ * Twitter OAuthed Service request {https://dev.twitter .com/rest/reference/get/statuses/user_timeline}.
  */
 public interface TwitterUserService {
 

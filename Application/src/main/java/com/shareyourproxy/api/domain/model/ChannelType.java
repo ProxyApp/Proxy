@@ -10,8 +10,7 @@ import timber.log.Timber;
 import static android.graphics.Color.WHITE;
 
 /**
- * Used to sort channels for their eventually called ACTION_INTENT or VIEW_INTENT in {@link
- * IntentLauncher}.
+ * Used to sort channels for their eventually called ACTION_INTENT or VIEW_INTENT in {@link IntentLauncher}.
  */
 public enum ChannelType {
 
@@ -78,7 +77,7 @@ public enum ChannelType {
                 return value;
             }
         }
-        Timber.e("Bad ChannelType:" + label);
+        Timber.e("Bad ChannelType: %1$s", label);
         throw new IllegalArgumentException();
     }
 

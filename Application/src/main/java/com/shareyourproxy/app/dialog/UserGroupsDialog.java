@@ -31,8 +31,7 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 
 /**
- * This Dialog provides a toggle selection to add a User contactId to the logged in User's various
- * saved groups.
+ * This Dialog provides a toggle selection to add a User contactId to the logged in User's various saved groups.
  */
 public class UserGroupsDialog extends BaseDialogFragment {
 
@@ -61,7 +60,7 @@ public class UserGroupsDialog extends BaseDialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dispatchUpdatedUserGroups();
-                RxGoogleAnalytics.getInstance(getActivity()).contactGroupButtonHit();
+                new RxGoogleAnalytics(getActivity()).contactGroupButtonHit();
             }
         };
 

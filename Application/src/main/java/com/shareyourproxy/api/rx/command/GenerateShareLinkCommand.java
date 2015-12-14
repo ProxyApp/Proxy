@@ -5,12 +5,11 @@ import android.os.Parcel;
 
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxShareLink;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.shareyourproxy.api.rx.RxShareLink.getShareLinkMessageObservable;
 
 /**
  * Generate public link urls.
@@ -45,7 +44,7 @@ public class GenerateShareLinkCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return getShareLinkMessageObservable(service, user, groups);
+        return RxShareLink.INSTANCE.getShareLinkMessageObservable(service, user, groups);
     }
 
     @Override

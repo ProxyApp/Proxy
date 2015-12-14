@@ -6,12 +6,8 @@ import android.support.annotation.NonNull;
 
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
-import com.shareyourproxy.api.rx.RxBusDriver;
+import com.shareyourproxy.api.rx.RxUserGroupSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
-
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserGroupSync.addUserGroup;
 
 /**
  * Created by Evan on 6/8/15.
@@ -50,7 +46,7 @@ public class AddUserGroupCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return addUserGroup(service, user, group);
+        return RxUserGroupSync.INSTANCE.addUserGroup(service, user, group);
     }
 
     @Override

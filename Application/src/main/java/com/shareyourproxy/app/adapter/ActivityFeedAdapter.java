@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -29,9 +28,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
-
-import static com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter.getChannelBackgroundColor;
-import static com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter.getChannelIconDrawable;
 
 /**
  * Created by Evan on 10/13/15.
@@ -124,14 +120,14 @@ public class ActivityFeedAdapter extends SortedRecyclerAdapter<ActivityFeedItem>
 
     @Override
     protected boolean areContentsTheSame(ActivityFeedItem item1, ActivityFeedItem item2) {
-            return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
-                item1.channelType().equals(item2.channelType());
+        return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
+            item1.channelType().equals(item2.channelType());
     }
 
     @Override
     protected boolean areItemsTheSame(ActivityFeedItem item1, ActivityFeedItem item2) {
-            return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
-                item1.channelType().equals(item2.channelType());
+        return item1.actionAddress().equalsIgnoreCase(item2.actionAddress()) &&
+            item1.channelType().equals(item2.channelType());
     }
 
     /**

@@ -2,10 +2,10 @@ package com.shareyourproxy.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.Scopes;
@@ -19,17 +19,18 @@ import com.shareyourproxy.Constants;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
+import com.shareyourproxy.api.rx.RxLoginHelper;
+import com.shareyourproxy.api.rx.RxLoginHelper.AuthResultHandler;
 import com.shareyourproxy.api.rx.event.RefreshFirebaseAuthenticationEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 
 import java.io.IOException;
 
+import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-import static com.shareyourproxy.Constants.KEY_GOOGLE_PLUS_AUTH;
 import static com.shareyourproxy.Constants.PROVIDER_GOOGLE;
-import static com.shareyourproxy.api.rx.RxHelper.refreshFirebaseAuth;
 
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
@@ -37,16 +38,16 @@ import static com.shareyourproxy.api.rx.RxHelper.refreshFirebaseAuth;
 public abstract class GoogleApiActivity extends BaseActivity implements
     ConnectionCallbacks, OnConnectionFailedListener {
     public static final String GOOGLE_UID_PREFIX = "google:";
-    public static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: ";
     public static final int REQUESTCODE_SIGN_IN = 0;
-    // Final
-    public Firebase _firebaseRef;
+    private static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: %1$s";
+    private static final Firebase _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
     private AuthResultHandler _authResultHandler = new AuthResultHandler(this);
     private boolean _googleIntentInProgress = false;
     private CompositeSubscription _subscriptions;
     private boolean _isTokenRefreshing = false;
     private JustObserver _tokenRefreshObservable;
     private GoogleApiClient _googleApiClient;
+    private RxHelper rxHelper = RxHelper.INSTANCE;
 
     /**
      * Return log in onError dialog based on the type of onError.
@@ -55,7 +56,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
      */
     public static void showErrorDialog(BaseActivity activity, String message) {
         if (message == null || message.trim().isEmpty()) {
-            message = GOOGLE_ERROR_AUTH;
+            message = String.format(GOOGLE_ERROR_AUTH, "null error message");
         }
         ErrorDialog.newInstance(activity.getString(R.string.login_error), message)
             .show(activity.getSupportFragmentManager());
@@ -79,9 +80,9 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     /**
      * Get the authentication token from google plus so we can log into firebase.
      */
-    public void loginToFirebase(final GoogleApiActivity activity) {
-        RxHelper.refreshGooglePlusToken(activity, _googleApiClient)
-            .compose(RxHelper.<String>subThreadObserveMain()).subscribe(loginObserver(activity));
+    public Subscription loginToFirebaseSubscription(final GoogleApiActivity activity) {
+        return RxLoginHelper.INSTANCE.refreshGooglePlusToken(activity, _googleApiClient)
+            .compose(rxHelper.<String>observeMain()).subscribe(loginObserver(activity));
     }
 
     public JustObserver<String> loginObserver(final GoogleApiActivity activity) {
@@ -95,22 +96,16 @@ public abstract class GoogleApiActivity extends BaseActivity implements
             @Override
             public void error(Throwable e) {
                 if (e instanceof IOException) {
-                    /* Network or server onError */
-                    Timber.e(GOOGLE_ERROR_AUTH + "Network onError: " + e.toString());
+                    Timber.e(GOOGLE_ERROR_AUTH, Log.getStackTraceString(e));
                 } else if (e instanceof UserRecoverableAuthException) {
-                    Timber.e("Recoverable Google OAuth onError: " + e.toString());
-                    /* We probably need to ask for permissions, so start the intent if there is
-                    none pending */
+                    Timber.e("Recoverable Google OAuth onError: %1$s", Log.getStackTraceString(e));
                     if (!_googleIntentInProgress) {
                         _googleIntentInProgress = true;
                         Intent recover = ((UserRecoverableAuthException) e).getIntent();
                         startActivityForResult(recover, REQUESTCODE_SIGN_IN);
                     }
                 } else if (e instanceof GoogleAuthException) {
-                    /* The call is not ever expected to succeed assuming you have already
-                    verified that
-                     * Google Play services is installed. */
-                    Timber.e(GOOGLE_ERROR_AUTH + e.toString());
+                    Timber.e(GOOGLE_ERROR_AUTH, Log.getStackTraceString(e));
                 }
                 activity.onAuthenticationError(e);
             }
@@ -128,7 +123,6 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _googleApiClient = buildGoogleApiClient(this);
-        _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
     }
 
     @Override
@@ -146,7 +140,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements
                 if (event instanceof RefreshFirebaseAuthenticationEvent) {
                     if (!_isTokenRefreshing) {
                         _isTokenRefreshing = true;
-                        _subscriptions.add(refreshFirebaseAuth(activity,
+                        _subscriptions.add(RxLoginHelper.INSTANCE.refreshFirebaseAuth(activity,
                             getGoogleApiClient(), getSharedPreferences())
                             .subscribe(getTokenRefreshObserver()));
                     }
@@ -161,7 +155,8 @@ public abstract class GoogleApiActivity extends BaseActivity implements
                 @Override
                 public void next(String token) {
                     getSharedPreferences().edit()
-                        .putString(Constants.KEY_GOOGLE_PLUS_AUTH, token).commit();
+                        .putString(Constants.KEY_GOOGLE_PLUS_AUTH, token)
+                        .commit();
                     _isTokenRefreshing = false;
                 }
             };
@@ -193,33 +188,6 @@ public abstract class GoogleApiActivity extends BaseActivity implements
 
     public GoogleApiClient getGoogleApiClient() {
         return _googleApiClient;
-    }
-
-    /**
-     * Utility class for authentication results
-     */
-    public class AuthResultHandler implements Firebase.AuthResultHandler {
-        private final GoogleApiActivity activity;
-
-        /**
-         * Constructor.
-         */
-        public AuthResultHandler(GoogleApiActivity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public void onAuthenticated(AuthData authData) {
-            getSharedPreferences().edit()
-                .putString(KEY_GOOGLE_PLUS_AUTH, authData.getToken())
-                .commit();
-            activity.onAuthenticated(authData);
-        }
-
-        @Override
-        public void onAuthenticationError(FirebaseError firebaseError) {
-            activity.onAuthenticationError(firebaseError.toException());
-        }
     }
 
 }

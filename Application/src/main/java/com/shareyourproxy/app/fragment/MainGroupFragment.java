@@ -108,8 +108,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
     }
 
     /**
-     * Check if there was a group deleted from the {@link EditGroupChannelsFragment#onItemClick
-     * (View, int)})}
+     * Check if there was a group deleted from the {@link EditGroupChannelsFragment#onItemClick (View, int)})}
      *
      * @param activity to get intent data from
      */
@@ -123,8 +122,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
     }
 
     /**
-     * Build a {@link Snackbar} and show it. This {@link Snackbar} reverses the action of deleting a
-     * {@link User} {@link Group}.
+     * Build a {@link Snackbar} and show it. This {@link Snackbar} reverses the action of deleting a {@link User} {@link Group}.
      *
      * @param group deleted
      */

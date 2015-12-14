@@ -68,8 +68,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     // Transient
     private Channel _channel;
     /**
-     * EditorActionListener that detects when the software keyboard's done or enter button is
-     * pressed.
+     * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private final OnEditorActionListener _onEditorActionListener =
         new OnEditorActionListener() {

@@ -10,8 +10,6 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
 /**
  * Created by Evan on 6/8/15.
  */
@@ -52,8 +50,7 @@ public class AddUserChannelCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return RxUserChannelSync.saveUserChannel(
-            service, user, oldChannel, newChannel);
+        return RxUserChannelSync.INSTANCE.saveUserChannel(service, user, oldChannel, newChannel);
     }
 
     @Override

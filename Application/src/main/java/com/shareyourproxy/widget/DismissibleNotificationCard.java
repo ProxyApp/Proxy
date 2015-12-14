@@ -60,7 +60,7 @@ public class DismissibleNotificationCard extends FrameLayout {
     private NotificationCard _notificationCard = NotificationCard.WHOOPS;
     private boolean _showDismiss = false;
     private boolean _showAction = false;
-    private RxBusDriver _rxBus = RxBusDriver.getInstance();
+    private RxBusDriver _rxBus = RxBusDriver.INSTANCE;
     private BaseViewHolder _holder;
     private BaseRecyclerViewAdapter _adapter;
 
@@ -127,7 +127,8 @@ public class DismissibleNotificationCard extends FrameLayout {
         return _holder instanceof HeaderViewHolder;
     }
 
-    public void createNotificationCard(BaseRecyclerViewAdapter adapter,
+    public void createNotificationCard(
+        BaseRecyclerViewAdapter adapter,
         BaseViewHolder holder, NotificationCard notificationCard,
         boolean showDismiss, boolean showAction) {
         _adapter = adapter;

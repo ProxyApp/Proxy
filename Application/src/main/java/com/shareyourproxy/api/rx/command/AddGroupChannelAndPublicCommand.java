@@ -8,14 +8,14 @@ import android.support.annotation.NonNull;
 import com.shareyourproxy.api.domain.model.Channel;
 import com.shareyourproxy.api.domain.model.GroupToggle;
 import com.shareyourproxy.api.domain.model.User;
+import com.shareyourproxy.api.rx.RxGroupChannelSync;
+import com.shareyourproxy.api.rx.RxUserChannelSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback;
 
 import java.util.ArrayList;
 
 import static com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel;
-import static com.shareyourproxy.api.rx.RxGroupChannelSync.addUserGroupsChannel;
-import static com.shareyourproxy.api.rx.RxUserChannelSync.saveUserChannel;
 
 /**
  * Update users groups channel.
@@ -62,8 +62,8 @@ public class AddGroupChannelAndPublicCommand extends BaseCommand {
     public EventCallback execute(Service service) {
         Channel publicChannel = createPublicChannel(channel, true);
         UserGroupAddedEventCallback updatedUser =
-            addUserGroupsChannel(service, user, groups, publicChannel);
-        return saveUserChannel(service, updatedUser.user, channel, publicChannel);
+            RxGroupChannelSync.INSTANCE.addUserGroupsChannel(service, user, groups, publicChannel);
+        return RxUserChannelSync.INSTANCE.saveUserChannel(service, updatedUser.user, channel, publicChannel);
     }
 
     @Override

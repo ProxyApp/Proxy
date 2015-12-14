@@ -9,9 +9,6 @@ import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxUserGroupSync;
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback;
 
-import java.util.List;
-
-import static com.shareyourproxy.api.rx.RxUserGroupSync.deleteUserGroup;
 
 /**
  * Delete a group associated with a User.
@@ -50,7 +47,7 @@ public class DeleteUserGroupCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return deleteUserGroup(service, user, group);
+        return RxUserGroupSync.INSTANCE.deleteUserGroup(service, user, group);
     }
 
     @Override
