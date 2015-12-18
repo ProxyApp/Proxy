@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'android-apt'
 apply plugin: 'checkstyle'
@@ -212,6 +211,7 @@ dependencies {
     compile "com.google.android.gms:play-services-measurement:${playServicesVersion}"
     compile "com.google.android.gms:play-services-analytics:${playServicesVersion}"
     compile "com.google.android.gms:play-services-identity:${playServicesVersion}"
+    apply plugin: 'com.google.gms.google-services'
     //Android
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
@@ -256,4 +256,5 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
+
 }
