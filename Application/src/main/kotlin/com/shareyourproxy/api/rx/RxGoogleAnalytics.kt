@@ -4,7 +4,7 @@ import android.content.Context
 import com.google.android.gms.analytics.GoogleAnalytics
 import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.Tracker
-import com.shareyourproxy.R
+import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
@@ -17,7 +17,7 @@ import rx.Subscription
  */
 class RxGoogleAnalytics constructor(context: Context) {
     val analytics: GoogleAnalytics = GoogleAnalytics.getInstance(context)
-    val tracker: Tracker = analytics.newTracker(R.xml.global_tracker)
+    val tracker: Tracker = analytics.newTracker(BuildConfig.GA_TRACKER_ID)
 
     fun userAdded(newUser: User): Subscription {
         return rx.Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
