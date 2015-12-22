@@ -27,7 +27,7 @@ import java.util.*
 object RxMessageSync {
     fun getFirebaseMessages(
             context: Context, userId: String): EventCallback {
-        return getMessageService(context).getUserMessages(userId).map { messages ->
+        return getMessageService().getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()
             if (messages == null) {
                 UserMessagesDownloadedEventCallback(notifications)
@@ -47,17 +47,15 @@ object RxMessageSync {
         }.compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
-    fun saveFirebaseMessage(
-            context: Context, userId: String, message: Message): EventCallback {
+    fun saveFirebaseMessage(userId: String, message: Message): EventCallback {
         val messages = HashMap<String, Message>()
         messages.put(message.id(), message)
-        return getMessageService(context).addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+        return getMessageService().addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
-    fun deleteAllFirebaseMessages(
-            context: Context, user: User): Observable<Message> {
+    fun deleteAllFirebaseMessages(user: User): Observable<Message> {
         val contactId = user.id()
-        return getMessageService(context).deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
+        return getMessageService().deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
     }
 
     private fun getProxyIcon(context: Context): Bitmap {

@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.getHerokuUserervice
+import com.shareyourproxy.api.RestClient.getHerokuUserService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.factory.UserFactory.createModelUser
 import com.shareyourproxy.api.domain.model.Channel
@@ -101,8 +101,8 @@ object RxQuery {
         return Observable.just<Context>(context).map<User>(getRealmUser(userId)).compose<User>(RxHelper.observeMain<User>()).toBlocking().single()
     }
 
-    fun getUserContactScore(context: Context, userId: String): Observable<Int> {
-        return getHerokuUserervice(context).userFollowerCount(userId).compose<Int>(
+    fun getUserContactScore(userId: String): Observable<Int> {
+        return getHerokuUserService().userFollowerCount(userId).compose<Int>(
                 RxHelper.observeMain<Int>())
     }
 
@@ -119,35 +119,26 @@ object RxQuery {
         return user
     }
 
-    fun searchMatchingUsers(
-            context: Context, queryName: String, userId: String): Observable<HashMap<String, User>> {
+    fun searchMatchingUsers(context: Context, queryName: String, userId: String): Observable<HashMap<String, User>> {
         return Observable.concat<HashMap<String, User>>(
                 searchLocalMatchingUsers(context, queryName, userId),
-                searchRemoteMatchingUsers(context, queryName))
+                searchRemoteMatchingUsers(queryName))
 
     }
 
-    private fun searchLocalMatchingUsers(
-            context: Context, queryName: String, userId: String): Observable<HashMap<String, User>> {
+    private fun searchLocalMatchingUsers(context: Context, queryName: String, userId: String): Observable<HashMap<String, User>> {
         return Observable.just<String>(queryName).map<HashMap<String, User>>(searchLocalUserString(context, userId))
     }
 
-    private fun searchRemoteMatchingUsers(
-            context: Context, queryName: String): Observable<HashMap<String, User>> {
-        return Observable.just<String>(queryName).map<HashMap<String, User>>(searchRemoteUserString(context))
+    private fun searchRemoteMatchingUsers(queryName: String): Observable<HashMap<String, User>> {
+        return Observable.just<String>(queryName).map<HashMap<String, User>>(searchRemoteUserString())
     }
 
-    private fun searchLocalUserString(
-            context: Context, userId: String): Func1<String, HashMap<String, User>> {
-        return object : Func1<String, HashMap<String, User>> {
-            public override fun call(username: String): HashMap<String, User> {
-                return matchLocalUsers(context, userId, username)
-            }
-        }
+    private fun searchLocalUserString(context: Context, userId: String): Func1<String, HashMap<String, User>> {
+        return Func1 { username -> matchLocalUsers(context, userId, username) }
     }
 
-    private fun matchLocalUsers(
-            context: Context, userId: String, constraint: CharSequence): HashMap<String, User> {
+    private fun matchLocalUsers(context: Context, userId: String, constraint: CharSequence): HashMap<String, User> {
         val realmUsers: RealmResults<RealmUser>
         val realm = Realm.getInstance(context)
         realm.refresh()
@@ -162,9 +153,9 @@ object RxQuery {
         return users
     }
 
-    private fun searchRemoteUserString(context: Context): Func1<String, HashMap<String, User>> {
+    private fun searchRemoteUserString(): Func1<String, HashMap<String, User>> {
         return Func1 { queryName ->
-            getHerokuUserervice(context).searchUsers(queryName)
+            getHerokuUserService().searchUsers(queryName)
                     .map<HashMap<String, User>>(arrayToUserHashMap())
                     .toBlocking().single()
         }

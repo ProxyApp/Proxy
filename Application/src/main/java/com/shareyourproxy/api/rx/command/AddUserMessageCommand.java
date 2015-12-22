@@ -44,7 +44,7 @@ public class AddUserMessageCommand extends BaseCommand {
 
     @Override
     public EventCallback execute(Service service) {
-        return RxMessageSync.INSTANCE.saveFirebaseMessage(service, userId, message);
+        return RxMessageSync.INSTANCE.saveFirebaseMessage(userId, message);
     }
 
     @Override

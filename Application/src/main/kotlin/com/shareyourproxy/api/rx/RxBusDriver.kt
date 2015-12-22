@@ -37,9 +37,11 @@ object RxBusDriver : Parcelable {
 
      * @param event event object.
      */
-    fun post(event: Any) {
-        Timber.i("Event Posted: ${event.toString()}")
-        _rxBus.onNext(event)
+    fun post(event: Any?) {
+        if(event!=null) {
+            Timber.i("Event Posted: ${event.toString()}")
+            _rxBus.onNext(event)
+        }
     }
 
     override fun describeContents(): Int {

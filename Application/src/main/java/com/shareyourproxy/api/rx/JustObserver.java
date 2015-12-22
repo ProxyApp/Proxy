@@ -12,22 +12,27 @@ public abstract class JustObserver<T> implements Observer<T> {
 
     @Override
     public void onCompleted() {
-        Timber.v(this.toString(), "onComplete");
+        Timber.v("%1$s completed", this.toString());
+        complete();
     }
 
     @Override
     public void onError(Throwable e) {
         Timber.e(Log.getStackTraceString(e));
-        this.error(e);
+        error(e);
     }
 
     @Override
     public void onNext(T t) {
-        this.next(t);
+        Timber.v("%1$s onNext obj: %2$s", this.toString(), t.toString());
+        next(t);
     }
 
     public abstract void next(T t);
 
     public void error(Throwable e) {
+    }
+
+    public void complete() {
     }
 }

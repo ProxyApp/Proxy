@@ -3,20 +3,19 @@ package com.shareyourproxy.app;
 import android.os.Bundle;
 import android.view.View;
 
-import com.firebase.client.AuthData;
-import com.google.android.gms.common.ConnectionResult;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxHelper;
-import com.shareyourproxy.api.rx.RxLoginHelper;
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent;
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent;
-import com.shareyourproxy.app.fragment.AggregateFeedFragment;
 import com.shareyourproxy.app.fragment.DispatchFragment;
 
 import rx.subscriptions.CompositeSubscription;
 
+import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
+import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 import static com.shareyourproxy.IntentLauncher.launchLoginActivity;
 import static com.shareyourproxy.IntentLauncher.launchMainActivity;
+import static com.shareyourproxy.app.fragment.AggregateFeedFragment.ARG_SELECT_PROFILE_TAB;
 
 /**
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the {@link AggregateFeedActivity} if we have a cached user or send them to
@@ -37,42 +36,11 @@ public class DispatchActivity extends GoogleApiActivity {
         initialize();
     }
 
-    /**
-     * This function is called by {@link GoogleApiActivity#onStart()}. This function generates a token and calls {@link #onAuthenticated(AuthData)} if
-     * successful. Else go to the login activity and finish this dispatch activity.
-     */
-    @Override
-    public void onConnected(Bundle bundle) {
-        loginToFirebaseSubscription(this);
-    }
-
-    @Override
-    public void onAuthenticated(AuthData authData) {
-        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
-        _subscriptions.add(RxLoginHelper.INSTANCE.loginObservable(this).subscribe());
-    }
-
-    @Override
-    public void onAuthenticationError(Throwable e) {
-        goToLoginActivity();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        goToLoginActivity();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        goToLoginActivity();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
         _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
-        _subscriptions.add(getRxBus().toObservable()
-            .subscribe(getRxBusObserver()));
+        _subscriptions.add(getRxBus().toObservable().subscribe(getRxBusObserver()));
     }
 
     @Override
@@ -95,8 +63,7 @@ public class DispatchActivity extends GoogleApiActivity {
      */
     private void goFullScreen() {
         View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        int uiOptions = SYSTEM_UI_FLAG_HIDE_NAVIGATION | SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
     }
 
@@ -117,7 +84,7 @@ public class DispatchActivity extends GoogleApiActivity {
      * Go to the main user feed activity and finish this one.
      */
     private void goToUserFeedActivity() {
-        launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_PROFILE_TAB, false, null);
+        launchMainActivity(this, ARG_SELECT_PROFILE_TAB, false, null);
         finish();
     }
 

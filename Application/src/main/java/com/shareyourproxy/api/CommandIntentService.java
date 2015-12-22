@@ -35,12 +35,13 @@ public class CommandIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         BaseCommand command = intent.getExtras().getParcelable(ARG_COMMAND_CLASS);
         ResultReceiver result = intent.getExtras().getParcelable(ARG_RESULT_RECEIVER);
-
         try {
-            EventCallback event = command.execute(this);
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(ARG_RESULT_BASE_EVENT, event);
-            result.send(Activity.RESULT_OK, bundle);
+            EventCallback event = command != null ? command.execute(this) : null;
+            if (result != null) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(ARG_RESULT_BASE_EVENT, event);
+                result.send(Activity.RESULT_OK, bundle);
+            }
         } catch (Exception e) {
             logError(intent, result, e);
         }

@@ -30,7 +30,7 @@ object RxGroupContactSync {
             val userId = newUser.id()
             updateRealmUser(context, newUser)
             updateRealmUser(context, contact)
-            getUserService(context).updateUser(userId, newUser).subscribe()
+            getUserService().updateUser(userId, newUser).subscribe()
             userListPair
         }
     }

@@ -25,8 +25,6 @@ import com.shareyourproxy.app.dialog.AddAuthChannelDialog;
 import com.shareyourproxy.app.dialog.AddChannelDialog;
 import com.shareyourproxy.app.dialog.AddRedditChannelDialog;
 import com.shareyourproxy.app.dialog.ErrorDialog;
-import com.shareyourproxy.app.dialog.InstagramAuthDialog;
-import com.shareyourproxy.app.dialog.SpotifyAuthDialog;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -261,20 +259,6 @@ public class AddChannelListFragment extends BaseFragment implements ItemClickLis
             case Reddit:
                 AddRedditChannelDialog.newInstance(_clickedChannel.channelType())
                     .show(getActivity().getSupportFragmentManager());
-                break;
-            case Instagram:
-                InstagramAuthDialog.newInstance().show(getFragmentManager());
-                break;
-            case Spotify:
-                SpotifyAuthDialog.newInstance().show(getFragmentManager());
-//                AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder
-// (CLIENT_ID,
-//                    AuthenticationResponse.Type.TOKEN,
-//                    REDIRECT_URI);
-//                builder.setScopes(new String[]{"user-read-private", "streaming"})
-//                AuthenticationRequest request = builder.build();
-//
-//                AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
                 break;
             default:
                 break;

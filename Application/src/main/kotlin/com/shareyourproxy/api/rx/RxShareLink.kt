@@ -9,34 +9,35 @@ import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.event.ShareLinkEventCallback
 import rx.Observable
+import rx.Observable.create
 import rx.Subscriber
 import rx.functions.Func1
 import java.util.*
 
 /**
- * Created by Evan on 7/26/15.
+ * Handle shared link queue.
  */
 object RxShareLink {
-    fun getShareLinkMessageObservable(
-            context: Context, user: User, groups: ArrayList<GroupToggle>): EventCallback {
-        return Observable.create(Observable.OnSubscribe<EventCallback> { subscriber ->
+    fun getShareLinkMessageObservable(context: Context, user: User, groups: ArrayList<GroupToggle>): EventCallback {
+        return create(getSharedLinks(context, groups, user)).toBlocking().single()
+    }
+
+    private fun getSharedLinks(context: Context, groups: ArrayList<GroupToggle>, user: User): Observable.OnSubscribe<EventCallback> {
+        return Observable.OnSubscribe<EventCallback> { subscriber ->
             try {
                 val groupIds = Observable.just(groups).map(getCheckedGroups(context)).toBlocking().single()
-
-                Observable.from(groupIds).map(queryLinkIds(context, user.id())).map(generateMessage(context)).subscribe(handleMessage(subscriber))
-
+                Observable.from(groupIds).map(queryLinkIds(user.id())).map(generateMessage(context)).subscribe(handleMessage(subscriber))
             } catch (e: Exception) {
                 subscriber.onError(e)
             }
-        }).toBlocking().single()
+        }
     }
 
-    fun queryLinkIds(context: Context, userId: String): Func1<String, SharedLink> {
-        return Func1 { groupId -> RestClient.getHerokuUserervice(context).getSharedLink(groupId, userId).toBlocking().single() }
+    fun queryLinkIds(userId: String): Func1<String, SharedLink> {
+        return Func1 { groupId -> RestClient.getHerokuUserService().getSharedLink(groupId, userId).toBlocking().single() }
     }
 
-    fun handleMessage(
-            subscriber: Subscriber<in EventCallback>): Subscriber<String> {
+    fun handleMessage(subscriber: Subscriber<in EventCallback>): Subscriber<String> {
         return object : Subscriber<String>() {
             override fun onCompleted() {
                 subscriber.onCompleted()
@@ -62,8 +63,7 @@ object RxShareLink {
         }
     }
 
-    private fun getCheckedGroups(
-            context: Context): Func1<ArrayList<GroupToggle>, ArrayList<String>> {
+    private fun getCheckedGroups(context: Context): Func1<ArrayList<GroupToggle>, ArrayList<String>> {
         return Func1 { groupToggles ->
             val analytics = RxGoogleAnalytics(context)
             val checkedGroups = ArrayList<String>(groupToggles.size)

@@ -1,5 +1,6 @@
 package com.shareyourproxy.api.service;
 
+import com.google.android.gms.plus.model.people.Person;
 import com.shareyourproxy.api.domain.model.SharedLink;
 import com.shareyourproxy.api.domain.model.User;
 
@@ -8,6 +9,7 @@ import java.util.HashSet;
 
 import retrofit.http.GET;
 import retrofit.http.PUT;
+import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
 
@@ -64,4 +66,7 @@ public interface HerokuUserService {
     @PUT("/shared")
     Observable<String> putSharedLinks(
         @Query("groupId") ArrayList<String> groupIds, @Query("userId") String userId);
+
+    @GET("/current")
+    Observable<Person> getCurrentPerson(@Path("userId") String userId);
 }

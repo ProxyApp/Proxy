@@ -2,52 +2,20 @@ package com.shareyourproxy.app;
 
 import android.os.Bundle;
 
-import com.firebase.client.AuthData;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.shareyourproxy.app.fragment.MainIntroductionFragment;
 
-import timber.log.Timber;
-
 /**
- * Created by Evan on 9/21/15.
+ * Introduce a user with a view pager flow.
  */
-public class IntroductionActivity extends GoogleApiActivity {
-
-    private GoogleApiClient _googleApiClient;
-
+public class IntroductionActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _googleApiClient = getGoogleApiClient();
         if (savedInstanceState == null) {
             MainIntroductionFragment mainFragment = MainIntroductionFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, mainFragment)
                 .commit();
         }
-    }
-
-    @Override
-    public void onAuthenticated(AuthData authData) {
-    }
-
-    @Override
-    public void onAuthenticationError(Throwable e) {
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Timber.i("Connected to G+");
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        _googleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        _googleApiClient.connect();
     }
 }

@@ -19,7 +19,6 @@ import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.R;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
-import com.shareyourproxy.api.rx.RxActivityFeedSync;
 import com.shareyourproxy.api.rx.RxHelper;
 import com.shareyourproxy.api.rx.command.eventcallback.ActivityFeedDownloadedEvent;
 import com.shareyourproxy.app.adapter.ActivityFeedAdapter;
@@ -106,13 +105,6 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
         return rootView;
     }
 
-    public void getUserFeed(TwitterSession session) {
-        _subscriptions = _rxHelper.checkCompositeButton(_subscriptions);
-        _subscriptions.add(RxActivityFeedSync.INSTANCE
-            .getChannelFeed(getActivity(), session, _userContact.channels())
-            .subscribe(ActivityFeedObserver()));
-    }
-
     public JustObserver<ActivityFeedDownloadedEvent> ActivityFeedObserver() {
         return new JustObserver<ActivityFeedDownloadedEvent>() {
             @Override
@@ -143,7 +135,6 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
             public void success(Result<TwitterSession> result) {
                 Twitter.getSessionManager().setActiveSession(result.data);
                 _adapter.removeItem(_lastClickedAuthItem);
-                getUserFeed(result.data);
             }
 
             @Override
@@ -179,7 +170,6 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
         initializeTwitterLogin();
         initializeRecyclerView();
         TwitterSession session = Twitter.getSessionManager().getActiveSession();
-        getUserFeed(session);
     }
 
     /**

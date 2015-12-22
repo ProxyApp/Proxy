@@ -1,7 +1,7 @@
 package com.shareyourproxy.api.rx
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.getHerokuUserervice
+import com.shareyourproxy.api.RestClient.getHerokuUserService
 import com.shareyourproxy.api.RestClient.getUserService
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
@@ -25,7 +25,7 @@ object RxUserSync {
     fun syncAllContacts(context: Context, loggedInUser: User): EventCallback {
         val contacts = loggedInUser.contacts()
         return if ((contacts != null && contacts.size > 0))
-            getFirebaseUsers(context, loggedInUser)
+            getFirebaseUsers(loggedInUser)
                     .map(saveRealmUsers(context))
                     .map(usersDownloaded(loggedInUser))
                     .compose(RxHelper.observeMain<EventCallback>())
@@ -35,19 +35,18 @@ object RxUserSync {
     }
 
     fun saveUser(context: Context, newUser: User): EventCallback {
-        return getUserService(context)
+        return getUserService()
                 .updateUser(newUser.id(), newUser)
                 .map(saveRealmUser(context))
                 .compose(RxHelper.observeMain<EventCallback>())
                 .toBlocking().single()
     }
 
-    private fun getFirebaseUsers(context: Context, user: User): rx.Observable<ArrayList<User>> {
-        return getHerokuUserervice(context).listUsers(user.contacts())
+    private fun getFirebaseUsers(user: User): rx.Observable<ArrayList<User>> {
+        return getHerokuUserService().listUsers(user.contacts())
     }
 
-    private fun saveRealmUsers(
-            context: Context): Func1<ArrayList<User>, HashMap<String, User>> {
+    private fun saveRealmUsers(context: Context): Func1<ArrayList<User>, HashMap<String, User>> {
         return Func1 { users ->
             val usersMap = HashMap<String, User>(users.size)
             for (user in users) {
@@ -65,8 +64,7 @@ object RxUserSync {
         }
     }
 
-    private fun usersDownloaded(
-            loggedInUser: User): Func1<HashMap<String, User>, EventCallback> {
+    private fun usersDownloaded(loggedInUser: User): Func1<HashMap<String, User>, EventCallback> {
         return Func1 { users -> UsersDownloadedEventCallback(loggedInUser, users) }
     }
 }

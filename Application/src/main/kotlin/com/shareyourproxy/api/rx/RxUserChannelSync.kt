@@ -18,19 +18,22 @@ import rx.functions.Func1
  * Sync newChannel operations.
  */
 object RxUserChannelSync {
-    fun saveUserChannel(
-            context: Context, oldUser: User, oldChannel: Channel?, newChannel: Channel): UserChannelAddedEventCallback {
+    fun saveUserChannel(context: Context, oldUser: User, oldChannel: Channel?, newChannel: Channel): UserChannelAddedEventCallback {
         return Observable.just(oldUser)
                 .map(putUserChannel(newChannel))
                 .map(addRealmUser(context))
-                .map(saveChannelToFirebase(context, newChannel))
+                .map(saveChannelToFirebase(newChannel))
                 .map(userChannelAddedEventCallback(oldChannel, newChannel))
                 .toBlocking().single()
     }
 
-    fun deleteChannel(
-            context: Context, oldUser: User, channel: Channel, position: Int): EventCallback {
-        return Observable.just(oldUser).map(removeUserChannel(channel)).map(addRealmUser(context)).map(deleteChannelFromFirebase(context, channel)).map(userChannelDeletedEventCallback(channel, position)).toBlocking().single()
+    fun deleteChannel(context: Context, oldUser: User, channel: Channel, position: Int): EventCallback {
+        return Observable.just(oldUser)
+                .map(removeUserChannel(channel))
+                .map(addRealmUser(context))
+                .map(deleteChannelFromFirebase(channel))
+                .map(userChannelDeletedEventCallback(channel, position))
+                .toBlocking().single()
     }
 
     private fun addRealmUser(context: Context): Func1<User, User> {
@@ -52,14 +55,12 @@ object RxUserChannelSync {
         }
     }
 
-    private fun saveChannelToFirebase(
-            context: Context, channel: Channel): Func1<User, User> {
+    private fun saveChannelToFirebase(channel: Channel): Func1<User, User> {
         return Func1 { user ->
             val userId = user.id()
             val channelId = channel.id()
-
-            getUserChannelService(context).addUserChannel(userId, channelId, channel).subscribe()
-            getUserGroupService(context).updateUserGroups(userId, user.groups()).subscribe()
+            getUserChannelService().addUserChannel(userId, channelId, channel).subscribe()
+            getUserGroupService().updateUserGroups(userId, user.groups()).subscribe()
             user
         }
     }
@@ -76,13 +77,12 @@ object RxUserChannelSync {
         }
     }
 
-    private fun deleteChannelFromFirebase(
-            context: Context, channel: Channel): Func1<User, User> {
+    private fun deleteChannelFromFirebase(channel: Channel): Func1<User, User> {
         return Func1 { user ->
             val userId = user.id()
             val channelId = channel.id()
-            getUserChannelService(context).deleteUserChannel(userId, channelId).subscribe()
-            getUserGroupService(context).updateUserGroups(userId, user.groups()).subscribe()
+            getUserChannelService().deleteUserChannel(userId, channelId).subscribe()
+            getUserGroupService().updateUserGroups(userId, user.groups()).subscribe()
             user
         }
     }

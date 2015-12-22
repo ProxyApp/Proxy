@@ -20,6 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Proxy.Base"
         tools:ignore="GoogleAppIndexingWarning">
+        <!-- Hack -->
+        <provider
+            android:name="com.google.android.gms.measurement.AppMeasurementContentProvider"
+            android:authorities="com.shareyourproxy.google_measurement_service"
+            android:exported="false"
+            tools:replace="android:authorities"/>
         <!--Google Analytics and Campaign Tracking Services-->
         <service android:name="com.google.android.gms.analytics.AnalyticsService"
                  android:enabled="true"
@@ -38,19 +44,12 @@
              installation campaign reporting -->
         <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
                   android:exported="true"/>
-        <!-- Hack -->
-        <provider
-            android:name="com.google.android.gms.measurement.AppMeasurementContentProvider"
-            android:authorities="com.shareyourproxy.google_measurement_service"
-            android:exported="false"
-            tools:replace="android:authorities"/>
         <!-- Activities -->
         <activity
             android:name=".app.AboutActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.VIEW_ABOUT"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -59,7 +58,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.ADD_CHANNEL_LIST"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -69,12 +67,10 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.DISPATCH"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -83,7 +79,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.EDIT_GROUP"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -98,7 +93,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.VIEW_GROUP_USERS"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -107,7 +101,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.INTRODUCTION"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -116,7 +109,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.LOGIN"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -125,7 +117,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.MAIN_VIEW"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -134,7 +125,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.SEARCH"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -143,7 +133,6 @@
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.USER_PROFILE"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -156,7 +145,6 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.shareyourproxy.intent.action.NOTIFICATION"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </service>
@@ -171,5 +159,4 @@
             android:name="io.fabric.ApiKey"
             android:value="1f1b5adb7bfa3bbc852c4757ea0fd56bd64c79ea"/>
     </application>
-
 </manifest>

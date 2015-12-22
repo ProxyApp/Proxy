@@ -1,53 +1,47 @@
 package com.shareyourproxy.app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.Scopes;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.plus.Plus;
-import com.shareyourproxy.BuildConfig;
-import com.shareyourproxy.Constants;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.plus.model.people.Person;
 import com.shareyourproxy.R;
+import com.shareyourproxy.api.RestClient;
+import com.shareyourproxy.api.domain.model.Group;
+import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
-import com.shareyourproxy.api.rx.RxHelper;
-import com.shareyourproxy.api.rx.RxLoginHelper;
-import com.shareyourproxy.api.rx.RxLoginHelper.AuthResultHandler;
-import com.shareyourproxy.api.rx.event.RefreshFirebaseAuthenticationEvent;
 import com.shareyourproxy.app.dialog.ErrorDialog;
 
-import java.io.IOException;
+import java.util.HashMap;
 
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
-import timber.log.Timber;
-
-import static com.shareyourproxy.Constants.PROVIDER_GOOGLE;
+import static com.shareyourproxy.BuildConfig.VERSION_CODE;
 
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
-public abstract class GoogleApiActivity extends BaseActivity implements
-    ConnectionCallbacks, OnConnectionFailedListener {
+public abstract class GoogleApiActivity extends BaseActivity implements ConnectionCallbacks, OnConnectionFailedListener {
     public static final String GOOGLE_UID_PREFIX = "google:";
-    public static final int REQUESTCODE_SIGN_IN = 0;
+    private static final int RC_SIGN_IN = 0;
     private static final String GOOGLE_ERROR_AUTH = "Error authenticating with Google: %1$s";
-    private static final Firebase _firebaseRef = new Firebase(BuildConfig.FIREBASE_ENDPOINT);
-    private AuthResultHandler _authResultHandler = new AuthResultHandler(this);
-    private boolean _googleIntentInProgress = false;
-    private CompositeSubscription _subscriptions;
-    private boolean _isTokenRefreshing = false;
-    private JustObserver _tokenRefreshObservable;
+    private static GoogleSignInOptions OPTIONS = getSignInOptions();
+    private JustObserver<String> _tokenRefreshObservable;
     private GoogleApiClient _googleApiClient;
-    private RxHelper rxHelper = RxHelper.INSTANCE;
+
+    @NonNull
+    private static GoogleSignInOptions getSignInOptions() {
+        return new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+    }
 
     /**
      * Return log in onError dialog based on the type of onError.
@@ -66,57 +60,56 @@ public abstract class GoogleApiActivity extends BaseActivity implements
         return new GoogleApiClient.Builder(activity)
             .addConnectionCallbacks(activity)
             .addOnConnectionFailedListener(activity)
-            .addApi(Plus.API, Plus.PlusOptions.builder().build())
-            .addScope(Plus.SCOPE_PLUS_LOGIN)
-            .addScope(new Scope(Scopes.PLUS_ME))
-            .addScope(new Scope(SCOPE_EMAIL))
-            .addScope(Plus.SCOPE_PLUS_PROFILE).build();
+            .enableAutoManage(activity, activity)
+            .addApi(Auth.GOOGLE_SIGN_IN_API, OPTIONS).build();
     }
 
-    public abstract void onAuthenticated(AuthData authData);
+    public void onGooglePlusSignIn(GoogleSignInAccount acct){}
 
-    public abstract void onAuthenticationError(Throwable e);
+    public void onGooglePlusError(Status status){}
+
+    protected void signInToGoogle() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(_googleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
 
     /**
-     * Get the authentication token from google plus so we can log into firebase.
+     * Create a User from their google profile.
+     *
+     * @return created user
      */
-    public Subscription loginToFirebaseSubscription(final GoogleApiActivity activity) {
-        return RxLoginHelper.INSTANCE.refreshGooglePlusToken(activity, _googleApiClient)
-            .compose(rxHelper.<String>observeMain()).subscribe(loginObserver(activity));
+    protected User createUserFromGoogle(GoogleSignInAccount acct) {
+        Uri userPhoto = acct.getPhotoUrl();
+        String id = acct.getId();
+
+        // Retrieve some profile information to personalize our app for the user.
+        Person currentUser = RestClient.getHerokuUserService().getCurrentPerson(id).toBlocking().single();
+        String userId = new StringBuilder(GOOGLE_UID_PREFIX).append(id).toString();
+        String firstName = currentUser.getName().getGivenName();
+        String lastName = currentUser.getName().getFamilyName();
+        String email = acct.getEmail();
+        String profileURL = userPhoto != null ? userPhoto.toString():null;
+        Person.Cover cover = currentUser.getCover();
+        String coverURL = null;
+        if (cover != null) {
+            Person.Cover.CoverPhoto coverPhoto = cover.getCoverPhoto();
+            if (coverPhoto != null) {
+                coverURL = coverPhoto.getUrl();
+            }
+        }
+        //Create a new User with empty groups, contacts, and channels
+        return User.create(userId, firstName, lastName, email, profileURL, coverURL,
+            null, getDefaultGroups(), null, VERSION_CODE);
     }
 
-    public JustObserver<String> loginObserver(final GoogleApiActivity activity) {
-        return new JustObserver<String>() {
-
-            @Override
-            public void next(String token) {
-                _firebaseRef.authWithOAuthToken(PROVIDER_GOOGLE, token, _authResultHandler);
-            }
-
-            @Override
-            public void error(Throwable e) {
-                if (e instanceof IOException) {
-                    Timber.e(GOOGLE_ERROR_AUTH, Log.getStackTraceString(e));
-                } else if (e instanceof UserRecoverableAuthException) {
-                    Timber.e("Recoverable Google OAuth onError: %1$s", Log.getStackTraceString(e));
-                    if (!_googleIntentInProgress) {
-                        _googleIntentInProgress = true;
-                        Intent recover = ((UserRecoverableAuthException) e).getIntent();
-                        startActivityForResult(recover, REQUESTCODE_SIGN_IN);
-                    }
-                } else if (e instanceof GoogleAuthException) {
-                    Timber.e(GOOGLE_ERROR_AUTH, Log.getStackTraceString(e));
-                }
-                activity.onAuthenticationError(e);
-            }
-        };
-    }
-
-    @Override
-    protected void onActivityResult(
-        int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        _googleIntentInProgress = false;
+    private HashMap<String, Group> getDefaultGroups() {
+        HashMap<String, Group> groups = new HashMap<>(3);
+        String[] groupLabels = getResources().getStringArray(R.array.default_groups);
+        for (String label : groupLabels) {
+            Group group = Group.create(label);
+            groups.put(group.id(), group);
+        }
+        return groups;
     }
 
     @Override
@@ -126,68 +119,39 @@ public abstract class GoogleApiActivity extends BaseActivity implements
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        _subscriptions = new CompositeSubscription();
-        _subscriptions.add(getRxBus().toObservable()
-            .subscribe(onNextEvent(this)));
-    }
-
-    private JustObserver<Object> onNextEvent(final GoogleApiActivity activity) {
-        return new JustObserver<Object>() {
-            @Override
-            public void next(Object event) {
-                if (event instanceof RefreshFirebaseAuthenticationEvent) {
-                    if (!_isTokenRefreshing) {
-                        _isTokenRefreshing = true;
-                        _subscriptions.add(RxLoginHelper.INSTANCE.refreshFirebaseAuth(activity,
-                            getGoogleApiClient(), getSharedPreferences())
-                            .subscribe(getTokenRefreshObserver()));
-                    }
-                }
-            }
-        };
-    }
-
-    public JustObserver<String> getTokenRefreshObserver() {
-        if (_tokenRefreshObservable == null) {
-            _tokenRefreshObservable = new JustObserver<String>() {
-                @Override
-                public void next(String token) {
-                    getSharedPreferences().edit()
-                        .putString(Constants.KEY_GOOGLE_PLUS_AUTH, token)
-                        .commit();
-                    _isTokenRefreshing = false;
-                }
-            };
-        }
-        return _tokenRefreshObservable;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        _subscriptions.unsubscribe();
-        _subscriptions = null;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // let the user press the button to connect to gms on the login activity
-        if (!(this instanceof LoginActivity)) {
-            _googleApiClient.connect();
-        }
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
-        _googleApiClient.disconnect();
+        if (_googleApiClient.isConnected()) {
+            _googleApiClient.disconnect();
+        }
     }
 
-    public GoogleApiClient getGoogleApiClient() {
-        return _googleApiClient;
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onActivityResult(
+        int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                onGooglePlusSignIn(result.getSignInAccount());
+            } else {
+                onGooglePlusError(result.getStatus());
+            }
+        }
+    }
 }

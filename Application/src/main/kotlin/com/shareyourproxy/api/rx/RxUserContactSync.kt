@@ -44,8 +44,8 @@ object RxUserContactSync {
         }
     }
 
-    private fun deleteFirebaseUserContact(context: Context, userId: String, contactId: String): Observable<String> {
-        getUserContactService(context).deleteUserContact(userId, contactId).subscribe()
+    private fun deleteFirebaseUserContact(userId: String, contactId: String): Observable<String> {
+        getUserContactService().deleteUserContact(userId, contactId).subscribe()
         return Observable.just(contactId)
     }
 
@@ -89,7 +89,7 @@ object RxUserContactSync {
         return Func1 { contactId ->
             Observable.zip(
                     deleteRealmUserContact(context, user, contactId),
-                    deleteFirebaseUserContact(context, user.id(), contactId),
+                    deleteFirebaseUserContact(user.id(), contactId),
                     zipDeleteUserContact())
         }
     }

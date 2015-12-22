@@ -131,12 +131,8 @@ public abstract class UserProfileFragment extends BaseFragment {
         .OnRefreshListener() {
         @Override
         public void onRefresh() {
-            User user = getLoggedInUser();
-            if (user != null) {
-                getRxBus().post(new SyncContactsCommand(user));
-            }
-            _rxQuery.getUserContactScore(getActivity(), _userContact.id())
-                .subscribe(getContactScoreObserver());
+            getRxBus().post(new SyncContactsCommand(getLoggedInUser()));
+            _rxQuery.getUserContactScore(_userContact.id()).subscribe(getContactScoreObserver());
         }
     };
     private RxHelper _rxHelper = RxHelper.INSTANCE;
@@ -190,8 +186,7 @@ public abstract class UserProfileFragment extends BaseFragment {
         initializeSwipeRefresh(swipeRefreshLayout, _refreshListener);
         initializeUserChannels();
         //followers score
-        _rxQuery.getUserContactScore(getActivity(), _userContact.id())
-            .subscribe(getContactScoreObserver());
+        _rxQuery.getUserContactScore(_userContact.id()).subscribe(getContactScoreObserver());
     }
 
     @Override
@@ -235,8 +230,7 @@ public abstract class UserProfileFragment extends BaseFragment {
             if (user != null && user.id().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
-                setLoggedInUser(getUserService(getActivity())
-                    .getUser(loggedInUserId).toBlocking().single());
+                setLoggedInUser(getUserService().getUser(loggedInUserId).toBlocking().single());
             }
         }
     }
@@ -279,8 +273,7 @@ public abstract class UserProfileFragment extends BaseFragment {
         } else {
             _analytics.userContactRemoved(event.user);
         }
-        _rxQuery.getUserContactScore(getActivity(), _userContact.id())
-            .subscribe(getContactScoreObserver());
+        _rxQuery.getUserContactScore(_userContact.id()).subscribe(getContactScoreObserver());
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {

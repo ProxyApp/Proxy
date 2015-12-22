@@ -3,8 +3,7 @@ package com.shareyourproxy.api.rx
 import android.content.Context
 import android.support.v7.util.SortedList
 import com.shareyourproxy.api.RestClient
-import com.shareyourproxy.api.RestClient.getUserChannelService
-import com.shareyourproxy.api.RestClient.getUserGroupService
+import com.shareyourproxy.api.RestClient.*
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel
 import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.UserFactory
@@ -57,8 +56,8 @@ object RxGroupChannelSync {
             EventCallback {
         return Observable.zip(
                 saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
-                saveFirebaseGroupChannels(context, user.id(), newTitle, oldGroup, channels),
-                zipAddGroupChannels(user, channels, oldGroup, groupEditType)).map(saveSharedLink(context)).toBlocking().single()
+                saveFirebaseGroupChannels(user.id(), newTitle, oldGroup, channels),
+                zipAddGroupChannels(user, channels, oldGroup, groupEditType)).map(saveSharedLink()).toBlocking().single()
     }
 
     fun updatePublicGroupChannels(context: Context, user: User, channels: ArrayList<ChannelToggle>): EventCallback {
@@ -73,8 +72,7 @@ object RxGroupChannelSync {
         }
         return Observable.zip(
                 saveRealmPublicGroupChannels(context, user, newChannels),
-                saveFirebasePublicChannels(context, user.id(), newChannels),
-                zipAddPublicChannels()).toBlocking().single()
+                saveFirebasePublicChannels(user.id(), newChannels), zipAddPublicChannels()).toBlocking().single()
     }
 
     fun getSelectedChannels(channels: SortedList<ChannelToggle>): HashSet<String> {
@@ -85,7 +83,7 @@ object RxGroupChannelSync {
         return Func1 { newGroups ->
             Observable.zip(
                     saveRealmGroupChannels(context, user, newGroups),
-                    saveFirebaseUserGroups(context, user.id(), newGroups),
+                    saveFirebaseUserGroups(user.id(), newGroups),
                     zipAddGroupsChannel()).toBlocking().single()
         }
     }
@@ -94,10 +92,10 @@ object RxGroupChannelSync {
         return Func2 { user, group -> UserGroupAddedEventCallback(user, group) }
     }
 
-    private fun saveSharedLink(context: Context): Func1<GroupChannelsUpdatedEventCallback, EventCallback> {
+    private fun saveSharedLink(): Func1<GroupChannelsUpdatedEventCallback, EventCallback> {
         return Func1 { event ->
             val link = SharedLink.create(event.user, event.group)
-            RestClient.getSharedLinkService(context).addSharedLink(link.id(), link).subscribe()
+            getSharedLinkService().addSharedLink(link.id(), link).subscribe()
             event
         }
     }
@@ -128,19 +126,17 @@ object RxGroupChannelSync {
         }
     }
 
-    private fun saveFirebaseUserGroups(context: Context, userId: String, groups: HashMap<String, Group>): Observable<Group> {
-        return RestClient.getUserGroupService(context).updateUserGroups(userId, groups)
+    private fun saveFirebaseUserGroups(userId: String, groups: HashMap<String, Group>): Observable<Group> {
+        return RestClient.getUserGroupService().updateUserGroups(userId, groups)
     }
 
     private fun zipAddPublicChannels(): Func2<User, HashMap<String, Channel>, EventCallback> {
         return Func2 { user, newChannels -> PublicChannelsUpdatedEvent(user, newChannels) }
     }
 
-    private fun saveFirebasePublicChannels(
-            context: Context, userId: String, newChannels: HashMap<String, Channel>): Observable<HashMap<String, Channel>> {
-        return getUserChannelService(context).addUserChannels(userId, newChannels)
+    private fun saveFirebasePublicChannels(userId: String, newChannels: HashMap<String, Channel>): Observable<HashMap<String, Channel>> {
+        return getUserChannelService().addUserChannels(userId, newChannels)
     }
-
 
     private val selectedChannels: Func1<SortedList<ChannelToggle>, HashSet<String>>
         get() = Func1 { groupEditChannels ->
@@ -169,11 +165,11 @@ object RxGroupChannelSync {
         }
     }
 
-    private fun saveFirebaseGroupChannels(context: Context, userId: String, newTitle: String, group: Group, channels: HashSet<String>):
+    private fun saveFirebaseGroupChannels(userId: String, newTitle: String, group: Group, channels: HashSet<String>):
             Observable<Group> {
         val groupId = group.id()
         val newGroup = Group.copy(group, newTitle, channels)
-        return getUserGroupService(context).addUserGroup(userId, groupId, newGroup)
+        return getUserGroupService().addUserGroup(userId, groupId, newGroup)
     }
 
     private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: GroupEditType):
