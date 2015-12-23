@@ -8,7 +8,7 @@ import com.shareyourproxy.R;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxGoogleAnalytics;
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback;
-import com.shareyourproxy.api.rx.event.AddChannelDialogSuccess;
+import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent;
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent;
 import com.shareyourproxy.app.dialog.SaveGroupChannelDialog;
 import com.shareyourproxy.app.fragment.AddChannelListFragment;
@@ -97,8 +97,8 @@ public class AddChannelListActivity extends BaseActivity {
                 public void next(Object event) {
                     if (event instanceof UserChannelAddedEventCallback) {
                         channelAdded((UserChannelAddedEventCallback) event);
-                    } else if (event instanceof AddChannelDialogSuccess) {
-                        showAddGroupChannelDialog((AddChannelDialogSuccess) event);
+                    } else if (event instanceof AddChannelDialogSuccessEvent) {
+                        showAddGroupChannelDialog((AddChannelDialogSuccessEvent) event);
                     } else if (event instanceof ChannelAddedEvent) {
                         ChannelAddedEvent((ChannelAddedEvent) event);
                     }
@@ -106,9 +106,9 @@ public class AddChannelListActivity extends BaseActivity {
             }));
     }
 
-    public void showAddGroupChannelDialog(AddChannelDialogSuccess event) {
-        SaveGroupChannelDialog.newInstance(event.channel,
-            event.user).show(getSupportFragmentManager());
+    public void showAddGroupChannelDialog(AddChannelDialogSuccessEvent event) {
+        SaveGroupChannelDialog.newInstance(event.getChannel(),
+            event.getUser()).show(getSupportFragmentManager());
     }
 
     public void ChannelAddedEvent(ChannelAddedEvent event) {
@@ -117,14 +117,14 @@ public class AddChannelListActivity extends BaseActivity {
 
     private void showSnackBar(ChannelAddedEvent event) {
         make(toolbar, getString(
-            R.string.blank_added, event.channel.channelType()), LENGTH_LONG).show();
+            R.string.blank_added, event.getChannel().channelType()), LENGTH_LONG).show();
     }
 
     public void channelAdded(UserChannelAddedEventCallback event) {
-        if (event.oldChannel == null) {
-            _analytics.channelAdded(event.newChannel.channelType());
+        if (event.getOldChannel() == null) {
+            _analytics.channelAdded(event.getNewChannel().channelType());
         } else {
-            _analytics.channelEdited(event.oldChannel.channelType());
+            _analytics.channelEdited(event.getOldChannel().channelType());
         }
         toolbar.setTitle(addAnotherChannel);
     }

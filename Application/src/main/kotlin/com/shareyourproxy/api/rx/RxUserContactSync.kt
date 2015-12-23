@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.util.Pair
-import com.shareyourproxy.api.RestClient.getUserContactService
+import com.shareyourproxy.api.RestClient.userContactService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
@@ -45,7 +45,7 @@ object RxUserContactSync {
     }
 
     private fun deleteFirebaseUserContact(userId: String, contactId: String): Observable<String> {
-        getUserContactService().deleteUserContact(userId, contactId).subscribe()
+        userContactService.deleteUserContact(userId, contactId).subscribe()
         return Observable.just(contactId)
     }
 
@@ -59,15 +59,13 @@ object RxUserContactSync {
         if (userGroups != null) {
             for (entryGroup in userGroups.entries) {
                 val group = entryGroup.value
-                val groupContacts = group.contacts()
-                if (groupContacts != null) {
-                    for (groupContactId in groupContacts) {
-                        if (groupContactId == contactId) {
-                            return Pair(groupContactId, true)
-                        }
+                val groupContacts = group.contacts
+                for (groupContactId in groupContacts) {
+                    if (groupContactId == contactId) {
+                        return Pair(groupContactId, true)
                     }
-                    return Pair(contactId, false)
                 }
+                return Pair(contactId, false)
             }
         }
         return Pair(contactId, false)
@@ -84,12 +82,11 @@ object RxUserContactSync {
         return Func1 { contact -> contact.first }
     }
 
-    private fun zipDeleteUserContact(
-            context: Context, user: User): Func1<String, Observable<EventCallback>> {
+    private fun zipDeleteUserContact(context: Context, user: User): Func1<String, Observable<EventCallback>> {
         return Func1 { contactId ->
             Observable.zip(
                     deleteRealmUserContact(context, user, contactId),
-                    deleteFirebaseUserContact(user.id(), contactId),
+                    deleteFirebaseUserContact(user.id, contactId),
                     zipDeleteUserContact())
         }
     }

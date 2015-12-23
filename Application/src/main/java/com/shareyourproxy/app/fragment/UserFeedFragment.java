@@ -147,7 +147,7 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
     }
 
     private void activityFeedDownloaded(ActivityFeedDownloadedEvent event) {
-        _adapter.refreshFeedData(event.feedItems);
+        _adapter.refreshFeedData(event.getFeedItems());
     }
 
     @Override
@@ -238,7 +238,7 @@ public class UserFeedFragment extends BaseFragment implements ItemClickListener 
                 break;
             case ActivityFeedAdapter.VIEWTYPE_CONTENT:
                 String url = _adapter.getItemData(position).actionAddress();
-                IntentLauncher.launchWebIntent(getActivity(), url);
+                IntentLauncher.INSTANCE.launchWebIntent(getActivity(), url);
                 break;
         }
     }

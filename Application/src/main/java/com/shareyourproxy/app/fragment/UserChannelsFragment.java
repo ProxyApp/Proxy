@@ -261,15 +261,15 @@ public class UserChannelsFragment extends BaseFragment implements ItemLongClickL
     }
 
     private void addUserChannel(UserChannelAddedEventCallback event) {
-        if (event.oldChannel != null) {
-            _adapter.updateItem(event.oldChannel, event.newChannel);
+        if (event.getOldChannel() != null) {
+            _adapter.updateItem(event.getOldChannel(), event.getNewChannel());
         } else {
-            _adapter.addItem(event.newChannel);
+            _adapter.addItem(event.getNewChannel());
         }
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
-        _adapter.removeItem(event.position);
+        _adapter.removeItem(event.getPosition());
     }
 
     @Override

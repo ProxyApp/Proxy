@@ -3,7 +3,6 @@ package com.shareyourproxy.app;
 import android.os.Bundle;
 
 import com.shareyourproxy.R;
-import com.shareyourproxy.api.domain.model.Contact;
 import com.shareyourproxy.api.domain.model.Group;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
@@ -45,7 +44,7 @@ public class AggregateFeedActivity extends BaseActivity {
      * @param event data
      */
     public void onDrawerItemSelected(SelectDrawerItemEvent event) {
-        switch (event.drawerItem) {
+        switch (event.getDrawerItem()) {
             case PROFILE:
                 User user = getLoggedInUser();
                 _analytics.userProfileViewed(user);

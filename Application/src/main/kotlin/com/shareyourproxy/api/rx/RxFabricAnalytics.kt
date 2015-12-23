@@ -4,9 +4,9 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
+import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserContactAddedEventCallback
-import com.shareyourproxy.api.rx.event.ShareLinkEventCallback
 import rx.Observable
 import rx.functions.Action1
 
@@ -14,7 +14,7 @@ import rx.functions.Action1
  * Dump all the analytics for fabric's Answers platform here.
  */
 object RxFabricAnalytics {
-    fun logAnalytics(answers: Answers, realmUser: User, event: EventCallback) {
+    fun logFabricAnalytics(answers: Answers, realmUser: User, event: EventCallback) {
         Observable.just(event)
                 .doOnNext(LogEvent(answers, realmUser))
                 .compose(RxHelper.observeMain())
@@ -34,12 +34,12 @@ object RxFabricAnalytics {
     }
 
     private fun logContactAddedEvent(answers: Answers, realmUser: User) {
-        val contactCount = realmUser.contacts()!!.size.toString()
+        val contactCount = realmUser.contacts.size.toString()
         answers.logCustom(CustomEvent("Contact Added").putCustomAttribute("Contact Count", contactCount))
     }
 
     private fun logChannelAddedEvent(answers: Answers, event: UserChannelAddedEventCallback) {
-        val channelType = event.newChannel.channelType().label
+        val channelType = event.newChannel.channelType.label
 
         if (event.oldChannel == null) {
             answers.logCustom(CustomEvent("Channel Added").putCustomAttribute("Channel Type", channelType))

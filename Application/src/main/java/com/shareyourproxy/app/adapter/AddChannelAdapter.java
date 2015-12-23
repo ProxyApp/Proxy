@@ -141,7 +141,7 @@ public class AddChannelAdapter extends NotificationRecyclerAdapter<Channel> {
 
         int weight1 = item1.channelType().getWeight();
         int weight2 = item2.channelType().getWeight();
-        int compareFirst = ObjectUtils.compare(weight1, weight2);
+        int compareFirst = ObjectUtils.Companion.compare(weight1, weight2);
 
         if (isWeb1 && isWeb2) {
             return 0;
@@ -194,7 +194,7 @@ public class AddChannelAdapter extends NotificationRecyclerAdapter<Channel> {
         holder.itemImage.setImageDrawable(
             getChannelIconDrawable(context, channel,
                 getChannelBackgroundColor(context, channelType)));
-        holder.itemLabel.setText(ObjectUtils.capitalize(channel.label()));
+        holder.itemLabel.setText(ObjectUtils.Companion.capitalize(channel.label()));
     }
 
     /**

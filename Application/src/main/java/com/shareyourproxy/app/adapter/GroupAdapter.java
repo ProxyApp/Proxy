@@ -64,7 +64,7 @@ public class GroupAdapter extends NotificationRecyclerAdapter<Group> {
      * @param group  the {@link Group} data
      */
     private void setLineItemViewData(final GroupViewHolder holder, Group group) {
-        holder.groupName.setText(capitalize(group.label()));
+        holder.groupName.setText(Companion.capitalize(group.label()));
     }
 
     @Override
@@ -99,7 +99,7 @@ public class GroupAdapter extends NotificationRecyclerAdapter<Group> {
         } else {
             newGroups = new HashMap<>(1);
         }
-        Group publicGroup = createPublicGroup();
+        Group publicGroup = Companion.createPublicGroup();
         newGroups.put(publicGroup.id(), publicGroup);
         refreshData(newGroups.values());
     }

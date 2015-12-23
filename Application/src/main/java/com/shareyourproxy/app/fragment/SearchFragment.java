@@ -126,7 +126,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
     @OnClick(R.id.fragment_search_empty_button)
     void onClickInviteFriend() {
         editText.setText("");
-        IntentLauncher.launchInviteFriendIntent(getActivity());
+        IntentLauncher.INSTANCE.launchInviteFriendIntent(getActivity());
     }
 
     /**
@@ -322,7 +322,7 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
                 } else if (event instanceof OnBackPressedEvent) {
                     imageViewClearButton.animate().alpha(0f).setDuration(_animationDuration);
                 } else if (event instanceof TextViewEditorActionEvent) {
-                    if (((TextViewEditorActionEvent) event).keyEvent.getKeyCode() ==
+                    if (((TextViewEditorActionEvent) event).getKeyEvent().getKeyCode() ==
                         KeyEvent.KEYCODE_DEL) {
                         if (editText.length() == 0) {
                             _adapter.clearUserList();
@@ -352,8 +352,8 @@ public class SearchFragment extends BaseFragment implements ItemClickListener {
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id(),
-            event.imageView, event.textView);
+        launchUserProfileActivity(getActivity(), event.getUser(), getLoggedInUser().id(),
+            event.getImageView(), event.getTextView());
     }
 
 }

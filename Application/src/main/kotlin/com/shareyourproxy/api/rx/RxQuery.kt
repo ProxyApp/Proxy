@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.getHerokuUserService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.factory.UserFactory.createModelUser
 import com.shareyourproxy.api.domain.model.Channel
@@ -10,6 +10,7 @@ import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.domain.realm.RealmUser
+import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback
 import io.realm.Case.INSENSITIVE
 import io.realm.Realm
@@ -51,7 +52,7 @@ object RxQuery {
 
     fun queryPermissionedChannels(
             user: User, loggedInUserId: String): Observable<HashMap<String, Channel>> {
-        return Observable.just<User>(user).map<HashMap<String, Channel>>(getPermissionedChannels(loggedInUserId)).compose<HashMap<String, Channel>>(RxHelper.observeMain<HashMap<String, Channel>>())
+        return Observable.just<User>(user).map<HashMap<String, Channel>>(getPermissionedChannels(loggedInUserId)).compose<HashMap<String, Channel>>(observeMain<HashMap<String, Channel>>())
     }
 
     private fun getPermissionedChannels(
@@ -59,37 +60,37 @@ object RxQuery {
         return Func1 { contact ->
             val permissionedIds = ArrayList<String>()
             val permissionedChannels = HashMap<String, Channel>()
-            val channels = contact.channels()
+            val channels = contact.channels
             //escape early
-            if (channels == null || channels.size == 0) {
+            if (channels.size == 0) {
                 permissionedChannels
             } else {
-                val groups = contact.groups()
+                val groups = contact.groups
                 //check the contacts groups for the logged in user and gather the channel
                 // Id's of that group
                 if (groups != null && groups.size > 0) {
                     for (group in groups.values) {
-                        val contacts = group.contacts()
+                        val contacts = group.contacts
                         if (contacts != null) {
                             for (contactId in contacts) {
                                 if (contactId == loggedInUserId) {
-                                    permissionedIds.addAll(group.channels())
+                                    permissionedIds.addAll(group.channels)
                                 }
                             }
                         }
                     }
                     // for the above key set data, find the channels associated
                     for (channelId in permissionedIds) {
-                        val channel = contact.channels()!![channelId]
+                        val channel = contact.channels[channelId]
                         if (channel != null) {
-                            permissionedChannels.put(channel.id(), channel)
+                            permissionedChannels.put(channel.id, channel)
                         }
                     }
                 }
                 // add public channels
                 for (channel in channels.values) {
-                    if (channel.isPublic!!) {
-                        permissionedChannels.put(channel.id(), channel)
+                    if (channel.isPublic) {
+                        permissionedChannels.put(channel.id, channel)
                     }
                 }
                 permissionedChannels
@@ -98,12 +99,11 @@ object RxQuery {
     }
 
     fun queryUser(context: Context, userId: String): User {
-        return Observable.just<Context>(context).map<User>(getRealmUser(userId)).compose<User>(RxHelper.observeMain<User>()).toBlocking().single()
+        return Observable.just<Context>(context).map<User>(getRealmUser(userId)).compose<User>(observeMain<User>()).toBlocking().single()
     }
 
     fun getUserContactScore(userId: String): Observable<Int> {
-        return getHerokuUserService().userFollowerCount(userId).compose<Int>(
-                RxHelper.observeMain<Int>())
+        return herokuUserService.userFollowerCount(userId).compose<Int>(observeMain<Int>())
     }
 
     private fun getRealmUser(userId: String): Func1<Context, User> {
@@ -155,7 +155,7 @@ object RxQuery {
 
     private fun searchRemoteUserString(): Func1<String, HashMap<String, User>> {
         return Func1 { queryName ->
-            getHerokuUserService().searchUsers(queryName)
+            herokuUserService.searchUsers(queryName)
                     .map<HashMap<String, User>>(arrayToUserHashMap())
                     .toBlocking().single()
         }
@@ -165,23 +165,23 @@ object RxQuery {
         return Func1 { users ->
             val userMap = HashMap<String, User>(users.size)
             for (user in users) {
-                userMap.put(user.id(), user)
+                userMap.put(user.id, user)
             }
             userMap
         }
     }
 
     fun queryContactGroups(user: User, selectedContact: User): List<GroupToggle> {
-        return Observable.from<Group>(user.groups()!!.values)
+        return Observable.from<Group>(user.groups.values)
                 .map<GroupToggle>(mapContacts(selectedContact))
                 .toList().toBlocking().single()
     }
 
     private fun mapContacts(selectedContact: User): Func1<Group, GroupToggle> {
         return Func1 { group ->
-            val contactId = selectedContact.id()
-            val contacts = group.contacts()
-            if (contacts != null && group.contacts()!!.contains(contactId)) {
+            val contactId = selectedContact.id
+            val contacts = group.contacts
+            if (group.contacts.contains(contactId)) {
                 return@Func1 GroupToggle(group, true)
             }
             GroupToggle(group, false)
@@ -200,7 +200,7 @@ object RxQuery {
 
     private fun filterSelectedGroups(): Func1<GroupToggle, Group> {
         return Func1 { editContact ->
-            if (editContact.isChecked) editContact.getGroup() else null
+            if (editContact.isChecked) editContact.group else null
         }
     }
 

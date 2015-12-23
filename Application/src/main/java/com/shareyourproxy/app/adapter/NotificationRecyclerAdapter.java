@@ -54,15 +54,15 @@ public abstract class NotificationRecyclerAdapter<T> extends SortedRecyclerAdapt
     public void removeNotificationCard(
         SharedPreferences prefs, NotificationCardDismissEvent
         event) {
-        if (event.adapter.getClass().equals(this.getClass())) {
-            if (event.holder instanceof HeaderViewHolder) {
+        if (event.getAdapter().getClass().equals(this.getClass())) {
+            if (event.getHolder() instanceof HeaderViewHolder) {
                 _isHeaderVisible = false;
                 notifyItemRemoved(0);
-            } else if (event.holder instanceof FooterViewHolder) {
+            } else if (event.getHolder() instanceof FooterViewHolder) {
                 _isFooterVisible = false;
                 notifyItemRemoved(getItemCount() - 1);
             }
-            prefs.edit().putBoolean(event.cardType.getKey(), true).apply();
+            prefs.edit().putBoolean(event.getCardType().getKey(), true).apply();
         }
     }
 

@@ -10,7 +10,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
 import com.shareyourproxy.Intents.getUserProfileIntent
 import com.shareyourproxy.R
-import com.shareyourproxy.api.RestClient.getMessageService
+import com.shareyourproxy.api.RestClient.messageService
 import com.shareyourproxy.api.domain.model.Message
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
@@ -27,13 +27,13 @@ import java.util.*
 object RxMessageSync {
     fun getFirebaseMessages(
             context: Context, userId: String): EventCallback {
-        return getMessageService().getUserMessages(userId).map { messages ->
+        return messageService.getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()
             if (messages == null) {
                 UserMessagesDownloadedEventCallback(notifications)
             } else {
                 for (message in messages.entries) {
-                    val fullName = message.value.fullName()
+                    val fullName = message.value.fullName
                     val intent = getPendingUserProfileIntent(
                             context, userId, message.value)
 
@@ -49,23 +49,22 @@ object RxMessageSync {
 
     fun saveFirebaseMessage(userId: String, message: Message): EventCallback {
         val messages = HashMap<String, Message>()
-        messages.put(message.id(), message)
-        return getMessageService().addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+        messages.put(message.id, message)
+        return messageService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
     fun deleteAllFirebaseMessages(user: User): Observable<Message> {
-        val contactId = user.id()
-        return getMessageService().deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
+        val contactId = user.id
+        return messageService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
     }
 
     private fun getProxyIcon(context: Context): Bitmap {
         return BitmapFactory.decodeResource(context.resources, R.mipmap.ic_proxy)
     }
 
-    private fun getPendingUserProfileIntent(
-            context: Context, loggedInUserId: String, message: Message): PendingIntent {
+    private fun getPendingUserProfileIntent(context: Context, loggedInUserId: String, message: Message): PendingIntent {
         // Creates an explicit intent for an Activity in your app
-        val contact = RxQuery.getRealmUser(context, message.contactId())
+        val contact = RxQuery.getRealmUser(context, message.contactId)
         val resultIntent = getUserProfileIntent(contact, loggedInUserId)
         val stackBuilder = TaskStackBuilder.create(context)
         stackBuilder.addParentStack(UserContactActivity::class.java)
@@ -73,7 +72,6 @@ object RxMessageSync {
         return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    private val userMessageCallback: Func1<HashMap<String, Message>, EventCallback>
-        get() = Func1 { message -> UserMessageAddedEventCallback(message) }
+    private val userMessageCallback: Func1<HashMap<String, Message>, EventCallback> get() = Func1 { message -> UserMessageAddedEventCallback(message) }
 }
 

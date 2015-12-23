@@ -36,7 +36,7 @@ public class ShareLinkAdapter extends SortedRecyclerAdapter<GroupToggle> impleme
         BaseRecyclerView recyclerView, HashMap<String, Group> groups) {
         ArrayList<GroupToggle> groupToggles = new ArrayList<>(groups.size());
         for (Group group : groups.values()) {
-            groupToggles.add(GroupToggle.create(group, false));
+            groupToggles.add(GroupToggle.Companion.create(group, false));
         }
         return new ShareLinkAdapter(recyclerView, groupToggles);
     }
@@ -54,7 +54,7 @@ public class ShareLinkAdapter extends SortedRecyclerAdapter<GroupToggle> impleme
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(capitalize(getItemData(position).getGroup().label()));
+        holder.checkedTextView.setText(Companion.capitalize(getItemData(position).getGroup().label()));
         holder.checkedTextView.setChecked(getItemData(position).isChecked());
     }
 

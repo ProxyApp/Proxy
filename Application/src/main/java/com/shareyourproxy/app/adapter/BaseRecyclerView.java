@@ -100,7 +100,7 @@ public class BaseRecyclerView extends RecyclerView {
      * Show or hide the empty view.
      */
     public void updateViewState(RecyclerViewDatasetChangedEvent event) {
-        _viewState = event.viewState;
+        _viewState = event.getViewState();
         switch (_viewState) {
             case MAIN:
                 toggleVisibility(this);

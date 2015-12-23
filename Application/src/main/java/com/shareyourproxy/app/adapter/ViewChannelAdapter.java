@@ -67,7 +67,7 @@ public class ViewChannelAdapter extends NotificationRecyclerAdapter<Channel> {
     protected int compare(Channel item1, Channel item2) {
         int weight1 = item1.channelType().getWeight();
         int weight2 = item2.channelType().getWeight();
-        int compareFirst = ObjectUtils.compare(weight1, weight2);
+        int compareFirst = ObjectUtils.Companion.compare(weight1, weight2);
         if (compareFirst == 0 || (weight1 > 4 && weight2 > 4)) {
             String label1 = item1.label();
             String label2 = item2.label();

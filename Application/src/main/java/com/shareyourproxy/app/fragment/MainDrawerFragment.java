@@ -71,7 +71,7 @@ public class MainDrawerFragment extends BaseFragment implements ItemLongClickLis
             @Override
             public void next(Object event) {
                 if (event instanceof LoggedInUserUpdatedEventCallback) {
-                    _adapter.updateUser(((LoggedInUserUpdatedEventCallback) event).user);
+                    _adapter.updateUser(((LoggedInUserUpdatedEventCallback) event).getUser());
                 }
             }
         };

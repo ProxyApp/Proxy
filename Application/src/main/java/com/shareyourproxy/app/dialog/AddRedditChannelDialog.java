@@ -43,7 +43,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
 
 
     private static final String ARG_CHANNEL_TYPE = "AddRedditChannelDialog.ChannelType";
-    private static final String TAG = getSimpleName(AddRedditChannelDialog.class);
+    private static final String TAG = Companion.getSimpleName(AddRedditChannelDialog.class);
     @Bind(R.id.dialog_reddit_channel_action_address_edittext)
     EditText editTextActionAddress;
     private final DialogInterface.OnClickListener _negativeClicked =
@@ -180,7 +180,7 @@ public class AddRedditChannelDialog extends BaseDialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _channelType = ChannelType.valueOfLabel(getArguments().getString(ARG_CHANNEL_TYPE));
+        _channelType = ChannelType.Companion.valueOfLabel(getArguments().getString(ARG_CHANNEL_TYPE));
     }
 
     @NonNull

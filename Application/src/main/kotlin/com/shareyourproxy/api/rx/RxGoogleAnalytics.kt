@@ -22,7 +22,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun userAdded(newUser: User): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("Add User").setAction("Google Plus").setLabel(newUser.fullName()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("Add User").setAction("Google Plus").setLabel(newUser.fullName).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)
@@ -55,7 +55,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun userProfileViewed(user: User): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("LoggedInUser Profile View").setLabel(user.fullName()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("LoggedInUser Profile View").setLabel(user.fullName).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)
@@ -66,7 +66,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun contactProfileViewed(user: User): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("Contact Profile View").setLabel(user.fullName()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("Contact Profile View").setLabel(user.fullName).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)
@@ -77,7 +77,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun userContactAdded(user: User): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("User Contact Added").setLabel(user.fullName()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("User Contact Added").setLabel(user.fullName).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)
@@ -88,7 +88,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun userContactRemoved(user: User): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("User Contact Removed").setLabel(user.fullName()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("User Event").setAction("User Contact Removed").setLabel(user.fullName).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)
@@ -99,7 +99,7 @@ class RxGoogleAnalytics constructor(context: Context) {
     fun shareLinkGenerated(group: Group): Subscription {
         return Single.create(Single.OnSubscribe<kotlin.Boolean> { singleSubscriber ->
             try {
-                tracker.send(HitBuilders.EventBuilder().setCategory("Share Link").setAction("Link Generated").setLabel(group.label()).build())
+                tracker.send(HitBuilders.EventBuilder().setCategory("Share Link").setAction("Link Generated").setLabel(group.label).build())
                 singleSubscriber.onSuccess(true)
             } catch (e: Exception) {
                 singleSubscriber.onError(e)

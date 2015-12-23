@@ -167,7 +167,7 @@ public class AggregateFeedFragment extends BaseFragment {
         //set the default selected tab
         TabLayout.Tab tab = slidingTabLayout.getTabAt(getActivity().getIntent().getExtras()
             .getInt(Constants.ARG_MAINFRAGMENT_SELECTED_TAB));
-        ViewUtils.tintDrawableCompat(tab.getIcon(), _selectedColor);
+        ViewUtils.INSTANCE.tintDrawableCompat(tab.getIcon(), _selectedColor);
         tab.select();
     }
 
@@ -181,12 +181,12 @@ public class AggregateFeedFragment extends BaseFragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                ViewUtils.tintDrawableCompat(tab.getIcon(), _selectedColor);
+                ViewUtils.INSTANCE.tintDrawableCompat(tab.getIcon(), _selectedColor);
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                ViewUtils.tintDrawableCompat(tab.getIcon(), _unselectedColor);
+                ViewUtils.INSTANCE.tintDrawableCompat(tab.getIcon(), _unselectedColor);
             }
 
             @Override

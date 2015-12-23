@@ -83,7 +83,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements Connecti
         String id = acct.getId();
 
         // Retrieve some profile information to personalize our app for the user.
-        Person currentUser = RestClient.getHerokuUserService().getCurrentPerson(id).toBlocking().single();
+        Person currentUser = RestClient.INSTANCE.getHerokuUserService().getCurrentPerson(id).toBlocking().single();
         String userId = new StringBuilder(GOOGLE_UID_PREFIX).append(id).toString();
         String firstName = currentUser.getName().getGivenName();
         String lastName = currentUser.getName().getFamilyName();
@@ -98,7 +98,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements Connecti
             }
         }
         //Create a new User with empty groups, contacts, and channels
-        return User.create(userId, firstName, lastName, email, profileURL, coverURL,
+        return User.Companion.create(userId, firstName, lastName, email, profileURL, coverURL,
             null, getDefaultGroups(), null, VERSION_CODE);
     }
 
@@ -106,7 +106,7 @@ public abstract class GoogleApiActivity extends BaseActivity implements Connecti
         HashMap<String, Group> groups = new HashMap<>(3);
         String[] groupLabels = getResources().getStringArray(R.array.default_groups);
         for (String label : groupLabels) {
-            Group group = Group.create(label);
+            Group group = Group.Companion.create(label);
             groups.put(group.id(), group);
         }
         return groups;

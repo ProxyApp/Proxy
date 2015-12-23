@@ -41,7 +41,7 @@ public class EditChannelDialog extends BaseDialogFragment {
     // Final
     private static final String ARG_CHANNEL = "EditChannelDialog.Channel";
     private static final String ARG_POSITION = "EditChannelDialog.Position";
-    private static final String TAG = ObjectUtils.getSimpleName(AddChannelDialog.class);
+    private static final String TAG = ObjectUtils.Companion.getSimpleName(AddChannelDialog.class);
     // View
     @Bind(R.id.dialog_channel_action_address_edittext)
     EditText editTextActionAddress;

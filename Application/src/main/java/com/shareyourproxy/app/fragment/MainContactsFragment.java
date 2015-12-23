@@ -206,7 +206,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
     }
 
     private void userUpdated(LoggedInUserUpdatedEventCallback event) {
-        checkRefresh(event.user);
+        checkRefresh(event.getUser());
     }
 
     @Override
@@ -223,7 +223,7 @@ public class MainContactsFragment extends BaseFragment implements ItemClickListe
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user, getLoggedInUser().id(),
-            event.imageView, event.textView);
+        launchUserProfileActivity(getActivity(), event.getUser(), getLoggedInUser().id(),
+            event.getImageView(), event.getTextView());
     }
 }

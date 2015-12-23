@@ -140,8 +140,8 @@ public class MainUserProfileFragment extends UserProfileFragment {
     }
 
     public void toggleFabVisibility(RecyclerViewDatasetChangedEvent event) {
-        if (event.adapter instanceof ViewChannelAdapter) {
-            if (event.viewState.equals
+        if (event.getAdapter() instanceof ViewChannelAdapter) {
+            if (event.getViewState().equals
                 (BaseRecyclerView.ViewState.EMPTY)) {
                 floatingActionButtonAddChannel.setVisibility(GONE);
                 floatingActionButtonShare.setVisibility(GONE);

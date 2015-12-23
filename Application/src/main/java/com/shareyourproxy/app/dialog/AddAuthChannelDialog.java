@@ -35,12 +35,12 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  */
 public class AddAuthChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL = "AddAuthChannelDialog.Channel";
-    private static final String TAG = getSimpleName(AddAuthChannelDialog.class);
+    private static final String TAG = Companion.getSimpleName(AddAuthChannelDialog.class);
     private final DialogInterface.OnClickListener _helpClicked =
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                IntentLauncher.launchFacebookHelpIntent(getActivity());
+                IntentLauncher.INSTANCE.launchFacebookHelpIntent(getActivity());
             }
         };
     @Bind(R.id.dialog_channel_auth_action_address_edittext)

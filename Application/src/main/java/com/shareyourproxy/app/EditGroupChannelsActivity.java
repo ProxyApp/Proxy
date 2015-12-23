@@ -124,14 +124,14 @@ public class EditGroupChannelsActivity extends BaseActivity {
 
     private void userGroupDeleted(UserGroupDeletedEventCallback event) {
         updateUserContacts(event);
-        launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_GROUP_TAB, true, event.group);
+        launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_GROUP_TAB, true, event.getGroup());
         onBackPressed();
     }
 
     private void updateUserContacts(UserGroupDeletedEventCallback event) {
         ArrayList<String> contacts = new ArrayList<>();
-        if (event.group.contacts() != null) {
-            for (String contactId : event.group.contacts()) {
+        if (event.getGroup().contacts() != null) {
+            for (String contactId : event.getGroup().contacts()) {
                 contacts.add(contactId);
             }
         }

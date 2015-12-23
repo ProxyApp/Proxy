@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import com.shareyourproxy.api.RestClient
-import com.shareyourproxy.api.RestClient.getSharedLinkService
+import com.shareyourproxy.api.RestClient.sharedLinkService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.SharedLink
@@ -22,28 +22,28 @@ object RxUserGroupSync {
     fun addUserGroup(context: Context, user: User, group: Group): EventCallback {
         return Observable.zip(
                 saveRealmUserGroup(context, group, user),
-                saveFirebaseUserGroup(user.id(), group),
+                saveFirebaseUserGroup(user.id, group),
                 zipAddUserGroup()).map(saveSharedLink()).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
     fun deleteUserGroup(context: Context, user: User, group: Group): EventCallback {
         return Observable.zip(
                 deleteRealmUserGroup(context, group, user),
-                deleteFirebaseUserGroup(user.id(), group),
+                deleteFirebaseUserGroup(user.id, group),
                 zipDeleteUserGroup()).map(deleteSharedLink()).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
     private fun deleteSharedLink(): Func1<UserGroupDeletedEventCallback, EventCallback> {
         return Func1 { event ->
-            getSharedLinkService().deleteSharedLink(event.group.id()).subscribe()
+            sharedLinkService.deleteSharedLink(event.group.id).subscribe()
             event
         }
     }
 
     private fun saveSharedLink(): Func1<UserGroupAddedEventCallback, EventCallback> {
         return Func1 { event ->
-            val link = SharedLink.create(event.user, event.group)
-            getSharedLinkService().addSharedLink(link.id(), link).subscribe()
+            val link = SharedLink(event.user.id, event.group.id)
+            sharedLinkService.addSharedLink(link.id, link).subscribe()
             event
         }
     }
@@ -83,11 +83,11 @@ object RxUserGroupSync {
     }
 
     private fun saveFirebaseUserGroup(userId: String, group: Group): Observable<Group> {
-        return RestClient.getUserGroupService().addUserGroup(userId, group.id(), group)
+        return RestClient.userGroupService.addUserGroup(userId, group.id, group)
     }
 
     private fun deleteFirebaseUserGroup(userId: String, group: Group): Observable<Group> {
-        RestClient.getUserGroupService().deleteUserGroup(userId, group.id()).subscribe()
+        RestClient.userGroupService.deleteUserGroup(userId, group.id).subscribe()
         return Observable.just(group)
     }
 }

@@ -230,7 +230,7 @@ public abstract class UserProfileFragment extends BaseFragment {
             if (user != null && user.id().equals(loggedInUserId)) {
                 setLoggedInUser(user);
             } else {
-                setLoggedInUser(getUserService().getUser(loggedInUserId).toBlocking().single());
+                setLoggedInUser(INSTANCE.getUserService().getUser(loggedInUserId).toBlocking().single());
             }
         }
     }
@@ -268,21 +268,21 @@ public abstract class UserProfileFragment extends BaseFragment {
     }
 
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
-        if (event.contactGroups.size() > 0) {
-            _analytics.userContactAdded(event.user);
+        if (event.getContactGroups().size() > 0) {
+            _analytics.userContactAdded(event.getUser());
         } else {
-            _analytics.userContactRemoved(event.user);
+            _analytics.userContactRemoved(event.getUser());
         }
         _rxQuery.getUserContactScore(_userContact.id()).subscribe(getContactScoreObserver());
     }
 
     private void deleteUserChannel(UserChannelDeletedEventCallback event) {
-        _deletedChannel = event.channel;
+        _deletedChannel = event.getChannel();
         showDeletedChannelSnackBar(coordinatorLayout);
     }
 
     private void addUserChannel(UserChannelAddedEventCallback event) {
-        if (event.oldChannel != null) {
+        if (event.getOldChannel() != null) {
             showChangesSavedSnackBar(coordinatorLayout);
         }
     }
@@ -293,8 +293,8 @@ public abstract class UserProfileFragment extends BaseFragment {
      * @param event data
      */
     void onChannelSelected(SelectUserChannelEvent event) {
-        ChannelType channelType = event.channel.channelType();
-        String actionAddress = event.channel.actionAddress();
+        ChannelType channelType = event.getChannel().channelType();
+        String actionAddress = event.getChannel().actionAddress();
         switch (channelType) {
             case Phone:
                 launchPhoneIntent(getActivity(), actionAddress);

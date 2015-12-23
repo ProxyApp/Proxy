@@ -121,8 +121,8 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * @param event group data
      */
     private void channelsUpdated(GroupChannelsUpdatedEventCallback event) {
-        getActivity().getIntent().putExtra(ARG_SELECTED_GROUP, event.group);
-        getSupportActionBar().setTitle(capitalize(getGroupArg().label()));
+        getActivity().getIntent().putExtra(ARG_SELECTED_GROUP, event.getGroup());
+        getSupportActionBar().setTitle(Companion.capitalize(getGroupArg().label()));
     }
 
     @Override
@@ -138,8 +138,8 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      * @param event data
      */
     public void onUserSelected(UserSelectedEvent event) {
-        launchUserProfileActivity(getActivity(), event.user,
-            getLoggedInUser().id(), event.imageView, event.textView);
+        launchUserProfileActivity(getActivity(), event.getUser(),
+            getLoggedInUser().id(), event.getImageView(), event.getTextView());
     }
 
     /**
@@ -156,7 +156,7 @@ public class GroupContactsFragment extends BaseFragment implements ItemClickList
      */
     private void initialize() {
         initializeRecyclerView();
-        buildToolbar(toolbar, capitalize(getGroupArg().label()), null);
+        buildToolbar(toolbar, Companion.capitalize(getGroupArg().label()), null);
     }
 
     /**

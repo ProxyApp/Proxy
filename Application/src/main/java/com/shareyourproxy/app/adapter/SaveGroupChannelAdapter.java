@@ -26,7 +26,7 @@ import static com.shareyourproxy.util.ObjectUtils.capitalize;
  */
 public class SaveGroupChannelAdapter extends SortedRecyclerAdapter<GroupToggle> implements
     ItemClickListener {
-    private GroupToggle _publicGroup = new GroupToggle(createPublicGroup(), false);
+    private GroupToggle _publicGroup = new GroupToggle(Companion.createPublicGroup(), false);
 
     private SaveGroupChannelAdapter(
         BaseRecyclerView recyclerView, ArrayList<GroupToggle> groupToggles) {
@@ -63,7 +63,7 @@ public class SaveGroupChannelAdapter extends SortedRecyclerAdapter<GroupToggle> 
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(capitalize(getItemData(position).getGroup().label()));
+        holder.checkedTextView.setText(Companion.capitalize(getItemData(position).getGroup().label()));
         holder.checkedTextView.setChecked(getItemData(position).isChecked());
     }
 

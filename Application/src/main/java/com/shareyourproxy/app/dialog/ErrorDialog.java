@@ -16,7 +16,7 @@ import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
  * Dialog to handle onError messaging during login.
  */
 public class ErrorDialog extends BaseDialogFragment {
-    private static final String TAG = getSimpleName(ErrorDialog.class);
+    private static final String TAG = Companion.getSimpleName(ErrorDialog.class);
     private static final String ARG_TITLE = "title";
     private static final String ARG_MESSAGE = "message";
     private DialogInterface.OnClickListener _onOkClicked = new DialogInterface.OnClickListener() {

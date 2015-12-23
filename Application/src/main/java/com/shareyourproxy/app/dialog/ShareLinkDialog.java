@@ -34,7 +34,7 @@ import static com.shareyourproxy.util.ObjectUtils.getSimpleName;
  */
 public class ShareLinkDialog extends BaseDialogFragment {
 
-    private static final String TAG = getSimpleName(ShareLinkDialog.class);
+    private static final String TAG = Companion.getSimpleName(ShareLinkDialog.class);
     private static final String ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group";
     private final DialogInterface.OnClickListener _negativeClicked =
         getNegOnClickListener();

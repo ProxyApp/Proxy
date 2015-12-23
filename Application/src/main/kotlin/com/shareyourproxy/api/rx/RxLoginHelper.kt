@@ -46,8 +46,8 @@ object RxLoginHelper {
                         }
                         //if there is a user saved in shared prefs
                         if (user != null) {
-                            RestClient.getUserService()
-                                    .updateUserVersion(user.id(), BuildConfig.VERSION_CODE)
+                            RestClient.userService
+                                    .updateUserVersion(user.id, BuildConfig.VERSION_CODE)
                                     .map(finalUser(user))
                                     .subscribe(updateUserVersionObserver(subscriber))
                         } else {

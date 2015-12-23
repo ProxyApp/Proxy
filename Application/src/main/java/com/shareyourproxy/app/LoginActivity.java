@@ -137,7 +137,7 @@ public class LoginActivity extends GoogleApiActivity {
      */
     private void getUserFromFirebase(@NonNull GoogleSignInAccount account) {
         String userId = new StringBuilder(GOOGLE_UID_PREFIX).append(account.getId()).toString();
-        getUserService().getUser(userId)
+        INSTANCE.getUserService().getUser(userId)
             .compose(_rxHelper.<User>observeMain())
             .subscribe(getUserObserver(this, account));
     }
@@ -158,7 +158,7 @@ public class LoginActivity extends GoogleApiActivity {
                 } else {
                     _rxHelper.updateRealmUser(activity, user);
                     setLoggedInUser(user);
-                    getUserService().updateUserVersion(user.id(), VERSION_CODE)
+                    INSTANCE.getUserService().updateUserVersion(user.id(), VERSION_CODE)
                         .compose(_rxHelper.<String>observeMain()).subscribe();
                     getRxBus().post(new SyncContactsCommand(user));
                 }
@@ -185,7 +185,7 @@ public class LoginActivity extends GoogleApiActivity {
             for (Group group : userGroups.values()) {
                 groupIds.add(group.id());
             }
-            getHerokuUserService().putSharedLinks(groupIds, newUser.id())
+            INSTANCE.getHerokuUserService().putSharedLinks(groupIds, newUser.id())
                 .compose(_rxHelper.observeMain()).subscribe();
         }
         getRxBus().post(new AddUserCommand(newUser));

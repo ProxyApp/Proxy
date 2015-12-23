@@ -24,7 +24,7 @@ import com.shareyourproxy.api.domain.model.ChannelType;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand;
-import com.shareyourproxy.api.rx.event.AddChannelDialogSuccess;
+import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent;
 
 import java.util.UUID;
 
@@ -43,7 +43,7 @@ import static com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard;
  */
 public class AddChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType";
-    private static final String TAG = getSimpleName(AddChannelDialog.class);
+    private static final String TAG = Companion.getSimpleName(AddChannelDialog.class);
     @Bind(R.id.dialog_channel_action_address_edittext)
     EditText editTextActionAddress;
     private final OnClickListener _negativeClicked =
@@ -133,14 +133,14 @@ public class AddChannelDialog extends BaseDialogFragment {
             User user = getLoggedInUser();
             rxBus.post(new AddUserChannelCommand(user, channel));
             user.channels().put(channel.id(), channel);
-            rxBus.post(new AddChannelDialogSuccess(user, channel));
+            rxBus.post(new AddChannelDialogSuccessEvent(user, channel));
         }
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _channelType = ChannelType.valueOfLabel(getArguments().getString(ARG_CHANNEL_TYPE));
+        _channelType = ChannelType.Companion.valueOfLabel(getArguments().getString(ARG_CHANNEL_TYPE));
     }
 
     @NonNull

@@ -156,7 +156,7 @@ public class ContactProfileFragment extends UserProfileFragment {
     }
 
     private void groupContactsUpdatedEvent(GroupContactsUpdatedEventCallback event) {
-        updateGroupButtonText(event.contactGroups);
+        updateGroupButtonText(event.getContactGroups());
     }
 
 }

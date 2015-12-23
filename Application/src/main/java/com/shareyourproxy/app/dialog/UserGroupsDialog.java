@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
  */
 public class UserGroupsDialog extends BaseDialogFragment {
 
-    private static final String TAG = ObjectUtils.getSimpleName(UserGroupsDialog.class);
+    private static final String TAG = ObjectUtils.Companion.getSimpleName(UserGroupsDialog.class);
     private static final String ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList";
     private static final String ARG_USER = "com.shareyourproxy.app.dialog.User";
     private final OnClickListener _negativeClicked =

@@ -13,7 +13,7 @@ import timber.log.Timber
  */
 object RxBusDriver : Parcelable {
     val CREATOR: Parcelable.Creator<RxBusDriver> = object : Parcelable.Creator<RxBusDriver> {
-        override fun createFromParcel(parcelIn: Parcel): RxBusDriver {
+        override fun createFromParcel(parcel: Parcel): RxBusDriver {
             return this@RxBusDriver
         }
 

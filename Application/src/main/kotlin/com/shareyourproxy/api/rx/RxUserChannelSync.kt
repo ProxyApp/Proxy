@@ -2,8 +2,8 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.getUserChannelService
-import com.shareyourproxy.api.RestClient.getUserGroupService
+import com.shareyourproxy.api.RestClient.userChannelService
+import com.shareyourproxy.api.RestClient.userGroupService
 import com.shareyourproxy.api.domain.factory.UserFactory.addUserChannel
 import com.shareyourproxy.api.domain.factory.UserFactory.deleteUserChannel
 import com.shareyourproxy.api.domain.model.Channel
@@ -57,10 +57,10 @@ object RxUserChannelSync {
 
     private fun saveChannelToFirebase(channel: Channel): Func1<User, User> {
         return Func1 { user ->
-            val userId = user.id()
-            val channelId = channel.id()
-            getUserChannelService().addUserChannel(userId, channelId, channel).subscribe()
-            getUserGroupService().updateUserGroups(userId, user.groups()).subscribe()
+            val userId = user.id
+            val channelId = channel.id
+            userChannelService.addUserChannel(userId, channelId, channel).subscribe()
+            userGroupService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }
@@ -79,10 +79,10 @@ object RxUserChannelSync {
 
     private fun deleteChannelFromFirebase(channel: Channel): Func1<User, User> {
         return Func1 { user ->
-            val userId = user.id()
-            val channelId = channel.id()
-            getUserChannelService().deleteUserChannel(userId, channelId).subscribe()
-            getUserGroupService().updateUserGroups(userId, user.groups()).subscribe()
+            val userId = user.id
+            val channelId = channel.id
+            userChannelService.deleteUserChannel(userId, channelId).subscribe()
+            userGroupService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }

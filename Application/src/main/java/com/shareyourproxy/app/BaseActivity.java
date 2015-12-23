@@ -20,13 +20,11 @@ import com.shareyourproxy.BuildConfig;
 import com.shareyourproxy.Constants;
 import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.ProxyApplication;
-import com.shareyourproxy.api.domain.factory.AutoValueClass;
-import com.shareyourproxy.api.domain.factory.AutoValueTypeAdapterFactory;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.api.rx.JustObserver;
 import com.shareyourproxy.api.rx.RxBusDriver;
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent;
-import com.shareyourproxy.api.rx.event.ShareLinkEventCallback;
+import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback;
 
 import java.util.List;
 

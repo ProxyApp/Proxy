@@ -151,7 +151,7 @@ public class EditGroupChannelAdapter extends BaseRecyclerViewAdapter {
                 public int compare(ChannelToggle item1, ChannelToggle item2) {
                     int weight1 = item1.getChannel().channelType().getWeight();
                     int weight2 = item2.getChannel().channelType().getWeight();
-                    int compareFirst = ObjectUtils.compare(weight1, weight2);
+                    int compareFirst = ObjectUtils.Companion.compare(weight1, weight2);
                     if (compareFirst == 0) {
                         return item1.getChannel().label()
                             .compareToIgnoreCase(item2.getChannel().label());

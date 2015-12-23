@@ -123,7 +123,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ProxyApplication.watchForLeak(this);
+        ProxyApplication.Companion.watchForLeak(this);
     }
 
     @Override

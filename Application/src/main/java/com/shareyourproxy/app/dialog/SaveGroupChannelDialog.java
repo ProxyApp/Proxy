@@ -42,7 +42,7 @@ public class SaveGroupChannelDialog extends BaseDialogFragment {
     private static final String ARG_CHANNEL =
         "com.shareyourproxy.savegroupchanneldialog.arg.channel";
     private static final String ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user";
-    private static final String TAG = ObjectUtils.getSimpleName(SaveGroupChannelDialog.class);
+    private static final String TAG = ObjectUtils.Companion.getSimpleName(SaveGroupChannelDialog.class);
     @Bind(R.id.dialog_user_groups_recyclerview)
     BaseRecyclerView recyclerView;
     @Bind(R.id.dialog_user_groups_message)

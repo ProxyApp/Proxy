@@ -45,7 +45,7 @@ public class UserGroupsAdapter extends SortedRecyclerAdapter<GroupToggle> implem
     }
 
     private void bindContentView(ContentViewHolder holder, int position) {
-        holder.checkedTextView.setText(capitalize(getItemData(position).getGroup().label()));
+        holder.checkedTextView.setText(Companion.capitalize(getItemData(position).getGroup().label()));
         holder.checkedTextView.setChecked(getItemData(position).isChecked());
     }
 

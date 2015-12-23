@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.MenuItem;
 
+import com.shareyourproxy.IntentLauncher;
 import com.shareyourproxy.api.domain.model.User;
 import com.shareyourproxy.app.fragment.AggregateFeedFragment;
 import com.shareyourproxy.app.fragment.ContactProfileFragment;
@@ -11,7 +12,6 @@ import com.shareyourproxy.app.fragment.ContactProfileFragment;
 import timber.log.Timber;
 
 import static com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE;
-import static com.shareyourproxy.IntentLauncher.launchMainActivity;
 
 /**
  * Activity that handles displaying a {@link User} profile.
@@ -24,7 +24,7 @@ public class UserContactActivity extends BaseActivity {
         ActivityCompat.finishAfterTransition(this);
         //if we launched from a notification go back to the AggregateFeedActivity explicitly
         if (this.isTaskRoot()) {
-            launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_CONTACTS_TAB, false, null);
+            IntentLauncher.launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_CONTACTS_TAB, false, null);
         }
     }
 
@@ -36,7 +36,7 @@ public class UserContactActivity extends BaseActivity {
             User user = getUserExtra();
             getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content,
-                    ContactProfileFragment.newInstance(user, getLoggedInUser().id())).commit();
+                    ContactProfileFragment.newInstance(user, getLoggedInUser().id)).commit();
         }
     }
 

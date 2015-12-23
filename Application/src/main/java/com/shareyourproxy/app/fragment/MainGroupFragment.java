@@ -104,7 +104,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
      */
     @OnClick(R.id.fragment_group_main_fab)
     public void onClick() {
-        launchEditGroupChannelsActivity(getActivity(), createBlank(), ADD_GROUP);
+        launchEditGroupChannelsActivity(getActivity(), Companion.createBlank(), ADD_GROUP);
     }
 
     /**
@@ -195,7 +195,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
                 } else if (event instanceof GroupChannelsUpdatedEventCallback) {
                     updateGroup(((GroupChannelsUpdatedEventCallback) event));
                 } else if (event instanceof LoggedInUserUpdatedEventCallback) {
-                    updateGroups(((LoggedInUserUpdatedEventCallback) event).user.groups());
+                    updateGroups(((LoggedInUserUpdatedEventCallback) event).getUser().groups());
                 } else if (event instanceof SyncContactsCommand) {
                     swipeRefreshLayout.setRefreshing(true);
                 } else if (event instanceof SyncAllContactsSuccessEvent) {
@@ -208,7 +208,7 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
     }
 
     public void addGroups(UserGroupAddedEventCallback event) {
-        Group group = event.group;
+        Group group = event.getGroup();
         if (group.id() != null) {
             addGroup(group);
         }
@@ -230,8 +230,8 @@ public class MainGroupFragment extends BaseFragment implements ItemClickListener
      * @param event group to add
      */
     public void updateGroup(GroupChannelsUpdatedEventCallback event) {
-        _adapter.updateItem(event.oldGroup, event.group);
-        if (event.groupEditType == ADD_GROUP) {
+        _adapter.updateItem(event.getOldGroup(), event.getGroup());
+        if (event.getGroupEditType() == ADD_GROUP) {
             showAddedGroupSnackBar();
         } else {
             showChangesSavedSnackBar(coordinatorLayout);
