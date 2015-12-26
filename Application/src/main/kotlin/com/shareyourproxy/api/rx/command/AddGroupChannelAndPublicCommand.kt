@@ -8,7 +8,7 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGroupChannelSync
-import com.shareyourproxy.api.rx.RxUserChannelSync
+import com.shareyourproxy.api.rx.RxUserChannelSync.saveUserChannel
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import java.util.*
 
@@ -19,14 +19,13 @@ import java.util.*
  * @param channel this events group
  */
 class AddGroupChannelAndPublicCommand(val user: User, val groups: ArrayList<GroupToggle>, val channel: Channel) : BaseCommand() {
-
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as Channel) {
-    }
+    @Suppress("UNCHECKED_CAST")
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as Channel)
 
     override fun execute(service: Service): EventCallback {
         val publicChannel = createPublicChannel(channel, true)
         val updatedUser = RxGroupChannelSync.addUserGroupsChannel(service, user, groups, publicChannel)
-        return RxUserChannelSync.saveUserChannel(service, updatedUser.user, channel, publicChannel)
+        return saveUserChannel(service, updatedUser.user, channel, publicChannel)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

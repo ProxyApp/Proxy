@@ -6,7 +6,7 @@ import com.shareyourproxy.api.domain.model.User
 import java.util.*
 
 /**
- * Created by Evan on 6/9/15.
+ * User contacts downloaded.
  */
 class UsersDownloadedEventCallback(loggedInUser: User, val users: HashMap<String, User>) : UserEventCallback(loggedInUser) {
 
@@ -17,9 +17,9 @@ class UsersDownloadedEventCallback(loggedInUser: User, val users: HashMap<String
     companion object {
         private val CL = UsersDownloadedEventCallback::class.java.classLoader
         val CREATOR: Parcelable.Creator<UsersDownloadedEventCallback> = object : Parcelable.Creator<UsersDownloadedEventCallback> {
+            @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): UsersDownloadedEventCallback {
-                return UsersDownloadedEventCallback(
-                        parcel.readValue(CL) as User, parcel.readValue(CL) as HashMap<String, User>)
+                return UsersDownloadedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as HashMap<String, User>)
             }
 
             override fun newArray(size: Int): Array<UsersDownloadedEventCallback?> {

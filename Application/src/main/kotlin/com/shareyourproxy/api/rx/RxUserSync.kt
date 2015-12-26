@@ -24,7 +24,7 @@ object RxUserSync {
      */
     fun syncAllContacts(context: Context, loggedInUser: User): EventCallback {
         val contacts = loggedInUser.contacts
-        return if ((contacts != null && contacts.size > 0))
+        return if (contacts.size > 0)
             getFirebaseUsers(loggedInUser)
                     .map(saveRealmUsers(context))
                     .map(usersDownloaded(loggedInUser))

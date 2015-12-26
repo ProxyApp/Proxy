@@ -17,6 +17,7 @@ class ActivityFeedDownloadedEvent(val feedItems: List<ActivityFeedItem>) : Event
     companion object {
         private val CL = ActivityFeedDownloadedEvent::class.java.classLoader
         val CREATOR: Parcelable.Creator<ActivityFeedDownloadedEvent> = object : Parcelable.Creator<ActivityFeedDownloadedEvent> {
+            @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): ActivityFeedDownloadedEvent {
                 return ActivityFeedDownloadedEvent(parcel.readValue(CL) as List<ActivityFeedItem>)
             }

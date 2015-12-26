@@ -8,6 +8,7 @@ apply plugin: 'maven'
 apply plugin: 'io.fabric'
 
 ext {
+    kotlinVersion = "1.0.0-beta-4584"
     retrofitVersion = "2.0.0-beta2"
     okHTTPVersion = "2.7.0"
     playServicesVersion = "8.4.0"
@@ -208,7 +209,8 @@ dependencies {
     //Local
     compile fileTree(dir: 'libs', include: '*.jar')
     //JetBrains
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.0-beta-3595'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+    compile 'org.jetbrains.anko:anko-sdk15:0.8.1'
     //Google
     compile "com.google.android.gms:play-services-plus:${playServicesVersion}"
     compile "com.google.android.gms:play-services-base:${playServicesVersion}"
@@ -226,7 +228,6 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     //Jake
     compile 'fr.avianey.com.viewpagerindicator:library:2.4.1@aar'
-    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     compile 'com.jakewharton.timber:timber:4.1.0'
     //Square
@@ -241,15 +242,12 @@ dependencies {
     compile 'com.facebook.fresco:fresco:0.8.1'
     compile 'com.facebook.fresco:imagepipeline-okhttp:0.8.1'
     compile 'com.facebook.android:facebook-android-sdk:4.1.0'
-    //RxJava
+    //ReactiveX
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxkotlin:0.30.1'
-    //AutoValue
-    compile 'com.github.frankiesardo:auto-parcel:0.3.1'
-    apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
-    //Realm DB
+    //Realm
     compile 'io.realm:realm-android:0.87.0'
-    //SVG
+    //SVG Compat
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Third party
 //    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.0@aar'

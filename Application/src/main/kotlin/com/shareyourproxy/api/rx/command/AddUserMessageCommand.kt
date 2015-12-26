@@ -3,9 +3,8 @@ package com.shareyourproxy.api.rx.command
 import android.app.Service
 import android.os.Parcel
 import android.os.Parcelable
-
 import com.shareyourproxy.api.domain.model.Message
-import com.shareyourproxy.api.rx.RxMessageSync
+import com.shareyourproxy.api.rx.RxMessageSync.saveFirebaseMessage
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 
 /**
@@ -14,11 +13,10 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
  */
 class AddUserMessageCommand(val userId: String, val message: Message) : BaseCommand() {
 
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String, parcel.readValue(CL) as Message) {
-    }
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String, parcel.readValue(CL) as Message)
 
     override fun execute(service: Service): EventCallback {
-        return RxMessageSync.saveFirebaseMessage(userId, message)
+        return saveFirebaseMessage(userId, message)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

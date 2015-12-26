@@ -14,8 +14,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
  */
 class AddUserCommand(val user: User) : BaseCommand() {
 
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User) {
-    }
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User)
 
     override fun execute(service: Service): EventCallback {
         return RxUserSync.saveUser(service, user)

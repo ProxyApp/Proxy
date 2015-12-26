@@ -70,7 +70,7 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     }
 
     private val busObserver: JustObserver<Any>get() = object : JustObserver<Any>() {
-        override fun next(event: Any) {
+        fun next(event: Any) {
             when (event) {
                 event is BaseCommand -> baseCommandEvent(event as BaseCommand)
                 event is UserContactAddedEventCallback -> userContactAddedEvent(event as UserContactAddedEventCallback)

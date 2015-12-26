@@ -7,7 +7,7 @@ import com.shareyourproxy.api.domain.model.User
 import java.util.*
 
 /**
- * Created by Evan on 10/1/15.
+ * Public channel updated.
  */
 class PublicChannelsUpdatedEventCallback(user: User, val newChannels: HashMap<String, Channel>) : UserEventCallback(user) {
 
@@ -18,6 +18,7 @@ class PublicChannelsUpdatedEventCallback(user: User, val newChannels: HashMap<St
     companion object {
         private val CL = PublicChannelsUpdatedEventCallback::class.java.classLoader
         val CREATOR: Parcelable.Creator<PublicChannelsUpdatedEventCallback> = object : Parcelable.Creator<PublicChannelsUpdatedEventCallback> {
+            @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): PublicChannelsUpdatedEventCallback {
                 return PublicChannelsUpdatedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as HashMap<String, Channel>)
             }

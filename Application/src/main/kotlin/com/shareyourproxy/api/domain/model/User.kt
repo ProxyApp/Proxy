@@ -23,6 +23,7 @@ data class User(val id: String, val first: String, val last: String, val fullNam
         dest.writeInt(androidVersion)
     }
 
+    constructor() : this("", "", "", "", "", "", "", HashMap(), HashSet(), HashMap(), 0)
     companion object {
         val CREATOR = object : Parcelable.Creator<User> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)

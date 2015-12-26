@@ -20,12 +20,12 @@ abstract class JustObserver<T> : Observer<T> {
         error(e)
     }
 
-    override fun onNext(t: T) {
+    override fun onNext(t: T?) {
         Timber.v("${this.toString()} onNext obj: ${t.toString()}")
         next(t)
     }
 
-    abstract fun next(t: T)
+    abstract fun next(t: T?)
 
     open fun error(e: Throwable) {
     }

@@ -10,7 +10,6 @@ import rx.Single
 import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Func1
 import rx.schedulers.Schedulers
-import rx.subscriptions.CompositeSubscription
 
 /**
  * RxHelper for common rx.Observable method calls.
@@ -26,14 +25,6 @@ object RxHelper {
 
     fun <T> observeIO(): Observable.Transformer<T, T> {
         return Observable.Transformer<T, T> { observable -> observable.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()) }
-    }
-
-    fun checkCompositeButton(sub: CompositeSubscription?): CompositeSubscription {
-        if (sub == null) {
-            return CompositeSubscription()
-        } else {
-            return sub
-        }
     }
 
     fun <T> filterNullObject(): Func1<T, Boolean> {

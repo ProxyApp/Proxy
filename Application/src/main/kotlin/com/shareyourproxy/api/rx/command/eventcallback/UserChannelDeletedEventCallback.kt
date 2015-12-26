@@ -7,7 +7,7 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.User
 
 /**
- * Created by Evan on 5/21/15.
+ * User deleted a channel.
  */
 class UserChannelDeletedEventCallback(user: User, val channel: Channel, val position: Int) : UserEventCallback(user) {
 

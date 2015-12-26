@@ -6,7 +6,7 @@ import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.User
 
 /**
- * Created by Evan on 6/8/15.
+ * User contact has been deleted.
  */
 class UserContactDeletedEventCallback(user: User, private val contactId: String) : UserEventCallback(user) {
 

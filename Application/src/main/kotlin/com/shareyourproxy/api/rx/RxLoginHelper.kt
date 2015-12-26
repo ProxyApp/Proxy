@@ -63,7 +63,7 @@ object RxLoginHelper {
 
             fun updateUserVersionObserver(subscriber: SingleSubscriber<in User>): JustObserver<User> {
                 return object : JustObserver<User>() {
-                    override fun next(user: User) {
+                    fun next(user: User) {
                         activity.loggedInUser = user
                         updateRealmUser(activity, user)
                         activity.rxBus.post(SyncContactsCommand(user))

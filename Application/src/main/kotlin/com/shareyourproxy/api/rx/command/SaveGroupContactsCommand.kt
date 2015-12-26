@@ -6,20 +6,19 @@ import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGroupContactSync
+import com.shareyourproxy.api.rx.RxGroupContactSync.updateGroupContacts
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import java.util.*
 
 /**
- * Created by Evan on 6/8/15.
+ * Save contact to group.
  */
 class SaveGroupContactsCommand(val user: User, val groups: ArrayList<GroupToggle>, val contact: User) : BaseCommand() {
-
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User,
-            parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as User) {
-    }
+    @Suppress("UNCHECKED_CAST")
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as User)
 
     override fun execute(service: Service): EventCallback {
-        return RxGroupContactSync.updateGroupContacts(service, user, groups, contact)
+        return updateGroupContacts(service, user, groups, contact)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

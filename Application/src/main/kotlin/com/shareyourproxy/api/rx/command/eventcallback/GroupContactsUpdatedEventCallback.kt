@@ -7,7 +7,7 @@ import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
 
 /**
- * Created by Evan on 6/10/15.
+ * Group contacts have been updated.
  */
 class GroupContactsUpdatedEventCallback(user: User, val contactId: String, val contactGroups: List<Group>) : UserEventCallback(user) {
 
@@ -19,6 +19,7 @@ class GroupContactsUpdatedEventCallback(user: User, val contactId: String, val c
     companion object {
         private val CL = GroupContactsUpdatedEventCallback::class.java.classLoader
         val CREATOR: Parcelable.Creator<GroupContactsUpdatedEventCallback> = object : Parcelable.Creator<GroupContactsUpdatedEventCallback> {
+            @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): GroupContactsUpdatedEventCallback {
                 return GroupContactsUpdatedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as String, parcel.readValue(CL) as List<Group>)
             }

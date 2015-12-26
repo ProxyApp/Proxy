@@ -171,16 +171,15 @@ object RxQuery {
         }
     }
 
-    fun queryContactGroups(user: User, selectedContact: User): List<GroupToggle> {
+    fun queryContactGroups(user: User, selectedContact: User?): List<GroupToggle> {
         return Observable.from<Group>(user.groups.values)
                 .map<GroupToggle>(mapContacts(selectedContact))
                 .toList().toBlocking().single()
     }
 
-    private fun mapContacts(selectedContact: User): Func1<Group, GroupToggle> {
+    private fun mapContacts(selectedContact: User?): Func1<Group, GroupToggle> {
         return Func1 { group ->
             val contactId = selectedContact.id
-            val contacts = group.contacts
             if (group.contacts.contains(contactId)) {
                 return@Func1 GroupToggle(group, true)
             }

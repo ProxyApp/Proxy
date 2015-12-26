@@ -6,6 +6,7 @@ import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGroupChannelSync
+import com.shareyourproxy.api.rx.RxGroupChannelSync.updateGroupChannels
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
 import java.util.*
@@ -13,16 +14,12 @@ import java.util.*
 /**
  * Save channels associated with a group.
  */
-class SaveGroupChannelsCommand(private val user: User, private val newTitle: String, private val group: Group, private val channels: HashSet<String>,
-                               private val groupEditType: GroupEditType) : BaseCommand() {
-
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as String,
-            parcel.readValue(CL) as Group, parcel.readValue(CL) as HashSet<String>,
-            parcel.readValue(CL) as GroupEditType) {
-    }
+class SaveGroupChannelsCommand(private val user: User, private val newTitle: String, private val group: Group, private val channels: HashSet<String>, private val groupEditType: GroupEditType) : BaseCommand() {
+    @Suppress("UNCHECKED_CAST")
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as String, parcel.readValue(CL) as Group, parcel.readValue(CL) as HashSet<String>, parcel.readValue(CL) as GroupEditType)
 
     override fun execute(service: Service): EventCallback {
-        return RxGroupChannelSync.updateGroupChannels(service, user, newTitle, group, channels, groupEditType)
+        return updateGroupChannels(service, user, newTitle, group, channels, groupEditType)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

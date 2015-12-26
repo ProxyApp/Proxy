@@ -5,7 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxShareLink
+import com.shareyourproxy.api.rx.RxShareLink.getShareLinkMessageObservable
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import java.util.*
 
@@ -14,12 +14,11 @@ import java.util.*
  * Generate public link urls.
  */
 class GenerateShareLinkCommand(val user: User, val groups: ArrayList<GroupToggle>) : BaseCommand() {
-
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>) {
-    }
+    @Suppress("UNCHECKED_CAST")
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>)
 
     override fun execute(service: Service): EventCallback {
-        return RxShareLink.getShareLinkMessageObservable(service, user, groups)
+        return getShareLinkMessageObservable(service, user, groups)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

@@ -6,7 +6,7 @@ import android.os.Parcelable
 import java.util.*
 
 /**
- * Created by Evan on 6/18/15.
+ * User messages have been downloaded.
  */
 class UserMessagesDownloadedEventCallback(val notifications: ArrayList<Notification>) : EventCallback() {
 
@@ -17,6 +17,7 @@ class UserMessagesDownloadedEventCallback(val notifications: ArrayList<Notificat
     companion object {
         private val CL = UserMessagesDownloadedEventCallback::class.java.classLoader
         val CREATOR: Parcelable.Creator<UserMessagesDownloadedEventCallback> = object : Parcelable.Creator<UserMessagesDownloadedEventCallback> {
+            @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): UserMessagesDownloadedEventCallback {
                 return UserMessagesDownloadedEventCallback(parcel.readValue(CL) as ArrayList<Notification>)
             }

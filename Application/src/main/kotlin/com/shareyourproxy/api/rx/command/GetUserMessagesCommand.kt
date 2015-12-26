@@ -3,21 +3,19 @@ package com.shareyourproxy.api.rx.command
 import android.app.Service
 import android.os.Parcel
 import android.os.Parcelable
-
-import com.shareyourproxy.api.rx.RxMessageSync
+import com.shareyourproxy.api.rx.RxMessageSync.getFirebaseMessages
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 
 
 /**
- * Created by Evan on 6/18/15.
+ * Get user messages.
  */
 class GetUserMessagesCommand(private val userId: String) : BaseCommand() {
-
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String) {
-    }
+    @Suppress("UNCHECKED_CAST")
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String)
 
     override fun execute(service: Service): EventCallback {
-        return RxMessageSync.getFirebaseMessages(service, userId)
+        return getFirebaseMessages(service, userId)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

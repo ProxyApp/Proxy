@@ -109,7 +109,7 @@ object IntentLauncher {
      * @param activity The context used to start this intent
      */
     fun launchMainActivity(
-            activity: Activity, selectTab: Int, groupDeleted: Boolean, group: Group) {
+            activity: Activity, selectTab: Int, groupDeleted: Boolean, group: Group?) {
         val intent = Intent(ACTION_MAIN_VIEW).addFlags(FLAG_ACTIVITY_CLEAR_TOP)
         intent.putExtra(ARG_MAINFRAGMENT_SELECTED_TAB, selectTab)
         intent.putExtra(ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, groupDeleted)

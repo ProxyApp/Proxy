@@ -28,7 +28,7 @@ import timber.log.Timber
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 class ProxyApplication : Application() {
-    var currentUser: User? = null
+    var currentUser: User = User()
     var sharedPreferences: SharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
 
     override fun onCreate() {

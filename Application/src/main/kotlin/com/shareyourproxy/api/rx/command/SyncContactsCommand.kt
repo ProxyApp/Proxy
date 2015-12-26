@@ -6,6 +6,7 @@ import android.os.Parcelable
 
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxUserSync
+import com.shareyourproxy.api.rx.RxUserSync.syncAllContacts
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 
 /**
@@ -13,11 +14,10 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
  */
 class SyncContactsCommand(val user: User) : BaseCommand() {
 
-    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User) {
-    }
+    private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User)
 
     override fun execute(service: Service): EventCallback {
-        return RxUserSync.syncAllContacts(service, user)
+        return syncAllContacts(service, user)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

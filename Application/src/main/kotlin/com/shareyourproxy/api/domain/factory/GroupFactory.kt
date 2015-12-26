@@ -11,6 +11,8 @@ import java.util.*
  * Factory for creating domain model [Group]s.
  */
 object GroupFactory {
+    const val PUBLIC: String = "public";
+    const val BLANK: String = "";
 
     /**
      * Return a RealmList of Contacts from a user
@@ -31,6 +33,14 @@ object GroupFactory {
 
     fun addGroupChannels(newTitle: String, oldGroup: Group, channels: HashSet<String>): Group {
         return Group(oldGroup.id, newTitle, channels, oldGroup.contacts)
+    }
+
+    fun createPublicGroup() :Group{
+        return Group(PUBLIC, PUBLIC, HashSet(),HashSet())
+    }
+
+    fun createBlankGroup() :Group{
+        return Group(UUID.randomUUID().toString(), BLANK, HashSet(),HashSet())
     }
 
 }
