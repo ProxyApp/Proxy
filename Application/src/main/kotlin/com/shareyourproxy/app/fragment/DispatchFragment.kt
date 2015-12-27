@@ -10,12 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_dispatch_image
 import com.shareyourproxy.R.id.fragment_dispatch_progress
 import com.shareyourproxy.R.raw.ic_doge_channels
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 
 /**
  * Handle dispatching a [com.shareyourproxy.app.LoginActivity] or a [AggregateFeedActivity] base off the current user.

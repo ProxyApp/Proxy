@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatDialog
 import android.view.WindowManager.LayoutParams.MATCH_PARENT
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.dialog_user_groups_message
 import com.shareyourproxy.R.id.dialog_user_groups_recyclerview
@@ -26,6 +25,7 @@ import com.shareyourproxy.api.rx.command.AddGroupsChannelCommand
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter
+import com.shareyourproxy.util.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
 
 

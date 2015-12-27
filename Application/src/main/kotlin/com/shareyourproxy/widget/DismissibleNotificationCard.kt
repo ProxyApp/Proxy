@@ -7,7 +7,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.KEY_DISMISSED_CUSTOM_URL
 import com.shareyourproxy.Constants.KEY_DISMISSED_INVITE_FRIENDS
 import com.shareyourproxy.Constants.KEY_DISMISSED_MAIN_GROUP
@@ -27,6 +26,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter
 import com.shareyourproxy.app.adapter.BaseViewHolder
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.HeaderViewHolder
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.*
 
 /**

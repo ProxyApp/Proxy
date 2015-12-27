@@ -10,11 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.ActivityFeedItem
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.util.bindView
 import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.TimeUnit

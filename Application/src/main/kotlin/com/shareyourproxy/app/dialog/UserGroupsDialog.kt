@@ -11,7 +11,6 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
 import android.view.WindowManager
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_text
@@ -26,6 +25,7 @@ import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.UserGroupsAdapter
+import com.shareyourproxy.util.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
 import java.util.*
 

@@ -17,7 +17,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_MAINGROUPFRAGMENT_DELETED_GROUP
 import com.shareyourproxy.Constants.ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED
 import com.shareyourproxy.IntentLauncher.launchEditGroupChannelsActivity
@@ -45,6 +44,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupAdapter
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription

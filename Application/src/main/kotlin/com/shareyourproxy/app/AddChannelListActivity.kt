@@ -5,7 +5,6 @@ import android.support.design.widget.Snackbar.LENGTH_LONG
 import android.support.design.widget.Snackbar.make
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusDriver
@@ -16,6 +15,7 @@ import com.shareyourproxy.api.rx.event.ChannelAddedEvent
 import com.shareyourproxy.app.dialog.SaveGroupChannelDialog
 import com.shareyourproxy.app.fragment.AddChannelListFragment
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 

@@ -2,7 +2,6 @@ package com.shareyourproxy.app
 
 import android.os.Bundle
 import android.widget.TextView
-import butterknife.bindView
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.SignInButton.COLOR_DARK
@@ -28,6 +27,7 @@ import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import java.util.*

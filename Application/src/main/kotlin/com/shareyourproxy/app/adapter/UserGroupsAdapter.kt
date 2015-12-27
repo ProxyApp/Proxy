@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckedTextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ObjectUtils.capitalize
+import com.shareyourproxy.util.bindView
 import java.util.*
 
 /**

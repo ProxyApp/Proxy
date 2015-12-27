@@ -20,7 +20,6 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
-import butterknife.bindView
 import com.shareyourproxy.IntentLauncher
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
@@ -50,6 +49,7 @@ import com.shareyourproxy.app.adapter.SearchUserAdapter.UserViewHolder
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.CustomEditText
 import org.jetbrains.anko.onClick
 import org.jetbrains.anko.textChangedListener

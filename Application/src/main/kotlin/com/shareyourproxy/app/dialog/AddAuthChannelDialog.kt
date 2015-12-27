@@ -17,7 +17,6 @@ import android.view.WindowManager.LayoutParams.MATCH_PARENT
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
 import android.widget.EditText
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.IntentLauncher
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_text
@@ -31,6 +30,7 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindView
 
 /**
  * Add a channel that requires OAuth.

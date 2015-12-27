@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
+import com.shareyourproxy.util.bindView
 
 /**
  * First introduction slide content.

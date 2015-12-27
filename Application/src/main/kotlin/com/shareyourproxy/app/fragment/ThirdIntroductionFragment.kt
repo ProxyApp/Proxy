@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.dimen.common_svg_xxlarge
 import com.shareyourproxy.R.id.fragment_introduction_third_imageview
@@ -14,6 +13,7 @@ import com.shareyourproxy.R.id.fragment_introduction_third_textview
 import com.shareyourproxy.R.layout.fragment_introduction_third
 import com.shareyourproxy.R.string.slide_three_body
 import com.shareyourproxy.R.string.slide_three_title
+import com.shareyourproxy.util.bindView
 
 /**
  * Third introduction slide content.

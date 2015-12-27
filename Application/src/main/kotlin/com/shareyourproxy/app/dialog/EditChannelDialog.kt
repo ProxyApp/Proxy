@@ -16,7 +16,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView.OnEditorActionListener
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
@@ -26,6 +25,7 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindView
 
 /**
  * Dialog that handles editing a selected channel.

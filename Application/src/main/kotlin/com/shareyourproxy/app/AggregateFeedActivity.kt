@@ -21,8 +21,8 @@ import timber.log.Timber
  * The main landing point after loggin in. This is tabbed activity with [Contact]s and [Group]s.
  */
 class AggregateFeedActivity : BaseActivity() {
-    private val _analytics = RxGoogleAnalytics(this)
-    private var _subscriptions: CompositeSubscription = CompositeSubscription()
+    private val analytics = RxGoogleAnalytics(this)
+    private var subscriptions: CompositeSubscription = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,7 @@ class AggregateFeedActivity : BaseActivity() {
         when (event.drawerItem) {
             DrawerAdapter.DrawerItem.PROFILE -> {
                 val user = loggedInUser
-                _analytics.userProfileViewed(user)
+                analytics.userProfileViewed(user)
                 launchUserProfileActivity(this, user, user.id)
             }
             DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog.newInstance(loggedInUser!!.groups).show(supportFragmentManager)
@@ -56,8 +56,8 @@ class AggregateFeedActivity : BaseActivity() {
 
     public override fun onResume() {
         super.onResume()
-        _subscriptions = CompositeSubscription()
-        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        subscriptions = CompositeSubscription()
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
     }
 
     val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
@@ -70,7 +70,7 @@ class AggregateFeedActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        _subscriptions.unsubscribe()
+        subscriptions.unsubscribe()
     }
 
 }

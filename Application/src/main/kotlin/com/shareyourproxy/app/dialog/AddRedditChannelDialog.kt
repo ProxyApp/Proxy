@@ -18,7 +18,6 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.string.save
@@ -28,6 +27,7 @@ import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindView
 import java.util.*
 
 /**

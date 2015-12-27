@@ -3,7 +3,6 @@ package com.shareyourproxy.app
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.Menu
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE
 import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.IntentLauncher.launchEditGroupContactsActivity
@@ -21,6 +20,7 @@ import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.app.fragment.EditGroupChannelsFragment
 import com.shareyourproxy.util.ViewUtils.getMenuIconSecondary
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import java.util.*
 

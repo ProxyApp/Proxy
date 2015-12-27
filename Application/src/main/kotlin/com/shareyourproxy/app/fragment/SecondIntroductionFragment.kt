@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_introduction_second_imageview
 import com.shareyourproxy.R.id.fragment_introduction_second_textview
+import com.shareyourproxy.util.bindView
 
 /**
  * Second introduction slide content.

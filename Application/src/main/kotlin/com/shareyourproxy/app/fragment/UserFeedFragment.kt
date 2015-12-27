@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.R
 import com.shareyourproxy.R.dimen.common_svg_null_screen_small
@@ -28,6 +27,7 @@ import com.shareyourproxy.app.adapter.ActivityFeedAdapter
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
 /**

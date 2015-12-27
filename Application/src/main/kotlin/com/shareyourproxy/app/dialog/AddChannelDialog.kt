@@ -16,7 +16,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView.OnEditorActionListener
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_text
@@ -29,6 +28,7 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindView
 import java.util.*
 
 /**

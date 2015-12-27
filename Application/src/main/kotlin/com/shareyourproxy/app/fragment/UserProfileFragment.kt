@@ -18,7 +18,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.request.BasePostprocessor
@@ -78,6 +77,7 @@ import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 

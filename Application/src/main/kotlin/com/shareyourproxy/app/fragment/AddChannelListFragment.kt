@@ -5,7 +5,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
@@ -14,6 +13,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.dialog.AddChannelDialog
 import com.shareyourproxy.app.dialog.AddRedditChannelDialog
+import com.shareyourproxy.util.bindView
 
 /**
  * Display a list of channel types for the user to add new channel information to their profile.

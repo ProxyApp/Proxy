@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_drawer_recyclerview
 import com.shareyourproxy.api.rx.JustObserver
@@ -19,6 +18,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.DrawerAdapter
 import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
 

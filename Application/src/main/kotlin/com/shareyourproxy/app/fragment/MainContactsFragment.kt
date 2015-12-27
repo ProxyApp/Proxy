@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.IntentLauncher.launchInviteFriendIntent
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
@@ -44,6 +43,7 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.UserContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription

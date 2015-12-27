@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.IntentLauncher.launchChannelListActivity
 import com.shareyourproxy.R
@@ -43,6 +42,7 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.EditChannelDialog
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
 import rx.subscriptions.CompositeSubscription
 import java.util.*

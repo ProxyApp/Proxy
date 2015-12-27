@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE
 import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.R
@@ -23,6 +22,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter.Companion.TYPE_LIST_DELETE_FOOTER
+import com.shareyourproxy.util.bindView
 import timber.log.Timber
 
 /**

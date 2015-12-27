@@ -14,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
@@ -37,6 +36,7 @@ import com.shareyourproxy.app.adapter.GroupContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
 import com.shareyourproxy.util.ObjectUtils.capitalize
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
 /**

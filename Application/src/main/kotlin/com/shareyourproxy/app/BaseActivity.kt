@@ -29,17 +29,10 @@ import timber.log.Timber
  * Base abstraction for all activities to inherit from.
  */
 abstract class BaseActivity : AppCompatActivity() {
-    private var _subscriptions: CompositeSubscription = CompositeSubscription()
-    private val gson = GsonBuilder().create()
+    private var subscriptions: CompositeSubscription = CompositeSubscription()
     /**
      * Get currently logged in [User] in this [ProxyApplication].
-
      * @return logged in user
-     */
-    /**
-     * Set the currently logged in [User] in this [ProxyApplication].
-
-     * @param user currently logged in
      */
     var loggedInUser: User
         get() = (application as ProxyApplication).currentUser
@@ -59,16 +52,8 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Get the common shared preferences used to save a copy of the logged in user.
-
-     * @return common shared preferences
-     */
-    val sharedPreferences: SharedPreferences
-        get() = (application as ProxyApplication).sharedPreferences
-
     fun isLoggedInUser(user: User): Boolean {
-        return loggedInUser != null && user.id.equals(loggedInUser!!.id)
+        return user.id.equals(loggedInUser.id)
     }
 
     fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
@@ -95,6 +80,13 @@ abstract class BaseActivity : AppCompatActivity() {
         Realm.deleteRealm(config)
     }
 
+    /**
+     * Get the common shared preferences used to save a copy of the logged in user.
+     * @return common shared preferences
+     */
+    val sharedPreferences: SharedPreferences
+        get() = (application as ProxyApplication).sharedPreferences
+
     val sharedPrefJsonUser: User?
         get() {
             var user: User? = null
@@ -105,18 +97,17 @@ abstract class BaseActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Timber.e(Log.getStackTraceString(e))
             }
-
             return user
         }
 
     override fun onResume() {
         super.onResume()
-        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
     }
 
     override fun onPause() {
         super.onPause()
-        _subscriptions.unsubscribe()
+        subscriptions.unsubscribe()
     }
 
     override fun onBackPressed() {
@@ -126,6 +117,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun onNextEvent(activity: Activity): JustObserver<Any> {
         return object : JustObserver<Any>() {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any?) {
                 if (event is ShareLinkEventCallback) {
                     launchShareLinkIntent(activity, event)
@@ -142,10 +134,5 @@ abstract class BaseActivity : AppCompatActivity() {
                 fragment?.onActivityResult(requestCode, resultCode, data)
             }
         }
-    }
-
-    companion object {
-
-        val SCOPE_EMAIL = "https://www.googleapis.com/auth/plus.profile.emails.read"
     }
 }

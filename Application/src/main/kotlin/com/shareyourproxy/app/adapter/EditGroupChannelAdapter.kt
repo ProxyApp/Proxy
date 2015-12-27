@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelToggle
@@ -23,6 +22,7 @@ import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PUBLIC_GROUPS
 import timber.log.Timber

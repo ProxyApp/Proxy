@@ -5,7 +5,6 @@ import android.support.v7.widget.Toolbar
 import android.view.View
 import android.view.View.VISIBLE
 import android.widget.Button
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID
 import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.R
@@ -19,6 +18,7 @@ import com.shareyourproxy.api.rx.RxQuery.queryContactGroups
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback
 import com.shareyourproxy.app.dialog.UserGroupsDialog
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
+import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 import java.util.*
 

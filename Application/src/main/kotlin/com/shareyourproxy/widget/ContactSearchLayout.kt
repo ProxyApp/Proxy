@@ -16,12 +16,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast.LENGTH_SHORT
 import android.widget.Toast.makeText
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.drawable.selector_contactsearchlayout
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
+import com.shareyourproxy.util.bindView
 
 
 /**

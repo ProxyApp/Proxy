@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.support.multidex.MultiDex
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -19,13 +20,14 @@ import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import timber.log.Timber
+import kotlin.reflect.KProperty
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 class ProxyApplication : Application() {
     var currentUser: User = User()
-    var sharedPreferences: SharedPreferences = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
+    var sharedPreferences: SharedPreferences by lazy{ getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)}
 
     override fun onCreate() {
         super.onCreate()
@@ -33,6 +35,7 @@ class ProxyApplication : Application() {
     }
 
     fun initialize() {
+        MultiDex.install(this)
         if (BuildConfig.USE_LEAK_CANARY) {
             refWatcher = LeakCanary.install(this)
         }
@@ -77,5 +80,8 @@ class ProxyApplication : Application() {
             refWatcher?.watch(obj)
         }
     }
+    operator fun <T> Lazy<T>.setValue(proxyApplication: ProxyApplication, property: KProperty<T?>, t: T) {
 
+    }
 }
+

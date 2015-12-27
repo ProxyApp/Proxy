@@ -13,7 +13,6 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.bindView
 import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
@@ -22,6 +21,7 @@ import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.raw.ic_chevron_right
 import com.shareyourproxy.app.fragment.AggregateFeedFragment.Companion.ARG_SELECT_PROFILE_TAB
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import com.viewpagerindicator.CirclePageIndicator
 import org.jetbrains.anko.onClick
 import java.util.*

@@ -7,7 +7,6 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID
 import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.IntentLauncher.launchChannelListActivity
@@ -22,6 +21,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.ShareLinkDialog
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 
 /**

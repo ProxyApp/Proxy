@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
 import java.util.*
 

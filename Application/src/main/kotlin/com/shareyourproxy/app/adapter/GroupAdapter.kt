@@ -5,20 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.factory.GroupFactory.createPublicGroup
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ObjectUtils.capitalize
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
 import java.util.*
 
 /**
  * An Adapter to handle displaying [Group]s.
  */
-class GroupAdapter
-private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
+class GroupAdapter private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder is GroupViewHolder) {

@@ -5,19 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
-import butterknife.bindView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
+import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 
 /**
  * Adapter that can handle displaying a dismissable notification card as a header, footer or both.
  */
-abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: BaseRecyclerView, showHeader: Boolean, showFooter: Boolean,
-                                              private val _prefs: SharedPreferences) : SortedRecyclerAdapter<T>(clazz, recyclerView) {
+abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: BaseRecyclerView, showHeader: Boolean, showFooter: Boolean, private val _prefs: SharedPreferences) : SortedRecyclerAdapter<T>(clazz, recyclerView) {
     var isHeaderVisible = false
         private set
     var isFooterVisible = false
