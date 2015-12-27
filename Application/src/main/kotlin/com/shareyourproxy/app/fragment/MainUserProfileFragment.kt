@@ -1,58 +1,45 @@
 package com.shareyourproxy.app.fragment
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.ContextCompat.getColor
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-
-import com.shareyourproxy.R
-import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
-import com.shareyourproxy.app.UserContactActivity
-import com.shareyourproxy.app.adapter.BaseRecyclerView
-import com.shareyourproxy.app.adapter.ViewChannelAdapter
-import com.shareyourproxy.app.dialog.ShareLinkDialog
-
-import butterknife.Bind
-import butterknife.BindColor
-import butterknife.BindDimen
-import butterknife.OnClick
-
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.TextView
+import butterknife.bindView
 import com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID
 import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.IntentLauncher.launchChannelListActivity
+import com.shareyourproxy.R
+import com.shareyourproxy.R.id.fragment_user_profile_fab_add_channel
+import com.shareyourproxy.R.id.fragment_user_profile_fab_share
+import com.shareyourproxy.api.domain.model.User
+import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
+import com.shareyourproxy.app.adapter.BaseRecyclerView
+import com.shareyourproxy.app.adapter.ViewChannelAdapter
+import com.shareyourproxy.app.dialog.ShareLinkDialog
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import org.jetbrains.anko.onClick
 
 /**
  * Display the logged in users profile and channels.
  */
 class MainUserProfileFragment : UserProfileFragment() {
-    @Bind(R.id.fragment_user_profile_header_title)
-    internal var titleTextView: TextView
-    @Bind(R.id.fragment_user_profile_fab_add_channel)
-    internal var floatingActionButtonAddChannel: FloatingActionButton
-    @Bind(R.id.fragment_user_profile_fab_share)
-    internal var floatingActionButtonShare: FloatingActionButton
-    @BindColor(android.R.color.white)
-    internal var colorWhite: Int = 0
-    @BindDimen(R.dimen.fragment_userprofile_header_user_background_size)
-    internal var marginUserHeight: Int = 0
+    private val titleTextView: TextView by bindView(R.id.fragment_user_profile_header_title)
+    private val floatingActionButtonAddChannel: FloatingActionButton by bindView(fragment_user_profile_fab_add_channel)
+    private val floatingActionButtonShare: FloatingActionButton by bindView(fragment_user_profile_fab_share)
+    internal var colorWhite: Int = getColor(context, android.R.color.white)
+    internal var marginUserHeight: Int = resources.getDimensionPixelSize(R.dimen.fragment_userprofile_header_user_background_size)
 
-    @SuppressWarnings("unused")
-    @OnClick(R.id.fragment_user_profile_fab_add_channel)
-    fun onClickAdd() {
+    private val onClickAdd: View.OnClickListener = View.OnClickListener {
         launchChannelListActivity(activity)
     }
 
-    @SuppressWarnings("unused")
-    @OnClick(R.id.fragment_user_profile_fab_share)
-    fun onClickShare() {
-        ShareLinkDialog.newInstance(loggedInUser.groups()).show(activity.supportFragmentManager)
+    private val onClickShare: View.OnClickListener = View.OnClickListener {
+        ShareLinkDialog.newInstance(loggedInUser.groups).show(activity.supportFragmentManager)
     }
 
     internal override fun onCreateView(rootView: View) {
@@ -80,34 +67,34 @@ class MainUserProfileFragment : UserProfileFragment() {
      * Set the content image of this [FloatingActionButton]
      */
     private fun initializeFabPlusIcon() {
-        val plus = svgToBitmapDrawable(
-                activity, R.raw.ic_add, svgLarge, colorWhite)
+        val plus = svgToBitmapDrawable(activity, R.raw.ic_add, svgLarge, colorWhite)
         floatingActionButtonAddChannel.setImageDrawable(plus)
+        floatingActionButtonAddChannel.onClick { onClickAdd }
 
-        val share = svgToBitmapDrawable(
-                activity, R.raw.ic_share, svgLarge, colorBlue)
+        val share = svgToBitmapDrawable(activity, R.raw.ic_share, svgLarge, colorBlue)
         floatingActionButtonShare.setImageDrawable(share)
         floatingActionButtonAddChannel.visibility = VISIBLE
         floatingActionButtonShare.visibility = VISIBLE
+        floatingActionButtonShare.onClick { onClickShare }
     }
 
     private fun setToolbarTitle() {
-        val title = loggedInUser.fullName()
+        val title = loggedInUser.fullName
         titleTextView.visibility = VISIBLE
-        titleTextView.setText(title)
+        titleTextView.text = title
         supportActionBar.setDisplayHomeAsUpEnabled(false)
-        toolbar.visibility = GONE
     }
 
     override fun onResume() {
         super.onResume()
-        rxBus.toObservable().subscribe(onNextEvent())
+        rxBusObservable().subscribe(onNextEvent())
     }
 
 
     private fun onNextEvent(): JustObserver<Any> {
         return object : JustObserver<Any>() {
-            fun next(event: Any) {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+            override fun next(event: Any?) {
                 if (event is RecyclerViewDatasetChangedEvent) {
                     toggleFabVisibility(event)
                 }
@@ -131,7 +118,6 @@ class MainUserProfileFragment : UserProfileFragment() {
 
         /**
          * Return new instance for parent [UserContactActivity].
-
          * @return layouts.fragment
          */
         fun newInstance(contact: User, loggedInUserId: String): MainUserProfileFragment {
@@ -145,6 +131,3 @@ class MainUserProfileFragment : UserProfileFragment() {
     }
 
 }
-/**
- * Empty Fragment Constructor.
- */

@@ -71,7 +71,7 @@ class LoginActivity : GoogleApiActivity() {
 
     public override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.toObservable().subscribe(rxBusObserver))
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
     }
 
     val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {

@@ -70,7 +70,7 @@ class AddChannelListActivity : BaseActivity() {
      */
     fun initializeSubscriptions() {
         subscriptions = CompositeSubscription()
-        subscriptions.add(RxBusDriver.toObservable().subscribe(object : JustObserver<Any>() {
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(object : JustObserver<Any>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any?) {
                 if (event is UserChannelAddedEventCallback) {

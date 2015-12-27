@@ -7,8 +7,8 @@ import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
+import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
-import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
 import rx.Single
@@ -63,10 +63,10 @@ object RxLoginHelper {
 
             fun updateUserVersionObserver(subscriber: SingleSubscriber<in User>): JustObserver<User> {
                 return object : JustObserver<User>() {
-                    fun next(user: User) {
-                        activity.loggedInUser = user
-                        updateRealmUser(activity, user)
-                        activity.rxBus.post(SyncContactsCommand(user))
+                    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+                    override fun next(user: User?) {
+                        RxHelper.updateRealmUser(activity, user!!)
+                        post(SyncContactsCommand(user))
                     }
 
                     override fun error(e: Throwable) {

@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit
  * @param feedItems a list of [ActivityFeedItem]s
  */
 class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: User, private val listener: ItemClickListener) : SortedRecyclerAdapter<ActivityFeedItem>(ActivityFeedItem::class.java, recyclerView) {
-    private var _currentDate = Date()
+    private var currentDate = Date()
 
-    fun refreshFeedData(feedItems: List<ActivityFeedItem>) {
+    fun refreshFeedData(feedItems: List<ActivityFeedItem>?) {
         //get an approximation to "now"
-        _currentDate = Date()
+        currentDate = Date()
         refreshData(feedItems)
     }
 

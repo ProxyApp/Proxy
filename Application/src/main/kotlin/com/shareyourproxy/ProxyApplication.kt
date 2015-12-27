@@ -4,10 +4,8 @@ import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.multidex.MultiDex
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
-import com.facebook.FacebookSdk
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory
 import com.shareyourproxy.Constants.MASTER_KEY
@@ -17,8 +15,6 @@ import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
-import com.twitter.sdk.android.Twitter
-import com.twitter.sdk.android.core.TwitterAuthConfig
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -37,10 +33,8 @@ class ProxyApplication : Application() {
     }
 
     fun initialize() {
-        FacebookSdk.sdkInitialize(this)
-        MultiDex.install(this)
         if (BuildConfig.USE_LEAK_CANARY) {
-            _refWatcher = LeakCanary.install(this)
+            refWatcher = LeakCanary.install(this)
         }
         RxAppDataManager.newInstance(this, sharedPreferences, getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         initializeBuildConfig()
@@ -69,19 +63,18 @@ class ProxyApplication : Application() {
         } else {
             analytics.analytics.appOptOut = true
         }
-        //Twitter and Crashlytics
-        val authConfig = TwitterAuthConfig(BuildConfig.TWITTER_KEY, BuildConfig.TWITTER_SECRET)
+        //Answers and Crashlytics
         if (BuildConfig.USE_CRASHLYTICS) {
-            Fabric.with(this, Twitter(authConfig), Crashlytics(), Answers())
+            Fabric.with(this, Crashlytics(), Answers())
         } else {
-            Fabric.with(this, Twitter(authConfig), Answers())
+            Fabric.with(this, Answers())
         }
     }
 
     companion object {
-        private var _refWatcher: RefWatcher? = null
+        private var refWatcher: RefWatcher? = null
         fun watchForLeak(obj: Any) {
-            _refWatcher?.watch(obj)
+            refWatcher?.watch(obj)
         }
     }
 

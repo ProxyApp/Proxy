@@ -22,9 +22,9 @@ object RxBusDriver : Parcelable {
         }
     }
 
-    private val _rxBus = SerializedSubject(PublishSubject.create<Any>())
+    internal val _rxBus = SerializedSubject(PublishSubject.create<Any>())
 
-    fun toObservable(): Observable<Any> {
+    fun rxBusObservable(): Observable<Any> {
         return _rxBus.onBackpressureLatest().compose<Any>(RxHelper.observeMain())
     }
 

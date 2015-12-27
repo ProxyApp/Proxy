@@ -125,7 +125,7 @@ object IntentLauncher {
      * @param menu     hamburger icon to animate
      */
     fun launchSearchActivity(
-            activity: Activity, container: View, textView: View, menu: View) {
+            activity: Activity, container: View?, textView: View, menu: View) {
         val intent = Intent(ACTION_SEARCH_VIEW)
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -134,7 +134,7 @@ object IntentLauncher {
 
             val pair1 = create(textView, textView.transitionName)
             val pair2 = create(menu, menu.transitionName)
-            val pair3 = create(container, container.transitionName)
+            val pair3 = create(container, container?.transitionName)
             val pair4 = create(statusbar, STATUS_BAR_BACKGROUND_TRANSITION_NAME)
             val pair5 = create(actionbar, NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME)
 

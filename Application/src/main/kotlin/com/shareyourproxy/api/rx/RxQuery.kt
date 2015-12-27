@@ -179,7 +179,7 @@ object RxQuery {
 
     private fun mapContacts(selectedContact: User?): Func1<Group, GroupToggle> {
         return Func1 { group ->
-            val contactId = selectedContact.id
+            val contactId = selectedContact?.id
             if (group.contacts.contains(contactId)) {
                 return@Func1 GroupToggle(group, true)
             }
@@ -198,15 +198,10 @@ object RxQuery {
     }
 
     private fun filterSelectedGroups(): Func1<GroupToggle, Group> {
-        return Func1 { editContact ->
-            if (editContact.isChecked) editContact.group else null
-        }
+        return Func1 { editContact -> if (editContact.isChecked) editContact.group else null }
     }
 
-    private fun packageGroupContacts(user: User, contactId: String):
-            Func1<List<Group>, GroupContactsUpdatedEventCallback> {
-        return Func1 { groups ->
-            GroupContactsUpdatedEventCallback(user, contactId, groups)
-        }
+    private fun packageGroupContacts(user: User, contactId: String): Func1<List<Group>, GroupContactsUpdatedEventCallback> {
+        return Func1 { groups -> GroupContactsUpdatedEventCallback(user, contactId, groups) }
     }
 }

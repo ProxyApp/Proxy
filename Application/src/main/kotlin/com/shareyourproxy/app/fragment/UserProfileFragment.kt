@@ -62,7 +62,9 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxQuery.getUserContactScore
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
@@ -87,7 +89,7 @@ abstract class UserProfileFragment : BaseFragment() {
     private val appBarLayout: AppBarLayout by bindView(R.id.fragment_user_profile_appbar)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.fragment_user_profile_swiperefresh)
     private val coordinatorLayout: CoordinatorLayout by bindView(R.id.fragment_user_profile_coordinator_layout)
-    private val collapsingToolbarLayout: CollapsingToolbarLayout by bindView(R.id.fragment_user_profile_collapsing_toolbar)
+    protected val collapsingToolbarLayout: CollapsingToolbarLayout by bindView(R.id.fragment_user_profile_collapsing_toolbar)
     private val userImage: SimpleDraweeView by bindView(R.id.fragment_user_profile_header_image)
     private val userBackground: SimpleDraweeView by bindView(R.id.fragment_user_profile_header_background)
     private val followersTextView: TextView by bindView(R.id.fragment_user_profile_header_followers)
@@ -97,16 +99,16 @@ abstract class UserProfileFragment : BaseFragment() {
     internal var svgLarge: Int = resources.getDimensionPixelSize(R.dimen.common_svg_large)
     internal var stringCalculating: String = getString(R.string.calculating)
     internal var stringErrorCalculating: String = getString(R.string.error_calculating)
-    private var _subscriptions: CompositeSubscription = CompositeSubscription()
+    private var subscriptions: CompositeSubscription = CompositeSubscription()
     private var deletedChannel: Channel? = null
-    internal var contact: User =arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
+    internal var contact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
         private set
     private var userChannelsFragment: UserChannelsFragment? = null
-    internal var _refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+    internal var refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
         getUserContactScore(contact.id).subscribe(contactScoreObserver)
     }
-    private val analytics : RxGoogleAnalytics = RxGoogleAnalytics(activity)
+    private val analytics: RxGoogleAnalytics = RxGoogleAnalytics(activity)
     private val loggedInUserId = arguments.getString(Constants.ARG_LOGGEDIN_USER_ID)
 
 
@@ -116,7 +118,7 @@ abstract class UserProfileFragment : BaseFragment() {
      * @return click listener
      */
     private val addChannelClickListener: View.OnClickListener
-        get() = View.OnClickListener { rxBus.post(AddUserChannelCommand(loggedInUser, deletedChannel!!)) }
+        get() = View.OnClickListener { RxBusDriver.post(AddUserChannelCommand(loggedInUser, deletedChannel!!)) }
 
     private val offsetListener: AppBarLayout.OnOffsetChangedListener
         get() = AppBarLayout.OnOffsetChangedListener { appBarLayout, offset -> swipeRefreshLayout.isEnabled = offset == 0 }
@@ -135,7 +137,7 @@ abstract class UserProfileFragment : BaseFragment() {
     internal open fun onCreateView(rootView: View) {
         followersTextView.text = getString(R.string.user_profile_followers, stringCalculating)
         appBarLayout.addOnOffsetChangedListener(offsetListener)
-        initializeSwipeRefresh(swipeRefreshLayout, _refreshListener)
+        initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
         initializeUserChannels()
         //followers score
         getUserContactScore(contact.id).subscribe(contactScoreObserver)
@@ -143,12 +145,12 @@ abstract class UserProfileFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        _subscriptions.add(rxBus.toObservable().subscribe(onNextEvent()))
+        subscriptions.add(rxBusObservable().subscribe(onNextEvent()))
     }
 
     override fun onPause() {
         super.onPause()
-        _subscriptions.unsubscribe()
+        subscriptions.unsubscribe()
         //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.isRefreshing = false
     }
@@ -165,8 +167,8 @@ abstract class UserProfileFragment : BaseFragment() {
     private fun checkLoggedInUserValue(loggedInUserId: String) {
         try {
             //set the shared preferences user if it matches the logged in user id
-            if (sharedPrefJsonUser.id.equals(loggedInUserId)) {
-                loggedInUser = sharedPrefJsonUser
+            if (sharedPrefJsonUser?.id.equals(loggedInUserId)) {
+                loggedInUser = sharedPrefJsonUser!!
             } else {
                 loggedInUser = userService.getUser(loggedInUserId).toBlocking().single()
             }

@@ -3,7 +3,6 @@ package com.shareyourproxy.api.domain.model
 import android.graphics.Color.WHITE
 import com.shareyourproxy.R
 import timber.log.Timber
-import java.util.*
 
 /**
  * Used to sort channels for their eventually called ACTION_INTENT or VIEW_INTENT in [IntentLauncher].
@@ -59,8 +58,8 @@ private constructor(val weight: Int, val label: String, val resId: Int, val resC
         fun valueOfLabel(label: String): ChannelType {
             val values = ChannelType.values()
             for (value in values) {
-                val channelLabel = value.label.toLowerCase(Locale.US)
-                val lowerCaseLabel = label.toLowerCase(Locale.US)
+                val channelLabel = value.label.toLowerCase()
+                val lowerCaseLabel = label.toLowerCase()
                 if (channelLabel == lowerCaseLabel) {
                     return value
                 }

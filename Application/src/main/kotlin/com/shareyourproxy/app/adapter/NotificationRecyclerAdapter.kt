@@ -28,7 +28,7 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
     init {
         isHeaderVisible = showHeader
         isFooterVisible = showFooter
-        RxBusDriver.toObservable().subscribe(busObserver)
+        RxBusDriver.rxBusObservable().subscribe(busObserver)
     }
 
     val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {

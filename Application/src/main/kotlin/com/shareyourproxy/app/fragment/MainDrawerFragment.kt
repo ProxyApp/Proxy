@@ -7,19 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-
+import butterknife.bindView
 import com.shareyourproxy.R
+import com.shareyourproxy.R.id.fragment_drawer_recyclerview
 import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent
-import com.shareyourproxy.app.AggregateFeedActivity
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.DrawerAdapter
 import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem
-
-import butterknife.Bind
-import butterknife.ButterKnife
 import rx.subscriptions.CompositeSubscription
 
 
@@ -28,60 +27,53 @@ import rx.subscriptions.CompositeSubscription
  */
 class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
 
-    @Bind(R.id.fragment_drawer_recyclerview)
-    internal var drawerRecyclerView: BaseRecyclerView
-    private var _adapter: DrawerAdapter? = null
-    private var _subscriptions: CompositeSubscription? = null
+    private val drawerRecyclerView: BaseRecyclerView by bindView(fragment_drawer_recyclerview)
+    private var adapter: DrawerAdapter = DrawerAdapter.newInstance(loggedInUser, this)
+    private var subscriptions: CompositeSubscription = CompositeSubscription()
 
-    override fun onCreateView(
-            inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_drawer, container, false)
-        ButterKnife.bind(this, view)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_drawer, container, false)
         initializeRecyclerView()
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        _subscriptions = CompositeSubscription()
-        _subscriptions!!.add(rxBus.toObservable().subscribe(busObserver))
+        subscriptions.add(rxBusObservable().subscribe(busObserver))
     }
 
     val busObserver: JustObserver<Any>
         get() = object : JustObserver<Any>() {
-            fun next(event: Any) {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+            override fun next(event: Any?) {
                 if (event is LoggedInUserUpdatedEventCallback) {
-                    _adapter!!.updateUser(event.user)
+                    adapter.updateUser(event.user)
                 }
             }
         }
 
     override fun onPause() {
         super.onPause()
-        _subscriptions!!.unsubscribe()
-        _subscriptions = null
+        subscriptions.unsubscribe()
     }
 
     /**
      * Initialize a recyclerView with User data and menu options.
      */
     private fun initializeRecyclerView() {
-        _adapter = DrawerAdapter.newInstance(loggedInUser, this)
-
         drawerRecyclerView.layoutManager = LinearLayoutManager(activity)
         drawerRecyclerView.setHasFixedSize(true)
         drawerRecyclerView.itemAnimator = DefaultItemAnimator()
-        drawerRecyclerView.adapter = _adapter
+        drawerRecyclerView.adapter = adapter
     }
 
     override fun onItemClick(view: View, position: Int) {
-        val drawerItem = _adapter!!.getSettingValue(position)
-        rxBus.post(SelectDrawerItemEvent(
-                drawerItem, view, position, getString(drawerItem.labelRes)))
+        val drawerItem = adapter.getSettingValue(position)
+        post(SelectDrawerItemEvent(drawerItem, view, position, getString(drawerItem.labelRes)))
     }
 
     override fun onItemLongClick(view: View, position: Int) {
-        val item = _adapter!!.getSettingValue(position)
+        val item = adapter.getSettingValue(position)
         if (item != DrawerItem.HEADER) {
             Toast.makeText(activity, getString(item.labelRes), Toast.LENGTH_SHORT).show()
         }
@@ -91,7 +83,6 @@ class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
 
         /**
          * Create a new instance of this fragment for parent [AggregateFeedActivity].
-
          * @return drawer fragment
          */
         fun newInstance(): MainDrawerFragment {
@@ -99,6 +90,3 @@ class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
         }
     }
 }
-/**
- * Constructor.
- */

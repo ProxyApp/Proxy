@@ -70,7 +70,8 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     }
 
     private val busObserver: JustObserver<Any>get() = object : JustObserver<Any>() {
-        fun next(event: Any) {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any?) {
             when (event) {
                 event is BaseCommand -> baseCommandEvent(event as BaseCommand)
                 event is UserContactAddedEventCallback -> userContactAddedEvent(event as UserContactAddedEventCallback)
@@ -107,7 +108,7 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     private fun commandSuccessful(resultData: Bundle) {
         val event = resultData.getParcelable<EventCallback>(ARG_RESULT_BASE_EVENT)
         // update the logged in user from data saved to realm from the BaseCommand issued.
-        val realmUser = queryUser(app, app.currentUser!!.id)
+        val realmUser = queryUser(app, app.currentUser.id)
         updateUser(realmUser)
         // issue event data to the main messaging system
         if (event != null) {
@@ -147,22 +148,20 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
 
     fun intervalObserver(notificationService: INotificationService): JustObserver<Long> {
         return object : JustObserver<Long>() {
-            override fun next(timesCalled: Long) {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+            override fun next(timesCalled: Long?) {
                 val currentUser = app.currentUser
-                Timber.i("Checking for notifications, attempt: ${timesCalled.toInt()}")
-                if (currentUser != null) {
-                    try {
-                        val notifications = notificationService.getNotifications(currentUser.id)
-                        if (notifications != null && notifications.size > 0) {
-                            for (notification in notifications) {
-                                notificationManager.notify(notification.hashCode(), notification)
-                            }
-                            deleteAllFirebaseMessages(currentUser).subscribe()
+                Timber.i("Checking for notifications, attempt: ${timesCalled!!.toInt()}")
+                try {
+                    val notifications = notificationService.getNotifications(currentUser.id)
+                    if (notifications != null && notifications.size > 0) {
+                        for (notification in notifications) {
+                            notificationManager.notify(notification.hashCode(), notification)
                         }
-                    } catch (e: RemoteException) {
-                        Timber.e(Log.getStackTraceString(e))
+                        deleteAllFirebaseMessages(currentUser).subscribe()
                     }
-
+                } catch (e: RemoteException) {
+                    Timber.e(Log.getStackTraceString(e))
                 }
             }
         }

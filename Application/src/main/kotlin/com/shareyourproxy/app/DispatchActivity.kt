@@ -32,7 +32,7 @@ class DispatchActivity : GoogleApiActivity() {
     public override fun onResume() {
         super.onResume()
         _subscriptions = CompositeSubscription()
-        _subscriptions.add(RxBusDriver.toObservable().subscribe(rxBusObserver))
+        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
     }
 
     override fun onPause() {

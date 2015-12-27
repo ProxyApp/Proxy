@@ -57,7 +57,7 @@ class AggregateFeedActivity : BaseActivity() {
     public override fun onResume() {
         super.onResume()
         _subscriptions = CompositeSubscription()
-        _subscriptions.add(RxBusDriver.toObservable().subscribe(busObserver))
+        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
     }
 
     val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {

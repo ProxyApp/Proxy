@@ -31,7 +31,7 @@ import java.util.*
 class EditGroupChannelAdapter
 private constructor(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, groupLabel: String?, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
     private val channels: SortedList<ChannelToggle> = SortedList(ChannelToggle::class.java, sortedCallback, userChannels.size)
-    var groupLabel: String? = null
+    var groupLabel: String = ""
         private set
     private var _groupLabelHeaderViewHolder: HeaderViewHolder? = null
 

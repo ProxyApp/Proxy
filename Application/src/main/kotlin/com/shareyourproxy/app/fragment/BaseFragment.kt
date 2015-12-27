@@ -11,13 +11,10 @@ import android.support.v7.app.ActionBar
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.View
-
 import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.app.BaseActivity
-
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 
 /**
@@ -27,11 +24,7 @@ abstract class BaseFragment : Fragment() {
 
     /**
      * Get the logged in user.
-
      * @return Logged in user
-     */
-    /**
-     * Set the logged in user.
      */
     var loggedInUser: User
         get() = (activity as BaseActivity).loggedInUser
@@ -41,7 +34,6 @@ abstract class BaseFragment : Fragment() {
 
     /**
      * Get currently logged in [User] in this [ProxyApplication].
-
      * @return logged in user
      */
     val sharedPreferences: SharedPreferences
@@ -59,15 +51,11 @@ abstract class BaseFragment : Fragment() {
 
     /**
      * Get the logged in user.
-
      * @return Logged in user
      */
     fun isLoggedInUser(user: User): Boolean {
         return (activity as BaseActivity).isLoggedInUser(user)
     }
-
-    val rxBus: RxBusDriver
-        get() = (activity as BaseActivity).rxBus
 
     val supportActionBar: ActionBar
         get() = (activity as BaseActivity).supportActionBar
@@ -80,8 +68,7 @@ abstract class BaseFragment : Fragment() {
         (activity as BaseActivity).buildCustomToolbar(toolbar, customView)
     }
 
-    val sharedPrefJsonUser: User
-        get() = (activity as BaseActivity).sharedPrefJsonUser
+    val sharedPrefJsonUser: User? get() = (activity as BaseActivity).sharedPrefJsonUser
 
     /**
      * Get a scroll listener that dismisses the software keyboard on scroll.
@@ -90,7 +77,7 @@ abstract class BaseFragment : Fragment() {
      */
     protected val dismissScrollListener: RecyclerView.OnScrollListener
         get() = object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 hideSoftwareKeyboard(recyclerView)
             }
@@ -112,28 +99,22 @@ abstract class BaseFragment : Fragment() {
         ProxyApplication.watchForLeak(this)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
     /**
      * The [FragmentPagerAdapter] used to display base fragments.
      */
     internal class BasePagerAdapter
     /**
      * Constructor.
-
      * @param fragmentManager Manager of fragments.
      */
-    private constructor(
-            private val _fragmentArray: List<BaseFragment>, fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+    private constructor(private val fragmentArray: List<BaseFragment>, fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
 
         override fun getItem(i: Int): Fragment {
-            return _fragmentArray[i]
+            return fragmentArray[i]
         }
 
         override fun getCount(): Int {
-            return _fragmentArray.size
+            return fragmentArray.size
         }
 
         companion object {

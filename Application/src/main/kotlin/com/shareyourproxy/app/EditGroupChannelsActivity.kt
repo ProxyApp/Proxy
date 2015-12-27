@@ -65,7 +65,7 @@ class EditGroupChannelsActivity : BaseActivity() {
     public override fun onResume() {
         super.onResume()
         subscriptions = CompositeSubscription();
-        subscriptions.add(RxBusDriver.toObservable().subscribe(onNextEvent(this)))
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
     }
 
     private fun onNextEvent(activity: EditGroupChannelsActivity): JustObserver<Any> {

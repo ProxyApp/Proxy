@@ -111,7 +111,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        _subscriptions.add(RxBusDriver.toObservable().subscribe(onNextEvent(this)))
+        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
     }
 
     override fun onPause() {

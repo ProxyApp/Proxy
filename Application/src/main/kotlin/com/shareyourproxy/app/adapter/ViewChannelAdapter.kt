@@ -21,8 +21,8 @@ class ViewChannelAdapter
 private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemLongClickListener) :
         NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
-    fun updateChannels(channels: HashMap<String, Channel>) {
-        refreshData(channels.values)
+    fun updateChannels(channels: HashMap<String, Channel>?) {
+        refreshData(channels?.values)
     }
 
     override fun onCreateItemViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {

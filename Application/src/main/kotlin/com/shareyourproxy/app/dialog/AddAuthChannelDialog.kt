@@ -3,11 +3,12 @@ package com.shareyourproxy.app.dialog
 import android.R.string.cancel
 import android.annotation.SuppressLint
 import android.app.Dialog.*
+import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat
+import android.support.v4.content.ContextCompat.getColor
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
 import android.text.TextUtils
@@ -18,11 +19,16 @@ import android.widget.EditText
 import android.widget.TextView
 import butterknife.bindView
 import com.shareyourproxy.IntentLauncher
-import com.shareyourproxy.R
+import com.shareyourproxy.R.color.common_blue
+import com.shareyourproxy.R.color.common_text
+import com.shareyourproxy.R.id.dialog_channel_auth_action_address_edittext
+import com.shareyourproxy.R.id.dialog_channel_auth_action_address_floatlabel
+import com.shareyourproxy.R.layout.dialog_auth_channel
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
 import com.shareyourproxy.api.domain.model.Channel
+import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 
@@ -31,14 +37,10 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
  */
 class AddAuthChannelDialog : BaseDialogFragment() {
     private val helpClicked = OnClickListener { dialogInterface, i -> IntentLauncher.launchFacebookHelpIntent(activity) }
-    private val editTextActionAddress: EditText by bindView(R.id.dialog_channel_auth_action_address_edittext)
-    private val negativeClicked = OnClickListener { dialogInterface, i ->
-        hideSoftwareKeyboard(editTextActionAddress)
-        dialogInterface.dismiss()
-    }
-    private val floatLabelAddress: TextInputLayout by bindView(R.id.dialog_channel_auth_action_address_floatlabel)
-    internal var colorText: Int = ContextCompat.getColor(context, R.color.common_text)
-    internal var colorBlue: Int = ContextCompat.getColor(context, R.color.common_blue)
+    private val editTextActionAddress: EditText by bindView(dialog_channel_auth_action_address_edittext)
+    internal var colorText: Int = getColor(context, common_text)
+    internal var colorBlue: Int = getColor(context, common_blue)
+    private val floatLabelAddress: TextInputLayout by bindView(dialog_channel_auth_action_address_floatlabel)
     private var channel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
@@ -51,6 +53,14 @@ class AddAuthChannelDialog : BaseDialogFragment() {
         }
         false
     }
+    private val negativeClicked = OnClickListener { dialogInterface, i ->
+        hideKeyboardAndDismiss(dialogInterface)
+    }
+
+    private fun hideKeyboardAndDismiss(dialogInterface: DialogInterface) {
+        hideSoftwareKeyboard(editTextActionAddress)
+        dialogInterface.dismiss()
+    }
     private val positiveClicked = OnClickListener { dialogInterface, i -> addUserChannel() }
 
     /**
@@ -60,14 +70,14 @@ class AddAuthChannelDialog : BaseDialogFragment() {
         val actionContent = editTextActionAddress.text.toString()
         if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
             val channel = createModelInstance(channel, actionContent)
-            rxBus.post(AddUserChannelCommand(loggedInUser, channel))
+            post(AddUserChannelCommand(loggedInUser, channel))
         }
     }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
         super.onCreateDialog(savedInstanceState)
-        val view = activity.layoutInflater.inflate(R.layout.dialog_auth_channel, null, false)
+        val view = activity.layoutInflater.inflate(dialog_auth_channel, null, false)
         editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
         val dialog = AlertDialog.Builder(activity, Widget_Proxy_App_Dialog)
                 .setTitle(getString(dialog_addchannel_title_add_blank, channel.channelType.label))

@@ -30,9 +30,9 @@ import com.shareyourproxy.util.ViewUtils.getMenuIconDark
 class ContactSearchLayout : FrameLayout {
 
     //Search TextView for transition animation.
-    private val searchTextView: TextView by bindView(R.id.widget_contactsearchlayout_textview)
+    val searchTextView: TextView by bindView(R.id.widget_contactsearchlayout_textview)
     //Search ImageView hamburger for transition animation.
-    private val menuImageView: ImageView by bindView(R.id.widget_contactsearchlayout_menu_icon)
+    val menuImageView: ImageView by bindView(R.id.widget_contactsearchlayout_menu_icon)
     private val marginMicro: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxxtiny)
     private val marginTiny: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxtiny)
     private val drawableBackground: Drawable = getDrawable(resources, selector_contactsearchlayout, null)

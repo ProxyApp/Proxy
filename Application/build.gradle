@@ -57,7 +57,6 @@ android {
         targetSdkVersion 23
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-        multiDexEnabled true
     }
 
     splits {
@@ -88,16 +87,16 @@ android {
 
     signingConfigs {
         release {
-//              Environment Variables
+            //Environment Variables
             def env_keystore_password = env["KEYSTORE_PASSWORD"]
             def env_key_alias = env["KEY_ALIAS"]
             def env_key_password = env["KEY_PASSWORD"]
-//              Local build values
+            //Local build values
             def keystore_password = properties.getProperty('KEYSTORE_PASSWORD',
                     env_keystore_password)
             def key_alias = properties.getProperty('KEY_ALIAS', env_key_alias)
             def key_password = properties.getProperty('KEY_PASSWORD', env_key_password)
-//              Signed release commands
+            //Signed release commands
             storeFile file("proxy.jks")
             storePassword keystore_password
             keyAlias key_alias
@@ -121,8 +120,8 @@ android {
     buildTypes {
         debug {
             debuggable true
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //minifyEnabled true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
             //disable google analytics
@@ -141,8 +140,8 @@ android {
         }
         release {
             debuggable false
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //minifyEnabled true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"
@@ -173,7 +172,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
     packagingOptions {
-//        duplicate files in Butterknife and Realm?
+        //duplicate files in Butterknife and Realm?
         exclude 'META-INF/services/javax.annotation.processing.Processor'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
@@ -225,7 +224,6 @@ dependencies {
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
-    compile 'com.android.support:multidex:1.0.1'
     //Jake
     compile 'fr.avianey.com.viewpagerindicator:library:2.4.1@aar'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
@@ -241,7 +239,6 @@ dependencies {
     //Facebook
     compile 'com.facebook.fresco:fresco:0.8.1'
     compile 'com.facebook.fresco:imagepipeline-okhttp:0.8.1'
-    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
     //ReactiveX
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxkotlin:0.30.1'
@@ -250,14 +247,9 @@ dependencies {
     //SVG Compat
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Third party
-//    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.0@aar'
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     //Bug Tracking
     compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
-    compile('com.twitter.sdk.android:twitter:1.8.0@aar') {
-        transitive = true;
-    }
-
 }
