@@ -10,9 +10,12 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
 import com.shareyourproxy.Intents.getUserProfileIntent
 import com.shareyourproxy.R
-import com.shareyourproxy.api.RestClient.messageService
+import com.shareyourproxy.R.string.added_you
+import com.shareyourproxy.R.string.app_name
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.model.Message
 import com.shareyourproxy.api.domain.model.User
+import com.shareyourproxy.api.rx.RxQuery.getRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
@@ -25,20 +28,24 @@ import java.util.*
  * Cold Rx.Observable calls to handle syncing messages for Users.
  */
 object RxMessageSync {
-    fun getFirebaseMessages(
-            context: Context, userId: String): EventCallback {
-        return messageService.getUserMessages(userId).map { messages ->
+    fun getFirebaseMessages(context: Context, userId: String): EventCallback {
+        return herokuUserService.getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()
             if (messages == null) {
                 UserMessagesDownloadedEventCallback(notifications)
             } else {
                 for (message in messages.entries) {
                     val fullName = message.value.fullName
-                    val intent = getPendingUserProfileIntent(
-                            context, userId, message.value)
-
-                    val _builder = NotificationCompat.Builder(context).setLargeIcon(getProxyIcon(context)).setSmallIcon(R.mipmap.ic_proxy_notification).setAutoCancel(true).setVibrate(longArrayOf(1000, 1000)).setLights(Color.MAGENTA, 1000, 1000).setContentTitle(context.getString(R.string.app_name)).setContentText(context.getString(
-                            R.string.added_you, fullName)).setContentIntent(intent)
+                    val intent = getPendingUserProfileIntent(context, userId, message.value)
+                    val _builder = NotificationCompat.Builder(context)
+                            .setLargeIcon(getProxyIcon(context))
+                            .setSmallIcon(R.mipmap.ic_proxy_notification)
+                            .setAutoCancel(true)
+                            .setVibrate(longArrayOf(1000, 1000))
+                            .setLights(Color.MAGENTA, 1000, 1000)
+                            .setContentTitle(context.getString(app_name))
+                            .setContentText(context.getString(added_you, fullName))
+                            .setContentIntent(intent)
 
                     notifications.add(_builder.build())
                 }
@@ -50,12 +57,12 @@ object RxMessageSync {
     fun saveFirebaseMessage(userId: String, message: Message): EventCallback {
         val messages = HashMap<String, Message>()
         messages.put(message.id, message)
-        return messageService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+        return herokuUserService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
     fun deleteAllFirebaseMessages(user: User): Observable<Message> {
         val contactId = user.id
-        return messageService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
+        return herokuUserService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
     }
 
     private fun getProxyIcon(context: Context): Bitmap {
@@ -64,7 +71,7 @@ object RxMessageSync {
 
     private fun getPendingUserProfileIntent(context: Context, loggedInUserId: String, message: Message): PendingIntent {
         // Creates an explicit intent for an Activity in your app
-        val contact = RxQuery.getRealmUser(context, message.contactId)
+        val contact = getRealmUser(context, message.contactId)
         val resultIntent = getUserProfileIntent(contact, loggedInUserId)
         val stackBuilder = TaskStackBuilder.create(context)
         stackBuilder.addParentStack(UserContactActivity::class.java)

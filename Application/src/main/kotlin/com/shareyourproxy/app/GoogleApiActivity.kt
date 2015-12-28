@@ -10,7 +10,9 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
 import com.google.android.gms.common.api.Status
+import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.BuildConfig.VERSION_CODE
+import com.shareyourproxy.Constants
 import com.shareyourproxy.R
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
@@ -23,8 +25,7 @@ import java.util.*
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private var googleApiClient: GoogleApiClient? = null
-
+    private var googleApiClient: GoogleApiClient = buildGoogleApiClient(this)
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
     }
 
@@ -42,7 +43,6 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
      */
     protected fun createUserFromGoogle(acct: GoogleSignInAccount): User {
         val id = acct.id
-
         // Retrieve some profile information to personalize our app for the user.
         val currentUser = RestClient.herokuUserService.getCurrentPerson(id).toBlocking().single()
         val userId = StringBuilder(GOOGLE_UID_PREFIX).append(id).toString()
@@ -71,13 +71,12 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        googleApiClient = buildGoogleApiClient(this)
     }
 
     override fun onStop() {
         super.onStop()
-        if (googleApiClient!!.isConnected) {
-            googleApiClient!!.disconnect()
+        if (googleApiClient.isConnected) {
+            googleApiClient.disconnect()
         }
     }
 
@@ -98,6 +97,7 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
         if (requestCode == RC_SIGN_IN) {
             val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (result.isSuccess) {
+                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode)
                 onGooglePlusSignIn(result.signInAccount)
             } else {
                 onGooglePlusError(result.status)
@@ -108,11 +108,7 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     companion object {
         val GOOGLE_UID_PREFIX = "google:"
         private val RC_SIGN_IN = 0
-        private val OPTIONS = signInOptions
-
-        private val signInOptions: GoogleSignInOptions
-            get() = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
-
+        private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(BuildConfig.GOOGLE_API_KEY).requestEmail().build()
         /**
          * Return log in onError dialog based on the type of onError.
          * @param message onError message

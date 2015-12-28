@@ -2,7 +2,6 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import com.shareyourproxy.api.RestClient.herokuUserService
-import com.shareyourproxy.api.RestClient.userService
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
@@ -35,7 +34,7 @@ object RxUserSync {
     }
 
     fun saveUser(context: Context, newUser: User): EventCallback {
-        return userService
+        return herokuUserService
                 .updateUser(newUser.id, newUser)
                 .map(saveRealmUser(context))
                 .compose(RxHelper.observeMain<EventCallback>())

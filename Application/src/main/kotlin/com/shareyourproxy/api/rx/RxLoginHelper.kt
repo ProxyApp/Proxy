@@ -46,7 +46,7 @@ object RxLoginHelper {
                         }
                         //if there is a user saved in shared prefs
                         if (user != null) {
-                            RestClient.userService
+                            RestClient.herokuUserService
                                     .updateUserVersion(user.id, BuildConfig.VERSION_CODE)
                                     .map(finalUser(user))
                                     .subscribe(updateUserVersionObserver(subscriber))

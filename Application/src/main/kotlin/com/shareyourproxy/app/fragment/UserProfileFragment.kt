@@ -56,7 +56,7 @@ import com.shareyourproxy.IntentLauncher.launchXboxLiveIntent
 import com.shareyourproxy.IntentLauncher.launchYoIntent
 import com.shareyourproxy.IntentLauncher.launchYoutubeIntent
 import com.shareyourproxy.R
-import com.shareyourproxy.api.RestClient.userService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.User
@@ -170,7 +170,7 @@ abstract class UserProfileFragment : BaseFragment() {
             if (sharedPrefJsonUser?.id.equals(loggedInUserId)) {
                 loggedInUser = sharedPrefJsonUser!!
             } else {
-                loggedInUser = userService.getUser(loggedInUserId).toBlocking().single()
+                loggedInUser = herokuUserService.getUser(loggedInUserId).toBlocking().single()
             }
         } catch (e: Exception) {
             Timber.e(Log.getStackTraceString(e))

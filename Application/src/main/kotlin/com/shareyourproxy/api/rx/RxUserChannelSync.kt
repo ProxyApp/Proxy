@@ -2,8 +2,7 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.userChannelService
-import com.shareyourproxy.api.RestClient.userGroupService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.factory.UserFactory.addUserChannel
 import com.shareyourproxy.api.domain.factory.UserFactory.deleteUserChannel
 import com.shareyourproxy.api.domain.model.Channel
@@ -59,8 +58,8 @@ object RxUserChannelSync {
         return Func1 { user ->
             val userId = user.id
             val channelId = channel.id
-            userChannelService.addUserChannel(userId, channelId, channel).subscribe()
-            userGroupService.updateUserGroups(userId, user.groups).subscribe()
+            herokuUserService.addUserChannel(userId, channelId, channel).subscribe()
+            herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }
@@ -81,8 +80,8 @@ object RxUserChannelSync {
         return Func1 { user ->
             val userId = user.id
             val channelId = channel.id
-            userChannelService.deleteUserChannel(userId, channelId).subscribe()
-            userGroupService.updateUserGroups(userId, user.groups).subscribe()
+            herokuUserService.deleteUserChannel(userId, channelId).subscribe()
+            herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }

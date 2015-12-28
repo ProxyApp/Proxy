@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.util.Pair
-import com.shareyourproxy.api.RestClient.userContactService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
@@ -45,7 +45,7 @@ object RxUserContactSync {
     }
 
     private fun deleteFirebaseUserContact(userId: String, contactId: String): Observable<String> {
-        userContactService.deleteUserContact(userId, contactId).subscribe()
+        herokuUserService.deleteUserContact(userId, contactId).subscribe()
         return Observable.just(contactId)
     }
 

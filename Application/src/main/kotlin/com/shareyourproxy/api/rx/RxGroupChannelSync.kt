@@ -2,9 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.support.v7.util.SortedList
-import com.shareyourproxy.api.RestClient.sharedLinkService
-import com.shareyourproxy.api.RestClient.userChannelService
-import com.shareyourproxy.api.RestClient.userGroupService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel
 import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.UserFactory
@@ -87,7 +85,7 @@ object RxGroupChannelSync {
     private fun saveSharedLink(): Func1<GroupChannelsUpdatedEventCallback, EventCallback> {
         return Func1 { event ->
             val link = SharedLink(event.user.id, event.group.id)
-            sharedLinkService.addSharedLink(link.id, link).subscribe()
+            herokuUserService.addSharedLink(link.id, link).subscribe()
             event
         }
     }
@@ -119,7 +117,7 @@ object RxGroupChannelSync {
     }
 
     private fun saveFirebaseUserGroups(userId: String, groups: HashMap<String, Group>): Observable<Group> {
-        return userGroupService.updateUserGroups(userId, groups)
+        return herokuUserService.updateUserGroups(userId, groups)
     }
 
     private fun zipAddPublicChannels(): Func2<User, HashMap<String, Channel>, EventCallback> {
@@ -127,7 +125,7 @@ object RxGroupChannelSync {
     }
 
     private fun saveFirebasePublicChannels(userId: String, newChannels: HashMap<String, Channel>): Observable<HashMap<String, Channel>> {
-        return userChannelService.addUserChannels(userId, newChannels)
+        return herokuUserService.addUserChannels(userId, newChannels)
     }
 
     private val selectedChannels: Func1<SortedList<ChannelToggle>, HashSet<String>>
@@ -159,7 +157,7 @@ object RxGroupChannelSync {
 
     private fun saveFirebaseGroupChannels(userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
         val newGroup = group.copy(label = newTitle, channels = channels)
-        return userGroupService.addUserGroup(userId, group.id, newGroup)
+        return herokuUserService.addUserGroup(userId, group.id, newGroup)
     }
 
     private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: GroupEditType): Func2<Group, Group, GroupChannelsUpdatedEventCallback> {

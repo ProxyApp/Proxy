@@ -2,9 +2,8 @@ package com.shareyourproxy.api
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.shareyourproxy.BuildConfig.FIREBASE_ENDPOINT
 import com.shareyourproxy.api.domain.factory.UserTypeAdapterFactory
-import com.shareyourproxy.api.service.*
+import com.shareyourproxy.api.service.HerokuUserService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
@@ -18,22 +17,6 @@ import timber.log.Timber
  */
 object RestClient {
     val HEROKU_URL = "https://proxy-api.herokuapp.com/"
-
-    /**
-     * Get the [UserService].
-     * @return userService
-     */
-    val userService: UserService get() = buildClient(FIREBASE_ENDPOINT).create(UserService::class.java)
-
-    val userGroupService: UserGroupService get() = buildClient(FIREBASE_ENDPOINT).create(UserGroupService::class.java)
-
-    val userChannelService: UserChannelService get() = buildClient(FIREBASE_ENDPOINT).create(UserChannelService::class.java)
-
-    val userContactService: UserContactService get() = buildClient(FIREBASE_ENDPOINT).create(UserContactService::class.java)
-
-    val messageService: MessageService get() = buildClient(FIREBASE_ENDPOINT).create(MessageService::class.java)
-
-    val sharedLinkService: SharedLinkService get() = buildClient(FIREBASE_ENDPOINT).create(SharedLinkService::class.java)
 
     val herokuUserService: HerokuUserService get() = buildClient(HEROKU_URL).create(HerokuUserService::class.java)
 

@@ -33,7 +33,11 @@ def env_webview_redirect = env["WEBVIEW_REDIRECT"]
 def env_spotify_client_id = env["SPOTIFY_CLIENT_ID"]
 def env_spotify_client_secret = env["SPOTIFY_CLIENT_SECRET"]
 def env_google_api_key = env["GOOGLE_API_KEY"]
+def env_google_debug_client_id = env["GOOGLE_DEBUG_CLIENT_ID"]
+def env_google_prod_client_id = env["GOOGLE_PROD_CLIENT_ID"]
 def google_api_key = properties.getProperty('GOOGLE_API_KEY', env_google_api_key)
+def google_debug_client_id = properties.getProperty('GOOGLE_DEBUG_CLIENT_ID', env_google_debug_client_id)
+def google_prod_client_id = properties.getProperty('GOOGLE_DEBUG_CLIENT_ID', env_google_prod_client_id)
 def tracker_id = properties.getProperty('GA_TRACKER_ID', env_google_tracker)
 def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
 def instagram_app_id = properties.getProperty('INSTAGRAM_APP_ID', env_instagram_app_id)
@@ -138,6 +142,7 @@ android {
             buildConfigField "String", "SPOTIFY_CLIENT_SECRET", spotify_client_secret
             buildConfigField "boolean", "USE_LEAK_CANARY", "false"
             buildConfigField "String", "GOOGLE_API_KEY", google_api_key
+            buildConfigField "String", "GOOGLE_CLIENT_ID", google_debug_client_id
         }
         release {
             debuggable false
@@ -157,6 +162,7 @@ android {
             buildConfigField "String", "SPOTIFY_CLIENT_SECRET", spotify_client_secret
             buildConfigField "boolean", "USE_LEAK_CANARY", "false"
             buildConfigField "String", "GOOGLE_API_KEY", google_api_key
+            buildConfigField "String", "GOOGLE_CLIENT_ID", google_prod_client_id
 
             signingConfig signingConfigs.release
         }

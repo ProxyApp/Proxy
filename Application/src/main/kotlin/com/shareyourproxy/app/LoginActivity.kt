@@ -13,7 +13,6 @@ import com.shareyourproxy.IntentLauncher.launchIntroductionActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.api.RestClient.herokuUserService
-import com.shareyourproxy.api.RestClient.userService
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusDriver
@@ -109,7 +108,7 @@ class LoginActivity : GoogleApiActivity() {
      */
     private fun getUserFromFirebase(account: GoogleSignInAccount) {
         val userId = StringBuilder(GoogleApiActivity.GOOGLE_UID_PREFIX).append(account.id).toString()
-        userService.getUser(userId).compose(observeMain<User>()).subscribe(getUserObserver(this, account))
+        herokuUserService.getUser(userId).compose(observeMain<User>()).subscribe(getUserObserver(this, account))
     }
 
     /**
@@ -127,7 +126,7 @@ class LoginActivity : GoogleApiActivity() {
                 } else {
                     RxHelper.updateRealmUser(activity, user)
                     loggedInUser = user
-                    userService.updateUserVersion(user.id, VERSION_CODE).compose(observeMain<String>()).subscribe()
+                    herokuUserService.updateUserVersion(user.id, VERSION_CODE).compose(observeMain<String>()).subscribe()
                     post(SyncContactsCommand(user))
                 }
             }

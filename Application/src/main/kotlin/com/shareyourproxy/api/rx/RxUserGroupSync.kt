@@ -1,8 +1,7 @@
 package com.shareyourproxy.api.rx
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient
-import com.shareyourproxy.api.RestClient.sharedLinkService
+import com.shareyourproxy.api.RestClient.herokuUserService
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.SharedLink
@@ -35,7 +34,7 @@ object RxUserGroupSync {
 
     private fun deleteSharedLink(): Func1<UserGroupDeletedEventCallback, EventCallback> {
         return Func1 { event ->
-            sharedLinkService.deleteSharedLink(event.group.id).subscribe()
+            herokuUserService.deleteSharedLink(event.group.id).subscribe()
             event
         }
     }
@@ -43,7 +42,7 @@ object RxUserGroupSync {
     private fun saveSharedLink(): Func1<UserGroupAddedEventCallback, EventCallback> {
         return Func1 { event ->
             val link = SharedLink(event.user.id, event.group.id)
-            sharedLinkService.addSharedLink(link.id, link).subscribe()
+            herokuUserService.addSharedLink(link.id, link).subscribe()
             event
         }
     }
@@ -83,11 +82,11 @@ object RxUserGroupSync {
     }
 
     private fun saveFirebaseUserGroup(userId: String, group: Group): Observable<Group> {
-        return RestClient.userGroupService.addUserGroup(userId, group.id, group)
+        return herokuUserService.addUserGroup(userId, group.id, group)
     }
 
     private fun deleteFirebaseUserGroup(userId: String, group: Group): Observable<Group> {
-        RestClient.userGroupService.deleteUserGroup(userId, group.id).subscribe()
+        herokuUserService.deleteUserGroup(userId, group.id).subscribe()
         return Observable.just(group)
     }
 }

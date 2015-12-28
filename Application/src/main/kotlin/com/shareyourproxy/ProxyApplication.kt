@@ -29,13 +29,12 @@ class ProxyApplication : Application() {
     var currentUser: User = User()
     val sharedPreferences: SharedPreferences by lazy {}
 
-    //
-operator fun Any.getValue(proxyApplication: ProxyApplication, property: KProperty<*>): SharedPreferences {
-   return getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
-}
+    operator fun Any.getValue(proxyApplication: ProxyApplication, property: KProperty<*>): SharedPreferences {
+        return getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
+    }
 
 
-override fun onCreate() {
+    override fun onCreate() {
         super.onCreate()
         initialize()
     }
