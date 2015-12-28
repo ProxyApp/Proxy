@@ -22,6 +22,7 @@ data class Group(val id: String, val label: String, val channels: HashSet<String
             override fun newArray(size: Int): Array<Group?> = arrayOfNulls(size)
         }
 
+        @Suppress("UNCHECKED_CAST")
         private fun readParcel(parcel: Parcel) = Group(parcel.readString(), parcel.readString(), parcel.readSerializable() as HashSet<String>,parcel.readSerializable() as HashSet<String>)
     }
 }

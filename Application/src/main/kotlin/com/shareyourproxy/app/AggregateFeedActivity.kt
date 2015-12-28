@@ -44,7 +44,7 @@ class AggregateFeedActivity : BaseActivity() {
                 analytics.userProfileViewed(user)
                 launchUserProfileActivity(this, user, user.id)
             }
-            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog.newInstance(loggedInUser!!.groups).show(supportFragmentManager)
+            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog.newInstance(loggedInUser.groups).show(supportFragmentManager)
             DrawerAdapter.DrawerItem.INVITE_FRIEND -> launchInviteFriendIntent(this)
             DrawerAdapter.DrawerItem.TOUR -> launchIntroductionActivity(this)
             DrawerAdapter.DrawerItem.REPORT_ISSUE -> launchEmailIntent(this, getString(R.string.contact_proxy))
@@ -61,6 +61,7 @@ class AggregateFeedActivity : BaseActivity() {
     }
 
     val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any?) {
                 if (event is SelectDrawerItemEvent) {
                     onDrawerItemSelected(event)

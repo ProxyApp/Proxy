@@ -6,7 +6,7 @@ import com.shareyourproxy.util.BaseParcelable
 import java.util.*
 
 /**
- * Users have a basic profile that contains their specific [Channel]s, [Contact]s, and [Group]s.
+ * Users have a basic profile that contains their specific [Channel]s, [User]s, and [Group]s.
  */
 data class User(val id: String, val first: String, val last: String, val fullName: String, val email: String, val profileURL: String, val coverURL: String, val channels: HashMap<String, Channel>, val contacts: HashSet<String>, val groups: HashMap<String, Group>, val androidVersion: Int) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -30,6 +30,7 @@ data class User(val id: String, val first: String, val last: String, val fullNam
             override fun newArray(size: Int): Array<User?> = arrayOfNulls(size)
         }
 
+        @Suppress("UNCHECKED_CAST")
         private fun readParcel(parcel: Parcel) = User(parcel.readString(), parcel.readString(), parcel.readString(), parcel.readString(), parcel.readString(), parcel.readString(), parcel.readString(), parcel.readSerializable() as HashMap<String, Channel>, parcel.readSerializable() as HashSet<String>, parcel.readSerializable() as HashMap<String, Group>, parcel.readInt())
     }
 }

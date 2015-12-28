@@ -5,12 +5,12 @@ import com.google.gson.GsonBuilder
 import com.shareyourproxy.BuildConfig.FIREBASE_ENDPOINT
 import com.shareyourproxy.api.domain.factory.UserTypeAdapterFactory
 import com.shareyourproxy.api.service.*
-import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.logging.HttpLoggingInterceptor
-import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level.BASIC
-import retrofit.GsonConverterFactory
-import retrofit.Retrofit
-import retrofit.RxJavaCallAdapterFactory
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
+import retrofit2.GsonConverterFactory
+import retrofit2.Retrofit
+import retrofit2.RxJavaCallAdapterFactory
 import timber.log.Timber
 
 /**
@@ -49,6 +49,12 @@ object RestClient {
         val client = OkHttpClient()
         client.networkInterceptors().add(httpLoggingInterceptor)
         return client
+    }
+
+    val oldClient: com.squareup.okhttp.OkHttpClient get() {
+        val oldClient =com.squareup.okhttp.OkHttpClient()
+        client.networkInterceptors().add(httpLoggingInterceptor)
+        return oldClient
     }
 
     private val httpLoggingInterceptor: HttpLoggingInterceptor get() {

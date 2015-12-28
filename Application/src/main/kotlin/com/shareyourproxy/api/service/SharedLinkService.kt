@@ -1,7 +1,7 @@
 package com.shareyourproxy.api.service
 
 import com.shareyourproxy.api.domain.model.SharedLink
-import retrofit.http.*
+import retrofit2.http.*
 import rx.Observable
 import java.util.*
 

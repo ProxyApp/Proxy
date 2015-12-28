@@ -1,10 +1,10 @@
 package com.shareyourproxy.api.service
 
 import com.shareyourproxy.api.domain.model.Channel
-import retrofit.http.Body
-import retrofit.http.DELETE
-import retrofit.http.PUT
-import retrofit.http.Path
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import rx.Observable
 import java.util.*
 

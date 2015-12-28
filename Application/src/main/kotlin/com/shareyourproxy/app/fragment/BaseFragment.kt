@@ -15,6 +15,7 @@ import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.BaseActivity
+import com.shareyourproxy.util.ButterKnife
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 
 /**
@@ -36,17 +37,14 @@ abstract class BaseFragment : Fragment() {
      * Get currently logged in [User] in this [ProxyApplication].
      * @return logged in user
      */
-    val sharedPreferences: SharedPreferences
-        get() = (activity as BaseActivity).sharedPreferences
+    val sharedPreferences: SharedPreferences get() = (activity as BaseActivity).sharedPreferences
 
     /**
      * Initialize the color sequence of the swipe refresh view.
      */
-    fun initializeSwipeRefresh(
-            swipe: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener) {
+    fun initializeSwipeRefresh(swipe: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener) {
         swipe.setOnRefreshListener(listener)
-        swipe.setColorSchemeResources(
-                R.color.common_text, R.color.common_blue, R.color.common_green)
+        swipe.setColorSchemeResources(R.color.common_text, R.color.common_blue, R.color.common_green)
     }
 
     /**
@@ -57,8 +55,7 @@ abstract class BaseFragment : Fragment() {
         return (activity as BaseActivity).isLoggedInUser(user)
     }
 
-    val supportActionBar: ActionBar
-        get() = (activity as BaseActivity).supportActionBar
+    val supportActionBar: ActionBar get() = (activity as BaseActivity).supportActionBar
 
     fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
         (activity as BaseActivity).buildToolbar(toolbar, title, icon)
@@ -97,6 +94,7 @@ abstract class BaseFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         ProxyApplication.watchForLeak(this)
+        ButterKnife.unbind(this)
     }
 
     /**

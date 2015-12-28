@@ -15,7 +15,7 @@ import java.io.IOException
  */
 abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>) : TypeAdapterFactory {
 
-    @SuppressWarnings("unchecked") // we use a runtime check to guarantee that 'C' and 'T' are equal
+    @Suppress("CAST_NEVER_SUCCEEDS")
     override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
         return if (type.rawType == customizedClass) customizeMyClassAdapter(gson, type as TypeToken<C>) as TypeAdapter<T> else null
     }
@@ -32,8 +32,8 @@ abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>
             }
 
             @Throws(IOException::class)
-            override fun read(`in`: JsonReader): C {
-                val tree = elementAdapter.read(`in`)
+            override fun read(input: JsonReader): C {
+                val tree = elementAdapter.read(input)
                 afterRead(tree)
                 return delegate.fromJsonTree(tree)
             }

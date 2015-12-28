@@ -68,15 +68,13 @@ object RxQuery {
                 val groups = contact.groups
                 //check the contacts groups for the logged in user and gather the channel
                 // Id's of that group
-                if (groups != null && groups.size > 0) {
+                if (groups.size > 0) {
                     for (group in groups.values) {
                         val contacts = group.contacts
-                        if (contacts != null) {
                             for (contactId in contacts) {
                                 if (contactId == loggedInUserId) {
                                     permissionedIds.addAll(group.channels)
                                 }
-                            }
                         }
                     }
                     // for the above key set data, find the channels associated

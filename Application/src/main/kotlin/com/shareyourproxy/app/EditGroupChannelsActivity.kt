@@ -70,6 +70,7 @@ class EditGroupChannelsActivity : BaseActivity() {
 
     private fun onNextEvent(activity: EditGroupChannelsActivity): JustObserver<Any> {
         return object : JustObserver<Any>() {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any?) {
                 if (event is UserGroupDeletedEventCallback) {
                     userGroupDeleted(event)

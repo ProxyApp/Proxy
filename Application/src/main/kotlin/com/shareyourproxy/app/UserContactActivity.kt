@@ -30,7 +30,7 @@ class UserContactActivity : BaseActivity() {
         preventStatusBarFlash(this)
         if (savedInstanceState == null) {
             val user = userExtra
-            supportFragmentManager.beginTransaction().replace(android.R.id.content, ContactProfileFragment.newInstance(user, loggedInUser!!.id)).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, ContactProfileFragment.newInstance(user, loggedInUser.id)).commit()
         }
     }
 

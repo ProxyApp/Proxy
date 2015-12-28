@@ -5,29 +5,21 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.os.RemoteException
-
 import com.shareyourproxy.INotificationService
 import com.shareyourproxy.api.rx.command.GetUserMessagesCommand
-import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
-
-import java.util.ArrayList
+import java.util.*
 
 /**
- * Created by Evan on 6/18/15.
+ * Service to pull for notification messages.
  */
 class NotificationService : Service() {
     private val _binder = object : INotificationService.Stub() {
         @Throws(RemoteException::class)
         override fun getNotifications(userId: String): ArrayList<Notification>? {
             val eventData = GetUserMessagesCommand(userId).execute(this@NotificationService)
-            if (eventData != null) {
                 val notifications = (eventData as UserMessagesDownloadedEventCallback).notifications
-                if (notifications != null) {
                     return notifications
-                }
-            }
-            return null
         }
     }
 

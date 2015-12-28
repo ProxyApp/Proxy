@@ -219,7 +219,7 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
     }
 
     override fun onItemClick(view: View, position: Int) {
-        val group = adapter!!.getItemData(position)
+        val group = adapter.getItemData(position)
         if (group.id.equals(PUBLIC)) {
             launchEditGroupChannelsActivity(activity, group, PUBLIC_GROUP)
         } else {

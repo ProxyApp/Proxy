@@ -282,7 +282,7 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
 
     val toggledChannels: ArrayList<ChannelToggle> get() {
         val channels = ArrayList<ChannelToggle>(channels.size())
-        for (i in 0..channels.size() - 1) {
+        for (i in 0..channels.size - 1) {
             val newChannel = channels.get(i)
             channels.add(newChannel)
         }

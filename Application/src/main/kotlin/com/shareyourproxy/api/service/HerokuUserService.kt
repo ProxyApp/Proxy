@@ -3,10 +3,10 @@ package com.shareyourproxy.api.service
 import com.google.android.gms.plus.model.people.Person
 import com.shareyourproxy.api.domain.model.SharedLink
 import com.shareyourproxy.api.domain.model.User
-import retrofit.http.GET
-import retrofit.http.PUT
-import retrofit.http.Path
-import retrofit.http.Query
+import retrofit2.http.GET
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 import rx.Observable
 import java.util.*
 

@@ -18,26 +18,24 @@ import rx.subscriptions.CompositeSubscription
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
 class DispatchActivity : GoogleApiActivity() {
-    private var _subscriptions: CompositeSubscription = CompositeSubscription()
+    private var subscriptions: CompositeSubscription = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(android.R.id.content,
-                    DispatchFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, DispatchFragment.newInstance()).commitAllowingStateLoss()
         }
         initialize()
     }
 
     public override fun onResume() {
         super.onResume()
-        _subscriptions = CompositeSubscription()
-        _subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
     }
 
     override fun onPause() {
         super.onPause()
-        _subscriptions.unsubscribe()
+        subscriptions.unsubscribe()
     }
 
     /**
@@ -58,6 +56,7 @@ class DispatchActivity : GoogleApiActivity() {
     }
 
     val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any?) {
                 if (event is SyncAllContactsSuccessEvent) {
                     goToUserFeedActivity()
