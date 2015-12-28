@@ -27,6 +27,7 @@ import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindDimen
 import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
@@ -41,7 +42,7 @@ class LoginActivity : GoogleApiActivity() {
     private val analytics = RxGoogleAnalytics(this)
     private val proxyLogo: TextView by bindView(R.id.activity_login_title)
     private val signInButton: SignInButton by bindView(R.id.activity_login_sign_in_button)
-    private val svgUltraMinor: Int = resources.getDimensionPixelSize(R.dimen.common_svg_ultra_minor)
+    private val svgUltraMinor: Int  by bindDimen(R.dimen.common_svg_ultra_minor)
     private var subscriptions: CompositeSubscription = CompositeSubscription()
 
     public override fun onCreate(savedInstanceState: Bundle?) {

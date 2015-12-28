@@ -31,12 +31,12 @@ object RxLoginHelper {
                 var user: User? = null
                 try {
                     //even if we have a user saved, if this isn't present, go to login.
-                    if (activity.sharedPreferences!!.getBoolean(KEY_PLAY_INTRODUCTION, false)) {
+                    if (activity.sharedPreferences.getBoolean(KEY_PLAY_INTRODUCTION, false)) {
                         launchLoginActivity(activity)
                         activity.finish()
                     } else {
                         //get the shared preferences user
-                        val jsonUser = activity.sharedPreferences?.getString(KEY_LOGGED_IN_USER, null)
+                        val jsonUser = activity.sharedPreferences.getString(KEY_LOGGED_IN_USER, null)
                         if (jsonUser != null) {
                             try {
                                 user = activity.sharedPrefJsonUser
@@ -57,6 +57,8 @@ object RxLoginHelper {
                     }
                     subscriber.onSuccess(user)
                 } catch (e: Exception) {
+                    // remove the cached user if we fail
+                    activity.sharedPreferences.edit().remove(KEY_LOGGED_IN_USER)
                     subscriber.onError(e)
                 }
             }

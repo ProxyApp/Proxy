@@ -6,7 +6,8 @@ import android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxLoginHelper.loginObservable
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment.Companion.ARG_SELECT_PROFILE_TAB
@@ -23,14 +24,15 @@ class DispatchActivity : GoogleApiActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(android.R.id.content, DispatchFragment.newInstance()).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, DispatchFragment.newInstance()).commit()
         }
         initialize()
     }
 
     public override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
+        subscriptions.add(rxBusObservable().subscribe(rxBusObserver))
+        subscriptions.add(loginObservable(this).subscribe())
     }
 
     override fun onPause() {

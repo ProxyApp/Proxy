@@ -16,21 +16,26 @@ import com.shareyourproxy.R.id.fragment_dispatch_progress
 import com.shareyourproxy.R.raw.ic_doge_channels
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.util.bindColorStateList
+import com.shareyourproxy.util.bindDimen
 import com.shareyourproxy.util.bindView
 
 /**
  * Handle dispatching a [LoginActivity] or a [AggregateFeedActivity] base off the current user.
  */
-class DispatchFragment : BaseFragment() {
+class DispatchFragment() : BaseFragment() {
     private val textView: TextView by bindView(fragment_dispatch_image)
     private val progressBar: ProgressBar by bindView(fragment_dispatch_progress)
-    private  val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)
-    private val logoSize: Int =  resources.getDimensionPixelSize(R.dimen.common_svg_ultra)
+    private val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)
+    private val logoSize: Int by bindDimen(R.dimen.common_svg_ultra)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val rootView = inflater.inflate(R.layout.fragment_dispatch, container, false)
-        initialize()
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initialize()
     }
 
     fun initialize() {
