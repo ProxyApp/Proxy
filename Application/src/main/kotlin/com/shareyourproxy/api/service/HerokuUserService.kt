@@ -2,10 +2,7 @@ package com.shareyourproxy.api.service
 
 import com.google.android.gms.plus.model.people.Person
 import com.shareyourproxy.api.domain.model.*
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 import rx.Observable
 import java.util.*
 
@@ -147,13 +144,16 @@ interface HerokuUserService {
     //TODO
     //    @DELETE("/shared/{sharedId}.json")
     fun deleteSharedLink(@Path("sharedId") sharedId: String): Observable<SharedLink>
+
     //TODO
-    //    @GET("/messages/{userId}.json")
+    @GET("/messages/{userId}.json")
     fun getUserMessages(@Path("userId") userId: String): Observable<HashMap<String, Message>>
+
     //TODO
-    //    @PUT("/messages/{userId}.json")
+    @PUT("/messages/{userId}.json")
     fun addUserMessage(@Path("userId") userId: String, @Body message: HashMap<String, Message>): Observable<HashMap<String, Message>>
+
     //TODO
-    //    @DELETE("/messages/{userId}.json")
+    @DELETE("/messages/{userId}.json")
     fun deleteAllUserMessages(@Path("userId") userId: String): Observable<Message>
 }

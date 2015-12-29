@@ -26,15 +26,15 @@ object RxShareLink {
         return Observable.OnSubscribe<EventCallback> { subscriber ->
             try {
                 val groupIds = Observable.just(groups).map(getCheckedGroups(context)).toBlocking().single()
-                Observable.from(groupIds).map(queryLinkIds(user.id)).map(generateMessage(context)).subscribe(handleMessage(subscriber))
+                Observable.from(groupIds).map(queryLinkIds(context, user.id)).map(generateMessage(context)).subscribe(handleMessage(subscriber))
             } catch (e: Exception) {
                 subscriber.onError(e)
             }
         }
     }
 
-    fun queryLinkIds(userId: String): Func1<String, SharedLink> {
-        return Func1 { groupId -> RestClient.herokuUserService.getSharedLink(groupId, userId).toBlocking().single() }
+    fun queryLinkIds(context: Context, userId: String): Func1<String, SharedLink> {
+        return Func1 { groupId -> RestClient(context).herokuUserService.getSharedLink(groupId, userId).toBlocking().single() }
     }
 
     fun handleMessage(subscriber: Subscriber<in EventCallback>): Subscriber<String> {

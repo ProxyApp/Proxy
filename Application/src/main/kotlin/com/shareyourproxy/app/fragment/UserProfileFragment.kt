@@ -56,7 +56,7 @@ import com.shareyourproxy.IntentLauncher.launchXboxLiveIntent
 import com.shareyourproxy.IntentLauncher.launchYoIntent
 import com.shareyourproxy.IntentLauncher.launchYoutubeIntent
 import com.shareyourproxy.R
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.User
@@ -106,7 +106,7 @@ abstract class UserProfileFragment : BaseFragment() {
     private var userChannelsFragment: UserChannelsFragment? = null
     internal var refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
-        getUserContactScore(contact.id).subscribe(contactScoreObserver)
+        getUserContactScore(context, contact.id).subscribe(contactScoreObserver)
     }
     private val analytics: RxGoogleAnalytics = RxGoogleAnalytics(activity)
     private val loggedInUserId = arguments.getString(Constants.ARG_LOGGEDIN_USER_ID)
@@ -140,7 +140,7 @@ abstract class UserProfileFragment : BaseFragment() {
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
         initializeUserChannels()
         //followers score
-        getUserContactScore(contact.id).subscribe(contactScoreObserver)
+        getUserContactScore(context, contact.id).subscribe(contactScoreObserver)
     }
 
     override fun onResume() {
@@ -170,7 +170,7 @@ abstract class UserProfileFragment : BaseFragment() {
             if (sharedPrefJsonUser?.id.equals(loggedInUserId)) {
                 loggedInUser = sharedPrefJsonUser!!
             } else {
-                loggedInUser = herokuUserService.getUser(loggedInUserId).toBlocking().single()
+                loggedInUser = RestClient(context).herokuUserService.getUser(loggedInUserId).toBlocking().single()
             }
         } catch (e: Exception) {
             Timber.e(Log.getStackTraceString(e))
@@ -214,7 +214,7 @@ abstract class UserProfileFragment : BaseFragment() {
         } else {
             analytics.userContactRemoved(event.user)
         }
-        getUserContactScore(contact.id).subscribe(contactScoreObserver)
+        getUserContactScore(context, contact.id).subscribe(contactScoreObserver)
     }
 
     private fun deleteUserChannel(event: UserChannelDeletedEventCallback) {

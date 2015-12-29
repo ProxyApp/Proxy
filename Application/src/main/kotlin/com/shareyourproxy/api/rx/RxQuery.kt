@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.factory.UserFactory.createModelUser
 import com.shareyourproxy.api.domain.model.Channel
@@ -100,8 +100,8 @@ object RxQuery {
         return Observable.just<Context>(context).map<User>(getRealmUser(userId)).compose<User>(observeMain<User>()).toBlocking().single()
     }
 
-    fun getUserContactScore(userId: String): Observable<Int> {
-        return herokuUserService.userFollowerCount(userId).compose<Int>(observeMain<Int>())
+    fun getUserContactScore(context:Context, userId: String): Observable<Int> {
+        return RestClient(context).herokuUserService.userFollowerCount(userId).compose<Int>(observeMain<Int>())
     }
 
     private fun getRealmUser(userId: String): Func1<Context, User> {
@@ -120,7 +120,7 @@ object RxQuery {
     fun searchMatchingUsers(context: Context, queryName: String, userId: String): Observable<HashMap<String, User>> {
         return Observable.concat<HashMap<String, User>>(
                 searchLocalMatchingUsers(context, queryName, userId),
-                searchRemoteMatchingUsers(queryName))
+                searchRemoteMatchingUsers(context, queryName))
 
     }
 
@@ -128,8 +128,8 @@ object RxQuery {
         return Observable.just<String>(queryName).map<HashMap<String, User>>(searchLocalUserString(context, userId))
     }
 
-    private fun searchRemoteMatchingUsers(queryName: String): Observable<HashMap<String, User>> {
-        return Observable.just<String>(queryName).map<HashMap<String, User>>(searchRemoteUserString())
+    private fun searchRemoteMatchingUsers(context:Context, queryName: String): Observable<HashMap<String, User>> {
+        return Observable.just<String>(queryName).map<HashMap<String, User>>(searchRemoteUserString(context))
     }
 
     private fun searchLocalUserString(context: Context, userId: String): Func1<String, HashMap<String, User>> {
@@ -151,9 +151,9 @@ object RxQuery {
         return users
     }
 
-    private fun searchRemoteUserString(): Func1<String, HashMap<String, User>> {
+    private fun searchRemoteUserString(context: Context): Func1<String, HashMap<String, User>> {
         return Func1 { queryName ->
-            herokuUserService.searchUsers(queryName)
+            RestClient(context).herokuUserService.searchUsers(queryName)
                     .map<HashMap<String, User>>(arrayToUserHashMap())
                     .toBlocking().single()
         }

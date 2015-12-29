@@ -10,7 +10,6 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
 import com.google.android.gms.common.api.Status
-import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.BuildConfig.VERSION_CODE
 import com.shareyourproxy.Constants
 import com.shareyourproxy.R
@@ -20,12 +19,17 @@ import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.dialog.ErrorDialog
 import com.shareyourproxy.util.ObjectUtils
 import java.util.*
+import kotlin.reflect.KProperty
 
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private var googleApiClient: GoogleApiClient = buildGoogleApiClient(this)
+    private val googleApiClient: GoogleApiClient by lazy{}
+    operator fun Any.getValue(activity: GoogleApiActivity, property: KProperty<*>): GoogleApiClient {
+       return buildGoogleApiClient(activity)
+    }
+
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
     }
 
@@ -44,7 +48,7 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     protected fun createUserFromGoogle(acct: GoogleSignInAccount): User {
         val id = acct.id
         // Retrieve some profile information to personalize our app for the user.
-        val currentUser = RestClient.herokuUserService.getCurrentPerson(id).toBlocking().single()
+        val currentUser = RestClient(this).herokuUserService.getCurrentPerson(id).toBlocking().single()
         val userId = StringBuilder(GOOGLE_UID_PREFIX).append(id).toString()
         val firstName = currentUser.name.givenName
         val lastName = currentUser.name.familyName
@@ -108,14 +112,14 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     companion object {
         val GOOGLE_UID_PREFIX = "google:"
         private val RC_SIGN_IN = 0
-        private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(BuildConfig.GOOGLE_API_KEY).requestEmail().build()
+        private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
         /**
          * Return log in onError dialog based on the type of onError.
          * @param message onError message
          */
-        fun showErrorDialog(activity: BaseActivity, message: String?) {
+        fun showErrorDialog(activity: BaseActivity, message: String) {
             var error = message
-            if (message == null || message.trim { it <= ' ' }.isEmpty()) {
+            if (message.trim { it <= ' ' }.isEmpty()) {
                 error = "null error message"
             }
             ErrorDialog.newInstance(activity.getString(R.string.login_error), "Error authenticating with Google: $error").show(activity.supportFragmentManager)

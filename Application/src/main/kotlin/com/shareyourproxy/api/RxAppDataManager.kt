@@ -158,7 +158,7 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
                         for (notification in notifications) {
                             notificationManager.notify(notification.hashCode(), notification)
                         }
-                        deleteAllFirebaseMessages(currentUser).subscribe()
+                        deleteAllFirebaseMessages(app, currentUser).subscribe()
                     }
                 } catch (e: RemoteException) {
                     Timber.e(Log.getStackTraceString(e))

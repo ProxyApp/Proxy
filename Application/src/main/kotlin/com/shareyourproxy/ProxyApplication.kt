@@ -10,7 +10,7 @@ import com.crashlytics.android.answers.Answers
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory
 import com.shareyourproxy.Constants.MASTER_KEY
-import com.shareyourproxy.api.RestClient.oldClient
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.RxAppDataManager
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
@@ -28,11 +28,9 @@ import kotlin.reflect.KProperty
 class ProxyApplication : Application() {
     var currentUser: User = User()
     val sharedPreferences: SharedPreferences by lazy {}
-
     operator fun Any.getValue(proxyApplication: ProxyApplication, property: KProperty<*>): SharedPreferences {
         return getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
     }
-
 
     override fun onCreate() {
         super.onCreate()
@@ -51,7 +49,7 @@ class ProxyApplication : Application() {
     }
 
     fun initializeFresco() {
-        val config = OkHttpImagePipelineConfigFactory.newBuilder(this, oldClient).build()
+        val config = OkHttpImagePipelineConfigFactory.newBuilder(this, RestClient(this).oldClient).build()
         Fresco.initialize(this, config)
     }
 

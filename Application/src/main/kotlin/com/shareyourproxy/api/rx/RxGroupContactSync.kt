@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.util.Pair
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
@@ -26,7 +26,7 @@ object RxGroupContactSync {
             val newUser = userListPair.first
             updateRealmUser(context, newUser)
             updateRealmUser(context, contact)
-            herokuUserService.updateUser(newUser.id, newUser).subscribe()
+            RestClient(context).herokuUserService.updateUser(newUser.id, newUser).subscribe()
             userListPair
         }
     }

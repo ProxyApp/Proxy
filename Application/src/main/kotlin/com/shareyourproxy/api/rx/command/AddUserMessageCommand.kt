@@ -16,7 +16,7 @@ class AddUserMessageCommand(val userId: String, val message: Message) : BaseComm
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String, parcel.readValue(CL) as Message)
 
     override fun execute(service: Service): EventCallback {
-        return saveFirebaseMessage(userId, message)
+        return saveFirebaseMessage(service, userId, message)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

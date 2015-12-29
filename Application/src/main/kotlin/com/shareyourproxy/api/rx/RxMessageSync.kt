@@ -12,7 +12,7 @@ import com.shareyourproxy.Intents.getUserProfileIntent
 import com.shareyourproxy.R
 import com.shareyourproxy.R.string.added_you
 import com.shareyourproxy.R.string.app_name
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Message
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxQuery.getRealmUser
@@ -29,7 +29,7 @@ import java.util.*
  */
 object RxMessageSync {
     fun getFirebaseMessages(context: Context, userId: String): EventCallback {
-        return herokuUserService.getUserMessages(userId).map { messages ->
+        return RestClient(context).herokuUserService.getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()
             if (messages == null) {
                 UserMessagesDownloadedEventCallback(notifications)
@@ -54,15 +54,15 @@ object RxMessageSync {
         }.compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
-    fun saveFirebaseMessage(userId: String, message: Message): EventCallback {
+    fun saveFirebaseMessage(context:Context, userId: String, message: Message): EventCallback {
         val messages = HashMap<String, Message>()
         messages.put(message.id, message)
-        return herokuUserService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+        return RestClient(context).herokuUserService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
-    fun deleteAllFirebaseMessages(user: User): Observable<Message> {
+    fun deleteAllFirebaseMessages(context:Context, user: User): Observable<Message> {
         val contactId = user.id
-        return herokuUserService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
+        return RestClient(context).herokuUserService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
     }
 
     private fun getProxyIcon(context: Context): Bitmap {

@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.util.Pair
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.factory.UserFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
@@ -44,8 +44,8 @@ object RxUserContactSync {
         }
     }
 
-    private fun deleteFirebaseUserContact(userId: String, contactId: String): Observable<String> {
-        herokuUserService.deleteUserContact(userId, contactId).subscribe()
+    private fun deleteFirebaseUserContact(context :Context, userId: String, contactId: String): Observable<String> {
+        RestClient(context).herokuUserService.deleteUserContact(userId, contactId).subscribe()
         return Observable.just(contactId)
     }
 
@@ -86,7 +86,7 @@ object RxUserContactSync {
         return Func1 { contactId ->
             Observable.zip(
                     deleteRealmUserContact(context, user, contactId),
-                    deleteFirebaseUserContact(user.id, contactId),
+                    deleteFirebaseUserContact(context, user.id, contactId),
                     zipDeleteUserContact())
         }
     }

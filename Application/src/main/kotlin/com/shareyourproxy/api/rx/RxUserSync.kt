@@ -1,7 +1,7 @@
 package com.shareyourproxy.api.rx
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
@@ -24,7 +24,7 @@ object RxUserSync {
     fun syncAllContacts(context: Context, loggedInUser: User): EventCallback {
         val contacts = loggedInUser.contacts
         return if (contacts.size > 0)
-            getFirebaseUsers(loggedInUser)
+            getFirebaseUsers(context, loggedInUser)
                     .map(saveRealmUsers(context))
                     .map(usersDownloaded(loggedInUser))
                     .compose(RxHelper.observeMain<EventCallback>())
@@ -34,15 +34,15 @@ object RxUserSync {
     }
 
     fun saveUser(context: Context, newUser: User): EventCallback {
-        return herokuUserService
+        return RestClient(context).herokuUserService
                 .updateUser(newUser.id, newUser)
                 .map(saveRealmUser(context))
                 .compose(RxHelper.observeMain<EventCallback>())
                 .toBlocking().single()
     }
 
-    private fun getFirebaseUsers(user: User): rx.Observable<ArrayList<User>> {
-        return herokuUserService.listUsers(user.contacts)
+    private fun getFirebaseUsers(context:Context, user: User): rx.Observable<ArrayList<User>> {
+        return RestClient(context).herokuUserService.listUsers(user.contacts)
     }
 
     private fun saveRealmUsers(context: Context): Func1<ArrayList<User>, HashMap<String, User>> {

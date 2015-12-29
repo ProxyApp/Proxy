@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 
 import android.content.Context
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.factory.UserFactory.addUserChannel
 import com.shareyourproxy.api.domain.factory.UserFactory.deleteUserChannel
 import com.shareyourproxy.api.domain.model.Channel
@@ -21,7 +21,7 @@ object RxUserChannelSync {
         return Observable.just(oldUser)
                 .map(putUserChannel(newChannel))
                 .map(addRealmUser(context))
-                .map(saveChannelToFirebase(newChannel))
+                .map(saveChannelToFirebase(context, newChannel))
                 .map(userChannelAddedEventCallback(oldChannel, newChannel))
                 .toBlocking().single()
     }
@@ -30,7 +30,7 @@ object RxUserChannelSync {
         return Observable.just(oldUser)
                 .map(removeUserChannel(channel))
                 .map(addRealmUser(context))
-                .map(deleteChannelFromFirebase(channel))
+                .map(deleteChannelFromFirebase(context, channel))
                 .map(userChannelDeletedEventCallback(channel, position))
                 .toBlocking().single()
     }
@@ -54,12 +54,12 @@ object RxUserChannelSync {
         }
     }
 
-    private fun saveChannelToFirebase(channel: Channel): Func1<User, User> {
+    private fun saveChannelToFirebase(context: Context, channel: Channel): Func1<User, User> {
         return Func1 { user ->
             val userId = user.id
             val channelId = channel.id
-            herokuUserService.addUserChannel(userId, channelId, channel).subscribe()
-            herokuUserService.updateUserGroups(userId, user.groups).subscribe()
+            RestClient(context).herokuUserService.addUserChannel(userId, channelId, channel).subscribe()
+            RestClient(context).herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }
@@ -76,12 +76,12 @@ object RxUserChannelSync {
         }
     }
 
-    private fun deleteChannelFromFirebase(channel: Channel): Func1<User, User> {
+    private fun deleteChannelFromFirebase(context: Context, channel: Channel): Func1<User, User> {
         return Func1 { user ->
             val userId = user.id
             val channelId = channel.id
-            herokuUserService.deleteUserChannel(userId, channelId).subscribe()
-            herokuUserService.updateUserGroups(userId, user.groups).subscribe()
+            RestClient(context).herokuUserService.deleteUserChannel(userId, channelId).subscribe()
+            RestClient(context).herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user
         }
     }

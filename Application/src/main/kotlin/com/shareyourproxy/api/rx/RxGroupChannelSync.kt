@@ -2,7 +2,7 @@ package com.shareyourproxy.api.rx
 
 import android.content.Context
 import android.support.v7.util.SortedList
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel
 import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.UserFactory
@@ -49,8 +49,8 @@ object RxGroupChannelSync {
 
     fun updateGroupChannels(context: Context, user: User, newTitle: String, oldGroup: Group, channels: HashSet<String>, groupEditType: GroupEditType): EventCallback {
         return Observable.zip(saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
-                saveFirebaseGroupChannels(user.id, newTitle, oldGroup, channels),
-                zipAddGroupChannels(user, channels, oldGroup, groupEditType)).map(saveSharedLink()).toBlocking().single()
+                saveFirebaseGroupChannels(context, user.id, newTitle, oldGroup, channels),
+                zipAddGroupChannels(user, channels, oldGroup, groupEditType)).map(saveSharedLink(context)).toBlocking().single()
     }
 
     fun updatePublicGroupChannels(context: Context, user: User, channels: ArrayList<ChannelToggle>): EventCallback {
@@ -63,7 +63,7 @@ object RxGroupChannelSync {
             newChannels.put(newChannel.id, newChannel)
         }
         return Observable.zip(saveRealmPublicGroupChannels(context, user, newChannels),
-                saveFirebasePublicChannels(user.id, newChannels), zipAddPublicChannels()).toBlocking().single()
+                saveFirebasePublicChannels(context, user.id, newChannels), zipAddPublicChannels()).toBlocking().single()
     }
 
     fun getSelectedChannels(channels: SortedList<ChannelToggle>): HashSet<String> {
@@ -73,7 +73,7 @@ object RxGroupChannelSync {
     private fun zipAndSaveGroups(context: Context, user: User): Func1<HashMap<String, Group>, UserGroupAddedEventCallback> {
         return Func1 { newGroups ->
             Observable.zip(saveRealmGroupChannels(context, user, newGroups),
-                    saveFirebaseUserGroups(user.id, newGroups),
+                    saveFirebaseUserGroups(context, user.id, newGroups),
                     zipAddGroupsChannel()).toBlocking().single()
         }
     }
@@ -82,10 +82,10 @@ object RxGroupChannelSync {
         return Func2 { user, group -> UserGroupAddedEventCallback(user, group) }
     }
 
-    private fun saveSharedLink(): Func1<GroupChannelsUpdatedEventCallback, EventCallback> {
+    private fun saveSharedLink(context: Context): Func1<GroupChannelsUpdatedEventCallback, EventCallback> {
         return Func1 { event ->
             val link = SharedLink(event.user.id, event.group.id)
-            herokuUserService.addSharedLink(link.id, link).subscribe()
+            RestClient(context).herokuUserService.addSharedLink(link.id, link).subscribe()
             event
         }
     }
@@ -116,16 +116,16 @@ object RxGroupChannelSync {
         }
     }
 
-    private fun saveFirebaseUserGroups(userId: String, groups: HashMap<String, Group>): Observable<Group> {
-        return herokuUserService.updateUserGroups(userId, groups)
+    private fun saveFirebaseUserGroups(context: Context, userId: String, groups: HashMap<String, Group>): Observable<Group> {
+        return RestClient(context).herokuUserService.updateUserGroups(userId, groups)
     }
 
     private fun zipAddPublicChannels(): Func2<User, HashMap<String, Channel>, EventCallback> {
         return Func2 { user, newChannels -> PublicChannelsUpdatedEventCallback(user, newChannels) }
     }
 
-    private fun saveFirebasePublicChannels(userId: String, newChannels: HashMap<String, Channel>): Observable<HashMap<String, Channel>> {
-        return herokuUserService.addUserChannels(userId, newChannels)
+    private fun saveFirebasePublicChannels(context: Context, userId: String, newChannels: HashMap<String, Channel>): Observable<HashMap<String, Channel>> {
+        return RestClient(context).herokuUserService.addUserChannels(userId, newChannels)
     }
 
     private val selectedChannels: Func1<SortedList<ChannelToggle>, HashSet<String>>
@@ -155,9 +155,9 @@ object RxGroupChannelSync {
         }
     }
 
-    private fun saveFirebaseGroupChannels(userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
+    private fun saveFirebaseGroupChannels(context:Context, userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
         val newGroup = group.copy(label = newTitle, channels = channels)
-        return herokuUserService.addUserGroup(userId, group.id, newGroup)
+        return RestClient(context).herokuUserService.addUserGroup(userId, group.id, newGroup)
     }
 
     private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: GroupEditType): Func2<Group, Group, GroupChannelsUpdatedEventCallback> {

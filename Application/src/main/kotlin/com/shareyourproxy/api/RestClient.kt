@@ -1,8 +1,11 @@
 package com.shareyourproxy.api
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.shareyourproxy.Constants
 import com.shareyourproxy.api.domain.factory.UserTypeAdapterFactory
+import com.shareyourproxy.api.service.HerokuInterceptor
 import com.shareyourproxy.api.service.HerokuUserService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,9 +18,8 @@ import timber.log.Timber
 /**
  * Rest client for users.
  */
-object RestClient {
+class RestClient(private val context: Context) {
     val HEROKU_URL = "https://proxy-api.herokuapp.com/"
-
     val herokuUserService: HerokuUserService get() = buildClient(HEROKU_URL).create(HerokuUserService::class.java)
 
     private fun buildClient(endPoint: String): Retrofit {
@@ -30,14 +32,13 @@ object RestClient {
 
     val client: OkHttpClient get() {
         val client = OkHttpClient()
+        client.networkInterceptors().add(HerokuInterceptor(context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE)))
         client.networkInterceptors().add(httpLoggingInterceptor)
         return client
     }
 
     val oldClient: com.squareup.okhttp.OkHttpClient get() {
-        val oldClient =com.squareup.okhttp.OkHttpClient()
-        client.networkInterceptors().add(httpLoggingInterceptor)
-        return oldClient
+        return com.squareup.okhttp.OkHttpClient()
     }
 
     private val httpLoggingInterceptor: HttpLoggingInterceptor get() {

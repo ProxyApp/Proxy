@@ -12,7 +12,7 @@ import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchIntroductionActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
-import com.shareyourproxy.api.RestClient.herokuUserService
+import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusDriver
@@ -108,7 +108,7 @@ class LoginActivity : GoogleApiActivity() {
      */
     private fun getUserFromFirebase(account: GoogleSignInAccount) {
         val userId = StringBuilder(GoogleApiActivity.GOOGLE_UID_PREFIX).append(account.id).toString()
-        herokuUserService.getUser(userId).compose(observeMain<User>()).subscribe(getUserObserver(this, account))
+        RestClient(this).herokuUserService.getUser(userId).compose(observeMain<User>()).subscribe(getUserObserver(this, account))
     }
 
     /**
@@ -126,7 +126,7 @@ class LoginActivity : GoogleApiActivity() {
                 } else {
                     RxHelper.updateRealmUser(activity, user)
                     loggedInUser = user
-                    herokuUserService.updateUserVersion(user.id, VERSION_CODE).compose(observeMain<String>()).subscribe()
+                    RestClient(activity).herokuUserService.updateUserVersion(user.id, VERSION_CODE).compose(observeMain<String>()).subscribe()
                     post(SyncContactsCommand(user))
                 }
             }
@@ -149,7 +149,7 @@ class LoginActivity : GoogleApiActivity() {
         for (group in userGroups.values) {
             groupIds.add(group.id)
         }
-        herokuUserService.putSharedLinks(groupIds, newUser.id).compose(observeMain<Any>()).subscribe()
+        RestClient(this).herokuUserService.putSharedLinks(groupIds, newUser.id).compose(observeMain<Any>()).subscribe()
         post(AddUserCommand(newUser))
         post(SyncContactsCommand(newUser))
         analytics.userAdded(newUser)
@@ -165,7 +165,7 @@ class LoginActivity : GoogleApiActivity() {
     }
 
     override fun onGooglePlusError(status: Status) {
-        GoogleApiActivity.showErrorDialog(this, status.statusMessage)
+        GoogleApiActivity.showErrorDialog(this, status.toString())
         signInButton.isEnabled = true
     }
 }
