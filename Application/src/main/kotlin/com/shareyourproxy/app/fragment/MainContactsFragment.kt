@@ -43,6 +43,8 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.UserContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindDimen
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
 import org.jetbrains.anko.onClick
@@ -57,18 +59,37 @@ class MainContactsFragment : BaseFragment(), ItemClickListener {
     private val emptyTextView: TextView by bindView(fragment_contact_main_empty_textview)
     private val emptyView: ScrollView by bindView(fragment_contact_main_empty_view)
     private val emptyButton: Button by bindView(fragment_contact_main_empty_button)
-    internal var catPadding: Int = resources.getDimensionPixelSize(common_margin_medium)
-    internal var marginNullScreen: Int = resources.getDimensionPixelSize(common_svg_null_screen_small)
-    internal var nullTitle: String = getString(fragment_contact_main_empty_title)
-    internal var nullMessage: String = getString(fragment_contact_main_empty_message)
-    internal var refreshListener: OnRefreshListener = OnRefreshListener {
+    private val catPadding: Int by bindDimen(common_margin_medium)
+    private val marginNullScreen: Int by bindDimen(common_svg_null_screen_small)
+    private val nullTitle: String by bindString(fragment_contact_main_empty_title)
+    private val nullMessage: String by bindString(fragment_contact_main_empty_message)
+    private val refreshListener: OnRefreshListener = OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
     }
+    private val catDrawable: Drawable = svgToBitmapDrawable(activity, R.raw.ic_gato, marginNullScreen)
     private val showHeader = !sharedPreferences.getBoolean(INVITE_FRIENDS.key, false)
-    private var adapter: UserContactsAdapter = UserContactsAdapter.newInstance(recyclerView, sharedPreferences, showHeader, this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+    private val adapter: UserContactsAdapter = UserContactsAdapter.newInstance(recyclerView, sharedPreferences, showHeader, this)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val onClickInvite: View.OnClickListener = View.OnClickListener {
         launchInviteFriendIntent(activity)
+    }
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is UserSelectedEvent) {
+                onUserSelected(event)
+            } else if (event is LoggedInUserUpdatedEventCallback) {
+                userUpdated(event)
+            } else if (event is SyncContactsCommand) {
+                swipeRefreshLayout.isRefreshing = true
+            } else if (event is SyncAllContactsSuccessEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            } else if (event is SyncAllContactsErrorEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            } else if (event is NotificationCardActionEvent) {
+                launchInviteFriendIntent(activity)
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -77,6 +98,26 @@ class MainContactsFragment : BaseFragment(), ItemClickListener {
         initializeRecyclerView()
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
         return rootView
+    }
+
+    override fun onResume() {
+        super.onResume()
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        checkRefresh(loggedInUser)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        subscriptions.unsubscribe()
+        //if we're refreshing data, get rid of the UI
+        swipeRefreshLayout.isRefreshing = false
+    }
+
+    override fun onItemClick(view: View, position: Int) {
+        val holder = recyclerView.getChildViewHolder(view) as UserViewHolder
+        val user = adapter.getItemData(position)
+        RxGoogleAnalytics(activity).contactProfileViewed(user)
+        post(UserSelectedEvent(holder.userImage, holder.userName, user))
     }
 
     /**
@@ -105,81 +146,22 @@ class MainContactsFragment : BaseFragment(), ItemClickListener {
     }
 
     /**
-     * Parse a svg and return a null screen sized [ContentDescriptionDrawable] .
-
-     * @return Drawable with a contentDescription
-     */
-    private val catDrawable: Drawable
-        get() = svgToBitmapDrawable(activity, R.raw.ic_gato, marginNullScreen)
-
-    override fun onResume() {
-        super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
-        checkRefresh(loggedInUser)
-    }
-
-    val busObserver: JustObserver<Any>
-        get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is UserSelectedEvent) {
-                    onUserSelected(event)
-                } else if (event is LoggedInUserUpdatedEventCallback) {
-                    userUpdated(event)
-                } else if (event is SyncContactsCommand) {
-                    swipeRefreshLayout.isRefreshing = true
-                } else if (event is SyncAllContactsSuccessEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                } else if (event is SyncAllContactsErrorEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                } else if (event is NotificationCardActionEvent) {
-                    launchInviteFriendIntent(activity)
-                }
-            }
-        }
-
-    /**
      * Refresh user data.
      * @param user contacts to refresh
      */
-    fun checkRefresh(user: User) {
+    private fun checkRefresh(user: User) {
         adapter.refreshUserList(RxQuery.queryUserContacts(activity, user.contacts))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
-        //if we're refreshing data, get rid of the UI
-        swipeRefreshLayout.isRefreshing = false
     }
 
     private fun userUpdated(event: LoggedInUserUpdatedEventCallback) {
         checkRefresh(event.user)
     }
 
-    override fun onItemClick(view: View, position: Int) {
-        val holder = recyclerView.getChildViewHolder(view) as UserViewHolder
-        val user = adapter.getItemData(position)
-        RxGoogleAnalytics(activity).contactProfileViewed(user)
-        post(UserSelectedEvent(holder.userImage, holder.userName, user))
-    }
-
     /**
      * User selected, launch that contacts profile.
      * @param event data
      */
-    fun onUserSelected(event: UserSelectedEvent) {
+    private fun onUserSelected(event: UserSelectedEvent) {
         launchUserProfileActivity(activity, event.user, loggedInUser.id, event.imageView, event.textView)
-    }
-
-    companion object {
-
-        /**
-         * Create a new layouts.fragment with favorite contacts.
-         * @return user layouts.fragment
-         */
-        fun newInstance(): MainContactsFragment {
-            return MainContactsFragment()
-        }
     }
 }

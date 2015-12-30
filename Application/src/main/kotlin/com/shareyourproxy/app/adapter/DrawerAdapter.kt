@@ -2,7 +2,7 @@ package com.shareyourproxy.app.adapter
 
 import android.content.Context
 import android.net.Uri
-import android.view.LayoutInflater
+import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -12,6 +12,7 @@ import com.facebook.drawee.view.SimpleDraweeView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem.*
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
@@ -21,31 +22,18 @@ import java.util.Arrays.asList
 /**
  * Adapter to handle creating a drawer with a User Header and User Settings.
  */
-class DrawerAdapter
-/**
- * Constructor for [DrawerAdapter].
- * @param currentUser currently logged in User
- * @param clickListener click listener
- */
-private constructor(private var currentUser: User, private val clickListener: ItemClickListener) : BaseRecyclerViewAdapter() {
-    private val drawerItems: List<DrawerItem>
-
-    init {
-        drawerItems = asList(
-                DrawerItem.SHARE_PROFILE,
-                DrawerItem.INVITE_FRIEND,
-                DrawerItem.TOUR,
-                DrawerItem.REPORT_ISSUE,
-                DrawerItem.LOGOUT)
-    }
+class DrawerAdapter(private var currentUser: User, private val clickListener: ItemClickListener) : BaseRecyclerViewAdapter() {
+    private val TYPE_HEADER = 0
+    private val TYPE_LIST_ITEM = 1
+    private val drawerItems: List<DrawerItem> = asList(SHARE_PROFILE, INVITE_FRIEND, TOUR, REPORT_ISSUE, LOGOUT)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         if (viewType == TYPE_HEADER) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_drawer_header, parent, false)
-            return HeaderViewHolder.newInstance(view, clickListener)
+            val view = from(parent.context).inflate(R.layout.adapter_drawer_header, parent, false)
+            return HeaderViewHolder(view, clickListener)
         } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_drawer_item, parent, false)
-            return ItemViewHolder.newInstance(view, clickListener)
+            val view = from(parent.context).inflate(R.layout.adapter_drawer_item, parent, false)
+            return ItemViewHolder(view, clickListener)
         }
     }
 
@@ -62,7 +50,7 @@ private constructor(private var currentUser: User, private val clickListener: It
      * @param holder   view holder
      * @param position in list
      */
-    fun bindItemViewHolder(holder: ItemViewHolder, position: Int) {
+    private fun bindItemViewHolder(holder: ItemViewHolder, position: Int) {
         val context = holder.view.context
         val name = getItemStringValue(context, position)
         val resId = getItemIconValue(position)
@@ -75,7 +63,7 @@ private constructor(private var currentUser: User, private val clickListener: It
      * Bind a header view. Create a user profile and background with a title.
      * @param holder view holder
      */
-    fun bindHeaderViewHolder(holder: HeaderViewHolder) {
+    private fun bindHeaderViewHolder(holder: HeaderViewHolder) {
         val context = holder.view.context
         val res = holder.view.resources
         holder.userName.text = currentUser.fullName
@@ -137,69 +125,17 @@ private constructor(private var currentUser: User, private val clickListener: It
     /**
      * ViewHolder for the settings header.
      */
-    class HeaderViewHolder
-    /**
-     * Constructor for the HeaderViewHolder.
-     * @param view              the inflated view
-     * @param itemClickListener click listener for this view
-     */
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class HeaderViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val backgroundImage: SimpleDraweeView by bindView(R.id.adapter_drawer_header_background)
         val userImage: SimpleDraweeView by bindView(R.id.adapter_drawer_header_image)
         val userName: TextView by bindView(R.id.adapter_drawer_header_name)
-
-        companion object {
-
-            /**
-             * Create a new Instance of the ViewHolder.
-             * @param view inflated in [Adapter.onCreateViewHolder]
-             * @param itemClickListener click listener for this view
-             * @return a ViewHolder instance
-             */
-            fun newInstance(view: View, itemClickListener: ItemClickListener): HeaderViewHolder {
-                return HeaderViewHolder(view, itemClickListener)
-            }
-        }
     }
 
     /**
      * ViewHolder for the entered settings data.
      */
-    class ItemViewHolder
-    /**
-     * Constructor for the ItemViewHolder.
-     * @param view              the inflated view
-     * @param itemClickListener click listener for this view
-     */
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class ItemViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val name: TextView by bindView(R.id.adapter_drawer_item_name)
         val image: ImageView by bindView(R.id.adapter_drawer_item_image)
-
-        companion object {
-
-            /**
-             * Create a new Instance of the ViewHolder.
-             * @param view              inflated in [Adapter.onCreateViewHolder]
-             * @param itemClickListener click listener for this view
-             * @return a ViewHolder instance
-             */
-            fun newInstance(view: View, itemClickListener: ItemClickListener): ItemViewHolder {
-                return ItemViewHolder(view, itemClickListener)
-            }
-        }
-    }
-
-    companion object {
-        private val TYPE_HEADER = 0
-        private val TYPE_LIST_ITEM = 1
-
-        /**
-         * Create a newInstance of a [DrawerAdapter] with blank data.
-         * @param currentUser currently Logged in [User]
-         * @return an [DrawerAdapter] with no data
-         */
-        fun newInstance(currentUser: User, listener: ItemClickListener): DrawerAdapter {
-            return DrawerAdapter(currentUser, listener)
-        }
     }
 }

@@ -30,15 +30,36 @@ import timber.log.Timber
  */
 class EditGroupChannelsFragment : BaseFragment(), ItemClickListener {
 
+    /**
+     * Check whether this fragment is Adding a group, Editing a group, or a Public group.
+     * @return [GroupEditType] constants.
+     */
+    private val groupEditType: GroupEditType = activity.intent.extras.getSerializable(ARG_EDIT_GROUP_TYPE) as GroupEditType
     private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_group_edit_channel_recyclerview)
-    private val selectedGroup: Group get() = activity.intent.extras.getParcelable<Group>(ARG_SELECTED_GROUP)
-    private var adapter: EditGroupChannelAdapter = EditGroupChannelAdapter.newInstance(recyclerView, this, selectedGroup.label, loggedInUser.channels, selectedGroup.channels, groupEditType)
+    private val selectedGroup: Group = activity.intent.extras.getParcelable<Group>(ARG_SELECTED_GROUP)
+    private val adapter: EditGroupChannelAdapter = EditGroupChannelAdapter(recyclerView, this, selectedGroup.label, loggedInUser.channels, selectedGroup.channels, groupEditType)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_edit_group_channel, container, false)
         setHasOptionsMenu(true)
         initializeRecyclerView()
         return rootView
+    }
+
+    override fun onItemClick(view: View, position: Int) {
+        val viewType = adapter.getItemViewType(position)
+        if (viewType == TYPE_LIST_DELETE_FOOTER) {
+            post(DeleteUserGroupCommand(loggedInUser, selectedGroup))
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            home -> activity.onBackPressed()
+            menu_edit_group_channel_save -> savePressed()
+            else -> Timber.e("Option item selected is unknown")
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /**
@@ -69,29 +90,7 @@ class EditGroupChannelsFragment : BaseFragment(), ItemClickListener {
         recyclerView.addOnScrollListener(dismissScrollListener)
     }
 
-    /**
-     * Check whether this fragment is Adding a group, Editing a group, or a Public group.
-     * @return [GroupEditType] constants.
-     */
-    private val groupEditType: GroupEditType get() = activity.intent.extras.getSerializable(ARG_EDIT_GROUP_TYPE) as GroupEditType
-
-    override fun onItemClick(view: View, position: Int) {
-        val viewType = adapter.getItemViewType(position)
-        if (viewType == TYPE_LIST_DELETE_FOOTER) {
-            post(DeleteUserGroupCommand(loggedInUser, selectedGroup))
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            home -> activity.onBackPressed()
-            menu_edit_group_channel_save -> savePressed()
-            else -> Timber.e("Option item selected is unknown")
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    fun savePressed() {
+    private fun savePressed() {
         if (GroupEditType.PUBLIC_GROUP == groupEditType) {
             savePublicGroupChannels()
         } else {
@@ -102,16 +101,4 @@ class EditGroupChannelsFragment : BaseFragment(), ItemClickListener {
             }
         }
     }
-
-    companion object {
-
-        /**
-         * Create a new instance of this fragment for the parent [EditGroupChannelsActivity].
-         * @return EditGroupChannelsFragment
-         */
-        fun newInstance(): EditGroupChannelsFragment {
-            return EditGroupChannelsFragment()
-        }
-    }
-
 }

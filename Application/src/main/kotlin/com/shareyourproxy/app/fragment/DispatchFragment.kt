@@ -22,15 +22,14 @@ import com.shareyourproxy.util.bindView
 /**
  * Handle dispatching a [LoginActivity] or a [AggregateFeedActivity] base off the current user.
  */
-class DispatchFragment() : BaseFragment() {
+class DispatchFragment : BaseFragment() {
     private val textView: TextView by bindView(fragment_dispatch_image)
     private val progressBar: ProgressBar by bindView(fragment_dispatch_progress)
     private val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)
     private val logoSize: Int by bindDimen(R.dimen.common_svg_ultra)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater.inflate(R.layout.fragment_dispatch, container, false)
-        return rootView
+        return inflater.inflate(R.layout.fragment_dispatch, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,12 +37,12 @@ class DispatchFragment() : BaseFragment() {
         initialize()
     }
 
-    fun initialize() {
+    private fun initialize() {
         drawLogo()
         tintProgressBar()
     }
 
-    fun tintProgressBar() {
+    private fun tintProgressBar() {
         setTintMode(progressBar.indeterminateDrawable, SRC_ATOP)
         setTintList(progressBar.indeterminateDrawable, colorWhite)
     }
@@ -55,14 +54,4 @@ class DispatchFragment() : BaseFragment() {
         textView.setCompoundDrawablesWithIntrinsicBounds(null, svgToBitmapDrawable(activity, ic_doge_channels, logoSize), null, null)
     }
 
-    companion object {
-
-        /**
-         * Return new Fragment instance.
-         * @return layouts.fragment
-         */
-        fun newInstance(): DispatchFragment {
-            return DispatchFragment()
-        }
-    }
 }

@@ -34,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * Get currently logged in [User] in this [ProxyApplication].
      * @return logged in user
      */
-    var loggedInUser: User
+    internal var loggedInUser: User
         get() = (application as ProxyApplication).currentUser
         set(user) {
             (application as ProxyApplication).currentUser = user
@@ -43,7 +43,7 @@ abstract class BaseActivity : AppCompatActivity() {
     /**
      * This prevents the Android status bar and navigation bar from flashing during a transition animation bundled in [ ][IntentLauncher.launchSearchActivity] and [IntentLauncher.launchUserProfileActivity].
      */
-    fun preventStatusBarFlash(activity: Activity) {
+    protected fun preventStatusBarFlash(activity: Activity) {
         ActivityCompat.postponeEnterTransition(activity)
         val decor = activity.window.decorView
         decor.viewTreeObserver.addOnPreDrawListener {
@@ -52,11 +52,11 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun isLoggedInUser(user: User): Boolean {
+    internal fun isLoggedInUser(user: User): Boolean {
         return user.id.equals(loggedInUser.id)
     }
 
-    fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
+    internal fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
         setSupportActionBar(toolbar)
         val bar = supportActionBar
         bar.title = title
@@ -64,7 +64,7 @@ abstract class BaseActivity : AppCompatActivity() {
         bar.setHomeAsUpIndicator(icon)
     }
 
-    fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
+    internal fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
         toolbar.removeAllViews()
         toolbar.addView(customView)
         toolbar.title = ""
@@ -118,7 +118,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private fun onNextEvent(activity: Activity): JustObserver<Any> {
         return object : JustObserver<Any>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
+            override fun next(event: Any) {
                 if (event is ShareLinkEventCallback) {
                     launchShareLinkIntent(activity, event)
                 }

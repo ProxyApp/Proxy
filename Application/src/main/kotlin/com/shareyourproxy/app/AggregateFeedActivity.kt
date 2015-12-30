@@ -20,21 +20,28 @@ import timber.log.Timber
 /**
  * The main landing point after loggin in. This is tabbed activity with [Contact]s and [Group]s.
  */
-class AggregateFeedActivity : BaseActivity() {
+object AggregateFeedActivity : BaseActivity() {
     private val analytics = RxGoogleAnalytics(this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is SelectDrawerItemEvent) {
+                onDrawerItemSelected(event)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            val aggregateFeedFragment = AggregateFeedFragment.newInstance()
+            val aggregateFeedFragment = AggregateFeedFragment()
             supportFragmentManager.beginTransaction().replace(android.R.id.content, aggregateFeedFragment).commit()
         }
     }
 
     /**
      * [SelectDrawerItemEvent]. When a drawer item is selected, call a proper event flow.
-
      * @param event data
      */
     fun onDrawerItemSelected(event: SelectDrawerItemEvent) {
@@ -44,30 +51,20 @@ class AggregateFeedActivity : BaseActivity() {
                 analytics.userProfileViewed(user)
                 launchUserProfileActivity(this, user, user.id)
             }
-            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog.newInstance(loggedInUser.groups).show(supportFragmentManager)
+            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog(loggedInUser.groups).show(supportFragmentManager)
             DrawerAdapter.DrawerItem.INVITE_FRIEND -> launchInviteFriendIntent(this)
             DrawerAdapter.DrawerItem.TOUR -> launchIntroductionActivity(this)
             DrawerAdapter.DrawerItem.REPORT_ISSUE -> launchEmailIntent(this, getString(R.string.contact_proxy))
             DrawerAdapter.DrawerItem.HEADER -> {
             }
             else -> Timber.e("Invalid drawer item")
-        }//nada
+        }
     }
 
     public override fun onResume() {
         super.onResume()
-        subscriptions = CompositeSubscription()
         subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
     }
-
-    val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is SelectDrawerItemEvent) {
-                    onDrawerItemSelected(event)
-                }
-            }
-        }
 
     override fun onPause() {
         super.onPause()

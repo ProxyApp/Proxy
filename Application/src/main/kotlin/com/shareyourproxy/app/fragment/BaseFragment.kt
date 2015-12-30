@@ -16,28 +16,32 @@ import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.BaseActivity
 import com.shareyourproxy.util.ButterKnife
-import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.ViewUtils
 
 /**
  * Base Fragment abstraction.
  */
 abstract class BaseFragment : Fragment() {
 
-    /**
-     * Get the logged in user.
-     * @return Logged in user
-     */
-    var loggedInUser: User
-        get() = (activity as BaseActivity).loggedInUser
-        set(user) {
-            (activity as BaseActivity).loggedInUser = user
-        }
+    var loggedInUser: User = (activity as BaseActivity).loggedInUser
+    val sharedPreferences: SharedPreferences = (activity as BaseActivity).sharedPreferences
+    val supportActionBar: ActionBar = (activity as BaseActivity).supportActionBar
+    val sharedPrefJsonUser: User? = (activity as BaseActivity).sharedPrefJsonUser
 
     /**
-     * Get currently logged in [User] in this [ProxyApplication].
-     * @return logged in user
+     * Get a scroll listener that dismisses the software keyboard on scroll.
+     * @return dismissible scroll listener.
      */
-    val sharedPreferences: SharedPreferences get() = (activity as BaseActivity).sharedPreferences
+    protected val dismissScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            ViewUtils.hideSoftwareKeyboard(recyclerView)
+        }
+
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+        }
+    }
 
     /**
      * Initialize the color sequence of the swipe refresh view.
@@ -55,8 +59,6 @@ abstract class BaseFragment : Fragment() {
         return (activity as BaseActivity).isLoggedInUser(user)
     }
 
-    val supportActionBar: ActionBar get() = (activity as BaseActivity).supportActionBar
-
     fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
         (activity as BaseActivity).buildToolbar(toolbar, title, icon)
     }
@@ -64,25 +66,6 @@ abstract class BaseFragment : Fragment() {
     fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
         (activity as BaseActivity).buildCustomToolbar(toolbar, customView)
     }
-
-    val sharedPrefJsonUser: User? get() = (activity as BaseActivity).sharedPrefJsonUser
-
-    /**
-     * Get a scroll listener that dismisses the software keyboard on scroll.
-
-     * @return dismissible scroll listener.
-     */
-    protected val dismissScrollListener: RecyclerView.OnScrollListener
-        get() = object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                hideSoftwareKeyboard(recyclerView)
-            }
-
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-            }
-        }
 
     /**
      * Display a snack bar notifying the user that they've updated their information.
@@ -100,12 +83,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * The [FragmentPagerAdapter] used to display base fragments.
      */
-    internal class BasePagerAdapter
-    /**
-     * Constructor.
-     * @param fragmentManager Manager of fragments.
-     */
-    private constructor(private val fragmentArray: List<BaseFragment>, fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+    protected class BasePagerAdapter(private val fragmentArray: List<BaseFragment>, fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
 
         override fun getItem(i: Int): Fragment {
             return fragmentArray[i]
@@ -113,14 +91,6 @@ abstract class BaseFragment : Fragment() {
 
         override fun getCount(): Int {
             return fragmentArray.size
-        }
-
-        companion object {
-
-            fun newInstance(
-                    fragmentArray: List<BaseFragment>, fragmentManager: FragmentManager): BasePagerAdapter {
-                return BasePagerAdapter(fragmentArray, fragmentManager)
-            }
         }
     }
 }

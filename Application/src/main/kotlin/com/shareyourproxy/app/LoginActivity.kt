@@ -1,5 +1,6 @@
 package com.shareyourproxy.app
 
+import android.Manifest
 import android.os.Bundle
 import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -28,6 +29,7 @@ import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.util.bindDimen
 import com.shareyourproxy.util.bindView
+import com.tbruyelle.rxpermissions.RxPermissions
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import java.util.*
@@ -36,7 +38,7 @@ import java.util.*
 /**
  * Log in with a google plus account.
  */
-class LoginActivity : GoogleApiActivity() {
+object LoginActivity : GoogleApiActivity() {
 
     private val analytics = RxGoogleAnalytics(this)
     private val proxyLogo: TextView by bindView(R.id.activity_login_title)
@@ -58,7 +60,7 @@ class LoginActivity : GoogleApiActivity() {
     private fun initializeValues() {
         signInButton.setStyle(SIZE_WIDE, COLOR_DARK)
         signInButton.isEnabled = true
-        signInButton.onClick { signInToGoogle() }
+        signInButton.onClick { oldSignInToGoogle() }
     }
 
     /**
@@ -76,7 +78,7 @@ class LoginActivity : GoogleApiActivity() {
 
     val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-        override fun next(event: Any?) {
+        override fun next(event: Any) {
             if (event is SyncAllContactsSuccessEvent || event is SyncAllContactsErrorEvent) {
                 login()
             }
@@ -120,7 +122,7 @@ class LoginActivity : GoogleApiActivity() {
     private fun getUserObserver(activity: BaseActivity, acct: GoogleSignInAccount): JustObserver<User> {
         return object : JustObserver<User>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(user: User?) {
+            override fun next(user: User) {
                 if (user == null) {
                     addUserToDatabase(createUserFromGoogle(acct))
                 } else {
@@ -167,5 +169,22 @@ class LoginActivity : GoogleApiActivity() {
     override fun onGooglePlusError(status: Status) {
         GoogleApiActivity.showErrorDialog(this, status.toString())
         signInButton.isEnabled = true
+    }
+
+    override fun onConnected(bundle: Bundle?) {
+        super.onConnected(bundle)
+        getAccountsPermission();
+    }
+
+    private fun getAccountsPermission() {
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.GET_ACCOUNTS)
+                .subscribe(object :JustObserver<Boolean>(){
+                    override fun next(t: Boolean) {
+                        if(t){
+
+                        }
+                    }
+                });
     }
 }

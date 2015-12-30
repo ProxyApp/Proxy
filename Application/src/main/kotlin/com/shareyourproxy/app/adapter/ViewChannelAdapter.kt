@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.adapter
 
-import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.View
@@ -17,9 +16,7 @@ import java.util.*
 /**
  * Adapter for a users profile and their [Channel] package permissions.
  */
-class ViewChannelAdapter
-private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemLongClickListener) :
-        NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, showHeader, false, sharedPreferences) {
+class ViewChannelAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemLongClickListener) : NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     fun updateChannels(channels: HashMap<String, Channel>?) {
         refreshData(channels?.values)
@@ -27,7 +24,7 @@ private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPre
 
     override fun onCreateItemViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_channel_view_content, parent, false)
-        return ContentViewHolder.newInstance(view, clickListener)
+        return ContentViewHolder(view, clickListener)
     }
 
     override fun compare(item1: Channel, item2: Channel): Int {
@@ -71,15 +68,13 @@ private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPre
      * @param holder  [Channel] [BaseViewHolder]
      * @param channel [Channel] data
      */
-    @SuppressLint("NewApi")
     private fun bindContentViewData(holder: ContentViewHolder, channel: Channel) {
         val context = holder.view.context
         val channelType = channel.channelType
         val channelTypeString = channel.channelType.label
         val label = channel.label
         val address = channel.actionAddress
-        val sb = getChannelSpannableStringBuilder(
-                context, channelTypeString, label, address)
+        val sb = getChannelSpannableStringBuilder(context, channelTypeString, label, address)
 
         holder.channelImage.setImageDrawable(getChannelIconDrawable(context, channel, getChannelBackgroundColor(context, channelType)))
         holder.channelContentText.text = sb
@@ -88,36 +83,8 @@ private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPre
     /**
      * ViewHolder for the entered settings data.
      */
-    class ContentViewHolder
-    /**
-     * Constructor for the ItemViewHolder.
-     * @param itemClickListener click listener for this view
-     * @param view              the inflated view
-     */
-    private constructor(view: View, itemClickListener: ItemLongClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class ContentViewHolder(view: View, itemClickListener: ItemLongClickListener) : BaseViewHolder(view, itemClickListener) {
         val channelImage: ImageView by bindView(R.id.adapter_channel_view_content_image)
         val channelContentText: TextView by bindView(R.id.adapter_channel_view_content)
-
-        companion object {
-            /**
-             * Create a new Instance of the ViewHolder.
-             * @param itemClickListener click listener for this view
-             * @param view              inflated in [RecyclerView.Adapter.onCreateViewHolder]
-             * @return a ViewHolder instance
-             */
-            fun newInstance(view: View, itemClickListener: ItemLongClickListener): ContentViewHolder {
-                return ContentViewHolder(view, itemClickListener)
-            }
-        }
-    }
-
-    companion object {
-        /**
-         * Create a newInstance of a [ViewChannelAdapter] with blank data.
-         * @return an [ViewChannelAdapter] with no data
-         */
-        fun newInstance(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, listener: ItemLongClickListener): ViewChannelAdapter {
-            return ViewChannelAdapter(recyclerView, sharedPreferences, showHeader, listener)
-        }
     }
 }

@@ -16,7 +16,6 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
  * Share base methods.
  */
 open class BaseIntroductionFragment : BaseFragment() {
-    companion object {
         /**
          * * Draw ImageView content, set text formatting and content.
          */
@@ -34,7 +33,5 @@ open class BaseIntroductionFragment : BaseFragment() {
             textView.text = sb
         }
 
-        private val lineHeightSpan: LineHeightSpan
-            get() = LineHeightSpan { text, start, end, spanstartv, v, fm -> fm.descent += 50 }
-    }
+        private val lineHeightSpan: LineHeightSpan = LineHeightSpan { text, start, end, spanstartv, v, fm -> fm.descent += 50 }
 }

@@ -9,29 +9,26 @@ import android.widget.TextView
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_introduction_second_imageview
 import com.shareyourproxy.R.id.fragment_introduction_second_textview
+import com.shareyourproxy.R.raw.ic_guide_activity_slide2
+import com.shareyourproxy.util.bindDimen
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 
 /**
  * Second introduction slide content.
  */
 class SecondIntroductionFragment : BaseIntroductionFragment() {
-    internal var logoSize: Int = resources.getDimensionPixelSize(R.dimen.common_svg_xlarge)
-    internal var introTitle: String = resources.getString(R.string.slide_two_title)
-    internal var introBody: String = resources.getString(R.string.slide_two_body)
+    private val logoSize: Int by bindDimen(R.dimen.common_svg_xlarge)
+    private val introTitle: String by bindString(R.string.slide_two_title)
+    private val introBody: String by bindString(R.string.slide_two_body)
     private val imageView: ImageView by bindView(fragment_introduction_second_imageview)
     private val textView: TextView by bindView(fragment_introduction_second_textview)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater.inflate(R.layout.fragment_introduction_second, container, false)
-        BaseIntroductionFragment.drawSlide(activity, imageView, textView, R.raw.ic_guide_activity_slide2, logoSize, introTitle, introBody)
-        return rootView
+        return inflater.inflate(R.layout.fragment_introduction_second, container, false)
     }
 
-    companion object {
-
-        fun newInstance(): SecondIntroductionFragment {
-            return SecondIntroductionFragment()
-        }
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        drawSlide(activity, imageView, textView, ic_guide_activity_slide2, logoSize, introTitle, introBody)
     }
-
 }

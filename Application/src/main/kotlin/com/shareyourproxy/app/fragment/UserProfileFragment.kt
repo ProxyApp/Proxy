@@ -6,11 +6,11 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.design.widget.AppBarLayout.OnOffsetChangedListener
 import android.support.design.widget.CollapsingToolbarLayout
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar.LENGTH_INDEFINITE
 import android.support.design.widget.Snackbar.make
-import android.support.v4.content.ContextCompat.getColor
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.graphics.Palette
 import android.util.Log
@@ -56,12 +56,13 @@ import com.shareyourproxy.IntentLauncher.launchXboxLiveIntent
 import com.shareyourproxy.IntentLauncher.launchYoIntent
 import com.shareyourproxy.IntentLauncher.launchYoutubeIntent
 import com.shareyourproxy.R
+import com.shareyourproxy.R.id.*
+import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
@@ -77,6 +78,9 @@ import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindDimen
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
@@ -86,55 +90,110 @@ import timber.log.Timber
  * in user groups.
  */
 abstract class UserProfileFragment : BaseFragment() {
-    private val appBarLayout: AppBarLayout by bindView(R.id.fragment_user_profile_appbar)
-    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.fragment_user_profile_swiperefresh)
-    private val coordinatorLayout: CoordinatorLayout by bindView(R.id.fragment_user_profile_coordinator_layout)
-    protected val collapsingToolbarLayout: CollapsingToolbarLayout by bindView(R.id.fragment_user_profile_collapsing_toolbar)
-    private val userImage: SimpleDraweeView by bindView(R.id.fragment_user_profile_header_image)
-    private val userBackground: SimpleDraweeView by bindView(R.id.fragment_user_profile_header_background)
-    private val followersTextView: TextView by bindView(R.id.fragment_user_profile_header_followers)
-
-
-    internal val colorBlue: Int = getColor(context, R.color.common_blue)
-    internal var svgLarge: Int = resources.getDimensionPixelSize(R.dimen.common_svg_large)
-    internal var stringCalculating: String = getString(R.string.calculating)
-    internal var stringErrorCalculating: String = getString(R.string.error_calculating)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
-    private var deletedChannel: Channel? = null
-    internal var contact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
-        private set
-    private var userChannelsFragment: UserChannelsFragment? = null
-    internal var refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+    private val appBarLayout: AppBarLayout by bindView(fragment_user_profile_appbar)
+    private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_user_profile_swiperefresh)
+    private val coordinatorLayout: CoordinatorLayout by bindView(fragment_user_profile_coordinator_layout)
+    private val userImage: SimpleDraweeView by bindView(fragment_user_profile_header_image)
+    private val userBackground: SimpleDraweeView by bindView(fragment_user_profile_header_background)
+    private val followersTextView: TextView by bindView(fragment_user_profile_header_followers)
+    private val stringCalculating: String by bindString(calculating)
+    private val stringErrorCalculating: String by bindString(error_calculating)
+    protected val collapsingToolbarLayout: CollapsingToolbarLayout by bindView(fragment_user_profile_collapsing_toolbar)
+    protected val loggedInUserId = arguments.getString(Constants.ARG_LOGGEDIN_USER_ID)
+    protected val contact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
+    protected val colorBlue: Int by bindColor(R.color.common_blue)
+    protected val svgLarge: Int by bindDimen(R.dimen.common_svg_large)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val analytics: RxGoogleAnalytics = RxGoogleAnalytics(activity)
+    private val userChannelsFragment: UserChannelsFragment = UserChannelsFragment(contact)
+    private val refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
         getUserContactScore(context, contact.id).subscribe(contactScoreObserver)
     }
-    private val analytics: RxGoogleAnalytics = RxGoogleAnalytics(activity)
-    private val loggedInUserId = arguments.getString(Constants.ARG_LOGGEDIN_USER_ID)
-
 
     /**
      * Get a click listener to add a deleted channel.
-
      * @return click listener
      */
-    private val addChannelClickListener: View.OnClickListener
-        get() = View.OnClickListener { RxBusDriver.post(AddUserChannelCommand(loggedInUser, deletedChannel!!)) }
+    private val addChannelClickListener: View.OnClickListener = View.OnClickListener { post(AddUserChannelCommand(loggedInUser, deletedChannel!!)) }
 
-    private val offsetListener: AppBarLayout.OnOffsetChangedListener
-        get() = AppBarLayout.OnOffsetChangedListener { appBarLayout, offset -> swipeRefreshLayout.isEnabled = offset == 0 }
+    private val offsetListener = OnOffsetChangedListener { appBarLayout, offset -> swipeRefreshLayout.isEnabled = offset == 0 }
+
+    private val onNextEvent = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is GroupContactsUpdatedEventCallback) {
+                groupContactsUpdatedEvent(event)
+            } else if (event is UserChannelAddedEventCallback) {
+                addUserChannel(event)
+            } else if (event is UserChannelDeletedEventCallback) {
+                deleteUserChannel(event)
+            } else if (event is SyncContactsCommand) {
+                swipeRefreshLayout.isRefreshing = true
+            } else if (event is SyncAllContactsSuccessEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            } else if (event is SyncAllContactsErrorEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            } else if (event is SelectUserChannelEvent) {
+                onChannelSelected(event)
+            }
+        }
+    }
+
+    private val paletteProcessor: BasePostprocessor = object : BasePostprocessor() {
+        override fun process(bitmap: Bitmap?) {
+            Palette.Builder(bitmap).generate(paletteAsyncListener)
+        }
+
+        override fun getName(): String {
+            return "datPostProcessor"
+        }
+    }
+
+    /**
+     * Async returns when palette has been loaded.
+     * @return palette listener
+     */
+    private val paletteAsyncListener: Palette.PaletteAsyncListener = Palette.PaletteAsyncListener { palette ->
+        val offColor = palette.getMutedColor(colorBlue)
+        val color = palette.getVibrantColor(offColor)
+        collapsingToolbarLayout.setContentScrimColor(color)
+        collapsingToolbarLayout.setStatusBarScrimColor(color)
+        if (contact.coverURL.isEmpty()) {
+            collapsingToolbarLayout.setBackgroundColor(color)
+        }
+    }
+
+    private val contactScoreObserver: JustObserver<Int> = object : JustObserver<Int>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(integer: Int) {
+            if (activity != null) {
+                followersTextView.text = getString(R.string.user_profile_followers, integer)
+            }
+        }
+
+        override fun error(e: Throwable) {
+            if (activity != null) {
+                followersTextView.text = getString(R.string.user_profile_followers, stringErrorCalculating)
+            }
+        }
+    }
+    private var deletedChannel: Channel? = null
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         checkLoggedInUserValue(loggedInUserId)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_user_profile, container, false)
-        onCreateView(rootView)
-        return rootView
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
-    internal open fun onCreateView(rootView: View) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        onCreateView(view)
+    }
+
+    protected open fun onCreateView(rootView: View) {
         followersTextView.text = getString(R.string.user_profile_followers, stringCalculating)
         appBarLayout.addOnOffsetChangedListener(offsetListener)
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
@@ -145,7 +204,7 @@ abstract class UserProfileFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent()))
+        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
     }
 
     override fun onPause() {
@@ -155,9 +214,13 @@ abstract class UserProfileFragment : BaseFragment() {
         swipeRefreshLayout.isRefreshing = false
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        userChannelsFragment.onActivityResult(requestCode, resultCode, data)
+    }
+
     private fun initializeUserChannels() {
-        userChannelsFragment = UserChannelsFragment.newInstance(contact)
-        childFragmentManager.beginTransaction().replace(R.id.fragment_user_profile_user_channels, userChannelsFragment).commit()
+        childFragmentManager.beginTransaction().replace(fragment_user_profile_user_channels, userChannelsFragment).commit()
     }
 
     /**
@@ -178,34 +241,10 @@ abstract class UserProfileFragment : BaseFragment() {
     }
 
     private fun showDeletedChannelSnackBar(coordinatorLayout: CoordinatorLayout) {
-        val snackbar = make(coordinatorLayout, getString(R.string.undo_delete), LENGTH_INDEFINITE)
-        snackbar.setAction(getString(R.string.undo), addChannelClickListener)
+        val snackbar = make(coordinatorLayout, getString(undo_delete), LENGTH_INDEFINITE)
+        snackbar.setAction(getString(undo), addChannelClickListener)
         snackbar.setActionTextColor(colorBlue)
         snackbar.show()
-    }
-
-
-    private fun onNextEvent(): JustObserver<Any> {
-        return object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is GroupContactsUpdatedEventCallback) {
-                    groupContactsUpdatedEvent(event)
-                } else if (event is UserChannelAddedEventCallback) {
-                    addUserChannel(event)
-                } else if (event is UserChannelDeletedEventCallback) {
-                    deleteUserChannel(event)
-                } else if (event is SyncContactsCommand) {
-                    swipeRefreshLayout.isRefreshing = true
-                } else if (event is SyncAllContactsSuccessEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                } else if (event is SyncAllContactsErrorEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                } else if (event is SelectUserChannelEvent) {
-                    onChannelSelected(event)
-                }
-            }
-        }
     }
 
     private fun groupContactsUpdatedEvent(event: GroupContactsUpdatedEventCallback) {
@@ -233,7 +272,7 @@ abstract class UserProfileFragment : BaseFragment() {
 
      * @param event data
      */
-    internal fun onChannelSelected(event: SelectUserChannelEvent) {
+    private fun onChannelSelected(event: SelectUserChannelEvent) {
         val channelType = event.channel.channelType
         val actionAddress = event.channel.actionAddress
         when (channelType) {
@@ -283,26 +322,9 @@ abstract class UserProfileFragment : BaseFragment() {
     }
 
     /**
-     * Async returns when palette has been loaded.
-     * @return palette listener
-     */
-    private val paletteAsyncListener: Palette.PaletteAsyncListener
-        get() {
-            return Palette.PaletteAsyncListener { palette ->
-                val offColor = palette.getMutedColor(colorBlue)
-                val color = palette.getVibrantColor(offColor)
-                collapsingToolbarLayout.setContentScrimColor(color)
-                collapsingToolbarLayout.setStatusBarScrimColor(color)
-                if (contact.coverURL.isEmpty()) {
-                    collapsingToolbarLayout.setBackgroundColor(color)
-                }
-            }
-        }
-
-    /**
      * Initialize the Header view data and state.
      */
-    internal fun initializeHeader() {
+    protected fun initializeHeader() {
         //update profile user image
         val profileURL = contact.profileURL
         if (this is MainUserProfileFragment) {
@@ -314,46 +336,9 @@ abstract class UserProfileFragment : BaseFragment() {
         val request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(profileURL)).setPostprocessor(paletteProcessor).build()
         userImage.controller = newDraweeControllerBuilder().setImageRequest(request).build()
 
-
         //update profile background
         val coverURL = contact.coverURL
         userBackground.hierarchy = getAlphaOverlayHierarchy(collapsingToolbarLayout, resources)
         userBackground.controller = newDraweeControllerBuilder().setUri(Uri.parse(coverURL)).setAutoPlayAnimations(true).build()
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        userChannelsFragment!!.onActivityResult(requestCode, resultCode, data)
-    }
-
-    private val paletteProcessor: BasePostprocessor
-        get() {
-            return object : BasePostprocessor() {
-                override fun process(bitmap: Bitmap?) {
-                    Palette.Builder(bitmap).generate(paletteAsyncListener)
-                }
-
-                override fun getName(): String {
-                    return "datPostProcessor"
-                }
-            }
-        }
-
-    private val contactScoreObserver: JustObserver<Int>
-        get() = object : JustObserver<Int>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(integer: Int?) {
-                if (activity != null) {
-                    followersTextView.text = getString(R.string.user_profile_followers,
-                            integer)
-                }
-            }
-
-            override fun error(e: Throwable) {
-                if (activity != null) {
-                    followersTextView.text = getString(R.string.user_profile_followers,
-                            stringErrorCalculating)
-                }
-            }
-        }
 }

@@ -17,7 +17,7 @@ import java.util.*
 /**
  * An Adapter to handle displaying [Group]s.
  */
-class GroupAdapter private constructor(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
+class GroupAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder is GroupViewHolder) {
@@ -39,7 +39,7 @@ class GroupAdapter private constructor(recyclerView: BaseRecyclerView, sharedPre
 
     override fun onCreateItemViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.common_adapter_text_item, parent, false)
-        return GroupViewHolder.newInstance(view, listener)
+        return GroupViewHolder(view, listener)
     }
 
     override fun compare(item1: Group, item2: Group): Int {
@@ -54,7 +54,7 @@ class GroupAdapter private constructor(recyclerView: BaseRecyclerView, sharedPre
         return item1.id.equals(item2.id)
     }
 
-    fun refreshGroupData(groups: HashMap<String, Group>?) {
+    internal fun refreshGroupData(groups: HashMap<String, Group>?) {
         val newGroups: HashMap<String, Group>
         if (groups != null) {
             newGroups = HashMap<String, Group>(groups.size)
@@ -72,20 +72,7 @@ class GroupAdapter private constructor(recyclerView: BaseRecyclerView, sharedPre
      * @param view              the inflated view
      * @param itemClickListener click listener for each viewholder item
      */
-    internal class GroupViewHolder
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class GroupViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val groupName: TextView by bindView(R.id.adapter_group_name)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): GroupViewHolder {
-                return GroupViewHolder(view, itemClickListener)
-            }
-        }
-    }
-
-    companion object {
-        fun newInstance(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, listener: ItemClickListener): GroupAdapter {
-            return GroupAdapter(recyclerView, sharedPreferences, showHeader, listener)
-        }
     }
 }

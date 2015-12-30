@@ -20,7 +20,7 @@ class GroupContactsAdapter(recyclerView: BaseRecyclerView, private val clickList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_user_item, parent, false)
-        return UserViewHolder.newInstance(view, clickListener)
+        return UserViewHolder(view, clickListener)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
@@ -42,10 +42,10 @@ class GroupContactsAdapter(recyclerView: BaseRecyclerView, private val clickList
     }
 
     override fun compare(item1: User, item2: User): Int {
-        val comapreFirst = item1.first.compareTo(item2.first,true)
+        val comapreFirst = item1.first.compareTo(item2.first, true)
 
         if (comapreFirst == 0) {
-            return item1.last.compareTo(item2.last,true)
+            return item1.last.compareTo(item2.last, true)
         } else {
             return comapreFirst
         }
@@ -64,23 +64,8 @@ class GroupContactsAdapter(recyclerView: BaseRecyclerView, private val clickList
      * @param view              the inflated view
      * @param itemClickListener click listener for each item
      */
-    internal class UserViewHolder
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class UserViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val userName: TextView by bindView(R.id.adapter_user_name)
         val userImage: SimpleDraweeView by bindView(R.id.adapter_user_image)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): UserViewHolder {
-                return UserViewHolder(view, itemClickListener)
-            }
-        }
     }
-
-    companion object {
-        fun newInstance(
-                recyclerView: BaseRecyclerView, listener: ItemClickListener): GroupContactsAdapter {
-            return GroupContactsAdapter(recyclerView, listener)
-        }
-    }
-
 }

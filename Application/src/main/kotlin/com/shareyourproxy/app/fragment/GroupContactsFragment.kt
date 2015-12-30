@@ -4,7 +4,6 @@ import android.R.color.white
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.content.ContextCompat.getColor
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.text.SpannableStringBuilder
@@ -18,8 +17,10 @@ import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.R.dimen.common_svg_null_screen_small
-import com.shareyourproxy.R.id.fragment_contacts_group_toolbar
+import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.raw.ic_fish
+import com.shareyourproxy.R.string.fragment_contact_group_empty_message
+import com.shareyourproxy.R.string.fragment_contact_group_empty_title
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.Group
@@ -36,6 +37,9 @@ import com.shareyourproxy.app.adapter.GroupContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
 import com.shareyourproxy.util.ObjectUtils.capitalize
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindDimen
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
@@ -43,20 +47,41 @@ import rx.subscriptions.CompositeSubscription
  * Display the [User] contacts added to the selected [Group].
  */
 class GroupContactsFragment : BaseFragment(), ItemClickListener {
+    /**
+     * Get the group selected and bundled in this activities [IntentLauncher.launchEditGroupContactsActivity] call.
+     * @return selected group
+     */
+    private val groupArg: Group = activity.intent.extras.getParcelable<Parcelable>(ARG_SELECTED_GROUP) as Group
     private val toolbar: Toolbar by bindView(fragment_contacts_group_toolbar)
-    private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_contacts_group_recyclerview)
-    private val emptyTextView: TextView by bindView(R.id.fragment_contacts_group_empty_textview)
-    internal var emptyTextTitle: String = getString(R.string.fragment_contact_group_empty_title)
-    internal var emptyTextMessage: String = getString(R.string.fragment_contact_group_empty_message)
-    internal var marginNullScreen: Int = resources.getDimensionPixelSize(common_svg_null_screen_small)
-    internal var colorWhite: Int = getColor(context, white)
-    private var adapter: GroupContactsAdapter =GroupContactsAdapter.newInstance(recyclerView, this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+    private val recyclerView: BaseRecyclerView by bindView(fragment_contacts_group_recyclerview)
+    private val emptyTextView: TextView by bindView(fragment_contacts_group_empty_textview)
+    private val emptyTextTitle: String by bindString(fragment_contact_group_empty_title)
+    private val emptyTextMessage: String by bindString(fragment_contact_group_empty_message)
+    private val marginNullScreen: Int by bindDimen(common_svg_null_screen_small)
+    private val colorWhite: Int by bindColor(white)
+    private val adapter: GroupContactsAdapter =GroupContactsAdapter(recyclerView, this)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val fishDrawable: Drawable = svgToBitmapDrawable(activity, ic_fish, marginNullScreen)
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is UserSelectedEvent) {
+                onUserSelected(event)
+            } else if (event is GroupChannelsUpdatedEventCallback) {
+                channelsUpdated(event)
+            } else if (event is RecyclerViewDatasetChangedEvent) {
+                recyclerView.updateViewState(event)
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_view_group_users, container, false)
+        return inflater.inflate(R.layout.fragment_view_group_users, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initialize()
-        return rootView
     }
 
     override fun onResume() {
@@ -65,23 +90,18 @@ class GroupContactsFragment : BaseFragment(), ItemClickListener {
         adapter.refreshData(queryUserContacts(activity, groupArg.contacts).values)
     }
 
-    val busObserver: JustObserver<Any>
-        get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is UserSelectedEvent) {
-                    onUserSelected(event)
-                } else if (event is GroupChannelsUpdatedEventCallback) {
-                    channelsUpdated(event)
-                } else if (event is RecyclerViewDatasetChangedEvent) {
-                    recyclerView.updateViewState(event)
-                }
-            }
-        }
+    override fun onPause() {
+        super.onPause()
+        subscriptions.unsubscribe()
+    }
+
+    override fun onItemClick(view: View, position: Int) {
+        val holder = recyclerView.getChildViewHolder(view) as UserViewHolder
+        post(UserSelectedEvent(holder.userImage, holder.userName, adapter.getItemData(position)))
+    }
 
     /**
      * A Group has been edited in [EditGroupChannelsFragment]. Update this fragments intent data and title.
-
      * @param event group data
      */
     private fun channelsUpdated(event: GroupChannelsUpdatedEventCallback) {
@@ -89,25 +109,14 @@ class GroupContactsFragment : BaseFragment(), ItemClickListener {
         supportActionBar.title = capitalize(groupArg.label)
     }
 
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
-    }
-
     /**
      * User selected from this groups contacts. Open that Users profile.
 
      * @param event data
      */
-    fun onUserSelected(event: UserSelectedEvent) {
+    private fun onUserSelected(event: UserSelectedEvent) {
         launchUserProfileActivity(activity, event.user, loggedInUser.id, event.imageView, event.textView)
     }
-
-    /**
-     * Get the group selected and bundled in this activities [IntentLauncher.launchEditGroupContactsActivity] call.
-     * @return selected group
-     */
-    private val groupArg: Group get() = activity.intent.extras.getParcelable<Parcelable>(ARG_SELECTED_GROUP) as Group
 
     /**
      * Initialize this fragments views.
@@ -137,27 +146,4 @@ class GroupContactsFragment : BaseFragment(), ItemClickListener {
         sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Body), emptyTextTitle.length + 1, sb.length, SPAN_INCLUSIVE_INCLUSIVE)
         emptyTextView.text = sb
     }
-
-    /**
-     * Parse a svg and return a null screen sized [ContentDescriptionDrawable] .
-     * @return Drawable with a contentDescription
-     */
-    private val fishDrawable: Drawable get() = svgToBitmapDrawable(activity, ic_fish, marginNullScreen)
-
-    override fun onItemClick(view: View, position: Int) {
-        val holder = recyclerView.getChildViewHolder(view) as UserViewHolder
-        post(UserSelectedEvent(holder.userImage, holder.userName, adapter.getItemData(position)))
-    }
-
-    companion object {
-
-        /**
-         * Return new Fragment instance.
-         * @return GroupContactsFragment
-         */
-        fun newInstance(): GroupContactsFragment {
-            return GroupContactsFragment()
-        }
-    }
-
 }

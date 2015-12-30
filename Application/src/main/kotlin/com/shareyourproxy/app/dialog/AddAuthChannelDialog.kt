@@ -8,7 +8,6 @@ import android.content.DialogInterface.OnClickListener
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat.getColor
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
 import android.text.TextUtils
@@ -30,25 +29,27 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindColor
 import com.shareyourproxy.util.bindView
 
 /**
  * Add a channel that requires OAuth.
  */
-class AddAuthChannelDialog : BaseDialogFragment() {
-    private val helpClicked = OnClickListener { dialogInterface, i -> IntentLauncher.launchFacebookHelpIntent(activity) }
+class AddAuthChannelDialog(private val channel: Channel) : BaseDialogFragment() {
+    private val ARG_CHANNEL = "AddAuthChannelDialog.Channel"
+    private val TAG = AddAuthChannelDialog::class.java.simpleName
+    private val parcelChannel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)
     private val editTextActionAddress: EditText by bindView(dialog_channel_auth_action_address_edittext)
-    internal var colorText: Int = getColor(context, common_text)
-    internal var colorBlue: Int = getColor(context, common_blue)
     private val floatLabelAddress: TextInputLayout by bindView(dialog_channel_auth_action_address_floatlabel)
-    private var channel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)
+    private val colorText: Int by bindColor(common_text)
+    private val colorBlue: Int by bindColor(common_blue)
+    private val helpClicked = OnClickListener { dialogInterface, i -> IntentLauncher.launchFacebookHelpIntent(activity) }
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private val onEditorActionListener = TextView.OnEditorActionListener { v, actionId, event ->
         if (actionId == KeyEvent.KEYCODE_ENTER || actionId == KeyEvent.KEYCODE_ENDCALL) {
             addUserChannel()
-            dismiss()
             return@OnEditorActionListener true
         }
         false
@@ -56,22 +57,10 @@ class AddAuthChannelDialog : BaseDialogFragment() {
     private val negativeClicked = OnClickListener { dialogInterface, i ->
         hideKeyboardAndDismiss(dialogInterface)
     }
-
-    private fun hideKeyboardAndDismiss(dialogInterface: DialogInterface) {
-        hideSoftwareKeyboard(editTextActionAddress)
-        dialogInterface.dismiss()
-    }
     private val positiveClicked = OnClickListener { dialogInterface, i -> addUserChannel() }
 
-    /**
-     * Dispatch a Channel Added Event
-     */
-    private fun addUserChannel() {
-        val actionContent = editTextActionAddress.text.toString()
-        if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
-            val channel = createModelInstance(channel, actionContent)
-            post(AddUserChannelCommand(loggedInUser, channel))
-        }
+    init{
+        arguments.putParcelable(ARG_CHANNEL, channel)
     }
 
     @SuppressLint("InflateParams")
@@ -80,7 +69,7 @@ class AddAuthChannelDialog : BaseDialogFragment() {
         val view = activity.layoutInflater.inflate(dialog_auth_channel, null, false)
         editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
         val dialog = AlertDialog.Builder(activity, Widget_Proxy_App_Dialog)
-                .setTitle(getString(dialog_addchannel_title_add_blank, channel.channelType.label))
+                .setTitle(getString(dialog_addchannel_title_add_blank, parcelChannel.channelType.label))
                 .setView(view)
                 .setPositiveButton(save, positiveClicked)
                 .setNegativeButton(cancel, negativeClicked)
@@ -102,7 +91,7 @@ class AddAuthChannelDialog : BaseDialogFragment() {
         setButtonTint(dialog.getButton(BUTTON_NEGATIVE), colorText)
         setButtonTint(dialog.getButton(BUTTON_NEUTRAL), colorText)
         // Set TextInput hint
-        floatLabelAddress.hint = getString(dialog_channel_hint_address_blank_handle, channel.channelType.label)
+        floatLabelAddress.hint = getString(dialog_channel_hint_address_blank_handle, parcelChannel.channelType.label)
     }
 
     /**
@@ -115,20 +104,20 @@ class AddAuthChannelDialog : BaseDialogFragment() {
         return this
     }
 
-    companion object {
-        private val ARG_CHANNEL = "AddAuthChannelDialog.Channel"
-        private val TAG = AddAuthChannelDialog::class.java.simpleName
-
-        /**
-         * Create a new instance of a [AddAuthChannelDialog].
-         * @return A [AddAuthChannelDialog]
-         */
-        fun newInstance(channel: Channel): AddAuthChannelDialog {
-            val bundle = Bundle()
-            bundle.putParcelable(ARG_CHANNEL, channel)
-            val dialog = AddAuthChannelDialog()
-            dialog.arguments = bundle
-            return dialog
+    /**
+     * Dispatch a Channel Added Event
+     */
+    private fun addUserChannel() {
+        val actionContent = editTextActionAddress.text.toString()
+        if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
+            val channel = createModelInstance(parcelChannel, actionContent)
+            post(AddUserChannelCommand(loggedInUser, channel))
         }
+        dismiss()
+    }
+
+    private fun hideKeyboardAndDismiss(dialogInterface: DialogInterface) {
+        hideSoftwareKeyboard(editTextActionAddress)
+        dialogInterface.dismiss()
     }
 }

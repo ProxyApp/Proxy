@@ -11,14 +11,13 @@ import timber.log.Timber
 /**
  * Display an [AboutFragment] that has an Apache II license for this project.
  */
-class AboutActivity : BaseActivity() {
+object AboutActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.activity_about_container,
-                    AboutFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.activity_about_container, AboutFragment()).commit()
         }
     }
 

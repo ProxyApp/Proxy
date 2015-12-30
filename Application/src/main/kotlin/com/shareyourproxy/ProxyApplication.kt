@@ -26,8 +26,8 @@ import kotlin.reflect.KProperty
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 class ProxyApplication : Application() {
-    var currentUser: User = User()
-    val sharedPreferences: SharedPreferences by lazy {}
+    internal var currentUser: User = User()
+    internal val sharedPreferences: SharedPreferences by lazy {}
     operator fun Any.getValue(proxyApplication: ProxyApplication, property: KProperty<*>): SharedPreferences {
         return getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
     }

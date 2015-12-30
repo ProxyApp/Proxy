@@ -11,12 +11,11 @@ import timber.log.Timber
 /**
  * Activity to display the contacts that a user has saved in a selected group.
  */
-class GroupContactsActivity : BaseActivity() {
+object GroupContactsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(android.R.id.content,
-                    GroupContactsFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, GroupContactsFragment()).commit()
         }
     }
 

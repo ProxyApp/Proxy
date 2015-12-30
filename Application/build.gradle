@@ -254,6 +254,7 @@ dependencies {
     //SVG Compat
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Third party
+    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.0@aar'
     compile 'com.github.orhanobut:hawk:1.21'
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     //Bug Tracking

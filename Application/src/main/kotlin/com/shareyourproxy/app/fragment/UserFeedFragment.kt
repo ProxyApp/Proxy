@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.fragment
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
@@ -37,33 +36,27 @@ class UserFeedFragment : BaseFragment(), ItemClickListener {
     private val recyclerView: BaseRecyclerView by bindView(fragment_user_feed_recyclerview)
     private val emptyTextView: TextView by bindView(R.id.fragment_user_feed_empty_textview)
     private val loggedInNullTitle: String = getString(fragment_userfeed_empty_title)
-    internal var stringNullMessage: String = getString(fragment_userfeed_empty_message)
-    internal var contactNullTitle: String = getString(fragment_userprofile_contact_empty_title)
-    internal var marginNullScreen: Int = resources.getDimensionPixelSize(common_svg_null_screen_small)
-    private var isLoggedInUser: Boolean = false
-    private var userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
-    private var adapter: ActivityFeedAdapter = ActivityFeedAdapter.newInstance(recyclerView, userContact, this)
+    private val stringNullMessage: String = getString(fragment_userfeed_empty_message)
+    private val contactNullTitle: String = getString(fragment_userprofile_contact_empty_title)
+    private val marginNullScreen: Int = resources.getDimensionPixelSize(common_svg_null_screen_small)
+    private val userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val adapter: ActivityFeedAdapter = ActivityFeedAdapter(recyclerView, userContact, this)
+    private val activityFeedObserver = object : JustObserver<ActivityFeedDownloadedEvent>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: ActivityFeedDownloadedEvent) {
+            activityFeedDownloaded(event)
+        }
+    }
     private var lastClickedAuthItem: Int = 0
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        isLoggedInUser = isLoggedInUser(userContact)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(fragment_user_feed, container, false)
-        initialize()
-        return rootView
+        return inflater.inflate(fragment_user_feed, container, false)
     }
 
-    fun ActivityFeedObserver(): JustObserver<ActivityFeedDownloadedEvent> {
-        return object : JustObserver<ActivityFeedDownloadedEvent>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: ActivityFeedDownloadedEvent?) {
-                activityFeedDownloaded(event)
-            }
-        }
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initialize()
     }
 
     private fun activityFeedDownloaded(event: ActivityFeedDownloadedEvent?) {
@@ -72,7 +65,6 @@ class UserFeedFragment : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions = CompositeSubscription()
     }
 
     override fun onPause() {
@@ -100,7 +92,7 @@ class UserFeedFragment : BaseFragment(), ItemClickListener {
 
     private fun initializeEmptyView() {
         val context = context
-        if (isLoggedInUser) {
+        if (isLoggedInUser(userContact)) {
             val sb = SpannableStringBuilder(loggedInNullTitle).append("\n").append(stringNullMessage)
             sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Body2), 0, loggedInNullTitle.length, SPAN_INCLUSIVE_INCLUSIVE)
             sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Body), loggedInNullTitle.length + 1, sb.length, SPAN_INCLUSIVE_INCLUSIVE)
@@ -130,16 +122,6 @@ class UserFeedFragment : BaseFragment(), ItemClickListener {
 
     override fun onItemClick(view: View, position: Int) {
         when (adapter.getItemViewType(position)) {
-        }
-    }
-    companion object {
-
-        /**
-         * Create a new user activity feed fragment.
-         * @return user activity feed fragment.
-         */
-        fun newInstance(): UserFeedFragment {
-            return UserFeedFragment()
         }
     }
 }

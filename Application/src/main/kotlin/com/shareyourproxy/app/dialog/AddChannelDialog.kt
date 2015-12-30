@@ -1,26 +1,29 @@
 package com.shareyourproxy.app.dialog
 
-import android.annotation.SuppressLint
+import android.R.string.cancel
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat.getColor
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
 import android.text.TextUtils
-import android.view.KeyEvent
+import android.view.KeyEvent.KEYCODE_ENDCALL
+import android.view.KeyEvent.KEYCODE_ENTER
 import android.view.View
-import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.MATCH_PARENT
+import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
 import android.widget.EditText
 import android.widget.TextView.OnEditorActionListener
 import com.shareyourproxy.R
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_text
 import com.shareyourproxy.R.id.*
+import com.shareyourproxy.R.layout.dialog_add_channel
 import com.shareyourproxy.R.string.*
+import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.ChannelType.*
@@ -28,13 +31,17 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import java.util.*
 
 /**
  * Add a new [Channel] to a [User].
  */
-class AddChannelDialog : BaseDialogFragment() {
+class AddChannelDialog(private val channelType: ChannelType) : BaseDialogFragment() {
+    private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
+    private val TAG = AddChannelDialog::class.java.simpleName
     private val editTextActionAddress: EditText by bindView(dialog_channel_action_address_edittext)
     private val negativeClicked = OnClickListener { dialogInterface, i ->
         hideSoftwareKeyboard(editTextActionAddress)
@@ -43,58 +50,42 @@ class AddChannelDialog : BaseDialogFragment() {
     private val editTextLabel: EditText by bindView(dialog_channel_label_edittext)
     private val floatLabelChannelLabel: TextInputLayout by bindView(dialog_channel_label_floatlabel)
     private val floatLabelAddress: TextInputLayout by bindView(dialog_channel_action_address_floatlabel)
-    internal var colorText: Int = getColor(context, common_text)
-    internal var colorBlue: Int = getColor(context, common_blue)
-    internal var required: String = getString(R.string.required)
-    private var channelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
+    private val colorText: Int by bindColor(common_text)
+    private val colorBlue: Int by bindColor(common_blue)
+    private val stringRequired: String by bindString(required)
+    private val parcelChannelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private val onEditorActionListener = OnEditorActionListener { v, actionId, event ->
-        // KeyEvent.KEYCODE_ENDCALL is the actionID of the Done button when this
-        // FixedDecimalEditText's inputType is Decimal
-        if (actionId == KeyEvent.KEYCODE_ENTER || actionId == KeyEvent.KEYCODE_ENDCALL) {
-            saveChannelAndExit()
-            return@OnEditorActionListener true
+        // KeyEvent.KEYCODE_ENDCALL is the actionID of the Done button
+        when(actionId){
+            KEYCODE_ENDCALL,
+            KEYCODE_ENTER -> saveChannelAndExit()
+            else -> false
         }
-        false
     }
     private val positiveClicked = View.OnClickListener { saveChannelAndExit() }
-    private var dialogTitle: String? = null
-    private var channelAddressHint: String? = null
-    private var channelLabelHint: String? = null
+    private var dialogTitle: String = ""
+    private var channelAddressHint: String = ""
+    private var channelLabelHint: String = ""
 
-    /**
-     * Dispatch a Channel Added Event
-     */
-    private fun addUserChannel() {
-        //TODO:CLEAN THIS MESS UP
-        val actionContent = editTextActionAddress.text.toString()
-        val labelContent = editTextLabel.text.toString().trim { it <= ' ' }
-        if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
-            val id = UUID.randomUUID().toString()
-            val channel = createModelInstance(id, labelContent, channelType, actionContent)
-            val user = loggedInUser
-            post(AddUserChannelCommand(user, channel))
-            user.channels.put(channel.id, channel)
-            post(AddChannelDialogSuccessEvent(user, channel))
-        }
-    }
-
-    @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
         super.onCreateDialog(savedInstanceState)
-        val view = activity.layoutInflater.inflate(R.layout.dialog_add_channel, null, false)
+        val view = activity.layoutInflater.inflate(dialog_add_channel, null, false)
         initializeDisplayValues()
 
         editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
-        val dialog = AlertDialog.Builder(activity,
-                R.style.Widget_Proxy_App_Dialog).setTitle(dialogTitle).setView(view).setPositiveButton(getString(R.string.save), null).setNegativeButton(android.R.string.cancel, negativeClicked).create()
+        val dialog = AlertDialog.Builder(activity, Widget_Proxy_App_Dialog)
+                .setTitle(dialogTitle)
+                .setView(view)
+                .setPositiveButton(save, null)
+                .setNegativeButton(cancel, negativeClicked)
+                .create()
 
         // Show the SW Keyboard on dialog start. Always.
-        dialog.window.setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-        dialog.window.attributes.width = WindowManager.LayoutParams.MATCH_PARENT
+        dialog.window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        dialog.window.attributes.width = MATCH_PARENT
         dialog.setCanceledOnTouchOutside(false)
         return dialog
     }
@@ -111,15 +102,16 @@ class AddChannelDialog : BaseDialogFragment() {
         floatLabelChannelLabel.hint = channelLabelHint
     }
 
-    fun saveChannelAndExit() {
+    private fun saveChannelAndExit(): Boolean {
         val addressHasText = editTextActionAddress.text.toString().trim { it <= ' ' }.length > 0
         if (!addressHasText) {
-            floatLabelAddress.error = required
+            floatLabelAddress.error = stringRequired
         } else {
             floatLabelAddress.isErrorEnabled = false
             addUserChannel()
             dismiss()
         }
+        return true
     }
 
     private fun initializeDisplayValues() {
@@ -312,6 +304,22 @@ class AddChannelDialog : BaseDialogFragment() {
     }
 
     /**
+     * Dispatch a Channel Added Event
+     */
+    private fun addUserChannel() {
+        val actionContent = editTextActionAddress.text.toString()
+        val labelContent = editTextLabel.text.toString().trim { it <= ' ' }
+        if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
+            val id = UUID.randomUUID().toString()
+            val channel = createModelInstance(id, labelContent, channelType, actionContent)
+            val user = loggedInUser
+            post(AddUserChannelCommand(user, channel))
+            user.channels.put(channel.id, channel)
+            post(AddChannelDialogSuccessEvent(user, channel))
+        }
+    }
+
+    /**
      * Use the private string TAG from this class as an identifier.
      * @param fragmentManager manager of fragments
      * @return this dialog
@@ -319,24 +327,5 @@ class AddChannelDialog : BaseDialogFragment() {
     fun show(fragmentManager: FragmentManager): AddChannelDialog {
         show(fragmentManager, TAG)
         return this
-    }
-
-    companion object {
-        private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
-        private val TAG = AddChannelDialog::class.java.simpleName
-
-        /**
-         * Create a new instance of a [AddChannelDialog].
-         * @return A [AddChannelDialog]
-         */
-        fun newInstance(channelType: ChannelType): AddChannelDialog {
-            //Bundle arguments
-            val bundle = Bundle()
-            bundle.putString(ARG_CHANNEL_TYPE, channelType.label)
-            //create dialog instance
-            val dialog = AddChannelDialog()
-            dialog.arguments = bundle
-            return dialog
-        }
     }
 }

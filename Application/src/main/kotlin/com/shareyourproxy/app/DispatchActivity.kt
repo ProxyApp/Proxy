@@ -18,18 +18,28 @@ import rx.subscriptions.CompositeSubscription
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the [AggregateFeedActivity] if we have a cached user or send them to
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
-class DispatchActivity : GoogleApiActivity() {
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+object DispatchActivity : GoogleApiActivity() {
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is SyncAllContactsSuccessEvent) {
+                goToUserFeedActivity()
+            } else if (event is SyncAllContactsErrorEvent) {
+                goToLoginActivity()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(android.R.id.content, DispatchFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, DispatchFragment()).commit()
         }
         initialize()
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         subscriptions.add(rxBusObservable().subscribe(rxBusObserver))
         subscriptions.add(loginObservable(this).subscribe())
@@ -57,17 +67,6 @@ class DispatchActivity : GoogleApiActivity() {
         decorView.systemUiVisibility = uiOptions
     }
 
-    val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is SyncAllContactsSuccessEvent) {
-                    goToUserFeedActivity()
-                } else if (event is SyncAllContactsErrorEvent) {
-                    goToLoginActivity()
-                }
-            }
-        }
-
     /**
      * Go to the main user feed activity and finish this one.
      */
@@ -79,7 +78,7 @@ class DispatchActivity : GoogleApiActivity() {
     /**
      * Launch the login activity and finish this dispatch activity.
      */
-    fun goToLoginActivity() {
+    private fun goToLoginActivity() {
         launchLoginActivity(this)
         finish()
     }

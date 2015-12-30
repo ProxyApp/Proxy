@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.shareyourproxy.R
+import com.shareyourproxy.R.layout.fragment_channellist
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.app.adapter.AddChannelAdapter
@@ -21,12 +22,14 @@ import com.shareyourproxy.util.bindView
 class AddChannelListFragment : BaseFragment(), ItemClickListener {
 
     private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_channel_list_recyclerview)
-    private var adapter: AddChannelAdapter = AddChannelAdapter.newInstance(recyclerView, sharedPreferences, this)
+    private val adapter: AddChannelAdapter = AddChannelAdapter(recyclerView, sharedPreferences, this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater.inflate(R.layout.fragment_channellist, container, false)
+        return inflater.inflate(fragment_channellist, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         initialize()
-        return rootView
     }
 
     /**
@@ -35,7 +38,6 @@ class AddChannelListFragment : BaseFragment(), ItemClickListener {
     private fun initialize() {
         initializeRecyclerView()
     }
-
 
     /**
      * Initialize a recyclerView with [Channel] data.
@@ -80,22 +82,10 @@ class AddChannelListFragment : BaseFragment(), ItemClickListener {
             ChannelType.Periscope,
             ChannelType.Medium,
             ChannelType.Soundcloud,
-            ChannelType.Skype -> AddChannelDialog.newInstance(clickedChannel.channelType).show(activity.supportFragmentManager)
+            ChannelType.Skype -> AddChannelDialog(clickedChannel.channelType).show(activity.supportFragmentManager)
             ChannelType.Reddit -> AddRedditChannelDialog.newInstance(clickedChannel.channelType).show(activity.supportFragmentManager)
             else -> {
             }
         }
     }
-
-    companion object {
-
-        /**
-         * Return new fragment instance.
-         * @return AddChannelListFragment
-         */
-        fun newInstance(): AddChannelListFragment {
-            return AddChannelListFragment()
-        }
-    }
-
 }

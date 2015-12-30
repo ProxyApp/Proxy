@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit
  * @param feedItems a list of [ActivityFeedItem]s
  */
 class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: User, private val listener: ItemClickListener) : SortedRecyclerAdapter<ActivityFeedItem>(ActivityFeedItem::class.java, recyclerView) {
+    val VIEWTYPE_HEADER = 0
+    val VIEWTYPE_CONTENT = 1
     private var currentDate = Date()
 
     fun refreshFeedData(feedItems: List<ActivityFeedItem>?) {
@@ -38,7 +40,7 @@ class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: U
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_activity_feed_item, parent, false)
-        return FeedViewHolder.newInstance(view, listener)
+        return FeedViewHolder(view, listener)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
@@ -129,29 +131,9 @@ class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: U
      * @param view              the inflated view
      * @param itemClickListener click listener for each viewholder item
      */
-    internal class FeedViewHolder
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    private final class FeedViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val channelImage: ImageView by bindView(R.id.adapter_activity_feed_item_image)
         val displayText: TextView by bindView(R.id.adapter_activity_feed_item_label)
         val timestampText: TextView by bindView(R.id.adapter_activity_feed_timestamp)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): FeedViewHolder {
-                return FeedViewHolder(view, itemClickListener)
-            }
-        }
     }
-    /**
-     * Create a newInstance of a [ActivityFeedAdapter] with data.
-     * @param feedItems initialize data
-     * @return an [ActivityFeedAdapter] with no data
-     */
-    companion object {
-        val VIEWTYPE_HEADER = 0
-        val VIEWTYPE_CONTENT = 1
-        fun newInstance(recyclerView: BaseRecyclerView, contact: User, listener: ItemClickListener): ActivityFeedAdapter {
-            return ActivityFeedAdapter(recyclerView, contact, listener)
-        }
-    }
-
 }

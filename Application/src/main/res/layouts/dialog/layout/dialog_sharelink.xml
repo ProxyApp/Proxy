@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/dialog_sharelink_message"
+        android:id="@+id/dialog_sharelink_message_text"
         style="@style/Proxy.TextAppearance.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -25,7 +25,7 @@ class SearchUserAdapter(private val recyclerView: BaseRecyclerView, private val 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_user_item, parent, false)
-        return UserViewHolder.newInstance(view, _clickListener)
+        return UserViewHolder(view, _clickListener)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
@@ -119,21 +119,8 @@ class SearchUserAdapter(private val recyclerView: BaseRecyclerView, private val 
      * @param view              the inflated view
      * @param itemClickListener click listener for each item
      */
-    internal class UserViewHolder
-    private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+    internal final class UserViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
         val userName: TextView by bindView(R.id.adapter_user_name)
         val userImage: SimpleDraweeView by bindView(R.id.adapter_user_image)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): UserViewHolder {
-                return UserViewHolder(view, itemClickListener)
-            }
-        }
-    }
-
-    companion object {
-        fun newInstance(recyclerView: BaseRecyclerView, listener: ItemClickListener): SearchUserAdapter {
-            return SearchUserAdapter(recyclerView, listener)
-        }
     }
 }

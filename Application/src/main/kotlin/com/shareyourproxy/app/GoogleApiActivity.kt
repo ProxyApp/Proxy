@@ -6,16 +6,24 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.Scopes.EMAIL
+import com.google.android.gms.common.Scopes.PLUS_ME
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
+import com.google.android.gms.common.api.Scope
 import com.google.android.gms.common.api.Status
+import com.google.android.gms.plus.Plus
+import com.google.android.gms.plus.Plus.*
+import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.BuildConfig.VERSION_CODE
 import com.shareyourproxy.Constants
 import com.shareyourproxy.R
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
+import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.RxLoginHelper.refreshGooglePlusToken
 import com.shareyourproxy.app.dialog.ErrorDialog
 import com.shareyourproxy.util.ObjectUtils
 import java.util.*
@@ -25,9 +33,12 @@ import kotlin.reflect.KProperty
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private val googleApiClient: GoogleApiClient by lazy{}
+    private val googleApiClient: GoogleApiClient by lazy {}
     operator fun Any.getValue(activity: GoogleApiActivity, property: KProperty<*>): GoogleApiClient {
-       return buildGoogleApiClient(activity)
+        return buildOldGoogleApiClient(activity)
+    }
+
+    open fun onGooglePlusTokenGen(acct: GoogleSignInAccount?) {
     }
 
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
@@ -38,7 +49,16 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
 
     protected fun signInToGoogle() {
         val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient)
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+        startActivityForResult(signInIntent, RC_NEW_SIGN_IN)
+    }
+
+    protected fun oldSignInToGoogle() {
+        refreshGooglePlusToken(this, googleApiClient).subscribe(object : JustObserver<String>(){
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+            override fun next(string: String) {
+                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, string)
+            }
+        })
     }
 
     /**
@@ -85,20 +105,20 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     }
 
     override fun onConnected(bundle: Bundle?) {
-
+        //nada
     }
 
     override fun onConnectionSuspended(i: Int) {
-
+        //nada
     }
 
     override fun onConnectionFailed(connectionResult: ConnectionResult) {
-
+        //nada
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_NEW_SIGN_IN) {
             val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (result.isSuccess) {
                 sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode)
@@ -112,7 +132,8 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     companion object {
         val GOOGLE_UID_PREFIX = "google:"
         private val RC_SIGN_IN = 0
-        private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
+        private val RC_NEW_SIGN_IN = 1
+        private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(BuildConfig.GOOGLE_CLIENT_ID).requestEmail().build()
         /**
          * Return log in onError dialog based on the type of onError.
          * @param message onError message
@@ -122,11 +143,27 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
             if (message.trim { it <= ' ' }.isEmpty()) {
                 error = "null error message"
             }
-            ErrorDialog.newInstance(activity.getString(R.string.login_error), "Error authenticating with Google: $error").show(activity.supportFragmentManager)
+            ErrorDialog(activity.getString(R.string.login_error), "Error authenticating with Google: $error").show(activity.supportFragmentManager)
         }
 
         private fun buildGoogleApiClient(activity: GoogleApiActivity): GoogleApiClient {
-            return GoogleApiClient.Builder(activity).addConnectionCallbacks(activity).addOnConnectionFailedListener(activity).enableAutoManage(activity, activity).addApi(Auth.GOOGLE_SIGN_IN_API, OPTIONS).build()
+            return GoogleApiClient.Builder(activity)
+                    .addConnectionCallbacks(activity)
+                    .enableAutoManage(activity, activity)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, OPTIONS)
+                    .build()
+        }
+
+        private fun buildOldGoogleApiClient(activity: GoogleApiActivity): GoogleApiClient {
+            return GoogleApiClient.Builder(activity)
+                    .addConnectionCallbacks(activity)
+                    .addOnConnectionFailedListener(activity)
+                    .addApi(API, Plus.PlusOptions.builder().build())
+                    .addScope(SCOPE_PLUS_LOGIN)
+                    .addScope(Scope(PLUS_ME))
+                    .addScope(Scope(EMAIL))
+                    .addScope(SCOPE_PLUS_PROFILE)
+                    .build();
         }
     }
 }

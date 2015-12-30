@@ -22,7 +22,7 @@ import timber.log.Timber
 /**
  * Activity that displays a list of Channels for a user to add to their [UserProfileFragment].
  */
-class AddChannelListActivity : BaseActivity() {
+object AddChannelListActivity : BaseActivity() {
 
     private val analytics = RxGoogleAnalytics(this)
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
@@ -35,7 +35,7 @@ class AddChannelListActivity : BaseActivity() {
         setContentView(R.layout.common_activity_fragment_container)
         initialize()
         if (savedInstanceState == null) {
-            val fragment = AddChannelListFragment.newInstance()
+            val fragment = AddChannelListFragment()
             supportFragmentManager.beginTransaction().replace(R.id.activity_fragment_container, fragment).commit()
         }
     }
@@ -69,10 +69,9 @@ class AddChannelListActivity : BaseActivity() {
      * Create a composite subscription field to handle unsubscribing in onPause.
      */
     fun initializeSubscriptions() {
-        subscriptions = CompositeSubscription()
         subscriptions.add(RxBusDriver.rxBusObservable().subscribe(object : JustObserver<Any>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
+            override fun next(event: Any) {
                 if (event is UserChannelAddedEventCallback) {
                     channelAdded(event)
                 } else if (event is AddChannelDialogSuccessEvent) {
@@ -85,7 +84,7 @@ class AddChannelListActivity : BaseActivity() {
     }
 
     fun showAddGroupChannelDialog(event: AddChannelDialogSuccessEvent) {
-        SaveGroupChannelDialog.newInstance(event.channel, event.user).show(supportFragmentManager)
+        SaveGroupChannelDialog(event.channel, event.user).show(supportFragmentManager)
     }
 
     fun ChannelAddedEvent(event: ChannelAddedEvent) {

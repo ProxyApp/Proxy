@@ -15,17 +15,20 @@ import java.util.*
 /**
  * Display a list of groups to broadcast in a shared link intent.
  */
-class ShareLinkAdapter
-private constructor(private val recyclerView: BaseRecyclerView, groups: ArrayList<GroupToggle>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
+class ShareLinkAdapter(private val recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
     private var lastCheckedView: CheckedTextView = CheckedTextView(recyclerView.context)
 
     init {
-        refreshData(groups)
+        val groupToggles : ArrayList<GroupToggle> = ArrayList(groups.size)
+        for (group in groups.values) {
+            groupToggles.add(GroupToggle(group, false))
+        }
+        refreshData(groupToggles)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_share_link, parent, false)
-        return ContentViewHolder.newInstance(view, this)
+        return ContentViewHolder(view, this)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
@@ -88,24 +91,7 @@ private constructor(private val recyclerView: BaseRecyclerView, groups: ArrayLis
      * @param view inflated in [.onCreateViewHolder]
      * @return a [User] ViewHolder instance
      */
-    internal class ContentViewHolder
-    private constructor(view: View, listener: ItemClickListener) : BaseViewHolder(view, listener) {
+    private final class ContentViewHolder(view: View, listener: ItemClickListener) : BaseViewHolder(view, listener) {
         val checkedTextView: CheckedTextView by bindView(R.id.adapter_share_link_textview)
-
-        companion object {
-            fun newInstance(view: View, listener: ItemClickListener): ContentViewHolder {
-                return ContentViewHolder(view, listener)
-            }
-        }
-    }
-
-    companion object {
-        fun newInstance(recyclerView: BaseRecyclerView, groups: HashMap<String, Group>): ShareLinkAdapter {
-            val groupToggles = ArrayList<GroupToggle>(groups.size)
-            for (group in groups.values) {
-                groupToggles.add(GroupToggle(group, false))
-            }
-            return ShareLinkAdapter(recyclerView, groupToggles)
-        }
     }
 }

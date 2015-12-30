@@ -13,7 +13,7 @@ import timber.log.Timber
 /**
  * Activity that handles displaying a [User] profile.
  */
-class UserContactActivity : BaseActivity() {
+object UserContactActivity : BaseActivity() {
     private val userExtra: User get() = intent.extras.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
 
     override fun onBackPressed() {
@@ -30,7 +30,7 @@ class UserContactActivity : BaseActivity() {
         preventStatusBarFlash(this)
         if (savedInstanceState == null) {
             val user = userExtra
-            supportFragmentManager.beginTransaction().replace(android.R.id.content, ContactProfileFragment.newInstance(user, loggedInUser.id)).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, ContactProfileFragment(user, loggedInUser.id)).commit()
         }
     }
 

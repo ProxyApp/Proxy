@@ -14,32 +14,37 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.shareyourproxy.R
+import com.shareyourproxy.R.id.*
+import com.shareyourproxy.R.string.required
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelToggle
 import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxGroupChannelSync
+import com.shareyourproxy.api.rx.RxGroupChannelSync.getSelectedChannels
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PUBLIC_GROUPS
 import timber.log.Timber
 import java.util.*
 
-class EditGroupChannelAdapter
-private constructor(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, groupLabel: String?, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
+class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
+    companion object{
+        internal val TYPE_LIST_ITEM = 1
+        internal val TYPE_LIST_HEADER = 2
+        internal val TYPE_LIST_DELETE_FOOTER = 3
+    }
     private val channels: SortedList<ChannelToggle> = SortedList(ChannelToggle::class.java, sortedCallback, userChannels.size)
-    var groupLabel: String = ""
-        private set
-    private var _groupLabelHeaderViewHolder: HeaderViewHolder? = null
-
-    internal var stringTitle: String = recyclerView.context.getString(R.string.people_in_this_group)
-    internal var stringButton: String = recyclerView.context.getString(R.string.view_group_members)
+    private val stringTitle: String by bindString(recyclerView.context, R.string.people_in_this_group)
+    private val stringButton: String by bindString(recyclerView.context, R.string.view_group_members)
+    private val contactsListener: View.OnClickListener = View.OnClickListener { post(ViewGroupContactsEvent()) }
+    internal val selectedChannels: HashSet<String> get()= getSelectedChannels(channels)
+    private var groupLabelHeaderViewHolder: HeaderViewHolder? = null
 
     init {
-        this.groupLabel = groupLabel ?: ""
         if (groupEditType == GroupEditType.PUBLIC_GROUP) {
             updatePublicChannels(userChannels)
         } else {
@@ -58,6 +63,115 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
 
         override fun afterTextChanged(s: Editable) {
             groupLabel = s.toString()
+        }
+    }
+
+    /**
+     * Get the list items length
+     * @return list length
+     */
+    private val listLength: Int = extraItemsCount - 1
+
+    private val extraItemsCount: Int get() {
+        var count = 0
+        if (groupEditType == EDIT_GROUP) {
+            count = 2
+        } else if (groupEditType == GroupEditType.ADD_GROUP || groupEditType == GroupEditType.PUBLIC_GROUP) {
+            count = 1
+        }
+        return channels.size() + count
+    }
+
+    internal val toggledChannels: ArrayList<ChannelToggle> get() {
+        val channels = ArrayList<ChannelToggle>(channels.size())
+        for (i in 0..channels.size - 1) {
+            val newChannel = channels[i]
+            channels.add(newChannel)
+        }
+        return channels
+    }
+
+    private val sortedCallback: Callback<ChannelToggle> get() = object : Callback<ChannelToggle>() {
+        override fun compare(item1: ChannelToggle, item2: ChannelToggle): Int {
+            val weight1 = item1.channel.channelType.weight
+            val weight2 = item2.channel.channelType.weight
+            val compareFirst = compareValues(weight1, weight2)
+            if (compareFirst == 0) {
+                return item1.channel.label.compareTo(item2.channel.label, true)
+            } else {
+                return compareFirst
+            }
+        }
+
+        override fun onInserted(position: Int, count: Int) {
+            notifyItemRangeInserted(position, count)
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            notifyItemRangeRemoved(position, count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            notifyItemMoved(fromPosition, toPosition)
+        }
+
+        override fun onChanged(position: Int, count: Int) {
+            notifyItemRangeChanged(position, count)
+        }
+
+        override fun areContentsTheSame(
+                item1: ChannelToggle, item2: ChannelToggle): Boolean {
+            return item1.channel.id.equals(item2.channel.id)
+        }
+
+        override fun areItemsTheSame(item1: ChannelToggle, item2: ChannelToggle): Boolean {
+            return item1.channel.id.equals(item2.channel.id)
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (position == 0) {
+            return TYPE_LIST_HEADER
+        } else if (groupEditType == EDIT_GROUP && position == listLength) {
+            return TYPE_LIST_DELETE_FOOTER
+        } else {
+            return TYPE_LIST_ITEM
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return extraItemsCount
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        val view: View
+        if (viewType == TYPE_LIST_HEADER) {
+            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
+                view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
+                return PublicHeaderViewHolder(view, clickListener)
+            } else {
+                view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_header, parent, false)
+                return HeaderViewHolder(view, clickListener)
+            }
+        } else if (viewType == TYPE_LIST_DELETE_FOOTER) {
+            view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_footer, parent, false)
+            return FooterViewHolder(view, clickListener)
+        } else {
+            view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_item, parent, false)
+            return ItemViewHolder(view, clickListener)
+        }
+
+    }
+
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+        if (holder.itemViewType == TYPE_LIST_HEADER) {
+            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
+                bindPublicHeaderViewData(holder as PublicHeaderViewHolder)
+            } else {
+                bindHeaderViewData(holder as HeaderViewHolder)
+            }
+        } else if (holder.itemViewType == TYPE_LIST_ITEM && (groupEditType != GroupEditType.EDIT_GROUP || (position != listLength))) {
+            bindItemViewData(holder as ItemViewHolder, getItemData(position - 1))
         }
     }
 
@@ -102,115 +216,13 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
         return false
     }
 
-    private val sortedCallback: Callback<ChannelToggle>  get() = object : Callback<ChannelToggle>() {
-
-        override fun compare(item1: ChannelToggle, item2: ChannelToggle): Int {
-            val weight1 = item1.channel.channelType.weight
-            val weight2 = item2.channel.channelType.weight
-            val compareFirst = compareValues(weight1, weight2)
-            if (compareFirst == 0) {
-                return item1.channel.label.compareTo(item2.channel.label, true)
-            } else {
-                return compareFirst
-            }
-        }
-
-        override fun onInserted(position: Int, count: Int) {
-            notifyItemRangeInserted(position, count)
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            notifyItemRangeRemoved(position, count)
-        }
-
-        override fun onMoved(fromPosition: Int, toPosition: Int) {
-            notifyItemMoved(fromPosition, toPosition)
-        }
-
-        override fun onChanged(position: Int, count: Int) {
-            notifyItemRangeChanged(position, count)
-        }
-
-        override fun areContentsTheSame(
-                item1: ChannelToggle, item2: ChannelToggle): Boolean {
-            return item1.channel.id.equals(item2.channel.id)
-        }
-
-        override fun areItemsTheSame(item1: ChannelToggle, item2: ChannelToggle): Boolean {
-            return item1.channel.id.equals(item2.channel.id)
-        }
-    }
-
-
-    override fun getItemViewType(position: Int): Int {
-        if (position == 0) {
-            return TYPE_LIST_HEADER
-        } else if (groupEditType == EDIT_GROUP && position == listLength) {
-            return TYPE_LIST_DELETE_FOOTER
-        } else {
-            return TYPE_LIST_ITEM
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return extraItemsCount
-    }
-
-    /**
-     * Get the list items length
-     * @return list length
-     */
-    private val listLength: Int = extraItemsCount - 1
-
-    private val extraItemsCount: Int get() {
-        var count = 0
-        if (groupEditType == EDIT_GROUP) {
-            count = 2
-        } else if (groupEditType == GroupEditType.ADD_GROUP || groupEditType == GroupEditType.PUBLIC_GROUP) {
-            count = 1
-        }
-        return channels.size() + count
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        val view: View
-        if (viewType == TYPE_LIST_HEADER) {
-            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
-                view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
-                return PublicHeaderViewHolder.newInstance(view, clickListener)
-            } else {
-                view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_header, parent, false)
-                return HeaderViewHolder.newInstance(view, clickListener)
-            }
-        } else if (viewType == TYPE_LIST_DELETE_FOOTER) {
-            view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_footer, parent, false)
-            return FooterViewHolder.newInstance(view, clickListener)
-        } else {
-            view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_edit_group_channel_item, parent, false)
-            return ItemViewHolder.newInstance(view, clickListener)
-        }
-
-    }
-
-    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        if (holder.itemViewType == TYPE_LIST_HEADER) {
-            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
-                bindPublicHeaderViewData(holder as PublicHeaderViewHolder)
-            } else {
-                bindHeaderViewData(holder as HeaderViewHolder)
-            }
-        } else if (holder.itemViewType == TYPE_LIST_ITEM && (groupEditType != GroupEditType.EDIT_GROUP || (position != listLength))) {
-            bindItemViewData(holder as ItemViewHolder, getItemData(position - 1))
-        }
-    }
-
-    fun bindPublicHeaderViewData(holder: PublicHeaderViewHolder) {
+    private fun bindPublicHeaderViewData(holder: PublicHeaderViewHolder) {
         holder.notificationCard.createNotificationCard(this, holder, PUBLIC_GROUPS, false, false)
     }
 
     private fun bindHeaderViewData(holder: HeaderViewHolder) {
         val context = holder.view.context
-        _groupLabelHeaderViewHolder = holder
+        groupLabelHeaderViewHolder = holder
         holder.editText.setText(groupLabel)
         holder.editText.addTextChangedListener(textWatcher)
         val end = stringTitle.length
@@ -223,16 +235,13 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
         holder.textViewContacts.setOnClickListener(contactsListener)
     }
 
-    private val contactsListener: View.OnClickListener
-        get() = View.OnClickListener { post(ViewGroupContactsEvent()) }
-
-    fun getItemData(position: Int): ChannelToggle {
+    internal fun getItemData(position: Int): ChannelToggle {
         return channels.get(position)
     }
 
-    fun promptGroupLabelError(context: Context) {
-        _groupLabelHeaderViewHolder!!.textInputLayout.error = context.getString(R.string.required)
-        _groupLabelHeaderViewHolder!!.textInputLayout.isErrorEnabled = true
+    internal fun promptGroupLabelError(context: Context) {
+        groupLabelHeaderViewHolder!!.textInputLayout.error = context.getString(required)
+        groupLabelHeaderViewHolder!!.textInputLayout.isErrorEnabled = true
     }
 
     private fun bindItemViewData(holder: ItemViewHolder, editChannel: ChannelToggle) {
@@ -242,16 +251,11 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
         val channelTypeString = editChannel.channel.channelType.label
         val label = editChannel.channel.label
         val address = editChannel.channel.actionAddress
-        val sb = getChannelSpannableStringBuilder(
-                context, channelTypeString, label, address)
-
-        holder.itemImage.setImageDrawable(
-                BaseRecyclerViewAdapter.getChannelIconDrawable(context, channel, BaseRecyclerViewAdapter.getChannelBackgroundColor(context,
-                        channelType)))
-
+        val sb = getChannelSpannableStringBuilder(context, channelTypeString, label, address)
         val clickListener = switchListener(holder)
         val checkedListener = checkedListener(holder)
 
+        holder.itemImage.setImageDrawable(getChannelDrawable(channel, channelType, context))
         holder.itemLabel.text = sb
         holder.container.setOnClickListener(clickListener)
         holder.itemSwitch.setOnCheckedChangeListener(checkedListener)
@@ -269,8 +273,7 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
         }
     }
 
-    private fun checkedListener(
-            viewHolder: ItemViewHolder): CompoundButton.OnCheckedChangeListener {
+    private fun checkedListener(viewHolder: ItemViewHolder): CompoundButton.OnCheckedChangeListener {
         return CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             val position = viewHolder.itemPosition - 1
             val channelToggle = channels.get(position)
@@ -278,74 +281,24 @@ private constructor(private val recyclerView: BaseRecyclerView, private val clic
         }
     }
 
-    val selectedChannels: HashSet<String> get() = RxGroupChannelSync.getSelectedChannels(channels)
-
-    val toggledChannels: ArrayList<ChannelToggle> get() {
-        val channels = ArrayList<ChannelToggle>(channels.size())
-        for (i in 0..channels.size - 1) {
-            val newChannel = channels.get(i)
-            channels.add(newChannel)
-        }
-        return channels
+    private final class ItemViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+        val container: RelativeLayout by bindView(adapter_edit_group_list_item_container)
+        val itemSwitch: Switch by bindView(adapter_edit_group_list_item_switch)
+        val itemImage: ImageView by bindView(adapter_edit_group_list_item_image)
+        val itemLabel: TextView by bindView(adapter_edit_group_list_item_label)
     }
 
-    class ItemViewHolder private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
-        val container: RelativeLayout by bindView(R.id.adapter_edit_group_list_item_container)
-        val itemSwitch: Switch by bindView(R.id.adapter_edit_group_list_item_switch)
-        val itemImage: ImageView by bindView(R.id.adapter_edit_group_list_item_image)
-        val itemLabel: TextView by bindView(R.id.adapter_edit_group_list_item_label)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): ItemViewHolder {
-                return ItemViewHolder(view, itemClickListener)
-            }
-        }
-
+    private final class PublicHeaderViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+        val notificationCard: DismissibleNotificationCard by bindView(adapter_dismissible_notification_card)
     }
 
-    class PublicHeaderViewHolder private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
-        val notificationCard: DismissibleNotificationCard by bindView(R.id.adapter_dismissible_notification_card)
-
-        companion object {
-            fun newInstance(
-                    view: View, itemClickListener: ItemClickListener): PublicHeaderViewHolder {
-                return PublicHeaderViewHolder(view, itemClickListener)
-            }
-        }
+    private final class HeaderViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+        val editText: EditText by bindView(adapter_group_edit_channel_header_edittext)
+        val textInputLayout: TextInputLayout by bindView(adapter_group_edit_channel_header_floatlabel)
+        val textViewContacts: TextView by bindView(adapter_group_edit_channel_header_contacts_button)
     }
 
-    class HeaderViewHolder private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
-        val editText: EditText by bindView(R.id.adapter_group_edit_channel_header_edittext)
-        val textInputLayout: TextInputLayout by bindView(R.id.adapter_group_edit_channel_header_floatlabel)
-        val textViewContacts: TextView by bindView(R.id.adapter_group_edit_channel_header_contacts_button)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): HeaderViewHolder {
-                return HeaderViewHolder(view, itemClickListener)
-            }
-        }
-
-    }
-
-    class FooterViewHolder private constructor(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
-        val deleteButton: Button by bindView(R.id.adapter_group_edit_channel_footer_delete)
-
-        companion object {
-            fun newInstance(view: View, itemClickListener: ItemClickListener): FooterViewHolder {
-                return FooterViewHolder(view, itemClickListener)
-            }
-        }
-
-    }
-
-    companion object {
-        val TYPE_LIST_ITEM = 1
-        val TYPE_LIST_HEADER = 2
-        val TYPE_LIST_DELETE_FOOTER = 3
-
-        fun newInstance(recyclerView: BaseRecyclerView, listener: ItemClickListener, groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, groupEditType: GroupEditType): EditGroupChannelAdapter {
-            return EditGroupChannelAdapter(recyclerView, listener, groupLabel, userChannels, groupChannels, groupEditType)
-        }
+    private final class FooterViewHolder(view: View, itemClickListener: ItemClickListener) : BaseViewHolder(view, itemClickListener) {
+        val deleteButton: Button by bindView(adapter_group_edit_channel_footer_delete)
     }
 }
-

@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
 import android.text.TextUtils
@@ -19,7 +18,10 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import com.shareyourproxy.R
+import com.shareyourproxy.R.color.common_blue
+import com.shareyourproxy.R.color.common_text
 import com.shareyourproxy.R.id.*
+import com.shareyourproxy.R.string.required
 import com.shareyourproxy.R.string.save
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
@@ -27,6 +29,8 @@ import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import java.util.*
 
@@ -44,26 +48,25 @@ class AddRedditChannelDialog : BaseDialogFragment() {
     private val floatLabelAddress: TextInputLayout by bindView(dialog_reddit_channel_action_address_floatlabel)
     private val linkTypeProfile: RadioButton by bindView(dialog_reddit_channel_radiobutton_profile)
     private val linkTypeSub: RadioButton by bindView(dialog_reddit_channel_radiobutton_subreddit)
-    internal var colorText: Int = ContextCompat.getColor(context, R.color.common_text)
-    internal var colorBlue: Int = ContextCompat.getColor(context, R.color.common_blue)
-    internal var required: String = getString(R.string.required)
-    private var channelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
+    private val colorText: Int by bindColor(common_text)
+    private val colorBlue: Int by bindColor(common_blue)
+    private val stringRequired: String by bindString(required)
+    private val channelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private val onEditorActionListener = TextView.OnEditorActionListener { v, actionId, event ->
-        // KeyEvent.KEYCODE_ENDCALL is the actionID of the Done button when this
-        // FixedDecimalEditText's inputType is Decimal
-        if (actionId == KeyEvent.KEYCODE_ENTER || actionId == KeyEvent.KEYCODE_ENDCALL) {
-            saveChannelAndExit()
-            return@OnEditorActionListener true
+        // KeyEvent.KEYCODE_ENDCALL is the actionID of the Done button
+        when(actionId){
+            KeyEvent.KEYCODE_ENDCALL,
+            KeyEvent.KEYCODE_ENTER -> saveChannelAndExit()
+            else -> false
         }
-        false
     }
     private val positiveClicked = View.OnClickListener { saveChannelAndExit() }
-    private var dialogTitle: String? = null
-    private var channelAddressHint: String? = null
-    private var channelLabelHint: String? = null
+    private var dialogTitle: String = ""
+    private var channelAddressHint: String = ""
+    private var channelLabelHint: String = ""
 
     private val onSubRedditChecked = CompoundButton.OnCheckedChangeListener { compoundButton, checked ->
         if (checked) {
@@ -81,15 +84,16 @@ class AddRedditChannelDialog : BaseDialogFragment() {
         }
     }
 
-    fun saveChannelAndExit() {
+    fun saveChannelAndExit() :Boolean {
         val addressHasText = editTextActionAddress.text.toString().trim { it <= ' ' }.length > 0
         if (!addressHasText) {
-            floatLabelAddress.error = required
+            floatLabelAddress.error = stringRequired
         } else {
             floatLabelAddress.isErrorEnabled = false
             addUserChannel()
             dismiss()
         }
+        return true
     }
 
     /**

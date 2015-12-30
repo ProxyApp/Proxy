@@ -27,7 +27,7 @@ import java.util.*
 /**
  * Add and remove newChannel permissions from a group.
  */
-class EditGroupChannelsActivity : BaseActivity() {
+object EditGroupChannelsActivity : BaseActivity() {
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
     private var subscriptions: CompositeSubscription = CompositeSubscription()
 
@@ -42,7 +42,7 @@ class EditGroupChannelsActivity : BaseActivity() {
         setContentView(R.layout.common_activity_fragment_container)
         initialize()
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.activity_fragment_container, EditGroupChannelsFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.activity_fragment_container, EditGroupChannelsFragment()).commit()
         }
     }
 
@@ -71,7 +71,7 @@ class EditGroupChannelsActivity : BaseActivity() {
     private fun onNextEvent(activity: EditGroupChannelsActivity): JustObserver<Any> {
         return object : JustObserver<Any>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
+            override fun next(event: Any) {
                 if (event is UserGroupDeletedEventCallback) {
                     userGroupDeleted(event)
                 } else if (event is ViewGroupContactsEvent) {

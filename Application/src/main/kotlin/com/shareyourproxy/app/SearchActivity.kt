@@ -8,14 +8,13 @@ import com.shareyourproxy.app.fragment.SearchFragment
 /**
  * Activity to handle displaying contacts and searching for new ones.
  */
-class SearchActivity : BaseActivity() {
+object SearchActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preventStatusBarFlash(this)
         if (savedInstanceState == null) {
-            val searchFragment = SearchFragment.newInstance()
-            supportFragmentManager.beginTransaction().replace(android.R.id.content, searchFragment).commit()
+            supportFragmentManager.beginTransaction().replace(android.R.id.content, SearchFragment()).commit()
         }
     }
 

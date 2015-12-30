@@ -2,7 +2,6 @@ package com.shareyourproxy.app.fragment
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.v4.content.ContextCompat.getColor
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.text.SpannableStringBuilder
@@ -22,13 +21,14 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.dimen.common_svg_null_screen_mini
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.raw.ic_ghost_doge
+import com.shareyourproxy.R.raw.ic_ghost_sloth
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
@@ -42,6 +42,9 @@ import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.EditChannelDialog
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindDimen
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
 import rx.subscriptions.CompositeSubscription
@@ -50,30 +53,79 @@ import java.util.*
 /**
  * A User's channels
  */
-class UserChannelsFragment : BaseFragment(), ItemLongClickListener {
+class UserChannelsFragment(contact: User) : BaseFragment(), ItemLongClickListener {
+    init {
+        arguments.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
+    }
+
     private val recyclerView: BaseRecyclerView by bindView(fragment_user_channel_recyclerview)
     private val emptyViewContainer: LinearLayout by bindView(fragment_user_channel_empty_view_container)
     private val addChannelButton: Button by bindView(fragment_user_channel_empty_button)
     private val emptyTextView: TextView by bindView(fragment_user_channel_empty_textview)
-    internal var loggedInNullTitle: String = resources.getString(fragment_userchannels_empty_title)
-    internal var loggedInNullMessage: String = resources.getString(fragment_userchannels_empty_message)
-    internal var contactNullTitle: String = resources.getString(fragment_userprofile_contact_empty_title)
-    internal var marginNullScreen: Int = resources.getDimensionPixelSize(common_svg_null_screen_mini)
-    internal var colorBlue: Int = getColor(context, R.color.common_blue)
-    private var userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
-    private var isLoggedInUser: Boolean = isLoggedInUser(userContact)
-    private var adapter: ViewChannelAdapter = ViewChannelAdapter.newInstance(recyclerView, sharedPreferences, isShowHeader(if (isLoggedInUser) loggedInUser.channels else null), this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
-
+    private val loggedInNullTitle: String by bindString(fragment_userchannels_empty_title)
+    private val loggedInNullMessage: String by bindString(fragment_userchannels_empty_message)
+    private val contactNullTitle: String by bindString(fragment_userprofile_contact_empty_title)
+    private val marginNullScreen: Int by bindDimen(common_svg_null_screen_mini)
+    private val colorBlue: Int by bindColor(R.color.common_blue)
+    private val userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
+    private val isLoggedInUser: Boolean = isLoggedInUser(userContact)
+    private val adapter: ViewChannelAdapter = ViewChannelAdapter(recyclerView, sharedPreferences, isShowHeader(if (isLoggedInUser) loggedInUser.channels else null), this)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val drawableDoge: Drawable = svgToBitmapDrawable(activity, ic_ghost_doge, marginNullScreen)
+    private val drawableSloth: Drawable = svgToBitmapDrawable(activity, ic_ghost_sloth, marginNullScreen)
     private val onClickAddChannel: View.OnClickListener = OnClickListener {
         launchChannelListActivity(activity)
     }
+    private val onNextEvent = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is UserChannelAddedEventCallback) {
+                addUserChannel(event)
+            } else if (event is UserChannelDeletedEventCallback) {
+                deleteUserChannel(event)
+            } else if (event is SyncAllContactsSuccessEvent) {
+                if (isLoggedInUser) {
+                    syncUsersContacts()
+                }
+            }
+        }
+    }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_user_channels, container, false)
+    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_user_channels, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initialize()
-        return rootView
+    }
+
+    override fun onResume() {
+        super.onResume()
+        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
+        if (isLoggedInUser) {
+            syncUsersContacts()
+        } else {
+            getSharedChannels()
+        }
+        recyclerView.scrollToPosition(0)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        subscriptions.unsubscribe()
+    }
+
+    override fun onItemClick(view: View, position: Int) {
+        val channel = adapter.getItemData(position)
+        post(SelectUserChannelEvent(channel))
+    }
+
+    override fun onItemLongClick(view: View, position: Int) {
+        val channel = adapter.getItemData(position)
+        if (isLoggedInUser) {
+            EditChannelDialog(channel, position).show(fragmentManager)
+        }
     }
 
     /**
@@ -114,7 +166,7 @@ class UserChannelsFragment : BaseFragment(), ItemLongClickListener {
             sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Body), loggedInNullTitle.length + 1, sb.length, SPAN_INCLUSIVE_INCLUSIVE)
 
             emptyTextView.text = sb
-            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(null, getNullDrawable(ic_ghost_doge), null, null)
+            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(null, drawableDoge, null, null)
 
 
         } else {
@@ -125,20 +177,11 @@ class UserChannelsFragment : BaseFragment(), ItemLongClickListener {
             sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Body), contactNullTitle.length + 1, sb.length, SPAN_INCLUSIVE_INCLUSIVE)
 
             emptyTextView.text = sb
-            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(null, getNullDrawable(R.raw.ic_ghost_sloth), null, null)
+            emptyTextView.setCompoundDrawablesWithIntrinsicBounds(null, drawableSloth, null, null)
         }
     }
 
-    /**
-     * Parse a svg and return a null screen sized [ContentDescriptionDrawable] .
-
-     * @return Drawable with a contentDescription
-     */
-    private fun getNullDrawable(resId: Int): Drawable {
-        return svgToBitmapDrawable(activity, resId, marginNullScreen)
-    }
-
-    fun getSharedChannels() {
+    private fun getSharedChannels() {
         subscriptions.add(queryPermissionedChannels(userContact, loggedInUser.id)
                 .subscribe(permissionedObserver()))
     }
@@ -146,54 +189,20 @@ class UserChannelsFragment : BaseFragment(), ItemLongClickListener {
     private fun permissionedObserver(): JustObserver<HashMap<String, Channel>> {
         return object : JustObserver<HashMap<String, Channel>>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(channels: HashMap<String, Channel>?) {
+            override fun next(channels: HashMap<String, Channel>) {
                 adapter.updateChannels(channels)
             }
 
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        subscriptions = CompositeSubscription()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent()))
-        if (isLoggedInUser) {
-            syncUsersContacts()
-        } else {
-            getSharedChannels()
-        }
-        recyclerView.scrollToPosition(0)
-    }
-
-    private fun onNextEvent(): JustObserver<Any> {
-        return object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is UserChannelAddedEventCallback) {
-                    addUserChannel(event)
-                } else if (event is UserChannelDeletedEventCallback) {
-                    deleteUserChannel(event)
-                } else if (event is SyncAllContactsSuccessEvent) {
-                    if (isLoggedInUser) {
-                        syncUsersContacts()
-                    }
-                }
-            }
-        }
-    }
-
-    fun syncUsersContacts() {
+    private fun syncUsersContacts() {
         val channels = loggedInUser.channels
         if (channels.size > 0) {
             adapter.updateChannels(channels)
         } else {
             recyclerView.updateViewState(RecyclerViewDatasetChangedEvent(adapter, EMPTY))
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
     }
 
     private fun addUserChannel(event: UserChannelAddedEventCallback) {
@@ -208,31 +217,4 @@ class UserChannelsFragment : BaseFragment(), ItemLongClickListener {
         adapter.removeItem(event.position)
     }
 
-    override fun onItemClick(view: View, position: Int) {
-        val channel = adapter.getItemData(position)
-        RxBusDriver.post(SelectUserChannelEvent(channel))
-    }
-
-    override fun onItemLongClick(view: View, position: Int) {
-        val channel = adapter.getItemData(position)
-        if (isLoggedInUser) {
-            EditChannelDialog.newInstance(channel, position).show(fragmentManager)
-        }
-    }
-
-    companion object {
-
-        /**
-         * Create a new user channel fragment.
-
-         * @return user channels fragment.
-         */
-        fun newInstance(contact: User): UserChannelsFragment {
-            val bundle = Bundle()
-            bundle.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
-            val fragment = UserChannelsFragment()
-            fragment.arguments = bundle
-            return fragment
-        }
-    }
 }

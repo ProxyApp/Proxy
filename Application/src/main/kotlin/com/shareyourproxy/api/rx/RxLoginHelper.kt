@@ -1,6 +1,11 @@
 package com.shareyourproxy.api.rx
 
+import android.content.Context
 import android.util.Log
+import com.google.android.gms.auth.GoogleAuthUtil.getToken
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.plus.Plus
 import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.Constants.KEY_LOGGED_IN_USER
 import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
@@ -11,6 +16,7 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
+import rx.Observable
 import rx.Single
 import rx.SingleSubscriber
 import rx.functions.Func1
@@ -66,7 +72,7 @@ object RxLoginHelper {
             fun updateUserVersionObserver(subscriber: SingleSubscriber<in User>): JustObserver<User> {
                 return object : JustObserver<User>() {
                     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-                    override fun next(user: User?) {
+                    override fun next(user: User) {
                         RxHelper.updateRealmUser(activity, user!!)
                         post(SyncContactsCommand(user))
                     }
@@ -84,4 +90,23 @@ object RxLoginHelper {
         }
     }
 
+    fun refreshGooglePlusToken(context: Context, client: GoogleApiClient): Observable<String> {
+        return Observable.create { subscriber ->
+            var token: String? = null
+            try {
+                if (client.isConnected) {
+                    token = getToken(context, Plus.AccountApi.getAccountName(client), "oauth2:%s".format(Scopes.PLUS_LOGIN))
+                }
+            } catch (e: Exception) {
+                subscriber.onError(e)
+            }
+
+            if (token != null) {
+                subscriber.onNext(token)
+                subscriber.onCompleted()
+            } else {
+                subscriber.onError(NullPointerException("Null Google Plus Token"))
+            }
+        }
+    }
 }

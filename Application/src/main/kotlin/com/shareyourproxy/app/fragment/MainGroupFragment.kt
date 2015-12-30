@@ -9,7 +9,6 @@ import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.design.widget.Snackbar.LENGTH_INDEFINITE
 import android.support.design.widget.Snackbar.LENGTH_LONG
-import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
@@ -30,8 +29,8 @@ import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.GroupFactory.PUBLIC
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.command.AddUserGroupCommand
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
@@ -44,6 +43,8 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupAdapter
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.bindColor
+import com.shareyourproxy.util.bindDimen
 import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
 import org.jetbrains.anko.onClick
@@ -59,29 +60,85 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
     private val floatingActionButton: FloatingActionButton by bindView(fragment_group_main_fab)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_group_main_swipe_refresh)
     private val emptyTextView: TextView by bindView(R.id.fragment_group_main_empty_textview)
-    internal var colorBlue: Int = ContextCompat.getColor(context, common_blue)
-    internal var colorWhite: Int = ContextCompat.getColor(context, white)
-    internal var marginSVGLarge: Int = resources.getDimensionPixelSize(common_svg_large)
-    internal val refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+    private val colorBlue: Int by bindColor(common_blue)
+    private val colorWhite: Int by bindColor(white)
+    private val marginSVGLarge: Int by bindDimen(common_svg_large)
+    private val refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
     }
     private val showHeader = !sharedPreferences.getBoolean(MAIN_GROUPS.key, false)
-    private var adapter: GroupAdapter = GroupAdapter.newInstance(recyclerView, sharedPreferences, showHeader, this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
-
+    private val adapter: GroupAdapter = GroupAdapter(recyclerView, sharedPreferences, showHeader, this)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
     /**
      * Prompt user with a [EditGroupChannelsFragment] to add a new [Group].
      */
     private val onClickFab :View.OnClickListener = View.OnClickListener {
         launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(), ADD_GROUP)
     }
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is UserGroupAddedEventCallback) {
+                addGroups(event)
+            } else if (event is GroupChannelsUpdatedEventCallback) {
+                updateGroup(event)
+            } else if (event is LoggedInUserUpdatedEventCallback) {
+                updateGroups(event.user.groups)
+            } else if (event is SyncContactsCommand) {
+                swipeRefreshLayout.isRefreshing = true
+            } else if (event is SyncAllContactsSuccessEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            } else if (event is SyncAllContactsErrorEvent) {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(fragment_main_group, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        initialize()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        adapter.refreshGroupData(loggedInUser.groups)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        subscriptions.unsubscribe()
+        //if we're refreshing data, get rid of the UI
+        swipeRefreshLayout.isRefreshing = false
+    }
+
+    override fun onItemClick(view: View, position: Int) {
+        val group = adapter.getItemData(position)
+        if (group.id.equals(PUBLIC)) {
+            launchEditGroupChannelsActivity(activity, group, PUBLIC_GROUP)
+        } else {
+            launchEditGroupChannelsActivity(activity, group, EDIT_GROUP)
+        }
+    }
+
+    /**
+     * Initialize this fragments UI.
+     */
+    private fun initialize() {
+        initializeFab()
+        initializeRecyclerView()
+        initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
+        checkGroupDeleted(activity)
+    }
 
     /**
      * Check if there was a group deleted from the [(View, int)][EditGroupChannelsFragment.onItemClick])}
-
      * @param activity to get intent data from
      */
-    fun checkGroupDeleted(activity: Activity) {
+    private fun checkGroupDeleted(activity: Activity) {
         val groupDeleted = activity.intent.extras.getBoolean(ARG_MAINGROUPFRAGMENT_WAS_GROUP_DELETED, false)
         if (groupDeleted) {
             showUndoDeleteSnackBar(activity.intent.extras.getParcelable<Parcelable>(ARG_MAINGROUPFRAGMENT_DELETED_GROUP) as Group)
@@ -109,22 +166,6 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
         return View.OnClickListener { post(AddUserGroupCommand(loggedInUser, group)) }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(fragment_main_group, container, false)
-        initialize()
-        return rootView
-    }
-
-    /**
-     * Initialize this fragments UI.
-     */
-    fun initialize() {
-        initializeFab()
-        initializeRecyclerView()
-        initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
-        checkGroupDeleted(activity)
-    }
-
     /**
      * Set the content image of this fragment's [FloatingActionButton]
      */
@@ -134,33 +175,7 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
         floatingActionButton.onClick{onClickFab}
     }
 
-    override fun onResume() {
-        super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(busObserver))
-        adapter.refreshGroupData(loggedInUser.groups)
-    }
-
-    val busObserver: JustObserver<Any>
-        get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is UserGroupAddedEventCallback) {
-                    addGroups(event)
-                } else if (event is GroupChannelsUpdatedEventCallback) {
-                    updateGroup(event)
-                } else if (event is LoggedInUserUpdatedEventCallback) {
-                    updateGroups(event.user.groups)
-                } else if (event is SyncContactsCommand) {
-                    swipeRefreshLayout.isRefreshing = true
-                } else if (event is SyncAllContactsSuccessEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                } else if (event is SyncAllContactsErrorEvent) {
-                    swipeRefreshLayout.isRefreshing = false
-                }
-            }
-        }
-
-    fun addGroups(event: UserGroupAddedEventCallback) {
+    private fun addGroups(event: UserGroupAddedEventCallback) {
         addGroup(event.group)
     }
 
@@ -169,7 +184,7 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
 
      * @param group to add
      */
-    fun addGroup(group: Group) {
+    private fun addGroup(group: Group) {
         adapter.addItem(group)
         showAddedGroupSnackBar()
     }
@@ -179,7 +194,7 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
 
      * @param event group to add
      */
-    fun updateGroup(event: GroupChannelsUpdatedEventCallback) {
+    private fun updateGroup(event: GroupChannelsUpdatedEventCallback) {
         adapter.updateItem(event.oldGroup, event.group)
         if (event.groupEditType == ADD_GROUP) {
             showAddedGroupSnackBar()
@@ -197,15 +212,8 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
 
      * @param groups to add
      */
-    fun updateGroups(groups: HashMap<String, Group>) {
+    private fun updateGroups(groups: HashMap<String, Group>) {
         adapter.refreshGroupData(groups)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
-        //if we're refreshing data, get rid of the UI
-        swipeRefreshLayout.isRefreshing = false
     }
 
     /**
@@ -217,29 +225,5 @@ class MainGroupFragment : BaseFragment(), ItemClickListener {
         recyclerView.itemAnimator = DefaultItemAnimator()
         recyclerView.adapter = adapter
     }
-
-    override fun onItemClick(view: View, position: Int) {
-        val group = adapter.getItemData(position)
-        if (group.id.equals(PUBLIC)) {
-            launchEditGroupChannelsActivity(activity, group, PUBLIC_GROUP)
-        } else {
-            launchEditGroupChannelsActivity(activity, group, EDIT_GROUP)
-        }
-    }
-
-    companion object {
-
-        /**
-         * Get a new Instance of this [MainGroupFragment].
-
-         * @return [MainGroupFragment]
-         */
-        fun newInstance(): MainGroupFragment {
-            return MainGroupFragment()
-        }
-    }
-
 }
-/**
- * [Fragment] Constructor.
- */
+

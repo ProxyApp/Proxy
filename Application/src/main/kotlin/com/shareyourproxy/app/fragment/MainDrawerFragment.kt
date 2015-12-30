@@ -28,8 +28,16 @@ import rx.subscriptions.CompositeSubscription
 class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
 
     private val drawerRecyclerView: BaseRecyclerView by bindView(fragment_drawer_recyclerview)
-    private var adapter: DrawerAdapter = DrawerAdapter.newInstance(loggedInUser, this)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+    private val adapter: DrawerAdapter = DrawerAdapter(loggedInUser, this)
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            if (event is LoggedInUserUpdatedEventCallback) {
+                adapter.updateUser(event.user)
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_drawer, container, false)
@@ -42,29 +50,9 @@ class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
         subscriptions.add(rxBusObservable().subscribe(busObserver))
     }
 
-    val busObserver: JustObserver<Any>
-        get() = object : JustObserver<Any>() {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any?) {
-                if (event is LoggedInUserUpdatedEventCallback) {
-                    adapter.updateUser(event.user)
-                }
-            }
-        }
-
     override fun onPause() {
         super.onPause()
         subscriptions.unsubscribe()
-    }
-
-    /**
-     * Initialize a recyclerView with User data and menu options.
-     */
-    private fun initializeRecyclerView() {
-        drawerRecyclerView.layoutManager = LinearLayoutManager(activity)
-        drawerRecyclerView.setHasFixedSize(true)
-        drawerRecyclerView.itemAnimator = DefaultItemAnimator()
-        drawerRecyclerView.adapter = adapter
     }
 
     override fun onItemClick(view: View, position: Int) {
@@ -79,14 +67,13 @@ class MainDrawerFragment : BaseFragment(), ItemLongClickListener {
         }
     }
 
-    companion object {
-
-        /**
-         * Create a new instance of this fragment for parent [AggregateFeedActivity].
-         * @return drawer fragment
-         */
-        fun newInstance(): MainDrawerFragment {
-            return MainDrawerFragment()
-        }
+    /**
+     * Initialize a recyclerView with User data and menu options.
+     */
+    private fun initializeRecyclerView() {
+        drawerRecyclerView.layoutManager = LinearLayoutManager(activity)
+        drawerRecyclerView.setHasFixedSize(true)
+        drawerRecyclerView.itemAnimator = DefaultItemAnimator()
+        drawerRecyclerView.adapter = adapter
     }
 }

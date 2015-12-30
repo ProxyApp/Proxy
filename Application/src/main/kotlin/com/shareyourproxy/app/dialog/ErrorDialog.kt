@@ -12,16 +12,21 @@ import com.shareyourproxy.R.string.ok
 /**
  * Dialog to handle onError messaging during login.
  */
-class ErrorDialog : BaseDialogFragment() {
-
+class ErrorDialog(private val title: String, private val message: String) : BaseDialogFragment() {
+    private val TAG = ErrorDialog::class.java.simpleName
+    private val ARG_TITLE = "title"
+    private val ARG_MESSAGE = "message"
+    private val parcelTitle = arguments.getString(ARG_TITLE)
+    private val parcelMessage = arguments.getString(ARG_MESSAGE)
+    init {
+        arguments.putString(ARG_TITLE, title)
+        arguments.putString(ARG_MESSAGE, message)
+    }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val title = arguments.getString(ARG_TITLE)
-        val message = arguments.getString(ARG_MESSAGE)
-
         return AlertDialog.Builder(ContextThemeWrapper(activity,
                 R.style.Widget_Proxy_App_Dialog))
-                .setTitle(title)
-                .setMessage(message)
+                .setTitle(parcelTitle)
+                .setMessage(parcelMessage)
                 .setPositiveButton(ok, null)
                 .create()
     }
@@ -35,27 +40,4 @@ class ErrorDialog : BaseDialogFragment() {
         show(fragmentManager, TAG)
         return this
     }
-
-    companion object {
-        private val TAG = ErrorDialog::class.java.simpleName
-        private val ARG_TITLE = "title"
-        private val ARG_MESSAGE = "message"
-
-        /**
-         * Create a new dialog with a custom title and message body.
-         * @param title   header of dialog
-         * @param message body of dialog* *
-         * @return this dialog
-         */
-        fun newInstance(title: String, message: String): ErrorDialog {
-            val args = Bundle()
-            args.putString(ARG_TITLE, title)
-            args.putString(ARG_MESSAGE, message)
-
-            val dialog = ErrorDialog()
-            dialog.arguments = args
-            return dialog
-        }
-    }
-
 }

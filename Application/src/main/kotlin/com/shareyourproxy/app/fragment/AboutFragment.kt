@@ -2,12 +2,14 @@ package com.shareyourproxy.app.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.shareyourproxy.R
+import com.shareyourproxy.R.layout.fragment_about
+import com.shareyourproxy.R.string.about
+import com.shareyourproxy.util.bindString
 import com.shareyourproxy.util.bindView
 
 /**
@@ -15,22 +17,14 @@ import com.shareyourproxy.util.bindView
  */
 class AboutFragment : BaseFragment() {
     private val toolbar: Toolbar by bindView(R.id.fragment_about_toolbar)
+    private val title: String by bindString(about)
 
     @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val rootView = inflater.inflate(R.layout.fragment_about, null, false)
-        buildToolbar(toolbar, getString(R.string.about), null)
-        return rootView
+        return inflater.inflate(fragment_about, null, false);
     }
 
-    companion object {
-        /**
-         * Return a new instance of this fragment for the parent [AboutActivity].
-         * @return AboutFragment
-         */
-        fun newInstance(): Fragment {
-            return AboutFragment()
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        buildToolbar(toolbar, title, null)
     }
-
 }

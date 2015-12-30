@@ -6,9 +6,13 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import com.shareyourproxy.R
+import com.shareyourproxy.R.id.adapter_dismissible_notification_card
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
+import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_FOOTER
+import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_HEADER
+import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_LIST_ITEM
 import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
@@ -17,26 +21,23 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
  * Adapter that can handle displaying a dismissable notification card as a header, footer or both.
  */
 abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: BaseRecyclerView, showHeader: Boolean, showFooter: Boolean, private val _prefs: SharedPreferences) : SortedRecyclerAdapter<T>(clazz, recyclerView) {
-    var isHeaderVisible = false
-        private set
-    var isFooterVisible = false
-        private set
-    private var _headerCard: NotificationCard? = null
-    private var _footerCard: NotificationCard? = null
-
-    init {
-        isHeaderVisible = showHeader
-        isFooterVisible = showFooter
-        RxBusDriver.rxBusObservable().subscribe(busObserver)
-    }
-
-    val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-        override fun next(event: Any?) {
+        override fun next(event: Any) {
             if (event is NotificationCardDismissEvent) {
                 removeNotificationCard(_prefs, event)
             }
         }
+    }
+    private var headerCard: NotificationCard? = null
+    private var footerCard: NotificationCard? = null
+    var isHeaderVisible = showHeader
+        private set
+    var isFooterVisible = showFooter
+        private set
+
+    init {
+        rxBusObservable().subscribe(busObserver)
     }
 
     fun removeNotificationCard(prefs: SharedPreferences, event: NotificationCardDismissEvent) {
@@ -52,8 +53,8 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
         }
     }
 
-    fun bindHeaderViewData(holder: HeaderViewHolder, cardType: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
-        _headerCard = cardType
+    internal fun bindHeaderViewData(holder: HeaderViewHolder, cardType: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
+        headerCard = cardType
         if (isHeaderVisible) {
             holder.notificationCard.createNotificationCard(this, holder, cardType, showDismiss, showAction)
         } else {
@@ -61,9 +62,9 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
         }
     }
 
-    fun bindFooterViewData(holder: FooterViewHolder, cardType: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
+    internal fun bindFooterViewData(holder: FooterViewHolder, cardType: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
         if (isFooterVisible) {
-            _footerCard = cardType
+            footerCard = cardType
             holder.notificationCard.createNotificationCard(this, holder, cardType, showDismiss, showAction)
         } else {
             holder.view.visibility = GONE
@@ -71,15 +72,21 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        if (viewType == TYPE_HEADER) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
-            return HeaderViewHolder.newInstance(view, null)
-        } else if (viewType == TYPE_FOOTER) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
-            return FooterViewHolder.newInstance(view, null)
-        } else {
-            return onCreateItemViewHolder(parent, viewType)
+        when (viewType) {
+            TYPE_HEADER -> return headerViewHolder(parent)
+            TYPE_FOOTER -> return footerViewHolder(parent)
+            else -> return onCreateItemViewHolder(parent, viewType)
         }
+    }
+
+    private fun footerViewHolder(parent: ViewGroup): FooterViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
+        return FooterViewHolder(view, null)
+    }
+
+    private fun headerViewHolder(parent: ViewGroup): HeaderViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
+        return HeaderViewHolder(view, null)
     }
 
     override fun getItemCount(): Int = totalItemCount
@@ -129,11 +136,11 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
     }
 
     override fun beforeDataSetChanged(position: Int, count: Int) {
-        if (_headerCard != null) {
-            isHeaderVisible = !_prefs.getBoolean(_headerCard!!.key, false)
+        if (headerCard != null) {
+            isHeaderVisible = !_prefs.getBoolean(headerCard!!.key, false)
         }
-        if (_footerCard != null) {
-            isFooterVisible = !_prefs.getBoolean(_footerCard!!.key, false)
+        if (footerCard != null) {
+            isFooterVisible = !_prefs.getBoolean(footerCard!!.key, false)
         }
     }
 
@@ -170,68 +177,25 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
     /**
      * ViewHolder for the lists header.
      */
-    class HeaderViewHolder
-    /**
-     * Constructor for the HeaderViewHolder.
-     * @param view              the inflated view
-     * @param itemClickListener click listener for this view
-     */
-    private constructor(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
-        companion object {
-
-            /**
-             * Create a new Instance of the ViewHolder.
-             * @param view              inflated in [RecyclerView.Adapter.onCreateViewHolder]
-             * @param itemClickListener click listener for this view
-             * @return a ViewHolder instance
-             */
-            fun newInstance(view: View, itemClickListener: BaseViewHolder.ItemClickListener?): HeaderViewHolder {
-                return HeaderViewHolder(view, itemClickListener)
-            }
-        }
+    internal final class HeaderViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
     }
 
     /**
      * ViewHolder for the lists footer.
      */
-    class FooterViewHolder
-    /**
-     * Constructor for the FooterViewHolder.
-     * @param view              the inflated view
-     * @param itemClickListener click listener for this view
-     */
-    private constructor(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
-        companion object {
-
-            /**
-             * Create a new Instance of the ViewHolder.
-             * @param view              inflated in [RecyclerView.Adapter.onCreateViewHolder]
-             * @param itemClickListener click listener for this view
-             * @return a ViewHolder instance
-             */
-            fun newInstance(view: View, itemClickListener: BaseViewHolder.ItemClickListener?): FooterViewHolder {
-                return FooterViewHolder(view, itemClickListener)
-            }
-        }
+    internal final class FooterViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
     }
 
     /**
      * ViewHolder for switching on type.
      */
-    open class NotificationViewHolder
-    /**
-     * Constructor for the ViewHolder.
-     * @param view              the inflated view
-     * @param itemClickListener click listener for this view
-     */
-    constructor(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : BaseViewHolder(view, itemClickListener) {
-        val notificationCard: DismissibleNotificationCard by bindView(R.id.adapter_dismissible_notification_card)
-    }
+    open class NotificationViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : BaseViewHolder(view, itemClickListener) {
+        companion object {
+            val TYPE_HEADER = 0
+            val TYPE_LIST_ITEM = 1
+            val TYPE_FOOTER = 2
+        }
 
-    companion object {
-        val TYPE_HEADER = 0
-        val TYPE_LIST_ITEM = 1
-        val TYPE_FOOTER = 2
+        val notificationCard: DismissibleNotificationCard by bindView(adapter_dismissible_notification_card)
     }
-
 }

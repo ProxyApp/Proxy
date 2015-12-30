@@ -16,11 +16,35 @@ import java.util.*
 /**
  * Add a new channel to groups after its made.
  */
-class SaveGroupChannelAdapter
-private constructor(recyclerView: BaseRecyclerView, groupToggles: ArrayList<GroupToggle>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
+class SaveGroupChannelAdapter(recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
     private val publicGroup = GroupToggle(GroupFactory.createPublicGroup(), false)
+    internal val dataArray: ArrayList<GroupToggle> get() {
+        val groups = data
+        if (!groups.isEmpty()) {
+            groups.remove(publicGroup)
+        }
+        return groups
+    }
+
+    internal val isAnyItemChecked: Boolean get() {
+        val groups = data
+        for (group in groups) {
+            if (group.isChecked) {
+                return true
+            }
+        }
+        return false
+    }
+
+    //public should always be the last item
+    val isPublicChecked: Boolean get() = lastItem.isChecked
 
     init {
+        val groupToggles : ArrayList<GroupToggle> = ArrayList(groups.size)
+        for (group in groups.entries) {
+            val newEntry = GroupToggle(group.value, false)
+            groupToggles.add(newEntry)
+        }
         groupToggles.add(publicGroup)
         refreshGroupToggleData(groupToggles)
     }
@@ -31,7 +55,7 @@ private constructor(recyclerView: BaseRecyclerView, groupToggles: ArrayList<Grou
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_user_groups_checklist, parent, false)
-        return ContentViewHolder.newInstance(view, this)
+        return ContentViewHolder(view, this)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
@@ -69,51 +93,11 @@ private constructor(recyclerView: BaseRecyclerView, groupToggles: ArrayList<Grou
         group.isChecked = text.isChecked
     }
 
-    val dataArray: ArrayList<GroupToggle> get() {
-        val groups = data
-        if (!groups.isEmpty()) {
-            groups.remove(publicGroup)
-        }
-        return groups
-    }
-
-    val isAnyItemChecked: Boolean get() {
-        val groups = data
-        for (group in groups) {
-            if (group.isChecked) {
-                return true
-            }
-        }
-        return false
-    }
-
-    //public should always be the last item
-    val isPublicChecked: Boolean
-        get() = lastItem.isChecked
-
     /**
      * ViewHolder for the entered [Group] data.
      * @param view the inflated view
      */
-    internal class ContentViewHolder
-    private constructor(view: View, listener: ItemClickListener) : BaseViewHolder(view, listener) {
+    private final class ContentViewHolder(view: View, listener: ItemClickListener) : BaseViewHolder(view, listener) {
         val checkedTextView: CheckedTextView by bindView(R.id.adapter_user_groups_textview)
-
-        companion object {
-            fun newInstance(view: View, listener: ItemClickListener): ContentViewHolder {
-                return ContentViewHolder(view, listener)
-            }
-        }
-    }
-
-    companion object {
-        fun newInstance(recyclerView: BaseRecyclerView, groups: HashMap<String, Group>): SaveGroupChannelAdapter {
-            val groupToggles = ArrayList<GroupToggle>(groups.size)
-            for (group in groups.entries) {
-                val newEntry = GroupToggle(group.value, false)
-                groupToggles.add(newEntry)
-            }
-            return SaveGroupChannelAdapter(recyclerView, groupToggles)
-        }
     }
 }

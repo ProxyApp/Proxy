@@ -71,7 +71,7 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
 
     private val busObserver: JustObserver<Any>get() = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-        override fun next(event: Any?) {
+        override fun next(event: Any) {
             when (event) {
                 event is BaseCommand -> baseCommandEvent(event as BaseCommand)
                 event is UserContactAddedEventCallback -> userContactAddedEvent(event as UserContactAddedEventCallback)
@@ -149,9 +149,9 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     fun intervalObserver(notificationService: INotificationService): JustObserver<Long> {
         return object : JustObserver<Long>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(timesCalled: Long?) {
+            override fun next(timesCalled: Long) {
                 val currentUser = app.currentUser
-                Timber.i("Checking for notifications, attempt: ${timesCalled!!.toInt()}")
+                Timber.i("Checking for notifications, attempt: ${timesCalled.toInt()}")
                 try {
                     val notifications = notificationService.getNotifications(currentUser.id)
                     if (notifications != null && notifications.size > 0) {
