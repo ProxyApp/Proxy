@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import com.shareyourproxy.R
 import com.shareyourproxy.R.layout.fragment_about
 import com.shareyourproxy.R.string.about
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Show an Apache II License for this project.
  */
-class AboutFragment : BaseFragment() {
+class AboutFragment() : BaseFragment() {
     private val toolbar: Toolbar by bindView(R.id.fragment_about_toolbar)
     private val title: String by bindString(about)
 

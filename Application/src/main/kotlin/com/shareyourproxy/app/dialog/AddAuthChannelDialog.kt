@@ -28,9 +28,9 @@ import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindView
 
 /**
  * Add a channel that requires OAuth.

@@ -4,6 +4,9 @@ import android.Manifest
 import android.os.Bundle
 import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.ConnectionResult.API_UNAVAILABLE
+import com.google.android.gms.common.ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.SignInButton.COLOR_DARK
 import com.google.android.gms.common.SignInButton.SIZE_WIDE
@@ -13,6 +16,7 @@ import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchIntroductionActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
+import com.shareyourproxy.R.string.login_error_update_play_service
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
@@ -26,57 +30,27 @@ import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import com.tbruyelle.rxpermissions.RxPermissions
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
+import timber.log.Timber
 import java.util.*
 
 
 /**
  * Log in with a google plus account.
  */
-object LoginActivity : GoogleApiActivity() {
+private final class LoginActivity : GoogleApiActivity() {
 
     private val analytics = RxGoogleAnalytics(this)
     private val proxyLogo: TextView by bindView(R.id.activity_login_title)
     private val signInButton: SignInButton by bindView(R.id.activity_login_sign_in_button)
     private val svgUltraMinor: Int  by bindDimen(R.dimen.common_svg_ultra_minor)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
-
-    public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
-        initialize()
-    }
-
-    private fun initialize() {
-        initializeValues()
-        drawLogo()
-    }
-
-    private fun initializeValues() {
-        signInButton.setStyle(SIZE_WIDE, COLOR_DARK)
-        signInButton.isEnabled = true
-        signInButton.onClick { oldSignInToGoogle() }
-    }
-
-    /**
-     * Set the Logo image.drawable on this activities [ImageView].
-     */
-    private fun drawLogo() {
-        val draw = svgToBitmapDrawable(this, R.raw.ic_proxy_logo_typed, svgUltraMinor)
-        proxyLogo.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null)
-    }
-
-    public override fun onResume() {
-        super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
-    }
-
-    val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SyncAllContactsSuccessEvent || event is SyncAllContactsErrorEvent) {
@@ -90,18 +64,95 @@ object LoginActivity : GoogleApiActivity() {
         }
     }
 
-    fun login() {
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
+        initialize()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        subscriptions.unsubscribe()
+    }
+
+    override fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
+        if (acct != null) {
+            getUserFromFirebase(acct)
+        } else {
+            GoogleApiActivity.showErrorDialog(this, getString(R.string.login_error_retrieving_user))
+            signInButton.isEnabled = true
+        }
+    }
+
+    override fun onGooglePlusError(status: Status) {
+        GoogleApiActivity.showErrorDialog(this, status.toString())
+        signInButton.isEnabled = true
+    }
+
+    override fun onConnected(bundle: Bundle?) {
+        super.onConnected(bundle)
+        getAccountsPermission();
+    }
+
+    /**
+     * onConnectionFailed is called when our Activity could not connect to Google Play services. onConnectionFailed indicates that the user needs to select an
+     * account, grant permissions or resolve an onError in order to sign in.
+     */
+    override fun onConnectionFailed(result: ConnectionResult) {
+        // Refer to the javadoc for ConnectionResult to see what onError codes might
+        // be returned in onConnectionFailed.
+        Timber.i("onConnectionFailed, Error Code = ${result.errorCode}")
+        when (result.errorCode) {
+            API_UNAVAILABLE -> apiUnavailable()
+            SERVICE_VERSION_UPDATE_REQUIRED -> updateServiceVersion()
+            else -> resolveSignInError(result.resolution);
+        }
+
+    }
+
+    private fun updateServiceVersion() {
+        showErrorDialog(this, getString(login_error_update_play_service))
+        signInButton.isEnabled = true
+    }
+
+    private fun apiUnavailable() {
+        val error = getString(R.string.login_error_api_unavailable)
+        Timber.w(error)
+        showErrorDialog(this, error)
+        signInButton.isEnabled = true
+    }
+
+    private fun initialize() {
+        initializeValues()
+        drawLogo()
+    }
+
+    /**
+     * Set the Logo image.drawable on this activities [ImageView].
+     */
+    private fun drawLogo() {
+        val draw = svgToBitmapDrawable(this, R.raw.ic_proxy_logo_typed, svgUltraMinor)
+        proxyLogo.setCompoundDrawablesWithIntrinsicBounds(null, draw, null, null)
+    }
+
+    private fun initializeValues() {
+        signInButton.setStyle(SIZE_WIDE, COLOR_DARK)
+        signInButton.isEnabled = true
+        signInButton.onClick { connectGoogleApiClient() }
+    }
+
+    private fun login() {
         if (sharedPreferences.getBoolean(KEY_PLAY_INTRODUCTION, true)) {
             launchIntroductionActivity(this)
         } else {
             launchMainActivity(this, AggregateFeedFragment.ARG_SELECT_PROFILE_TAB, false, null)
         }
         finish()
-    }
-
-    public override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
     }
 
     /**
@@ -123,7 +174,7 @@ object LoginActivity : GoogleApiActivity() {
         return object : JustObserver<User>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(user: User) {
-                if (user == null) {
+                if (user == User()) {
                     addUserToDatabase(createUserFromGoogle(acct))
                 } else {
                     RxHelper.updateRealmUser(activity, user)
@@ -157,32 +208,13 @@ object LoginActivity : GoogleApiActivity() {
         analytics.userAdded(newUser)
     }
 
-    override fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
-        if (acct != null) {
-            getUserFromFirebase(acct)
-        } else {
-            GoogleApiActivity.showErrorDialog(this, getString(R.string.login_error_retrieving_user))
-            signInButton.isEnabled = true
-        }
-    }
-
-    override fun onGooglePlusError(status: Status) {
-        GoogleApiActivity.showErrorDialog(this, status.toString())
-        signInButton.isEnabled = true
-    }
-
-    override fun onConnected(bundle: Bundle?) {
-        super.onConnected(bundle)
-        getAccountsPermission();
-    }
-
     private fun getAccountsPermission() {
         RxPermissions.getInstance(this)
                 .request(Manifest.permission.GET_ACCOUNTS)
-                .subscribe(object :JustObserver<Boolean>(){
+                .subscribe(object : JustObserver<Boolean>() {
                     override fun next(t: Boolean) {
-                        if(t){
-
+                        if (t) {
+                            oldSignInToGoogle()
                         }
                     }
                 });

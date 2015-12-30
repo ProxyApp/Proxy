@@ -29,12 +29,12 @@ import com.shareyourproxy.R.dimen.common_svg_null_screen_mini
 import com.shareyourproxy.R.layout.fragment_search
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers
-import com.shareyourproxy.api.rx.RxTextWatcherSubject
 import com.shareyourproxy.api.rx.RxTextWatcherSubject.post
+import com.shareyourproxy.api.rx.RxTextWatcherSubject.textWatcherObserverable
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.api.rx.event.TextViewEditorActionEvent
@@ -45,8 +45,13 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.SearchUserAdapter
 import com.shareyourproxy.app.adapter.SearchUserAdapter.UserViewHolder
-import com.shareyourproxy.util.*
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindColorStateList
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindInt
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
+import com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.CustomEditText
 import org.jetbrains.anko.onClick
@@ -59,7 +64,7 @@ import java.util.*
 /**
  * Search for [User]s.
  */
-class SearchFragment : BaseFragment(), ItemClickListener {
+class SearchFragment() : BaseFragment(), ItemClickListener {
 
     private val imageViewBackButton: ImageView by bindView(R.id.fragment_search_back_button)
     private val editText: CustomEditText by bindView(R.id.fragment_search_edittext)
@@ -205,11 +210,11 @@ class SearchFragment : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent))
-        subscriptions.add(RxTextWatcherSubject.toObserverable().compose(observeMain<String>()).subscribe(getUsersObserver))
+        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
+        subscriptions.add(textWatcherObserverable().compose(observeMain<String>()).subscribe(getUsersObserver))
         //search entered text
         post(editText.text.toString().trim { it <= ' ' })
-        ViewUtils.showSoftwareKeyboard(editText)
+        showSoftwareKeyboard(editText)
     }
 
     override fun onPause() {

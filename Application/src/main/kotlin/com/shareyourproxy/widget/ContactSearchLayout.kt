@@ -20,8 +20,8 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.drawable.selector_contactsearchlayout
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
-import com.shareyourproxy.util.bindView
 
 
 /**

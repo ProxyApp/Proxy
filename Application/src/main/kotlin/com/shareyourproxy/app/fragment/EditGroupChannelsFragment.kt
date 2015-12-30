@@ -22,13 +22,13 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter.Companion.TYPE_LIST_DELETE_FOOTER
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 import timber.log.Timber
 
 /**
  * Display a list of [Group] [Channel]s and whether they are in our out of the selected groups permissions.
  */
-class EditGroupChannelsFragment : BaseFragment(), ItemClickListener {
+class EditGroupChannelsFragment() : BaseFragment(), ItemClickListener {
 
     /**
      * Check whether this fragment is Adding a group, Editing a group, or a Public group.

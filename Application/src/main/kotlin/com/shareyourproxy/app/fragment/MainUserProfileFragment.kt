@@ -19,10 +19,10 @@ import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.ShareLinkDialog
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 

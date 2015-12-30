@@ -16,7 +16,7 @@ import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem.*
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 import java.util.Arrays.asList
 
 /**

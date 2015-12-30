@@ -10,9 +10,9 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_introduction_second_imageview
 import com.shareyourproxy.R.id.fragment_introduction_second_textview
 import com.shareyourproxy.R.raw.ic_guide_activity_slide2
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Second introduction slide content.

@@ -11,7 +11,7 @@ import timber.log.Timber
 /**
  * Display an [AboutFragment] that has an Apache II license for this project.
  */
-object AboutActivity : BaseActivity() {
+private final class AboutActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

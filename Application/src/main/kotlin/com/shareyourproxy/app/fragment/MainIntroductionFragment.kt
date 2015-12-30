@@ -21,11 +21,11 @@ import com.shareyourproxy.R.dimen.common_svg_large
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.raw.ic_chevron_right
 import com.shareyourproxy.app.fragment.AggregateFeedFragment.Companion.ARG_SELECT_PROFILE_TAB
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindColorStateList
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindColorStateList
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import com.viewpagerindicator.CirclePageIndicator
 import org.jetbrains.anko.onClick
 import java.util.Arrays.asList
@@ -33,7 +33,7 @@ import java.util.Arrays.asList
 /**
  * The main introduction fragment.
  */
-class MainIntroductionFragment : BaseFragment() {
+class MainIntroductionFragment() : BaseFragment() {
     private val viewPager: ViewPager by bindView(fragment_introduction_main_viewpager)
     private val pageIndicator: CirclePageIndicator by bindView(fragment_introduction_main_pageindicator)
     private val floatingActionButton: FloatingActionButton by bindView(fragment_introduction_main_fab)

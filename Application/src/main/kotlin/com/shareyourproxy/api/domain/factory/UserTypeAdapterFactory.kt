@@ -3,7 +3,7 @@ package com.shareyourproxy.api.domain.factory
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.util.ObjectUtils.buildFullName
+import com.shareyourproxy.util.StringUtils.buildFullName
 
 /**
  * Created by Evan on 11/3/15.

@@ -42,10 +42,10 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.UserContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
@@ -53,7 +53,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * A recyclerView of Favorite [User]s.
  */
-class MainContactsFragment : BaseFragment(), ItemClickListener {
+class MainContactsFragment() : BaseFragment(), ItemClickListener {
     private val recyclerView: BaseRecyclerView by bindView(fragment_contact_main_recyclerview)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_contact_main_swipe_refresh)
     private val emptyTextView: TextView by bindView(fragment_contact_main_empty_textview)

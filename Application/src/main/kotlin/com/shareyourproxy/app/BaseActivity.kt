@@ -87,9 +87,9 @@ abstract class BaseActivity : AppCompatActivity() {
     val sharedPreferences: SharedPreferences
         get() = (application as ProxyApplication).sharedPreferences
 
-    val sharedPrefJsonUser: User?
+    val sharedPrefJsonUser: User
         get() {
-            var user: User? = null
+            var user: User = User()
             val jsonUser = sharedPreferences.getString(Constants.KEY_LOGGED_IN_USER, null)
             val gson = GsonBuilder().create()
             try {

@@ -24,8 +24,8 @@ import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PUBLIC_GROUPS
 import timber.log.Timber

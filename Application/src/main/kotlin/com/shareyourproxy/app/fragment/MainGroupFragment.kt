@@ -42,10 +42,10 @@ import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.*
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupAdapter
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
@@ -54,7 +54,7 @@ import java.util.*
 /**
  * Displaying a list of [User] [Group]s.
  */
-class MainGroupFragment : BaseFragment(), ItemClickListener {
+class MainGroupFragment() : BaseFragment(), ItemClickListener {
     private val coordinatorLayout: CoordinatorLayout by bindView(R.id.fragment_group_main_coordinator)
     private val recyclerView: BaseRecyclerView by bindView(fragment_group_main_recyclerview)
     private val floatingActionButton: FloatingActionButton by bindView(fragment_group_main_fab)

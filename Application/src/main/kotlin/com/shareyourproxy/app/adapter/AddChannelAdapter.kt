@@ -12,8 +12,8 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
-import com.shareyourproxy.util.ObjectUtils.capitalize
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.StringUtils.capitalize
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.CUSTOM_URL
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SAFE_INFO

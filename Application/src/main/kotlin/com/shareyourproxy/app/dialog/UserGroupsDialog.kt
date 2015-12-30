@@ -23,8 +23,8 @@ import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.UserGroupsAdapter
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
 import java.util.*
 

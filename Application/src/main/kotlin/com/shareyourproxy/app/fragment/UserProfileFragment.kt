@@ -75,13 +75,13 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCa
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
@@ -89,7 +89,7 @@ import timber.log.Timber
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User Contact's to be added to be observed and added to groups logged
  * in user groups.
  */
-abstract class UserProfileFragment : BaseFragment() {
+abstract class UserProfileFragment() : BaseFragment() {
     private val appBarLayout: AppBarLayout by bindView(fragment_user_profile_appbar)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_user_profile_swiperefresh)
     private val coordinatorLayout: CoordinatorLayout by bindView(fragment_user_profile_coordinator_layout)

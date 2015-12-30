@@ -35,18 +35,18 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
-import com.shareyourproxy.util.ObjectUtils.capitalize
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.StringUtils.capitalize
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
 /**
  * Display the [User] contacts added to the selected [Group].
  */
-class GroupContactsFragment : BaseFragment(), ItemClickListener {
+class GroupContactsFragment() : BaseFragment(), ItemClickListener {
     /**
      * Get the group selected and bundled in this activities [IntentLauncher.launchEditGroupContactsActivity] call.
      * @return selected group

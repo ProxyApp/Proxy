@@ -41,11 +41,11 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.EditChannelDialog
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
 import rx.subscriptions.CompositeSubscription
 import java.util.*

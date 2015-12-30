@@ -1,7 +1,10 @@
 package com.shareyourproxy.app
 
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -25,20 +28,25 @@ import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxLoginHelper.refreshGooglePlusToken
 import com.shareyourproxy.app.dialog.ErrorDialog
-import com.shareyourproxy.util.ObjectUtils
+import com.shareyourproxy.util.StringUtils
+import timber.log.Timber
 import java.util.*
-import kotlin.reflect.KProperty
 
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private val googleApiClient: GoogleApiClient by lazy {}
-    operator fun Any.getValue(activity: GoogleApiActivity, property: KProperty<*>): GoogleApiClient {
-        return buildOldGoogleApiClient(activity)
+    private  val googleApiClient: GoogleApiClient get() = buildOldGoogleApiClient(this)
+
+    protected fun connectGoogleApiClient() {
+        when{
+            googleApiClient.isConnected -> onConnected(null)
+            googleApiClient.isConnecting ->{}
+            else -> googleApiClient.connect()
+        }
     }
 
-    open fun onGooglePlusTokenGen(acct: GoogleSignInAccount?) {
+    open fun onOldGooglePlusTokenGen(acct: GoogleSignInAccount?) {
     }
 
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
@@ -72,7 +80,7 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
         val userId = StringBuilder(GOOGLE_UID_PREFIX).append(id).toString()
         val firstName = currentUser.name.givenName
         val lastName = currentUser.name.familyName
-        val fullName = ObjectUtils.buildFullName(firstName, lastName)
+        val fullName = StringUtils.buildFullName(firstName, lastName)
         val email = acct.email
         val profileURL = acct.photoUrl.toString()
         val cover = currentUser.cover
@@ -112,26 +120,44 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
         //nada
     }
 
-    override fun onConnectionFailed(connectionResult: ConnectionResult) {
+    override fun onConnectionFailed(result: ConnectionResult) {
         //nada
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_NEW_SIGN_IN) {
-            val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result.isSuccess) {
-                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode)
-                onGooglePlusSignIn(result.signInAccount)
-            } else {
-                onGooglePlusError(result.status)
-            }
+        when(requestCode){
+            RC_NEW_SIGN_IN -> rcNewSignIn(data)
+        }
+    }
+
+    /**
+     * Starts an appropriate intent or dialog for user interaction to resolve the current onError preventing the user from being signed in.  This could be a
+     * dialog allowing the user to select an account, an activity allowing the user to consent to the permissions being requested by your app, a setting to
+     * enable device networking, etc.
+     */
+    protected  fun resolveSignInError(_signInIntent : PendingIntent) {
+        try {
+            startIntentSenderForResult(_signInIntent.intentSender, RC_SIGN_IN, null, 0, 0, 0);
+        } catch (e: IntentSender.SendIntentException) {
+            Timber.i("Sign in intent could not be sent: ${Log.getStackTraceString(e)}")
+            connectGoogleApiClient()
+        }
+    }
+
+    private fun rcNewSignIn(data: Intent) {
+        val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+        if (result.isSuccess) {
+            sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode)
+            onGooglePlusSignIn(result.signInAccount)
+        } else {
+            onGooglePlusError(result.status)
         }
     }
 
     companion object {
         val GOOGLE_UID_PREFIX = "google:"
-        private val RC_SIGN_IN = 0
+        val RC_SIGN_IN = 0
         private val RC_NEW_SIGN_IN = 1
         private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(BuildConfig.GOOGLE_CLIENT_ID).requestEmail().build()
         /**

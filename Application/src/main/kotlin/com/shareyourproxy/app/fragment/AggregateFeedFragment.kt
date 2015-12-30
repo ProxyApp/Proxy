@@ -22,11 +22,11 @@ import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusDriver
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.ContactSearchLayout
 import com.shareyourproxy.widget.ContentDescriptionDrawable
 import rx.subscriptions.CompositeSubscription
@@ -35,7 +35,7 @@ import java.util.Arrays.asList
 /**
  * Add a [MainContactsFragment] and [MainGroupFragment] to this fragment's [AggregateFeedFragment.slidingTabLayout].
  */
-class AggregateFeedFragment : BaseFragment() {
+class AggregateFeedFragment() : BaseFragment() {
     companion object {
         val ARG_SELECT_PROFILE_TAB = 0
         val ARG_SELECT_CONTACTS_TAB = 1

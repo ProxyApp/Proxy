@@ -25,8 +25,8 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.GenerateShareLinkCommand
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.ShareLinkAdapter
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
 import java.util.*
 

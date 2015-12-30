@@ -28,9 +28,9 @@ import com.shareyourproxy.api.rx.command.AddGroupsChannelCommand
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
 
 

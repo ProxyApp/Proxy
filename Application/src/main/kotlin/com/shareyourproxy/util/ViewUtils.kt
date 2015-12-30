@@ -35,12 +35,11 @@ import timber.log.Timber
  * Utility class for view functions.
  */
 object ViewUtils {
-
     /**
      * Hide software keyboard.
      * @param view View to open keyboard for.
      */
-    fun hideSoftwareKeyboard(view: View) {
+    internal fun hideSoftwareKeyboard(view: View) {
         val manager = view.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         manager.hideSoftInputFromWindow(view.windowToken, 0)
     }
@@ -49,10 +48,10 @@ object ViewUtils {
      * Show software keyboard.
      * @param view View to open keyboard for.
      */
-    fun showSoftwareKeyboard(view: View) {
+    internal fun showSoftwareKeyboard(view: View) {
         val manager = view.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-            manager.showSoftInput(view, 0)
+        manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+        manager.showSoftInput(view, 0)
     }
 
     /**
@@ -61,7 +60,7 @@ object ViewUtils {
      * @param dp  dimension resource int. @BindDimen
      * @return float pixel size value
      */
-    fun dpToPx(res: Resources, dp: Int): Int {
+    internal fun dpToPx(res: Resources, dp: Int): Int {
         return (dp / res.displayMetrics.density).toInt()
     }
 
@@ -70,7 +69,7 @@ object ViewUtils {
      * @param source Bitmap to alpha
      * @return the circular bitmap resource
      */
-    fun getAlphaBitmapImage(source: Bitmap): Bitmap {
+    internal fun getAlphaBitmapImage(source: Bitmap): Bitmap {
         val width = source.width
         val height = source.height
         val bitmap = Bitmap.createBitmap(width, height, source.config)
@@ -87,7 +86,7 @@ object ViewUtils {
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
-    @JvmOverloads fun getCircularBitmapImage(source: Bitmap, backgroundColor: Int = Color.TRANSPARENT): Bitmap {
+    internal fun getCircularBitmapImage(source: Bitmap, backgroundColor: Int = Color.TRANSPARENT): Bitmap {
         val size = Math.min(source.width, source.height)
 
         val x = (source.width - size) / 2
@@ -131,7 +130,7 @@ object ViewUtils {
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
-    fun getCircularDrawableImage(
+    internal fun getCircularDrawableImage(
             context: Context, resourceId: Int, channelType: ChannelType, backgroundColor: Int): Drawable {
         val background = ShapeDrawable(OvalShape())
         background.setColorFilter(backgroundColor, SRC)
@@ -157,7 +156,7 @@ object ViewUtils {
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
-    fun getCircularDrawableImage(
+    internal fun getCircularDrawableImage(
             context: Context, source: Drawable, backgroundColor: Int): Drawable {
         val background = ShapeDrawable(OvalShape())
         background.setColorFilter(backgroundColor, SRC)
@@ -178,7 +177,7 @@ object ViewUtils {
      * @param color  of tint
      * @return unwrapped tinted image.drawable
      */
-    fun tintDrawableCompat(source: Drawable, color: Int): Drawable {
+    internal fun tintDrawableCompat(source: Drawable, color: Int): Drawable {
         val drawable = DrawableCompat.wrap(source)
         DrawableCompat.setTint(drawable, color)
         DrawableCompat.setTintMode(drawable, SRC_IN)
@@ -192,7 +191,7 @@ object ViewUtils {
      * @param size       desired size of the icon
      * @return parsed image.drawable
      */
-    fun svgToBitmapDrawable(context: Context, resourceId: Int, size: Int): Drawable {
+    internal fun svgToBitmapDrawable(context: Context, resourceId: Int, size: Int): Drawable {
         return svgToBitmapDrawable(context, resourceId, size, null)
     }
 
@@ -204,7 +203,7 @@ object ViewUtils {
      * @param color      desired color of the icon
      * @return parsed image.drawable
      */
-    fun svgToBitmapDrawable(
+    internal fun svgToBitmapDrawable(
             context: Context, resourceId: Int, size: Int, color: Int?): ContentDescriptionDrawable {
         val res = context.resources
         val dm = res.displayMetrics
@@ -234,7 +233,7 @@ object ViewUtils {
      * @param resId icon resource id
      * @return menu icon image.drawable
      */
-    fun getMenuIconDark(context: Context, resId: Int): ContentDescriptionDrawable {
+    internal fun getMenuIconDark(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
         val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
         return svgToBitmapDrawable(context, resId, size,
@@ -246,7 +245,7 @@ object ViewUtils {
      * @param resId icon resource id
      * @return menu icon image.drawable
      */
-    fun getMenuIcon(context: Context, resId: Int): ContentDescriptionDrawable {
+    internal fun getMenuIcon(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
         val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
         return svgToBitmapDrawable(context, resId, size,
@@ -258,24 +257,24 @@ object ViewUtils {
      * @param resId icon resource id
      * @return menu icon image.drawable
      */
-    fun getMenuIconSecondary(context: Context, resId: Int): ContentDescriptionDrawable {
+    internal fun getMenuIconSecondary(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
         val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
         return svgToBitmapDrawable(context, resId, size,
                 getColor(context, R.color.common_text_secondary_inverse))
     }
 
-    fun getUserImageHierarchyNoFade(context: Context): GenericDraweeHierarchy {
+    internal fun getUserImageHierarchyNoFade(context: Context): GenericDraweeHierarchy {
         val placeHolder = getDrawable(context, R.mipmap.ic_proxy)
         return GenericDraweeHierarchyBuilder(context.resources).setRoundingParams(asCircle()).setFailureImage(placeHolder, FIT_CENTER).setActualImageScaleType(FIT_CENTER).build()
     }
 
-    fun getUserImageHierarchy(context: Context): GenericDraweeHierarchy {
+    internal fun getUserImageHierarchy(context: Context): GenericDraweeHierarchy {
         val placeHolder = getDrawable(context, R.mipmap.ic_proxy)
         return GenericDraweeHierarchyBuilder(context.resources).setFadeDuration(300).setRoundingParams(asCircle()).setPlaceholderImage(placeHolder, FIT_CENTER).setFailureImage(placeHolder, FIT_CENTER).setActualImageScaleType(FIT_CENTER).build()
     }
 
-    fun getAlphaOverlayHierarchy(
+    internal fun getAlphaOverlayHierarchy(
             viewGroup: View, res: Resources): GenericDraweeHierarchy {
         val alphaDrawable = ShapeDrawable(RectShape())
         val lp = viewGroup.layoutParams
@@ -284,5 +283,4 @@ object ViewUtils {
         alphaDrawable.paint.setARGB(40, 0, 0, 0)
         return GenericDraweeHierarchyBuilder(res).setOverlay(alphaDrawable).setBackground(ColorDrawable(Color.GRAY)).setActualImageScaleType(CENTER_CROP).build()
     }
-
 }

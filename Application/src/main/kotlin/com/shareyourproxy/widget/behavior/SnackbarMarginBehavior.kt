@@ -18,7 +18,7 @@ import android.view.animation.Interpolator
  * Behavior for App bar layout.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class SnackbarMarginBehavior constructor(context: Context, attrs: AttributeSet) : AppBarLayout.ScrollingViewBehavior() {
+final class SnackbarMarginBehavior(context: Context, attrs: AttributeSet) : AppBarLayout.ScrollingViewBehavior() {
     private val animationInterpolator: Interpolator = FastOutSlowInInterpolator()
     private var viewTranslationY: Float = 0F
 

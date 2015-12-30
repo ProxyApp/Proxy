@@ -13,7 +13,7 @@ import timber.log.Timber
 /**
  * Activity that handles displaying a [User] profile.
  */
-object UserContactActivity : BaseActivity() {
+final class UserContactActivity : BaseActivity() {
     private val userExtra: User get() = intent.extras.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
 
     override fun onBackPressed() {

@@ -11,8 +11,8 @@ import com.facebook.drawee.view.SimpleDraweeView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
-import com.shareyourproxy.util.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
 import java.util.*
 

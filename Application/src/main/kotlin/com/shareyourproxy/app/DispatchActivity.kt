@@ -18,7 +18,7 @@ import rx.subscriptions.CompositeSubscription
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the [AggregateFeedActivity] if we have a cached user or send them to
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
-object DispatchActivity : GoogleApiActivity() {
+private final class DispatchActivity : GoogleApiActivity() {
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")

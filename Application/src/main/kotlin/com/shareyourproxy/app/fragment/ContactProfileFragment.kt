@@ -15,9 +15,9 @@ import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
 import com.shareyourproxy.api.rx.RxQuery.queryContactGroups
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback
 import com.shareyourproxy.app.dialog.UserGroupsDialog
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import java.util.*

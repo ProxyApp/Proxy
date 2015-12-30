@@ -18,16 +18,16 @@ import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.*
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.app.fragment.EditGroupChannelsFragment
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIconSecondary
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
-import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import java.util.*
 
 /**
  * Add and remove newChannel permissions from a group.
  */
-object EditGroupChannelsActivity : BaseActivity() {
+final class EditGroupChannelsActivity : BaseActivity() {
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
     private var subscriptions: CompositeSubscription = CompositeSubscription()
 

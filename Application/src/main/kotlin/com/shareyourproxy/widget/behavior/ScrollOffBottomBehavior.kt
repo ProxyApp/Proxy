@@ -18,7 +18,7 @@ import android.view.animation.Interpolator
  * Behavior for floating aciton buttons.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class ScrollOffBottomBehavior constructor(context: Context, attrs: AttributeSet) : FloatingActionButton.Behavior() {
+final class ScrollOffBottomBehavior(context: Context, attrs: AttributeSet) : FloatingActionButton.Behavior() {
     private val animationInterpolator: Interpolator = FastOutSlowInInterpolator()
     private var fabTranslationY: Float = 0F
     private var viewHeight: Int = 0

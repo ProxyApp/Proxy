@@ -20,17 +20,13 @@ import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import timber.log.Timber
-import kotlin.reflect.KProperty
 
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
 class ProxyApplication : Application() {
     internal var currentUser: User = User()
-    internal val sharedPreferences: SharedPreferences by lazy {}
-    operator fun Any.getValue(proxyApplication: ProxyApplication, property: KProperty<*>): SharedPreferences {
-        return getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
-    }
+    internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
 
     override fun onCreate() {
         super.onCreate()

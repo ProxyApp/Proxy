@@ -14,15 +14,15 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_dispatch_image
 import com.shareyourproxy.R.id.fragment_dispatch_progress
 import com.shareyourproxy.R.raw.ic_doge_channels
+import com.shareyourproxy.util.ButterKnife.bindColorStateList
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindColorStateList
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindView
 
 /**
  * Handle dispatching a [LoginActivity] or a [AggregateFeedActivity] base off the current user.
  */
-class DispatchFragment : BaseFragment() {
+class DispatchFragment() : BaseFragment() {
     private val textView: TextView by bindView(fragment_dispatch_image)
     private val progressBar: ProgressBar by bindView(fragment_dispatch_progress)
     private val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)

@@ -25,14 +25,14 @@ import com.shareyourproxy.api.rx.command.eventcallback.ActivityFeedDownloadedEve
 import com.shareyourproxy.app.adapter.ActivityFeedAdapter
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 
 /**
  * User feeds.
  */
-class UserFeedFragment : BaseFragment(), ItemClickListener {
+class UserFeedFragment() : BaseFragment(), ItemClickListener {
     private val recyclerView: BaseRecyclerView by bindView(fragment_user_feed_recyclerview)
     private val emptyTextView: TextView by bindView(R.id.fragment_user_feed_empty_textview)
     private val loggedInNullTitle: String = getString(fragment_userfeed_empty_title)

@@ -11,7 +11,7 @@ import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Display group contacts.

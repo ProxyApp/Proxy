@@ -1,8 +1,9 @@
 package com.shareyourproxy.api.rx
 
-import android.content.Context
 import android.util.Log
+import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.GoogleAuthUtil.getToken
+import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.plus.Plus
@@ -16,6 +17,7 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
+import com.shareyourproxy.app.GoogleApiActivity
 import rx.Observable
 import rx.Single
 import rx.SingleSubscriber
@@ -90,14 +92,18 @@ object RxLoginHelper {
         }
     }
 
-    fun refreshGooglePlusToken(context: Context, client: GoogleApiClient): Observable<String> {
+    fun refreshGooglePlusToken(activity: GoogleApiActivity, client: GoogleApiClient): Observable<String> {
         return Observable.create { subscriber ->
             var token: String? = null
             try {
                 if (client.isConnected) {
-                    token = getToken(context, Plus.AccountApi.getAccountName(client), "oauth2:%s".format(Scopes.PLUS_LOGIN))
+                    token = getToken(activity, Plus.AccountApi.getAccountName(client), "oauth2:%s".format(Scopes.PLUS_LOGIN))
                 }
             } catch (e: Exception) {
+                subscriber.onError(e)
+            } catch(e: UserRecoverableAuthException) {
+                activity.startActivityForResult(e.intent, GoogleApiActivity.RC_SIGN_IN);
+            } catch (e: GoogleAuthException) {
                 subscriber.onError(e)
             }
 

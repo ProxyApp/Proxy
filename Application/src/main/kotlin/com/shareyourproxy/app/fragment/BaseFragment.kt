@@ -23,10 +23,14 @@ import com.shareyourproxy.util.ViewUtils
  */
 abstract class BaseFragment : Fragment() {
 
-    var loggedInUser: User = (activity as BaseActivity).loggedInUser
-    val sharedPreferences: SharedPreferences = (activity as BaseActivity).sharedPreferences
-    val supportActionBar: ActionBar = (activity as BaseActivity).supportActionBar
-    val sharedPrefJsonUser: User? = (activity as BaseActivity).sharedPrefJsonUser
+    var loggedInUser: User
+        get() = (activity as BaseActivity).loggedInUser
+        set(user: User) {
+            (activity as BaseActivity).loggedInUser = user
+        }
+    val sharedPreferences: SharedPreferences get() = (activity as BaseActivity).sharedPreferences
+    val supportActionBar: ActionBar get() = (activity as BaseActivity).supportActionBar
+    val sharedPrefJsonUser: User get() = (activity as BaseActivity).sharedPrefJsonUser
 
     /**
      * Get a scroll listener that dismisses the software keyboard on scroll.
@@ -46,7 +50,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * Initialize the color sequence of the swipe refresh view.
      */
-    fun initializeSwipeRefresh(swipe: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener) {
+    protected fun initializeSwipeRefresh(swipe: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener) {
         swipe.setOnRefreshListener(listener)
         swipe.setColorSchemeResources(R.color.common_text, R.color.common_blue, R.color.common_green)
     }
@@ -55,15 +59,15 @@ abstract class BaseFragment : Fragment() {
      * Get the logged in user.
      * @return Logged in user
      */
-    fun isLoggedInUser(user: User): Boolean {
+    protected fun isLoggedInUser(user: User): Boolean {
         return (activity as BaseActivity).isLoggedInUser(user)
     }
 
-    fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
+    protected fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
         (activity as BaseActivity).buildToolbar(toolbar, title, icon)
     }
 
-    fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
+    protected fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
         (activity as BaseActivity).buildCustomToolbar(toolbar, customView)
     }
 

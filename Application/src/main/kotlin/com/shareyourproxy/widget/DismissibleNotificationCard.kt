@@ -26,7 +26,8 @@ import com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter
 import com.shareyourproxy.app.adapter.BaseViewHolder
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.HeaderViewHolder
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.*
 
 /**
@@ -40,31 +41,29 @@ class DismissibleNotificationCard : FrameLayout {
     private val imageView: ImageView by bindView(R.id.widget_notification_imageview)
     private val dismissTextView: TextView by bindView(R.id.widget_notification_dismiss_text)
     private val actionTextView: TextView by bindView(R.id.widget_notification_action_text)
-    private val dimenSvgNullSmall: Int = resources.getDimensionPixelSize(R.dimen.common_svg_null_screen_mini);
+    private val dimenSvgNullSmall: Int by bindDimen(R.dimen.common_svg_null_screen_mini);
     private val onClickDismiss: OnClickListener get() = OnClickListener {
         visibility = GONE
         when (notificationCard) {
-            WHOOPS -> {
-            }
             SAFE_INFO,
             SHARE_PROFILE,
             INVITE_FRIENDS,
             CUSTOM_URL,
             PUBLIC_GROUPS,
             MAIN_GROUPS -> post(NotificationCardDismissEvent(adapter as BaseRecyclerViewAdapter, holder as BaseViewHolder, notificationCard, isHeaderOrFooter))
+            else ->{}
         }
     }
 
     private val onClickAction: OnClickListener get() = OnClickListener {
         when (notificationCard) {
-            WHOOPS -> {
-            }
             SAFE_INFO,
             SHARE_PROFILE,
             INVITE_FRIENDS,
             CUSTOM_URL,
             PUBLIC_GROUPS,
             MAIN_GROUPS -> post(NotificationCardActionEvent(adapter as BaseRecyclerViewAdapter, holder as BaseViewHolder, notificationCard, isHeaderOrFooter))
+            else -> {}
         }
     }
     private val isHeaderOrFooter: Boolean get() = holder is HeaderViewHolder
@@ -91,8 +90,7 @@ class DismissibleNotificationCard : FrameLayout {
         initializeCardView(context)
     }
 
-    fun createNotificationCard(
-            adapter: BaseRecyclerViewAdapter, holder: BaseViewHolder, notificationCard: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
+    internal fun createNotificationCard(adapter: BaseRecyclerViewAdapter, holder: BaseViewHolder, notificationCard: NotificationCard, showDismiss: Boolean, showAction: Boolean) {
         this.adapter = adapter
         this.holder = holder
         this.notificationCard = notificationCard

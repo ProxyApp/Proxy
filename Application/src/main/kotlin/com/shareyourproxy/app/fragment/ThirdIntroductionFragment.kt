@@ -13,14 +13,14 @@ import com.shareyourproxy.R.layout.fragment_introduction_third
 import com.shareyourproxy.R.raw.ic_guide_activity_slide3
 import com.shareyourproxy.R.string.slide_three_body
 import com.shareyourproxy.R.string.slide_three_title
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Third introduction slide content.
  */
-class ThirdIntroductionFragment : BaseIntroductionFragment() {
+class ThirdIntroductionFragment() : BaseIntroductionFragment() {
     private val logoSize: Int by bindDimen(common_svg_xxlarge)
     private val introTitle: String by bindString(slide_three_title)
     private val introBody: String by bindString(slide_three_body)

@@ -8,11 +8,11 @@ import rx.subjects.SerializedSubject
 import java.util.concurrent.TimeUnit
 
 /**
- * Created by Evan on 5/21/15.
+ * Subject to watch EditTextViews.
  */
 object RxTextWatcherSubject {
     private val _rxBus = SerializedSubject(PublishSubject.create<String>())
-    fun toObserverable(): Observable<String> {
+    fun textWatcherObserverable(): Observable<String> {
         return _rxBus.debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())
                 .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())

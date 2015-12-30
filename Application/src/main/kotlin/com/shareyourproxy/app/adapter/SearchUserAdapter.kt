@@ -13,7 +13,7 @@ import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.LOADING
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 import java.util.*
 
 

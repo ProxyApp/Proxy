@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.shareyourproxy.R
-import com.shareyourproxy.util.bindDimen
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindDimen
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * First introduction slide content.
  */
-class FirstIntroductionFragment : BaseIntroductionFragment() {
+class FirstIntroductionFragment() : BaseIntroductionFragment() {
     private val logoSize: Int by bindDimen(R.dimen.common_svg_xlarge)
     private val introTitle: String by bindString(R.string.slide_one_title)
     private val introBody: String by bindString(R.string.slide_one_body)

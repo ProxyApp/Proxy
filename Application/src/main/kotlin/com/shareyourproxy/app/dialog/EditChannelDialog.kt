@@ -29,9 +29,9 @@ import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
-import com.shareyourproxy.util.bindColor
-import com.shareyourproxy.util.bindString
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindColor
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Dialog that handles editing a selected channel.

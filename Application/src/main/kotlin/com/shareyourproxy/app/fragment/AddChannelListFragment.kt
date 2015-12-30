@@ -14,12 +14,12 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.dialog.AddChannelDialog
 import com.shareyourproxy.app.dialog.AddRedditChannelDialog
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
  * Display a list of channel types for the user to add new channel information to their profile.
  */
-class AddChannelListFragment : BaseFragment(), ItemClickListener {
+class AddChannelListFragment() : BaseFragment(), ItemClickListener {
 
     private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_channel_list_recyclerview)
     private val adapter: AddChannelAdapter = AddChannelAdapter(recyclerView, sharedPreferences, this)

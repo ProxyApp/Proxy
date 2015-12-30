@@ -20,7 +20,7 @@ import timber.log.Timber
 /**
  * The main landing point after loggin in. This is tabbed activity with [Contact]s and [Group]s.
  */
-object AggregateFeedActivity : BaseActivity() {
+private final class AggregateFeedActivity : BaseActivity() {
     private val analytics = RxGoogleAnalytics(this)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {

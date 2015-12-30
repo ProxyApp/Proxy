@@ -14,20 +14,21 @@ import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent
 import com.shareyourproxy.app.dialog.SaveGroupChannelDialog
 import com.shareyourproxy.app.fragment.AddChannelListFragment
+import com.shareyourproxy.util.ButterKnife.bindString
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
-import com.shareyourproxy.util.bindView
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
 /**
  * Activity that displays a list of Channels for a user to add to their [UserProfileFragment].
  */
-object AddChannelListActivity : BaseActivity() {
+private final class AddChannelListActivity : BaseActivity() {
 
     private val analytics = RxGoogleAnalytics(this)
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
-    private val addChannel: String = getString(R.string.add_channel)
-    private val addAnotherChannel: String = getString(R.string.add_another_channel)
+    private val addChannel: String by bindString(R.string.add_channel)
+    private val addAnotherChannel: String by bindString(R.string.add_another_channel)
     private var subscriptions: CompositeSubscription = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -13,7 +13,7 @@ import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_FOOTER
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_HEADER
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_LIST_ITEM
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 

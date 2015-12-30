@@ -9,8 +9,8 @@ import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
-import com.shareyourproxy.util.ObjectUtils.capitalize
-import com.shareyourproxy.util.bindView
+import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.StringUtils.capitalize
 import java.util.*
 
 /**
