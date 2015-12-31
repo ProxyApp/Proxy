@@ -47,7 +47,6 @@ import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
-import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 
 /**
@@ -94,7 +93,7 @@ class MainContactsFragment() : BaseFragment(), ItemClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_contacts_main, container, false)
-        emptyButton.onClick { onClickInvite }
+        emptyButton.setOnClickListener(onClickInvite)
         initializeRecyclerView()
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
         return rootView

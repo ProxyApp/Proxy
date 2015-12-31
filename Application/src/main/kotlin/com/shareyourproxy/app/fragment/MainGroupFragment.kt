@@ -47,7 +47,6 @@ import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
-import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import java.util.*
 
@@ -172,7 +171,7 @@ class MainGroupFragment() : BaseFragment(), ItemClickListener {
     private fun initializeFab() {
         val drawable = svgToBitmapDrawable(activity, R.raw.ic_add, marginSVGLarge, colorWhite)
         floatingActionButton.setImageDrawable(drawable)
-        floatingActionButton.onClick{onClickFab}
+        floatingActionButton.setOnClickListener(onClickFab)
     }
 
     private fun addGroups(event: UserGroupAddedEventCallback) {

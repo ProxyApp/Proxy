@@ -7,18 +7,15 @@ import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.plus.Plus
-import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.Constants.KEY_LOGGED_IN_USER
 import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
-import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxBusDriver.post
 import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
 import com.shareyourproxy.app.GoogleApiActivity
-import rx.Observable
 import rx.Single
 import rx.SingleSubscriber
 import rx.functions.Func1
@@ -54,10 +51,11 @@ object RxLoginHelper {
                         }
                         //if there is a user saved in shared prefs
                         if (user != null) {
-                            RestClient(activity).herokuUserService
-                                    .updateUserVersion(user.id, BuildConfig.VERSION_CODE)
-                                    .map(finalUser(user))
-                                    .subscribe(updateUserVersionObserver(subscriber))
+                            //TODO UPDATE USER VERSION
+//                            RestClient(activity).herokuUserService
+//                                    .updateUserVersion(user.id, BuildConfig.VERSION_CODE)
+//                                    .map(finalUser(user))
+//                                    .subscribe(updateUserVersionObserver(subscriber))
                         } else {
                             launchLoginActivity(activity)
                             activity.finish()
@@ -92,11 +90,11 @@ object RxLoginHelper {
         }
     }
 
-    fun refreshGooglePlusToken(activity: GoogleApiActivity, client: GoogleApiClient): Observable<String> {
-        return Observable.create { subscriber ->
+    fun refreshGooglePlusToken(activity: GoogleApiActivity, client: GoogleApiClient?): Single<String> {
+        return Single.create { subscriber ->
             var token: String? = null
             try {
-                if (client.isConnected) {
+                if (client!!.isConnected) {
                     token = getToken(activity, Plus.AccountApi.getAccountName(client), "oauth2:%s".format(Scopes.PLUS_LOGIN))
                 }
             } catch (e: Exception) {
@@ -108,8 +106,7 @@ object RxLoginHelper {
             }
 
             if (token != null) {
-                subscriber.onNext(token)
-                subscriber.onCompleted()
+                subscriber.onSuccess(token)
             } else {
                 subscriber.onError(NullPointerException("Null Google Plus Token"))
             }

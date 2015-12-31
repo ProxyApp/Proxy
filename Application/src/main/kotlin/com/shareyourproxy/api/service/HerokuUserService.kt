@@ -45,7 +45,7 @@ interface HerokuUserService {
      * Save a user.
      * @param userId unique id for [User] table
      */
-    //    @PUT("/users/{id}/version.json")
+    @PUT("/users/{id}/version.json")
     fun updateUserVersion(@Path("id") userId: String, @Body version: Int?): Observable<String>
 
     //TODO

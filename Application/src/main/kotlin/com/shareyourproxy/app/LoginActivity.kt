@@ -2,6 +2,7 @@ package com.shareyourproxy.app
 
 import android.Manifest
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.ConnectionResult
@@ -34,7 +35,6 @@ import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.tbruyelle.rxpermissions.RxPermissions
-import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.util.*
@@ -62,6 +62,9 @@ private final class LoginActivity : GoogleApiActivity() {
             GoogleApiActivity.showErrorDialog(this@LoginActivity, getString(R.string.rx_eventbus_error))
             signInButton.isEnabled = true
         }
+    }
+    val onClickSignIn: View.OnClickListener = View.OnClickListener {
+        connectGoogleApiClient()
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,9 +97,17 @@ private final class LoginActivity : GoogleApiActivity() {
         signInButton.isEnabled = true
     }
 
+    override fun onOldGooglePlusTokenGen() {
+
+    }
+
     override fun onConnected(bundle: Bundle?) {
         super.onConnected(bundle)
         getAccountsPermission();
+    }
+
+    override fun onConnectionSuspended(i: Int) {
+        connectGoogleApiClient()
     }
 
     /**
@@ -143,7 +154,7 @@ private final class LoginActivity : GoogleApiActivity() {
     private fun initializeValues() {
         signInButton.setStyle(SIZE_WIDE, COLOR_DARK)
         signInButton.isEnabled = true
-        signInButton.onClick { connectGoogleApiClient() }
+        signInButton.setOnClickListener (onClickSignIn)
     }
 
     private fun login() {

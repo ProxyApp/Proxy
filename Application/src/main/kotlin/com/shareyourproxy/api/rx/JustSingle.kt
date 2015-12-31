@@ -8,7 +8,7 @@ import timber.log.Timber
 /**
  * Single subscriber that logs.
  */
-class JustSingle<T> : SingleSubscriber<T>() {
+abstract class JustSingle<T> : SingleSubscriber<T>() {
     override fun onSuccess(value: T) {
         Timber.v("${this.toString()} Success obj: ${value.toString()}")
     }

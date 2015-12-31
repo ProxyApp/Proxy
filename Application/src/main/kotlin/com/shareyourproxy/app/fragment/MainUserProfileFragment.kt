@@ -23,17 +23,17 @@ import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 
 /**
  * Display the logged in users profile and channels.
  */
 class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
-    init{
+    init {
         arguments.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, contact)
         arguments.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)
     }
+
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val titleTextView: TextView by bindView(fragment_user_profile_header_title)
     private val floatingActionButtonAddChannel: FloatingActionButton by bindView(fragment_user_profile_fab_add_channel)
@@ -46,7 +46,7 @@ class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfi
     private val onClickShare: View.OnClickListener = View.OnClickListener {
         ShareLinkDialog(loggedInUser.groups).show(activity.supportFragmentManager)
     }
-    private val onNextEvent= object: JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is RecyclerViewDatasetChangedEvent) {
@@ -92,13 +92,13 @@ class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfi
     private fun initializeFabPlusIcon() {
         val plus = svgToBitmapDrawable(activity, ic_add, svgLarge, colorWhite)
         floatingActionButtonAddChannel.setImageDrawable(plus)
-        floatingActionButtonAddChannel.onClick { onClickAdd }
+        floatingActionButtonAddChannel.setOnClickListener(onClickAdd)
 
         val share = svgToBitmapDrawable(activity, ic_share, svgLarge, colorBlue)
         floatingActionButtonShare.setImageDrawable(share)
         floatingActionButtonAddChannel.visibility = VISIBLE
         floatingActionButtonShare.visibility = VISIBLE
-        floatingActionButtonShare.onClick { onClickShare }
+        floatingActionButtonShare.setOnClickListener(onClickShare)
     }
 
     private fun setToolbarTitle() {

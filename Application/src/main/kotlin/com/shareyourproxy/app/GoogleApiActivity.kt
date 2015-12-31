@@ -2,7 +2,6 @@ package com.shareyourproxy.app
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import com.google.android.gms.auth.api.Auth
@@ -25,7 +24,8 @@ import com.shareyourproxy.R
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.JustObserver
+import com.shareyourproxy.api.rx.JustSingle
+import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
 import com.shareyourproxy.api.rx.RxLoginHelper.refreshGooglePlusToken
 import com.shareyourproxy.app.dialog.ErrorDialog
 import com.shareyourproxy.util.StringUtils
@@ -36,17 +36,17 @@ import java.util.*
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private  val googleApiClient: GoogleApiClient get() = buildOldGoogleApiClient(this)
+    private var googleApiClient: GoogleApiClient?  = null
 
     protected fun connectGoogleApiClient() {
         when{
-            googleApiClient.isConnected -> onConnected(null)
-            googleApiClient.isConnecting ->{}
-            else -> googleApiClient.connect()
+            googleApiClient!!.isConnected -> onConnected(null)
+            googleApiClient!!.isConnecting ->{}
+            else -> googleApiClient?.connect()
         }
     }
 
-    open fun onOldGooglePlusTokenGen(acct: GoogleSignInAccount?) {
+    open fun onOldGooglePlusTokenGen() {
     }
 
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
@@ -61,12 +61,16 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     }
 
     protected fun oldSignInToGoogle() {
-        refreshGooglePlusToken(this, googleApiClient).subscribe(object : JustObserver<String>(){
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(string: String) {
-                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, string)
+        refreshGooglePlusToken(this, googleApiClient).compose(singleObserveMain<String>()).subscribe(googleRefreshObserver())
+    }
+
+    private fun googleRefreshObserver(): JustSingle<String> {
+        return object : JustSingle<String>() {
+            override fun onSuccess(value: String) {
+                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, value)
+                onOldGooglePlusTokenGen()
             }
-        })
+        }
     }
 
     /**
@@ -103,12 +107,13 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        googleApiClient = buildOldGoogleApiClient(this)
     }
 
     override fun onStop() {
         super.onStop()
-        if (googleApiClient.isConnected) {
-            googleApiClient.disconnect()
+        if (googleApiClient!!.isConnected) {
+            googleApiClient?.disconnect()
         }
     }
 
@@ -125,10 +130,11 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
         when(requestCode){
             RC_NEW_SIGN_IN -> rcNewSignIn(data)
+            else ->{}
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     /**
@@ -136,10 +142,10 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
      * dialog allowing the user to select an account, an activity allowing the user to consent to the permissions being requested by your app, a setting to
      * enable device networking, etc.
      */
-    protected  fun resolveSignInError(_signInIntent : PendingIntent) {
+    protected  fun resolveSignInError(intent : PendingIntent) {
         try {
-            startIntentSenderForResult(_signInIntent.intentSender, RC_SIGN_IN, null, 0, 0, 0);
-        } catch (e: IntentSender.SendIntentException) {
+            startIntentSenderForResult(intent.intentSender, RC_SIGN_IN, null, 0, 0, 0);
+        } catch (e: Throwable) {
             Timber.i("Sign in intent could not be sent: ${Log.getStackTraceString(e)}")
             connectGoogleApiClient()
         }

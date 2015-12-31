@@ -18,7 +18,6 @@ import com.shareyourproxy.app.dialog.UserGroupsDialog
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
-import org.jetbrains.anko.onClick
 import rx.subscriptions.CompositeSubscription
 import java.util.*
 
@@ -90,7 +89,7 @@ class ContactProfileFragment(contact: User, loggedInUserId: String) : UserProfil
      */
     private fun initializeGroupButton() {
         groupButton.visibility = VISIBLE
-        groupButton.onClick { onClickGroup }
+        groupButton.setOnClickListener(onClickGroup)
         groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(getMenuIcon(activity, R.raw.ic_groups), null, null, null)
         updateGroupButtonText(groupEditContacts)
     }

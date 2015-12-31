@@ -54,8 +54,6 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.CustomEditText
-import org.jetbrains.anko.onClick
-import org.jetbrains.anko.textChangedListener
 import rx.Observer
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
@@ -232,10 +230,10 @@ class SearchFragment() : BaseFragment(), ItemClickListener {
      * Initialize this view.
      */
     private fun initialize() {
-        editText.textChangedListener { onSearchStringChanged }
-        imageViewBackButton.onClick { onClickBack }
-        emptyViewButton.onClick { onClickInviteFriend }
-        imageViewClearButton.onClick { onClickClear }
+        editText.addTextChangedListener(onSearchStringChanged)
+        imageViewBackButton.setOnClickListener(onClickBack)
+        emptyViewButton.setOnClickListener(onClickInviteFriend)
+        imageViewClearButton.setOnClickListener(onClickClear)
         imageViewBackButton.setImageDrawable(backArrowDrawable)
         imageViewClearButton.setImageDrawable(clearSearchDrawable)
         initializeRecyclerView()

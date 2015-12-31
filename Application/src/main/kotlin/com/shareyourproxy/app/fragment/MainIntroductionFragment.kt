@@ -27,7 +27,6 @@ import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.viewpagerindicator.CirclePageIndicator
-import org.jetbrains.anko.onClick
 import java.util.Arrays.asList
 
 /**
@@ -85,7 +84,7 @@ class MainIntroductionFragment() : BaseFragment() {
      * Add fragments to the List backing the [AggregateFeedFragment.slidingTabLayout].
      */
     private fun initializeFragments() {
-        floatingActionButton.onClick { onClickFab }
+        floatingActionButton.setOnClickListener(onClickFab)
         viewPager.adapter = adapter
         viewPager.addOnPageChangeListener(fabDrawableListener)
         pageIndicator.setViewPager(viewPager)

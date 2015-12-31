@@ -216,7 +216,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     //JetBrains
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-    compile 'org.jetbrains.anko:anko-sdk15:0.8.1'
     //Google
     compile "com.google.android.gms:play-services-plus:${playServicesVersion}"
     compile "com.google.android.gms:play-services-base:${playServicesVersion}"
