@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 object RxTextWatcherRelay {
     private val bus: PublishRelay<String> = PublishRelay.create();
     fun textWatcherObserverable(): Observable<String> {
-        return Observable.defer { bus.debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())
+        return Observable.defer { bus.toSerialized().debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())
                 .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())}
     }

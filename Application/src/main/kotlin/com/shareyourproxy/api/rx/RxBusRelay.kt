@@ -25,11 +25,11 @@ object RxBusRelay : BaseParcelable {
     private val bus: PublishRelay<Any> = PublishRelay.create();
 
     fun rxBusObservable(): Observable<Any> {
-        return Observable.defer { bus.onBackpressureLatest().compose<Any>(RxHelper.observeMain()) }
+        return Observable.defer { bus.toSerialized().onBackpressureLatest().compose<Any>(RxHelper.observeMain()) }
     }
 
     fun toIOThreadObservable(): Observable<Any> {
-        return Observable.defer { bus.onBackpressureLatest().compose<Any>(RxHelper.observeIO()) }
+        return Observable.defer { bus.toSerialized().onBackpressureLatest().compose<Any>(RxHelper.observeIO()) }
     }
 
     /**
