@@ -1,7 +1,7 @@
 package com.shareyourproxy.app.adapter
 
 import android.support.v7.util.SortedList
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY
 import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN

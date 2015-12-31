@@ -22,7 +22,7 @@ import com.shareyourproxy.R.string.select_groups_for_channel
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddGroupChannelAndPublicCommand
 import com.shareyourproxy.api.rx.command.AddGroupsChannelCommand
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent

@@ -28,8 +28,8 @@ import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxQuery
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
@@ -101,7 +101,7 @@ class MainContactsFragment() : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
         checkRefresh(loggedInUser)
     }
 

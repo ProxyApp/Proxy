@@ -63,8 +63,8 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxQuery.getUserContactScore
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand

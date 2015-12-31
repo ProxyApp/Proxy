@@ -29,12 +29,12 @@ import com.shareyourproxy.R.dimen.common_svg_null_screen_mini
 import com.shareyourproxy.R.layout.fragment_search
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.RxQuery.searchMatchingUsers
-import com.shareyourproxy.api.rx.RxTextWatcherSubject.post
-import com.shareyourproxy.api.rx.RxTextWatcherSubject.textWatcherObserverable
+import com.shareyourproxy.api.rx.RxTextWatcherRelay.post
+import com.shareyourproxy.api.rx.RxTextWatcherRelay.textWatcherObserverable
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.api.rx.event.TextViewEditorActionEvent

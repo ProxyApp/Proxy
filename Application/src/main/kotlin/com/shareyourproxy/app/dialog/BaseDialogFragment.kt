@@ -5,6 +5,7 @@ import android.support.v4.app.DialogFragment
 import android.widget.Button
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.BaseActivity
+import com.shareyourproxy.util.ButterKnife
 
 /**
  * Base Dialog Abstraction.
@@ -30,4 +31,9 @@ open class BaseDialogFragment : DialogFragment() {
      * @return
      */
     val sharedPreferences: SharedPreferences get() = (activity as BaseActivity).sharedPreferences
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ButterKnife.unbind(this)
+    }
 }

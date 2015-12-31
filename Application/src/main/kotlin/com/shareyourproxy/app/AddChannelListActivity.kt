@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
@@ -70,7 +70,7 @@ private final class AddChannelListActivity : BaseActivity() {
      * Create a composite subscription field to handle unsubscribing in onPause.
      */
     fun initializeSubscriptions() {
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(object : JustObserver<Any>() {
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(object : JustObserver<Any>() {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any) {
                 if (event is UserChannelAddedEventCallback) {

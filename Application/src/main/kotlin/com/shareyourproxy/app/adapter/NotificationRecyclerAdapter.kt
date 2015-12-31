@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.adapter_dismissible_notification_card
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_FOOTER
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_HEADER

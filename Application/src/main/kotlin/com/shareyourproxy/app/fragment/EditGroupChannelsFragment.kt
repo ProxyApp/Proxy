@@ -13,7 +13,7 @@ import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.menu_edit_group_channel_save
 import com.shareyourproxy.api.domain.model.Group
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.DeleteUserGroupCommand
 import com.shareyourproxy.api.rx.command.SaveGroupChannelsCommand
 import com.shareyourproxy.api.rx.command.SavePublicGroupChannelsCommand

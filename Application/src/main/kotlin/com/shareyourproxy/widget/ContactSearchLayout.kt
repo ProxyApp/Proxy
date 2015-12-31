@@ -18,7 +18,7 @@ import android.widget.Toast.LENGTH_SHORT
 import android.widget.Toast.makeText
 import com.shareyourproxy.R
 import com.shareyourproxy.R.drawable.selector_contactsearchlayout
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
@@ -28,23 +28,20 @@ import com.shareyourproxy.util.ViewUtils.getMenuIconDark
  * Search view to insert in the [AggregateFeedActivity].
  */
 class ContactSearchLayout : FrameLayout {
-
-    //Search TextView for transition animation.
-    val searchTextView: TextView by bindView(R.id.widget_contactsearchlayout_textview)
-    //Search ImageView hamburger for transition animation.
-    val menuImageView: ImageView by bindView(R.id.widget_contactsearchlayout_menu_icon)
     private val marginMicro: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxxtiny)
     private val marginTiny: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxtiny)
     private val drawableBackground: Drawable = getDrawable(resources, selector_contactsearchlayout, null)
-    private val onClickMenuIcon: OnClickListener get() = OnClickListener { drawerLayout?.openDrawer(START) }
-    private val onClickSearch: OnClickListener get() = OnClickListener { post(SearchClickedEvent()) }
-    private val onLongClick: OnLongClickListener get() = OnLongClickListener {
+    private val onClickMenuIcon: OnClickListener = OnClickListener { drawerLayout?.openDrawer(START) }
+    private val onClickSearch: OnClickListener = OnClickListener { post(SearchClickedEvent()) }
+    private val onLongClick: OnLongClickListener = OnLongClickListener {
         makeText(context, menuImageView.contentDescription, LENGTH_SHORT).show()
         false
     }
     private var drawerLayout: DrawerLayout? = null
     //background view for transition animation.
-    var containerView: View? = null
+    internal val searchTextView: TextView by bindView(R.id.widget_contactsearchlayout_textview)
+    internal val menuImageView: ImageView by bindView(R.id.widget_contactsearchlayout_menu_icon)
+    internal var containerView: View? = null
 
     constructor(context: Context) : super(context) {
     }

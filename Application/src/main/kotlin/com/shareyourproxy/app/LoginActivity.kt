@@ -21,8 +21,8 @@ import com.shareyourproxy.R.string.login_error_update_play_service
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxHelper
 import com.shareyourproxy.api.rx.RxHelper.observeMain
@@ -75,7 +75,7 @@ private final class LoginActivity : GoogleApiActivity() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(rxBusObserver))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(rxBusObserver))
     }
 
     override fun onPause() {

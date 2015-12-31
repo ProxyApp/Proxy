@@ -234,6 +234,7 @@ dependencies {
     //Jake
     compile 'fr.avianey.com.viewpagerindicator:library:2.4.1@aar'
     compile 'com.jakewharton.timber:timber:4.1.0'
+    compile 'com.jakewharton.rxrelay:rxrelay:1.0.0'
     //Square
     compile "com.squareup.retrofit2:retrofit:${retrofitVersion}"
     compile "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"

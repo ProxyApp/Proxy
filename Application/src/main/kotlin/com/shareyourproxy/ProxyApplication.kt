@@ -1,14 +1,13 @@
 package com.shareyourproxy
 
 import android.app.Application
-import android.app.NotificationManager
-import android.content.Context
 import android.content.SharedPreferences
 import android.support.multidex.MultiDex
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory
+import com.shareyourproxy.BuildConfig.*
 import com.shareyourproxy.Constants.MASTER_KEY
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.RxAppDataManager
@@ -26,47 +25,47 @@ import timber.log.Timber
  */
 class ProxyApplication : Application() {
     internal var currentUser: User = User()
-    internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, Context.MODE_PRIVATE)
+    internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, MODE_PRIVATE)
 
     override fun onCreate() {
         super.onCreate()
         initialize()
     }
 
-    fun initialize() {
+   private fun initialize() {
         MultiDex.install(this)
-        if (BuildConfig.USE_LEAK_CANARY) {
+        RxAppDataManager(this, sharedPreferences)
+        if (USE_LEAK_CANARY) {
             refWatcher = LeakCanary.install(this)
         }
-        RxAppDataManager.newInstance(this, sharedPreferences, getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         initializeBuildConfig()
         initializeRealm()
         initializeFresco()
     }
 
-    fun initializeFresco() {
+    private fun initializeFresco() {
         val config = OkHttpImagePipelineConfigFactory.newBuilder(this, RestClient(this).oldClient).build()
         Fresco.initialize(this, config)
     }
 
-    fun initializeRealm() {
+    private fun initializeRealm() {
         val config = RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().schemaVersion(BuildConfig.VERSION_CODE.toLong()).build()
         Realm.setDefaultConfiguration(config)
     }
 
-    fun initializeBuildConfig() {
-        if (BuildConfig.DEBUG) {
+    private fun initializeBuildConfig() {
+        if (DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
         val analytics = RxGoogleAnalytics(this)
-        if (BuildConfig.USE_GOOGLE_ANALYTICS) {
+        if (USE_GOOGLE_ANALYTICS) {
             analytics.analytics.enableAdvertisingIdCollection(true)
             analytics.analytics.enableAutoActivityReports(this)
         } else {
             analytics.analytics.appOptOut = true
         }
         //Answers and Crashlytics
-        if (BuildConfig.USE_CRASHLYTICS) {
+        if (USE_CRASHLYTICS) {
             Fabric.with(this, Crashlytics(), Answers())
         } else {
             Fabric.with(this, Answers())

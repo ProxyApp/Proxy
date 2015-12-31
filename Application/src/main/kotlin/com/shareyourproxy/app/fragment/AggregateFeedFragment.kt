@@ -20,13 +20,13 @@ import com.shareyourproxy.R.raw.ic_account_circle
 import com.shareyourproxy.R.raw.ic_group
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
-import com.shareyourproxy.util.ViewUtils
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
+import com.shareyourproxy.util.ViewUtils.tintDrawableCompat
 import com.shareyourproxy.widget.ContactSearchLayout
 import com.shareyourproxy.widget.ContentDescriptionDrawable
 import rx.subscriptions.CompositeSubscription
@@ -41,6 +41,7 @@ class AggregateFeedFragment() : BaseFragment() {
         val ARG_SELECT_CONTACTS_TAB = 1
         val ARG_SELECT_GROUP_TAB = 2
     }
+
     private val toolbar: Toolbar by bindView(R.id.include_toolbar)
     private val drawerLayout: DrawerLayout by bindView(activity_main_drawer_layout)
     private val viewPager: ViewPager by bindView(fragment_main_viewpager)
@@ -50,17 +51,14 @@ class AggregateFeedFragment() : BaseFragment() {
     private val marginSVGLarge: Int by bindDimen(common_rect_small)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val contactSearchLayout: ContactSearchLayout = ContactSearchLayout(activity, drawerLayout)
-    private val userDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor).setContentDescription(getString(profile))
-    private val contactDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor).setContentDescription(getString(contacts))
-    private val groupDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor).setContentDescription(getString(groups))
+    private val userDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile))
+    private val contactDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts))
+    private val groupDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups))
     private val observer: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SearchClickedEvent) {
-                launchSearchActivity(activity,
-                        contactSearchLayout.containerView,
-                        contactSearchLayout.searchTextView,
-                        contactSearchLayout.menuImageView)
+                launchSearchActivity(activity, contactSearchLayout.containerView, contactSearchLayout.searchTextView, contactSearchLayout.menuImageView)
             }
         }
     }
@@ -71,11 +69,11 @@ class AggregateFeedFragment() : BaseFragment() {
     private val onTabSelectedListener: OnTabSelectedListener = object : OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.currentItem = tab.position
-            ViewUtils.tintDrawableCompat(tab.icon, selectedColor)
+            tintDrawableCompat(tab.icon, selectedColor)
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab) {
-            ViewUtils.tintDrawableCompat(tab.icon, unselectedColor)
+            tintDrawableCompat(tab.icon, unselectedColor)
         }
 
         override fun onTabReselected(tab: TabLayout.Tab) {
@@ -93,7 +91,7 @@ class AggregateFeedFragment() : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(observer))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(observer))
     }
 
     override fun onPause() {
@@ -120,9 +118,9 @@ class AggregateFeedFragment() : BaseFragment() {
      */
     private fun initializeTabs() {
 
-        val userDescription = userDrawable.getContentDescription()
-        val contactDescription = contactDrawable.getContentDescription()
-        val groupDescription = groupDrawable.getContentDescription()
+        val userDescription = userDrawable.contentDescription
+        val contactDescription = contactDrawable.contentDescription
+        val groupDescription = groupDrawable.contentDescription
 
         slidingTabLayout.addTab(slidingTabLayout.newTab().setIcon(userDrawable).setContentDescription(userDescription))
         slidingTabLayout.addTab(slidingTabLayout.newTab().setIcon(contactDrawable).setContentDescription(contactDescription))
@@ -134,7 +132,7 @@ class AggregateFeedFragment() : BaseFragment() {
         viewPager.addOnPageChangeListener(TabLayoutOnPageChangeListener(slidingTabLayout))
         //set the default selected tab
         val tab = slidingTabLayout.getTabAt(activity.intent.extras.getInt(ARG_MAINFRAGMENT_SELECTED_TAB))
-        ViewUtils.tintDrawableCompat(tab.icon, selectedColor)
+        tintDrawableCompat(tab.icon, selectedColor)
         tab.select()
     }
 

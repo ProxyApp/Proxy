@@ -6,7 +6,7 @@ import android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxLoginHelper.loginObservable
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent

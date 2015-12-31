@@ -25,7 +25,7 @@ import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType.*
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard

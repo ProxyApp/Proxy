@@ -13,10 +13,11 @@ import android.support.v7.widget.Toolbar
 import android.view.View
 import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.R
+import com.shareyourproxy.R.color.*
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.BaseActivity
 import com.shareyourproxy.util.ButterKnife
-import com.shareyourproxy.util.ViewUtils
+import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 
 /**
  * Base Fragment abstraction.
@@ -39,7 +40,7 @@ abstract class BaseFragment : Fragment() {
     protected val dismissScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            ViewUtils.hideSoftwareKeyboard(recyclerView)
+            hideSoftwareKeyboard(recyclerView)
         }
 
         override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
@@ -52,7 +53,7 @@ abstract class BaseFragment : Fragment() {
      */
     protected fun initializeSwipeRefresh(swipe: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener) {
         swipe.setOnRefreshListener(listener)
-        swipe.setColorSchemeResources(R.color.common_text, R.color.common_blue, R.color.common_green)
+        swipe.setColorSchemeResources(common_text, common_blue, common_green)
     }
 
     /**

@@ -29,8 +29,8 @@ import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.GroupFactory.PUBLIC
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserGroupCommand
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
@@ -103,7 +103,7 @@ class MainGroupFragment() : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
         adapter.refreshGroupData(loggedInUser.groups)
     }
 

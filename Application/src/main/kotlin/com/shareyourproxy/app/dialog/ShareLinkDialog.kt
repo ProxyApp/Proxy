@@ -21,7 +21,7 @@ import com.shareyourproxy.R.string.dialog_sharelink_message
 import com.shareyourproxy.R.string.share
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.model.Group
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.GenerateShareLinkCommand
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.ShareLinkAdapter

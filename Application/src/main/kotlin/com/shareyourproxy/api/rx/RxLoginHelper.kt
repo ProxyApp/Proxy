@@ -11,7 +11,7 @@ import com.shareyourproxy.Constants.KEY_LOGGED_IN_USER
 import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity

@@ -28,8 +28,8 @@ import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxQuery.queryPermissionedChannels
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback

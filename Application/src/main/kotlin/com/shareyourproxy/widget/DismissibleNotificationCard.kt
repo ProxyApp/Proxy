@@ -19,15 +19,15 @@ import com.shareyourproxy.R.color.*
 import com.shareyourproxy.R.raw.*
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.R.styleable.*
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.event.NotificationCardActionEvent
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter
 import com.shareyourproxy.app.adapter.BaseViewHolder
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.HeaderViewHolder
-import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.*
 
 /**
@@ -42,7 +42,7 @@ class DismissibleNotificationCard : FrameLayout {
     private val dismissTextView: TextView by bindView(R.id.widget_notification_dismiss_text)
     private val actionTextView: TextView by bindView(R.id.widget_notification_action_text)
     private val dimenSvgNullSmall: Int by bindDimen(R.dimen.common_svg_null_screen_mini);
-    private val onClickDismiss: OnClickListener get() = OnClickListener {
+    private val onClickDismiss: OnClickListener = OnClickListener {
         visibility = GONE
         when (notificationCard) {
             SAFE_INFO,
@@ -54,8 +54,7 @@ class DismissibleNotificationCard : FrameLayout {
             else ->{}
         }
     }
-
-    private val onClickAction: OnClickListener get() = OnClickListener {
+    private val onClickAction: OnClickListener = OnClickListener {
         when (notificationCard) {
             SAFE_INFO,
             SHARE_PROFILE,

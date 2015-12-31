@@ -10,8 +10,8 @@ import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
@@ -65,7 +65,7 @@ final class EditGroupChannelsActivity : BaseActivity() {
     public override fun onResume() {
         super.onResume()
         subscriptions = CompositeSubscription();
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(onNextEvent(this)))
     }
 
     private fun onNextEvent(activity: EditGroupChannelsActivity): JustObserver<Any> {

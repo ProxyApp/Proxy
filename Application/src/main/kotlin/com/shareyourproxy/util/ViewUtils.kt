@@ -200,6 +200,17 @@ object ViewUtils {
      * @param context    for resources
      * @param resourceId resource ID of the SVG
      * @param size       desired size of the icon
+     * @return parsed image.drawable
+     */
+    internal fun svgToBitmapDrawable(context: Context, resourceId: Int, size: Int, color: Int, description: String): ContentDescriptionDrawable {
+        return svgToBitmapDrawable(context, resourceId, size, color).setContentDescription(description)
+    }
+
+    /**
+     * Parse a SVG and return it as a [ContentDescriptionDrawable].
+     * @param context    for resources
+     * @param resourceId resource ID of the SVG
+     * @param size       desired size of the icon
      * @param color      desired color of the icon
      * @return parsed image.drawable
      */

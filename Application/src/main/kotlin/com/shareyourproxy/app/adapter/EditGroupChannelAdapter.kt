@@ -18,7 +18,7 @@ import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.string.required
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelToggle
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGroupChannelSync.getSelectedChannels
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
 import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType

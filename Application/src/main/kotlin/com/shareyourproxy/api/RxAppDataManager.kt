@@ -1,8 +1,9 @@
 package com.shareyourproxy.api
 
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.app.NotificationManager
 import android.content.*
+import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Bundle
 import android.os.IBinder
 import android.os.RemoteException
@@ -19,8 +20,8 @@ import com.shareyourproxy.api.CommandIntentService.Companion.ARG_RESULT_BASE_EVE
 import com.shareyourproxy.api.domain.model.Message
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.toIOThreadObservable
 import com.shareyourproxy.api.rx.RxFabricAnalytics.logFabricAnalytics
 import com.shareyourproxy.api.rx.RxHelper.observeIO
 import com.shareyourproxy.api.rx.RxMessageSync.deleteAllFirebaseMessages
@@ -42,7 +43,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Manage data at an application context level.
  */
-class RxAppDataManager private constructor(private val app: ProxyApplication, private val prefs: SharedPreferences, private val notificationManager: NotificationManager) {
+internal final class RxAppDataManager(private val app: ProxyApplication, private val prefs: SharedPreferences) {
+    private val notificationManager: NotificationManager= app.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     private var notificationSubscription: Subscription? = null
     private val gson = GsonBuilder().create()
     private val notificationsObservable: Observable<Long>get() = Observable.interval(3, TimeUnit.MINUTES).compose(observeIO<Long>())
@@ -65,7 +67,7 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     }
 
     init {
-        RxBusDriver.toIOThreadObservable().subscribe(busObserver)
+        toIOThreadObservable().subscribe(busObserver)
         initializeNotificationService()
     }
 
@@ -95,12 +97,9 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
     private val resultReceiver: ResultReceiver
         get() = object : ResultReceiver(null) {
             override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
-                if (resultCode == Activity.RESULT_OK) {
-                    commandSuccessful(resultData)
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    sendError(resultData)
-                } else {
-                    sendError(resultData)
+                when(resultCode){
+                    RESULT_OK -> commandSuccessful(resultData)
+                    else ->sendError(resultData)
                 }
             }
         }
@@ -164,12 +163,6 @@ class RxAppDataManager private constructor(private val app: ProxyApplication, pr
                     Timber.e(Log.getStackTraceString(e))
                 }
             }
-        }
-    }
-
-    companion object {
-        fun newInstance(app: ProxyApplication, prefs: SharedPreferences, manager: NotificationManager): RxAppDataManager {
-            return RxAppDataManager(app, prefs, manager)
         }
     }
 }

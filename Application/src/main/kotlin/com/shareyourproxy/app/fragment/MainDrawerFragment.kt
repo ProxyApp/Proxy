@@ -10,8 +10,8 @@ import android.widget.Toast
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.fragment_drawer_recyclerview
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.post
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView

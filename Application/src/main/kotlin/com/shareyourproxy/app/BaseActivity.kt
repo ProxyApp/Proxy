@@ -16,8 +16,8 @@ import com.shareyourproxy.IntentLauncher.launchShareLinkIntent
 import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent
 import io.realm.Realm
@@ -102,7 +102,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(onNextEvent(this)))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(onNextEvent(this)))
     }
 
     override fun onPause() {

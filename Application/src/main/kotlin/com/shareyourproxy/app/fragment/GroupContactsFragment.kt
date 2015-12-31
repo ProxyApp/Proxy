@@ -25,8 +25,8 @@ import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
-import com.shareyourproxy.api.rx.RxBusDriver.post
+import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxQuery.queryUserContacts
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
@@ -86,7 +86,7 @@ class GroupContactsFragment() : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
         adapter.refreshData(queryUserContacts(activity, groupArg.contacts).values)
     }
 

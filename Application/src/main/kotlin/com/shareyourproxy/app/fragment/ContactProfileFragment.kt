@@ -11,7 +11,7 @@ import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxQuery.queryContactGroups
 import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEventCallback
 import com.shareyourproxy.app.dialog.UserGroupsDialog

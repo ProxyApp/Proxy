@@ -7,7 +7,7 @@ import com.shareyourproxy.IntentLauncher.launchInviteFriendIntent
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusDriver
+import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent
 import com.shareyourproxy.app.adapter.DrawerAdapter
@@ -63,7 +63,7 @@ private final class AggregateFeedActivity : BaseActivity() {
 
     public override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusDriver.rxBusObservable().subscribe(busObserver))
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
     }
 
     override fun onPause() {

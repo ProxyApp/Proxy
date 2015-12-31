@@ -1,21 +1,20 @@
 package com.shareyourproxy.api.rx
 
+import com.jakewharton.rxrelay.PublishRelay
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import rx.subjects.PublishSubject
-import rx.subjects.SerializedSubject
 import java.util.concurrent.TimeUnit
 
 /**
  * Subject to watch EditTextViews.
  */
-object RxTextWatcherSubject {
-    private val _rxBus = SerializedSubject(PublishSubject.create<String>())
+object RxTextWatcherRelay {
+    private val bus: PublishRelay<String> = PublishRelay.create();
     fun textWatcherObserverable(): Observable<String> {
-        return _rxBus.debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())
+        return Observable.defer { bus.debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())
                 .onBackpressureLatest()
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())}
     }
 
     /**
@@ -23,6 +22,6 @@ object RxTextWatcherSubject {
      * @param searchText String.
      */
     fun post(searchText: String) {
-        _rxBus.onNext(searchText)
+        bus.call(searchText)
     }
 }
