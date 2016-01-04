@@ -58,7 +58,7 @@ internal object RxUserChannelSync {
         return Func1 { user ->
             val userId = user.id
             val channelId = channel.id
-            RestClient(context).herokuUserService.addUserChannel(userId, channelId, channel).subscribe()
+            RestClient(context).herokuUserService.addUserChannel(userId, channel).subscribe()
             RestClient(context).herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user
         }

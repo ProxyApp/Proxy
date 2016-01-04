@@ -52,7 +52,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * A recyclerView of Favorite [User]s.
  */
-class MainContactsFragment() : BaseFragment(), ItemClickListener {
+internal final class MainContactsFragment() : BaseFragment(), ItemClickListener {
     private val recyclerView: BaseRecyclerView by bindView(fragment_contact_main_recyclerview)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_contact_main_swipe_refresh)
     private val emptyTextView: TextView by bindView(fragment_contact_main_empty_textview)

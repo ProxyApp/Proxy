@@ -82,7 +82,7 @@ internal object RxUserGroupSync {
     }
 
     private fun saveFirebaseUserGroup(context:Context, userId: String, group: Group): Observable<Group> {
-        return RestClient(context).herokuUserService.addUserGroup(userId, group.id, group)
+        return RestClient(context).herokuUserService.addUserGroup(userId, group)
     }
 
     private fun deleteFirebaseUserGroup(context:Context, userId: String, group: Group): Observable<Group> {

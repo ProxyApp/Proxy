@@ -8,7 +8,7 @@ import com.shareyourproxy.util.StringUtils.buildFullName
 /**
  * The web service actually doesn't return a fullname param, we make/strip it here from the user object.
  */
-object UserTypeAdapterFactory : CustomTypeAdapterFactory<User>(User::class.java) {
+internal object UserTypeAdapterFactory : CustomTypeAdapterFactory<User>(User::class.java) {
 
     override fun beforeWrite(source: User, toSerialize: JsonElement) {
         val custom = toSerialize.asJsonObject

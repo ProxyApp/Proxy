@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  * Feed Adapter.
  * @param feedItems a list of [ActivityFeedItem]s
  */
-class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: User, private val listener: ItemClickListener) : SortedRecyclerAdapter<ActivityFeedItem>(ActivityFeedItem::class.java, recyclerView) {
+internal final class ActivityFeedAdapter(recyclerView: BaseRecyclerView, private val contact: User, private val listener: ItemClickListener) : SortedRecyclerAdapter<ActivityFeedItem>(ActivityFeedItem::class.java, recyclerView) {
     val VIEWTYPE_HEADER = 0
     val VIEWTYPE_CONTENT = 1
     private var currentDate = Date()

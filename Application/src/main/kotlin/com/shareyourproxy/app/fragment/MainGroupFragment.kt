@@ -53,7 +53,7 @@ import java.util.*
 /**
  * Displaying a list of [User] [Group]s.
  */
-class MainGroupFragment() : BaseFragment(), ItemClickListener {
+internal final class MainGroupFragment() : BaseFragment(), ItemClickListener {
     private val coordinatorLayout: CoordinatorLayout by bindView(R.id.fragment_group_main_coordinator)
     private val recyclerView: BaseRecyclerView by bindView(fragment_group_main_recyclerview)
     private val floatingActionButton: FloatingActionButton by bindView(fragment_group_main_fab)

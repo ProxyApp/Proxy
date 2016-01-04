@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Factory for creating [RealmContact]s.
  */
-object RealmContactFactory {
+internal object RealmContactFactory {
     /**
      * Return a RealmList of Contacts from a user's contacts.
      * @param contacts array of user contacts

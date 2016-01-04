@@ -8,7 +8,7 @@ import java.util.*
 /**
  * Upload information to firebase to create shared links for group channels.
  */
-data class SharedLink(val id: String, val userId: String, val groupId: String) : BaseParcelable {
+internal data class SharedLink(val id: String, val userId: String, val groupId: String) : BaseParcelable {
     public constructor(userId: String, groupId: String) : this(UUID.randomUUID().toString(), groupId, userId)
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

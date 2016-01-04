@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Model for [UserGroupsDialog].
  */
-data class GroupToggle(var group: Group, var isChecked: Boolean) : BaseParcelable {
+internal data class GroupToggle(var group: Group, var isChecked: Boolean) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(group)
         dest.writeValue(isChecked)

@@ -22,7 +22,7 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Base Fragment abstraction.
  */
-abstract class BaseFragment : Fragment() {
+internal abstract class BaseFragment : Fragment() {
 
     var loggedInUser: User
         get() = (activity as BaseActivity).loggedInUser

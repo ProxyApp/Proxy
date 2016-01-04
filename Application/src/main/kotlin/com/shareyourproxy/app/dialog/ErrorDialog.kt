@@ -12,7 +12,7 @@ import com.shareyourproxy.R.string.ok
 /**
  * Dialog to handle onError messaging during login.
  */
-class ErrorDialog(private val title: String, private val message: String) : BaseDialogFragment() {
+internal final class ErrorDialog(private val title: String, private val message: String) : BaseDialogFragment() {
     private val TAG = ErrorDialog::class.java.simpleName
     private val ARG_TITLE = "title"
     private val ARG_MESSAGE = "message"

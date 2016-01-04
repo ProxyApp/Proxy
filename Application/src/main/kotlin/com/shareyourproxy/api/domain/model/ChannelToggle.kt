@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Used to signify if a [Channel] is in a [Group] or not.
  */
-class ChannelToggle(var channel: Channel, var inGroup: Boolean) : BaseParcelable {
+internal class ChannelToggle(var channel: Channel, var inGroup: Boolean) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(channel)
         dest.writeValue(inGroup)

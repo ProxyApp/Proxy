@@ -33,7 +33,7 @@ import java.util.*
 /**
  * Share links to group channels in your web profile.
  */
-class ShareLinkDialog(private val groups: HashMap<String, Group>) : BaseDialogFragment() {
+internal final class ShareLinkDialog(private val groups: HashMap<String, Group>) : BaseDialogFragment() {
     private val TAG = ShareLinkDialog::class.java.simpleName
     private val ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group"
     private val message: TextView by bindView(dialog_sharelink_message_text)

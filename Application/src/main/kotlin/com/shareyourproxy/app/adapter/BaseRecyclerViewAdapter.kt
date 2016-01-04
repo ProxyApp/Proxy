@@ -19,7 +19,7 @@ import com.shareyourproxy.util.ViewUtils.getCircularDrawableImage
 /**
  * Base abstraction for all recycler adapters.
  */
-abstract class BaseRecyclerViewAdapter : RecyclerView.Adapter<BaseViewHolder>() {
+internal abstract class BaseRecyclerViewAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     protected fun getChannelSpannableStringBuilder(context: Context, channelTypeString: String, label: String, address: String): SpannableStringBuilder {
         val sb: SpannableStringBuilder

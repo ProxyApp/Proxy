@@ -19,7 +19,7 @@ import com.shareyourproxy.util.ButterKnife.bindView
 /**
  * Display a list of channel types for the user to add new channel information to their profile.
  */
-class AddChannelListFragment() : BaseFragment(), ItemClickListener {
+internal final class AddChannelListFragment() : BaseFragment(), ItemClickListener {
 
     private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_channel_list_recyclerview)
     private val adapter: AddChannelAdapter = AddChannelAdapter(recyclerView, sharedPreferences, this)

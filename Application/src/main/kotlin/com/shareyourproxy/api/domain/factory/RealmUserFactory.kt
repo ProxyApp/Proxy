@@ -10,7 +10,7 @@ import io.realm.RealmList
 /**
  * Factory for creating [RealmUser]s.
  */
-object RealmUserFactory {
+internal object RealmUserFactory {
     /**
      * Convert User to RealmUser
      * @param user to convert

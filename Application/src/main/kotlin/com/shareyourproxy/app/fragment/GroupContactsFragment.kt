@@ -46,7 +46,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * Display the [User] contacts added to the selected [Group].
  */
-class GroupContactsFragment() : BaseFragment(), ItemClickListener {
+internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener {
     /**
      * Get the group selected and bundled in this activities [IntentLauncher.launchEditGroupContactsActivity] call.
      * @return selected group

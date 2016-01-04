@@ -15,7 +15,7 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 /**
  * Share base methods.
  */
-open class BaseIntroductionFragment() : BaseFragment() {
+internal open class BaseIntroductionFragment() : BaseFragment() {
         /**
          * * Draw ImageView content, set text formatting and content.
          */

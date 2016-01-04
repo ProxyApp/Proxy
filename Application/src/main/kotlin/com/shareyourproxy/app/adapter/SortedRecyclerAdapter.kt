@@ -10,7 +10,7 @@ import java.util.*
 /**
  * Adapter that is backed by a sorted List.
  */
-abstract class SortedRecyclerAdapter<T>(clazz: Class<T>, private val recyclerView: BaseRecyclerView) : BaseRecyclerViewAdapter() {
+internal abstract class SortedRecyclerAdapter<T>(clazz: Class<T>, private val recyclerView: BaseRecyclerView) : BaseRecyclerViewAdapter() {
     protected val sortedList: SortedList<T> = SortedList(clazz, getSortedCallback(this), 0)
     private var needsRefresh = true
 

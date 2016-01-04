@@ -35,7 +35,7 @@ import java.util.Arrays.asList
 /**
  * Add a [MainContactsFragment] and [MainGroupFragment] to this fragment's [AggregateFeedFragment.slidingTabLayout].
  */
-class AggregateFeedFragment() : BaseFragment() {
+internal final class AggregateFeedFragment() : BaseFragment() {
     companion object {
         val ARG_SELECT_PROFILE_TAB = 0
         val ARG_SELECT_CONTACTS_TAB = 1

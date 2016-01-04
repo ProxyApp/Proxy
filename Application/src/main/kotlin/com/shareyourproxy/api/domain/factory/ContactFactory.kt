@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Factory for creating domain model [Contact]s.
  */
-object ContactFactory {
+internal object ContactFactory {
     /**
      * Convert a list of RealmString values into a HashSet of contact id Strings.
      * @param values contact ids saved in realm

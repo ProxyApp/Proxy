@@ -32,7 +32,7 @@ import java.util.Arrays.asList
 /**
  * The main introduction fragment.
  */
-class MainIntroductionFragment() : BaseFragment() {
+internal final class MainIntroductionFragment() : BaseFragment() {
     private val viewPager: ViewPager by bindView(fragment_introduction_main_viewpager)
     private val pageIndicator: CirclePageIndicator by bindView(fragment_introduction_main_pageindicator)
     private val floatingActionButton: FloatingActionButton by bindView(fragment_introduction_main_fab)

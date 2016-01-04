@@ -25,7 +25,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * Drawer Fragment to handle displaying a user profile with options.
  */
-class MainDrawerFragment() : BaseFragment(), ItemLongClickListener {
+internal final class MainDrawerFragment() : BaseFragment(), ItemLongClickListener {
 
     private val drawerRecyclerView: BaseRecyclerView by bindView(fragment_drawer_recyclerview)
     private val adapter: DrawerAdapter = DrawerAdapter(loggedInUser, this)

@@ -24,7 +24,7 @@ import java.util.*
 /**
  * Display a contacts profile and channels.
  */
-class ContactProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
+internal final class ContactProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
 
     init {
         arguments.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, contact)

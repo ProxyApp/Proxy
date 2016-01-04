@@ -6,7 +6,7 @@ import android.view.View
 /**
  * ViewHolder for the entered view's data.
  */
-abstract class BaseViewHolder : RecyclerView.ViewHolder, View.OnClickListener, View.OnLongClickListener {
+internal abstract class BaseViewHolder : RecyclerView.ViewHolder, View.OnClickListener, View.OnLongClickListener {
     var view: View
     private var itemClickListener: ItemClickListener? = null
     private var itemLongClickListener: ItemLongClickListener? = null

@@ -16,7 +16,7 @@ import java.util.*
 /**
  * Adapter for a users profile and their [Channel] package permissions.
  */
-class ViewChannelAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemLongClickListener) : NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, showHeader, false, sharedPreferences) {
+internal final class ViewChannelAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemLongClickListener) : NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     fun updateChannels(channels: HashMap<String, Channel>?) {
         refreshData(channels?.values)

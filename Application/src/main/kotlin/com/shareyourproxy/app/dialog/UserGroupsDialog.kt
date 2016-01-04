@@ -31,7 +31,7 @@ import java.util.*
 /**
  * This Dialog provides a toggle selection to add a User contactId to the logged in User's various saved groups.
  */
-class UserGroupsDialog(private val groups: ArrayList<GroupToggle>, private val user: User) : BaseDialogFragment() {
+internal final class UserGroupsDialog(private val groups: ArrayList<GroupToggle>, private val user: User) : BaseDialogFragment() {
     private val TAG = UserGroupsDialog::class.java.simpleName
     private val ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList"
     private val ARG_USER = "com.shareyourproxy.app.dialog.User"

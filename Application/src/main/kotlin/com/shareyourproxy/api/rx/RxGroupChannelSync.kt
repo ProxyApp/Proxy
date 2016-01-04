@@ -157,7 +157,7 @@ internal object RxGroupChannelSync {
 
     private fun saveFirebaseGroupChannels(context:Context, userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
         val newGroup = group.copy(label = newTitle, channels = channels)
-        return RestClient(context).herokuUserService.addUserGroup(userId, group.id, newGroup)
+        return RestClient(context).herokuUserService.addUserGroup(userId, newGroup)
     }
 
     private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: Enumerations.GroupEditType): Func2<Group, Group, GroupChannelsUpdatedEventCallback> {

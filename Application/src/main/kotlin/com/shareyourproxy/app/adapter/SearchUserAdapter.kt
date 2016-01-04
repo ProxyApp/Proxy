@@ -20,7 +20,7 @@ import java.util.*
 /**
  * An Adapter to handle displaying [User]s.
  */
-class SearchUserAdapter(private val recyclerView: BaseRecyclerView, private val _clickListener: ItemClickListener) : SortedRecyclerAdapter<User>(User::class.java, recyclerView) {
+internal final class SearchUserAdapter(private val recyclerView: BaseRecyclerView, private val _clickListener: ItemClickListener) : SortedRecyclerAdapter<User>(User::class.java, recyclerView) {
     private var queryString = ""
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {

@@ -19,6 +19,7 @@ import com.shareyourproxy.api.rx.RxQuery.getRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
+import com.shareyourproxy.app.UserContactActivity
 import rx.Observable
 import rx.functions.Func1
 import java.util.*

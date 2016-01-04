@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Created by Evan on 8/14/15.
  */
-data class SpotifyUser(val id: String,val name: String,val uri: String) : BaseParcelable {
+internal data class SpotifyUser(val id: String,val name: String,val uri: String) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(name)

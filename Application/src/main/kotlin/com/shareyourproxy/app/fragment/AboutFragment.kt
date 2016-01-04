@@ -15,7 +15,7 @@ import com.shareyourproxy.util.ButterKnife.bindView
 /**
  * Show an Apache II License for this project.
  */
-class AboutFragment() : BaseFragment() {
+internal final class AboutFragment() : BaseFragment() {
     private val toolbar: Toolbar by bindView(R.id.fragment_about_toolbar)
     private val title: String by bindString(about)
 

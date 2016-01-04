@@ -9,7 +9,7 @@ import java.util.*
 /**
  * Factory for creating [RealmGroup]s.
  */
-object RealmGroupFactory {
+internal object RealmGroupFactory {
 
     /**
      * Return a RealmList of Contacts from a user

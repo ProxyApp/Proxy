@@ -13,7 +13,7 @@ import java.io.IOException
 /**
  * Thanks Jesse, implement hooks in to a custom type adapter.
  */
-abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>) : TypeAdapterFactory {
+internal abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>) : TypeAdapterFactory {
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {

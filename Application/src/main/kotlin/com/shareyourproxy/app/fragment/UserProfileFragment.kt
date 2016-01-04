@@ -89,7 +89,7 @@ import timber.log.Timber
  * Display a User or a User Contact's Channels. Allow Users to edit their channels. Allow User Contact's to be added to be observed and added to groups logged
  * in user groups.
  */
-abstract class UserProfileFragment() : BaseFragment() {
+internal abstract class UserProfileFragment() : BaseFragment() {
     private val appBarLayout: AppBarLayout by bindView(fragment_user_profile_appbar)
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(fragment_user_profile_swiperefresh)
     private val coordinatorLayout: CoordinatorLayout by bindView(fragment_user_profile_coordinator_layout)

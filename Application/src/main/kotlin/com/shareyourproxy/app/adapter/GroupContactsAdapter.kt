@@ -10,13 +10,13 @@ import com.facebook.drawee.view.SimpleDraweeView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
-import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 
 /**
  * Display group contacts.
  */
-class GroupContactsAdapter(recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener) : SortedRecyclerAdapter<User>(User::class.java, recyclerView) {
+internal final class GroupContactsAdapter(recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener) : SortedRecyclerAdapter<User>(User::class.java, recyclerView) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_user_item, parent, false)

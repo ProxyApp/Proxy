@@ -22,7 +22,7 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 /**
  * Handle dispatching a [LoginActivity] or a [AggregateFeedActivity] base off the current user.
  */
-class DispatchFragment() : BaseFragment() {
+internal final class DispatchFragment() : BaseFragment() {
     private val textView: TextView by bindView(fragment_dispatch_image)
     private val progressBar: ProgressBar by bindView(fragment_dispatch_progress)
     private val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)

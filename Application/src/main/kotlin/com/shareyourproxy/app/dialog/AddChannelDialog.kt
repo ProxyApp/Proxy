@@ -30,16 +30,16 @@ import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
-import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import java.util.*
 
 /**
  * Add a new [Channel] to a [User].
  */
-class AddChannelDialog(private val channelType: ChannelType) : BaseDialogFragment() {
+internal final class AddChannelDialog(private val channelType: ChannelType) : BaseDialogFragment() {
     private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
     private val TAG = AddChannelDialog::class.java.simpleName
     private val editTextActionAddress: EditText by bindView(dialog_channel_action_address_edittext)

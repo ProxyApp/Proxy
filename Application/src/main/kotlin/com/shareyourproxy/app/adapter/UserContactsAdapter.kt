@@ -19,7 +19,7 @@ import java.util.*
 /**
  * An Adapter to handle displaying [User]s.
  */
-class UserContactsAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemClickListener) : NotificationRecyclerAdapter<User>(User::class.java, recyclerView, showHeader, false, sharedPreferences) {
+internal final class UserContactsAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val clickListener: ItemClickListener) : NotificationRecyclerAdapter<User>(User::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     override fun onCreateItemViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_user_item, parent, false)

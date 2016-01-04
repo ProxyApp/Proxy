@@ -53,7 +53,7 @@ import java.util.*
 /**
  * A User's channels
  */
-class UserChannelsFragment(contact: User) : BaseFragment(), ItemLongClickListener {
+internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemLongClickListener {
     init {
         arguments.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
     }

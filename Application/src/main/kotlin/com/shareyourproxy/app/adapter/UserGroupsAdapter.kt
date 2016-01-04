@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Adapts the contactGroups that a user belongs to in a dialog.
  */
-class UserGroupsAdapter(recyclerView: BaseRecyclerView, groups: ArrayList<GroupToggle>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
+internal final class UserGroupsAdapter(recyclerView: BaseRecyclerView, groups: ArrayList<GroupToggle>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
     init {
         refreshData(groups)
     }

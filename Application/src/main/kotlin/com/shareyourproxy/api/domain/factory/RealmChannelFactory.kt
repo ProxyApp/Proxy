@@ -9,7 +9,7 @@ import java.util.*
 /**
  * Factory for creating [RealmChannel]s.
  */
-object RealmChannelFactory {
+internal object RealmChannelFactory {
     fun getRealmChannels(channels: HashMap<String, Channel>): RealmList<RealmChannel> {
         val realmChannelArray: RealmList<RealmChannel>
         realmChannelArray = RealmList<RealmChannel>()

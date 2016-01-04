@@ -32,7 +32,7 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PU
 import timber.log.Timber
 import java.util.*
 
-internal class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
+internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
     companion object{
         internal val TYPE_LIST_ITEM = 1
         internal val TYPE_LIST_HEADER = 2

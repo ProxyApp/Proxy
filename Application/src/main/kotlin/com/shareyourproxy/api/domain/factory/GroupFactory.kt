@@ -10,7 +10,7 @@ import java.util.*
 /**
  * Factory for creating domain model [Group]s.
  */
-object GroupFactory {
+internal object GroupFactory {
     const val PUBLIC: String = "public";
     const val BLANK: String = "";
 

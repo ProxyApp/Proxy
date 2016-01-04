@@ -35,7 +35,7 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Add a channel that requires OAuth.
  */
-class AddAuthChannelDialog(private val channel: Channel) : BaseDialogFragment() {
+internal final class AddAuthChannelDialog(private val channel: Channel) : BaseDialogFragment() {
     private val ARG_CHANNEL = "AddAuthChannelDialog.Channel"
     private val TAG = AddAuthChannelDialog::class.java.simpleName
     private val parcelChannel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)

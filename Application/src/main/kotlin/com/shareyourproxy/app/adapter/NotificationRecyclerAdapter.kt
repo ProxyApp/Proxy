@@ -20,7 +20,7 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 /**
  * Adapter that can handle displaying a dismissable notification card as a header, footer or both.
  */
-abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: BaseRecyclerView, showHeader: Boolean, showFooter: Boolean, private val _prefs: SharedPreferences) : SortedRecyclerAdapter<T>(clazz, recyclerView) {
+internal abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: BaseRecyclerView, showHeader: Boolean, showFooter: Boolean, private val _prefs: SharedPreferences) : SortedRecyclerAdapter<T>(clazz, recyclerView) {
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {

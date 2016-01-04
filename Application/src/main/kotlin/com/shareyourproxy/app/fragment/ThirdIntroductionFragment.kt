@@ -20,7 +20,7 @@ import com.shareyourproxy.util.ButterKnife.bindView
 /**
  * Third introduction slide content.
  */
-class ThirdIntroductionFragment() : BaseIntroductionFragment() {
+internal final class ThirdIntroductionFragment() : BaseIntroductionFragment() {
     private val logoSize: Int by bindDimen(common_svg_xxlarge)
     private val introTitle: String by bindString(slide_three_title)
     private val introBody: String by bindString(slide_three_body)

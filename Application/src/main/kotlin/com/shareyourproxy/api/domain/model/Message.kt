@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Message information for Notifications.
  */
-data class Message(val id: String, val contactId: String, val fullName: String) : BaseParcelable {
+internal data class Message(val id: String, val contactId: String, val fullName: String) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(contactId)

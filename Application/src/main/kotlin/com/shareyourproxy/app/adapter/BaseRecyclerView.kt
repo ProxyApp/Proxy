@@ -17,7 +17,7 @@ import com.shareyourproxy.util.Enumerations.ViewState
 /**
  * [BaseRecyclerView] that handles empty views.
  */
-class BaseRecyclerView : RecyclerView {
+internal class BaseRecyclerView : RecyclerView {
     private var emptyView: View? = null
     private var loadingView: View? = null
     internal var viewType: ViewState? = null

@@ -8,7 +8,7 @@ import java.util.*
 /**
  * Make an item for user activity feeds.
  */
-data class ActivityFeedItem(val handle: String, val subtext: String, val channelType: ChannelType, val actionAddress: String, val timestamp: Date?, val isError: Boolean) : BaseParcelable {
+internal data class ActivityFeedItem(val handle: String, val subtext: String, val channelType: ChannelType, val actionAddress: String, val timestamp: Date?, val isError: Boolean) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(handle)
         dest.writeString(subtext)

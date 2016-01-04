@@ -8,7 +8,7 @@ import java.util.*
 /**
  * Users have a basic profile that contains their specific [Channel]s, [User]s, and [Group]s.
  */
-data class User(val id: String, val first: String, val last: String, val fullName: String, val email: String, val profileURL: String, val coverURL: String, val channels: HashMap<String, Channel>, val contacts: HashSet<String>, val groups: HashMap<String, Group>, val androidVersion: Int) : BaseParcelable {
+internal data class User(val id: String, val first: String, val last: String, val fullName: String, val email: String, val profileURL: String, val coverURL: String, val channels: HashMap<String, Channel>, val contacts: HashSet<String>, val groups: HashMap<String, Group>, val androidVersion: Int) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(first)

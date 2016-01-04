@@ -17,7 +17,7 @@ import java.util.*
 /**
  * An Adapter to handle displaying [Group]s.
  */
-class GroupAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
+internal final class GroupAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, showHeader: Boolean, private val listener: ItemClickListener) : NotificationRecyclerAdapter<Group>(Group::class.java, recyclerView, showHeader, false, sharedPreferences) {
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder is GroupViewHolder) {

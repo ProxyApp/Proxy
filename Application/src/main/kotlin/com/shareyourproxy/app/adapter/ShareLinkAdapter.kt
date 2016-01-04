@@ -15,7 +15,7 @@ import java.util.*
 /**
  * Display a list of groups to broadcast in a shared link intent.
  */
-class ShareLinkAdapter(private val recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
+internal final class ShareLinkAdapter(private val recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
     private var lastCheckedView: CheckedTextView = CheckedTextView(recyclerView.context)
 
     init {

@@ -16,7 +16,7 @@ import java.util.*
 /**
  * Add a new channel to groups after its made.
  */
-class SaveGroupChannelAdapter(recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
+internal final class SaveGroupChannelAdapter(recyclerView: BaseRecyclerView, groups: HashMap<String, Group>) : SortedRecyclerAdapter<GroupToggle>(GroupToggle::class.java, recyclerView), ItemClickListener {
     private val publicGroup = GroupToggle(GroupFactory.createPublicGroup(), false)
     internal val dataArray: ArrayList<GroupToggle> get() {
         val groups = data

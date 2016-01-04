@@ -13,7 +13,7 @@ import java.util.*
 /**
  * Factory to create Channels or RealmChannels.
  */
-object ChannelFactory {
+internal object ChannelFactory {
 
     fun createModelInstance(id: String, label: String, channelType: ChannelType, actionAddress: String): Channel {
         return Channel(id, label, channelType, actionAddress, false)

@@ -62,7 +62,7 @@ import java.util.*
 /**
  * Search for [User]s.
  */
-class SearchFragment() : BaseFragment(), ItemClickListener {
+internal final class SearchFragment() : BaseFragment(), ItemClickListener {
 
     private val imageViewBackButton: ImageView by bindView(R.id.fragment_search_back_button)
     private val editText: CustomEditText by bindView(R.id.fragment_search_edittext)

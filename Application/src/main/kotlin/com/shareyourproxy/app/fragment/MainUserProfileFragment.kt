@@ -28,7 +28,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * Display the logged in users profile and channels.
  */
-class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
+internal final class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
     init {
         arguments.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, contact)
         arguments.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)

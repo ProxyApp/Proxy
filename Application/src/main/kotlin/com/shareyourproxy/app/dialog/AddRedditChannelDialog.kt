@@ -37,7 +37,7 @@ import java.util.*
 /**
  * Add a new Reddit [Channel] to a [User].
  */
-class AddRedditChannelDialog : BaseDialogFragment() {
+internal final class AddRedditChannelDialog : BaseDialogFragment() {
     private val editTextActionAddress: EditText by bindView(dialog_reddit_channel_action_address_edittext)
     private val negativeClicked = DialogInterface.OnClickListener { dialogInterface, i ->
         hideSoftwareKeyboard(editTextActionAddress)

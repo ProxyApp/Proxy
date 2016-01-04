@@ -37,7 +37,7 @@ import org.solovyev.android.views.llm.LinearLayoutManager
 /**
  * Save a new channel to selected groups after creating it.
  */
-class SaveGroupChannelDialog(private val channel: Channel, private val user: User) : BaseDialogFragment() {
+internal final class SaveGroupChannelDialog(private val channel: Channel, private val user: User) : BaseDialogFragment() {
     private val ARG_CHANNEL = "com.shareyourproxy.savegroupchanneldialog.arg.channel"
     private val ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user"
     private val TAG = SaveGroupChannelDialog::class.java.simpleName

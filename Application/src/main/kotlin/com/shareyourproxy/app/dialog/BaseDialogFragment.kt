@@ -10,7 +10,7 @@ import com.shareyourproxy.util.ButterKnife
 /**
  * Base Dialog Abstraction.
  */
-open class BaseDialogFragment : DialogFragment() {
+internal open class BaseDialogFragment : DialogFragment() {
     /**
      * Sets the color of button input.
      * @param button Button

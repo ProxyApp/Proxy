@@ -15,7 +15,7 @@ import java.util.*
 /**
  * Factory for creating domain model [User]s.
  */
-object UserFactory {
+internal object UserFactory {
 
     /**
      * Take in a realm user and create a model user.

@@ -7,7 +7,7 @@ import timber.log.Timber
 /**
  * Used to sort channels for their eventually called ACTION_INTENT or VIEW_INTENT in [IntentLauncher].
  */
-enum class ChannelType private constructor(val weight: Int, val label: String, val resId: Int, val resColor: Int?) {
+internal enum class ChannelType private constructor(val weight: Int, val label: String, val resId: Int, val resColor: Int?) {
     Custom(0, "Custom", R.raw.ic_star, WHITE),
     Phone(1, "Phone", R.raw.ic_call, WHITE),
     SMS(2, "SMS", R.raw.ic_sms, WHITE),

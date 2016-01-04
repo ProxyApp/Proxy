@@ -32,7 +32,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * User feeds.
  */
-class UserFeedFragment() : BaseFragment(), ItemClickListener {
+internal final class UserFeedFragment() : BaseFragment(), ItemClickListener {
     private val recyclerView: BaseRecyclerView by bindView(fragment_user_feed_recyclerview)
     private val emptyTextView: TextView by bindView(R.id.fragment_user_feed_empty_textview)
     private val loggedInNullTitle: String = getString(fragment_userfeed_empty_title)

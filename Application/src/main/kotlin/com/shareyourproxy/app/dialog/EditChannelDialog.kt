@@ -28,15 +28,15 @@ import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand
-import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 
 /**
  * Dialog that handles editing a selected channel.
  */
-class EditChannelDialog(private val channel: Channel, private val position: Int) : BaseDialogFragment() {
+internal final class EditChannelDialog(private val channel: Channel, private val position: Int) : BaseDialogFragment() {
     private val ARG_CHANNEL = "EditChannelDialog.Channel"
     private val ARG_POSITION = "EditChannelDialog.Position"
     private val TAG = AddChannelDialog::class.java.simpleName

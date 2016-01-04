@@ -29,7 +29,7 @@ import timber.log.Timber
 /**
  * Display a list of [Group] [Channel]s and whether they are in our out of the selected groups permissions.
  */
-class EditGroupChannelsFragment() : BaseFragment(), ItemClickListener {
+internal final class EditGroupChannelsFragment() : BaseFragment(), ItemClickListener {
 
     /**
      * Check whether this fragment is Adding a group, Editing a group, or a Public group.

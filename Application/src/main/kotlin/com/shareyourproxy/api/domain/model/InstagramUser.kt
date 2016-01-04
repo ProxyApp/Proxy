@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Instagram User Object.
  */
-data class InstagramUser(val id: String, val username: String, val fullName: String, val profilePicture: String, val bio: String, val website: String) : BaseParcelable {
+internal data class InstagramUser(val id: String, val username: String, val fullName: String, val profilePicture: String, val bio: String, val website: String) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(username)

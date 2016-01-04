@@ -12,8 +12,8 @@ import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
-import com.shareyourproxy.util.StringUtils.capitalize
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.StringUtils.capitalize
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.CUSTOM_URL
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SAFE_INFO
@@ -22,7 +22,7 @@ import java.util.Arrays.asList
 /**
  * Adapter that handles displaying channels.
  */
-class AddChannelAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, private val clickListener: ItemClickListener) : NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, !sharedPreferences.getBoolean(DismissibleNotificationCard.NotificationCard.SAFE_INFO.key, false), !sharedPreferences.getBoolean(DismissibleNotificationCard.NotificationCard.CUSTOM_URL.key, false), sharedPreferences) {
+internal final class AddChannelAdapter(recyclerView: BaseRecyclerView, sharedPreferences: SharedPreferences, private val clickListener: ItemClickListener) : NotificationRecyclerAdapter<Channel>(Channel::class.java, recyclerView, !sharedPreferences.getBoolean(DismissibleNotificationCard.NotificationCard.SAFE_INFO.key, false), !sharedPreferences.getBoolean(DismissibleNotificationCard.NotificationCard.CUSTOM_URL.key, false), sharedPreferences) {
     private val PHONE = createModelInstance(Phone)
     private val SMS = createModelInstance(ChannelType.SMS)
     private val EMAIL = createModelInstance(Email)

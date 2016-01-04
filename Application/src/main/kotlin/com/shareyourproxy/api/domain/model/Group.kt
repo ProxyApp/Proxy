@@ -8,7 +8,7 @@ import java.util.*
 /**
  * Groups are collections of [User]s.
  */
-data class Group(val id: String, val label: String, val channels: HashSet<String>, val contacts: HashSet<String>) : BaseParcelable {
+internal data class Group(val id: String, val label: String, val channels: HashSet<String>, val contacts: HashSet<String>) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(label)

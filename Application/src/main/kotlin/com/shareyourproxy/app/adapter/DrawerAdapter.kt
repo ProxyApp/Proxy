@@ -13,16 +13,16 @@ import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem.*
+import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getMenuIconDark
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
-import com.shareyourproxy.util.ButterKnife.bindView
 import java.util.Arrays.asList
 
 /**
  * Adapter to handle creating a drawer with a User Header and User Settings.
  */
-class DrawerAdapter(private var currentUser: User, private val clickListener: ItemClickListener) : BaseRecyclerViewAdapter() {
+internal final class DrawerAdapter(private var currentUser: User, private val clickListener: ItemClickListener) : BaseRecyclerViewAdapter() {
     private val TYPE_HEADER = 0
     private val TYPE_LIST_ITEM = 1
     private val drawerItems: List<DrawerItem> = asList(SHARE_PROFILE, INVITE_FRIEND, TOUR, REPORT_ISSUE, LOGOUT)

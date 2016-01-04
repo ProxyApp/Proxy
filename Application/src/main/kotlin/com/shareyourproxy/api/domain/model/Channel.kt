@@ -7,7 +7,7 @@ import com.shareyourproxy.util.BaseParcelable
 /**
  * Channels are other apps and services that you will use to communicate with [Contact]s.
  */
-data class Channel(val id: String, val label: String, val channelType: ChannelType, val actionAddress: String, val isPublic: Boolean) : BaseParcelable {
+internal data class Channel(val id: String, val label: String, val channelType: ChannelType, val actionAddress: String, val isPublic: Boolean) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(label)
