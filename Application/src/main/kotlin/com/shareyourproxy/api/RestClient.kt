@@ -18,7 +18,7 @@ import timber.log.Timber
 /**
  * Rest client for users.
  */
-class RestClient(private val context: Context) {
+internal final class RestClient(private val context: Context) {
     val HEROKU_URL = "https://proxy-api.herokuapp.com/"
     val herokuUserService: HerokuUserService get() = buildClient(HEROKU_URL).create(HerokuUserService::class.java)
 

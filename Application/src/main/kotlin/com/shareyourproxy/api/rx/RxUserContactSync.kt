@@ -17,7 +17,7 @@ import java.util.*
 /**
  * Sync contacts asynchronously.
  */
-object RxUserContactSync {
+internal object RxUserContactSync {
     fun checkContacts(context: Context, user: User, contacts: ArrayList<String>, userGroups: HashMap<String, Group>): EventCallback {
         return Observable.from(contacts)
                 .map(findContactsToDelete(userGroups))

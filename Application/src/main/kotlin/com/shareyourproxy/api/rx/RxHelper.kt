@@ -14,7 +14,7 @@ import rx.schedulers.Schedulers
 /**
  * RxHelper for common rx.Observable method calls.
  */
-object RxHelper {
+internal object RxHelper {
     fun <T> singleObserveMain(): Single.Transformer<T, T> {
         return Single.Transformer<T, T> { single -> single.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()) }
     }

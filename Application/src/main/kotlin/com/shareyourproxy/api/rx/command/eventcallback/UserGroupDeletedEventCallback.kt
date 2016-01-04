@@ -11,7 +11,7 @@ import com.shareyourproxy.api.domain.model.User
  * A user group has been deleted.
  * @param group this events group
  */
-class UserGroupDeletedEventCallback(user: User, val group: Group) : UserEventCallback(user) {
+internal final class UserGroupDeletedEventCallback(user: User, val group: Group) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(group)

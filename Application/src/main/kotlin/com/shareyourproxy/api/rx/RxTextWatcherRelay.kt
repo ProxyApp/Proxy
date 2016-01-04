@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Subject to watch EditTextViews.
  */
-object RxTextWatcherRelay {
+internal object RxTextWatcherRelay {
     private val bus: PublishRelay<String> = PublishRelay.create();
     fun textWatcherObserverable(): Observable<String> {
         return Observable.defer { bus.toSerialized().debounce(500, TimeUnit.MILLISECONDS, Schedulers.io())

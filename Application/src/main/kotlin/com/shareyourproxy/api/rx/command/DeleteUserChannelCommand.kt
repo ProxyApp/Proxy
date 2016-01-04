@@ -12,7 +12,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Delete a channel associated with a user.
  */
-class DeleteUserChannelCommand(val user: User, val channel: Channel, val position: Int) : BaseCommand() {
+internal final class DeleteUserChannelCommand(val user: User, val channel: Channel, val position: Int) : BaseCommand() {
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as Channel, parcel.readValue(CL) as Int)
 

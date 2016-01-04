@@ -9,7 +9,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * Group contacts have been updated.
  */
-class GroupContactsUpdatedEventCallback(user: User, val contactId: String, val contactGroups: List<Group>) : UserEventCallback(user) {
+internal final class GroupContactsUpdatedEventCallback(user: User, val contactId: String, val contactGroups: List<Group>) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(contactId)

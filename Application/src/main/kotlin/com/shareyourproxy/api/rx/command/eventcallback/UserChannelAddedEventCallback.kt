@@ -9,7 +9,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * A newChannel was added or updated. If oldChannel is non-null, then this is an update.
  */
-class UserChannelAddedEventCallback(user: User, val oldChannel: Channel?, val newChannel: Channel) : UserEventCallback(user) {
+internal final class UserChannelAddedEventCallback(user: User, val oldChannel: Channel?, val newChannel: Channel) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(oldChannel)

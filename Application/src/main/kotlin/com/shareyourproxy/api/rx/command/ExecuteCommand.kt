@@ -7,6 +7,6 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Command Pattern.
  */
-interface ExecuteCommand {
+internal interface ExecuteCommand {
     fun execute(service: Service): EventCallback
 }

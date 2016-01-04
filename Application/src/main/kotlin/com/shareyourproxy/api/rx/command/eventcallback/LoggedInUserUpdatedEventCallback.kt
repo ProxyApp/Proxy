@@ -8,7 +8,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * Current user updated.
  */
-class LoggedInUserUpdatedEventCallback(user: User) : UserEventCallback(user) {
+internal final class LoggedInUserUpdatedEventCallback(user: User) : UserEventCallback(user) {
     companion object {
         private val CL = LoggedInUserUpdatedEventCallback::class.java.classLoader
         val CREATOR: Parcelable.Creator<LoggedInUserUpdatedEventCallback> = object : Parcelable.Creator<LoggedInUserUpdatedEventCallback> {

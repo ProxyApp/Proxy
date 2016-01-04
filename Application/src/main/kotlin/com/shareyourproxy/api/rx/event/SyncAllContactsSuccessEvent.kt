@@ -8,7 +8,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Sync all users command has successfully completed.
  */
-class SyncAllContactsSuccessEvent : EventCallback() {
+internal final class SyncAllContactsSuccessEvent : EventCallback() {
 
     override fun describeContents(): Int = 0
 

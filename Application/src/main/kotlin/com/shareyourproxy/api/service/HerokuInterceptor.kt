@@ -9,7 +9,7 @@ import java.io.IOException
 /**
  * Add Heroku authentication headers.
  */
-class HerokuInterceptor(private val sharedPrefs: SharedPreferences) : Interceptor {
+internal final class HerokuInterceptor(private val sharedPrefs: SharedPreferences) : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = sharedPrefs.getString(KEY_GOOGLE_PLUS_AUTH, null)

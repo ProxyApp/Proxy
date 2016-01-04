@@ -10,7 +10,7 @@ import com.shareyourproxy.api.domain.model.User
  * User group channel updated.
  * @param group this events group
  */
-class UserGroupAddedEventCallback(user: User, val group: Group) : UserEventCallback(user) {
+internal final class UserGroupAddedEventCallback(user: User, val group: Group) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(group)

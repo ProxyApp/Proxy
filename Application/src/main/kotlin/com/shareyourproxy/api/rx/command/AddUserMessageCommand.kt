@@ -11,7 +11,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
  * Add a user message to firebase.
  * @param message to send
  */
-class AddUserMessageCommand(val userId: String, val message: Message) : BaseCommand() {
+internal final class AddUserMessageCommand(val userId: String, val message: Message) : BaseCommand() {
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String, parcel.readValue(CL) as Message)
 

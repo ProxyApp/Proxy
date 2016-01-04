@@ -8,7 +8,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * User contact has been deleted.
  */
-class UserContactDeletedEventCallback(user: User, private val contactId: String) : UserEventCallback(user) {
+internal final class UserContactDeletedEventCallback(user: User, private val contactId: String) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(contactId)

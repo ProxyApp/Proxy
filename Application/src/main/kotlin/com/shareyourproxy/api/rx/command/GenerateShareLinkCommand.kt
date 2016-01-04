@@ -13,7 +13,7 @@ import java.util.*
 /**
  * Generate public link urls.
  */
-class GenerateShareLinkCommand(val user: User, val groups: ArrayList<GroupToggle>) : BaseCommand() {
+internal final class GenerateShareLinkCommand(val user: User, val groups: ArrayList<GroupToggle>) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>)
 

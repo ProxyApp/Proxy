@@ -16,7 +16,7 @@ import java.util.*
  * @param groups  selected groups to add channel to
  * @param channel this events group
  */
-class AddGroupsChannelCommand(val user: User, val groups: ArrayList<GroupToggle>, val channel: Channel) : BaseCommand() {
+internal final class AddGroupsChannelCommand(val user: User, val groups: ArrayList<GroupToggle>, val channel: Channel) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as Channel)
 

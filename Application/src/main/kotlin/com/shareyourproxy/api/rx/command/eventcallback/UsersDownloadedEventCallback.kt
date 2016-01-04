@@ -8,7 +8,7 @@ import java.util.*
 /**
  * User contacts downloaded.
  */
-class UsersDownloadedEventCallback(loggedInUser: User, val users: HashMap<String, User>) : UserEventCallback(loggedInUser) {
+internal final class UsersDownloadedEventCallback(loggedInUser: User, val users: HashMap<String, User>) : UserEventCallback(loggedInUser) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(users)

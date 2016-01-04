@@ -21,7 +21,7 @@ import java.util.*
 /**
  * Update a groups channel map, or update a channel in all groups.
  */
-object RxGroupChannelSync {
+internal object RxGroupChannelSync {
     fun addUserGroupsChannel(context: Context, user: User, groups: ArrayList<GroupToggle>, channel: Channel): UserGroupAddedEventCallback {
         return Observable.create(addChannelToSelectedGroups(groups, channel))
                 .map(zipAndSaveGroups(context, user))

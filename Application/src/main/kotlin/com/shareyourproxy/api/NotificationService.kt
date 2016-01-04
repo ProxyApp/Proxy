@@ -13,7 +13,7 @@ import java.util.*
 /**
  * Service to pull for notification messages.
  */
-class NotificationService : Service() {
+internal final class NotificationService : Service() {
     private val binder = object : INotificationService.Stub() {
         @Throws(RemoteException::class)
         override fun getNotifications(userId: String): ArrayList<Notification>? {

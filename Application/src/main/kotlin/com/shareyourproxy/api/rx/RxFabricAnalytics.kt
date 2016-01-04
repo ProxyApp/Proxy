@@ -13,7 +13,7 @@ import rx.functions.Action1
 /**
  * Dump all the analytics for fabric's Answers platform here.
  */
-object RxFabricAnalytics {
+internal object RxFabricAnalytics {
     fun logFabricAnalytics(answers: Answers, realmUser: User, event: EventCallback) {
         Observable.just(event)
                 .doOnNext(LogEvent(answers, realmUser))

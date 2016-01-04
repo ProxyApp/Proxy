@@ -9,7 +9,7 @@ import java.util.*
 /**
  * Public channel updated.
  */
-class PublicChannelsUpdatedEventCallback(user: User, val newChannels: HashMap<String, Channel>) : UserEventCallback(user) {
+internal final class PublicChannelsUpdatedEventCallback(user: User, val newChannels: HashMap<String, Channel>) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(newChannels);

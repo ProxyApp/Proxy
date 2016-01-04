@@ -5,4 +5,4 @@ import android.view.KeyEvent
 /**
  * Created by Evan on 11/2/15.
  */
-class TextViewEditorActionEvent(val keyEvent: KeyEvent)
+internal final class TextViewEditorActionEvent(val keyEvent: KeyEvent)

@@ -8,7 +8,7 @@ import timber.log.Timber
 /**
  * This abstraction simply logs all errors to the command prompt.
  */
-abstract class JustObserver<T> : Observer<T> {
+internal abstract class JustObserver<T> : Observer<T> {
 
     override fun onCompleted() {
         Timber.v("${this.toString()} completed")

@@ -19,7 +19,6 @@ import com.shareyourproxy.api.rx.RxQuery.getRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
-import com.shareyourproxy.app.UserContactActivity
 import rx.Observable
 import rx.functions.Func1
 import java.util.*
@@ -27,7 +26,7 @@ import java.util.*
 /**
  * Cold Rx.Observable calls to handle syncing messages for Users.
  */
-object RxMessageSync {
+internal object RxMessageSync {
     fun getFirebaseMessages(context: Context, userId: String): UserMessagesDownloadedEventCallback {
         return RestClient(context).herokuUserService.getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()

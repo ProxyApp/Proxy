@@ -13,7 +13,7 @@ import java.util.*
 /**
  * Save contact to group.
  */
-class SaveGroupContactsCommand(val user: User, val groups: ArrayList<GroupToggle>, val contact: User) : BaseCommand() {
+internal final class SaveGroupContactsCommand(val user: User, val groups: ArrayList<GroupToggle>, val contact: User) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as User)
 

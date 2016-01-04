@@ -16,7 +16,7 @@ import java.util.*
 /**
  * Update Group contacts and User contacts when they've been added or removed to any groups.
  */
-object RxGroupContactSync {
+internal object RxGroupContactSync {
     fun updateGroupContacts(context: Context, user: User, editGroups: ArrayList<GroupToggle>, contact: User): EventCallback {
         return Observable.just(editGroups).map(userUpdateContacts(user, contact.id)).map(saveUserToDB(context, contact)).map(createGroupContactEvent(contact.id)).toBlocking().single()
     }

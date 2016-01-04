@@ -12,7 +12,7 @@ import java.util.*
 /**
  * Update a user's contacts.
  */
-class UpdateUserContactsCommand(val user: User, val contacts: ArrayList<String>, val userGroups: HashMap<String, Group>) : BaseCommand() {
+internal final class UpdateUserContactsCommand(val user: User, val contacts: ArrayList<String>, val userGroups: HashMap<String, Group>) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<String>, parcel.readValue(CL) as HashMap<String, Group>)
 

@@ -11,7 +11,7 @@ import timber.log.Timber
  * A singleton pattern intended to store an instance in the [ProxyApplication] that allows one
  * to easily send messages over this [PublishSubject] Bus.
  */
-object RxBusRelay : BaseParcelable {
+internal object RxBusRelay : BaseParcelable {
     val CREATOR: Parcelable.Creator<RxBusRelay> = object : Parcelable.Creator<RxBusRelay> {
         override fun createFromParcel(parcel: Parcel): RxBusRelay {
             return this@RxBusRelay

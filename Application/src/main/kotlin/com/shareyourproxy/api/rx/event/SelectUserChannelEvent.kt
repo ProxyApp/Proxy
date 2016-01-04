@@ -5,4 +5,4 @@ import com.shareyourproxy.api.domain.model.Channel
 /**
  * Channel selected event.
  */
-class SelectUserChannelEvent(val channel: Channel)
+internal final class SelectUserChannelEvent(val channel: Channel)

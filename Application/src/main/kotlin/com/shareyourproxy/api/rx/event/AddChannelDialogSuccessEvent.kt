@@ -6,4 +6,4 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * Created by Evan on 11/17/15.
  */
-class AddChannelDialogSuccessEvent(val user: User, val channel: Channel)
+internal final class AddChannelDialogSuccessEvent(val user: User, val channel: Channel)

@@ -12,7 +12,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Add a user to firebase.
  */
-class AddUserCommand(val user: User) : BaseCommand() {
+internal final class AddUserCommand(val user: User) : BaseCommand() {
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User)
 

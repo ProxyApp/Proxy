@@ -2,22 +2,18 @@ package com.shareyourproxy.api
 
 import android.app.Activity
 import android.app.IntentService
-import android.app.Service
 import android.content.Intent
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
-
 import com.shareyourproxy.api.rx.command.BaseCommand
-import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
-
 import timber.log.Timber
 
 /**
  * Take in a [BaseCommand] and call its [BaseCommand.execute] method. Get a List of EventCallback data and return the result in the
  * ProxyApplication's EventCallback Subscription.
  */
-class CommandIntentService : IntentService(CommandIntentService.TAG) {
+internal final class CommandIntentService : IntentService(CommandIntentService.TAG) {
 
     override fun onHandleIntent(intent: Intent) {
         val command = intent.extras.getParcelable<BaseCommand>(ARG_COMMAND_CLASS)

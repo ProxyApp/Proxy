@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Save a channel as public.
  */
-class SavePublicGroupChannelsCommand(private val user: User, private val channels: ArrayList<ChannelToggle>) : BaseCommand() {
+internal final class SavePublicGroupChannelsCommand(private val user: User, private val channels: ArrayList<ChannelToggle>) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<ChannelToggle>)
 

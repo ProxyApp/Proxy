@@ -9,7 +9,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * User deleted a channel.
  */
-class UserChannelDeletedEventCallback(user: User, val channel: Channel, val position: Int) : UserEventCallback(user) {
+internal final class UserChannelDeletedEventCallback(user: User, val channel: Channel, val position: Int) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(channel)

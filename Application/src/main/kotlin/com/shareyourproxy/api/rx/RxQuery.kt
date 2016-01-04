@@ -22,7 +22,7 @@ import java.util.*
 /**
  * Query the realm DB for data.
  */
-object RxQuery {
+internal object RxQuery {
     fun queryUserContacts(
             context: Context, contactIds: HashSet<String>?): HashMap<String, User> {
         return Observable.just<Context>(context).map<HashMap<String, User>>(

@@ -24,7 +24,7 @@ import timber.log.Timber
 /**
  * Handle login functions.
  */
-object RxLoginHelper {
+internal object RxLoginHelper {
 
     fun loginObservable(activity: BaseActivity): Single<User> {
         return Single.create(createLoginFlow(activity)).compose(singleObserveMain<User>())

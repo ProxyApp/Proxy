@@ -8,7 +8,7 @@ import java.util.*
 /**
  * User messages have been downloaded.
  */
-class UserMessagesDownloadedEventCallback(val notifications: ArrayList<Notification>) : EventCallback() {
+internal final class UserMessagesDownloadedEventCallback(val notifications: ArrayList<Notification>) : EventCallback() {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(notifications)

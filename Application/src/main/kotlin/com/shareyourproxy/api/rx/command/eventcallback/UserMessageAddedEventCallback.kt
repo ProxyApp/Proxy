@@ -9,7 +9,7 @@ import java.util.*
  * User message added.
  * @param message notification content
  */
-class UserMessageAddedEventCallback(val message: HashMap<String, Message>) : EventCallback() {
+internal final class UserMessageAddedEventCallback(val message: HashMap<String, Message>) : EventCallback() {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(message)

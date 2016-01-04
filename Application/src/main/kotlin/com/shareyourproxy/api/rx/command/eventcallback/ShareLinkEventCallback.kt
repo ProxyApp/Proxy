@@ -6,7 +6,7 @@ import android.os.Parcelable
 /**
  * A ShareLink message has been generated.
  */
-class ShareLinkEventCallback(val message: String) : EventCallback() {
+internal final class ShareLinkEventCallback(val message: String) : EventCallback() {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(message)

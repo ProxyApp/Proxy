@@ -12,7 +12,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Sync All Users data from firebase to Realm and return the logged in User.
  */
-class SyncContactsCommand(val user: User) : BaseCommand() {
+internal final class SyncContactsCommand(val user: User) : BaseCommand() {
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User)
 

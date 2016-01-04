@@ -21,7 +21,7 @@ import java.util.*
 /**
  * Connect to Proxy API.
  */
-interface HerokuUserService {
+internal interface HerokuUserService {
     /**
      * Get a specific [User] based of their UUID.
      * @return user observable

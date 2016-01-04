@@ -16,7 +16,7 @@ import rx.functions.Func1
 /**
  * Sync newChannel operations.
  */
-object RxUserChannelSync {
+internal object RxUserChannelSync {
     fun saveUserChannel(context: Context, oldUser: User, oldChannel: Channel?, newChannel: Channel): UserChannelAddedEventCallback {
         return Observable.just(oldUser)
                 .map(putUserChannel(newChannel))

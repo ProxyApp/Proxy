@@ -8,7 +8,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * User contact has been added.
  */
-class UserContactAddedEventCallback(user: User, val contactId: String) : UserEventCallback(user) {
+internal final class UserContactAddedEventCallback(user: User, val contactId: String) : UserEventCallback(user) {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(contactId)

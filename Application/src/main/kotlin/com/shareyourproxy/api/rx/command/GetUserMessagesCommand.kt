@@ -10,7 +10,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEve
 /**
  * Get user messages.
  */
-class GetUserMessagesCommand(private val userId: String) : BaseCommand() {
+internal final class GetUserMessagesCommand(private val userId: String) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String)
 

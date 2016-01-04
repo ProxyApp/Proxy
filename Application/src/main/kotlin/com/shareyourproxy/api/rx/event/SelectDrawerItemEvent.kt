@@ -9,4 +9,4 @@ import com.shareyourproxy.app.adapter.DrawerAdapter
  * @param position of item in list
  * @param message  item message
  */
-class SelectDrawerItemEvent(val drawerItem: DrawerAdapter.DrawerItem, val view: View, val position: Int, val message: String)
+internal final class SelectDrawerItemEvent(val drawerItem: DrawerAdapter.DrawerItem, val view: View, val position: Int, val message: String)

@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Get all user contacts or save a User to firebase.
  */
-object RxUserSync {
+internal object RxUserSync {
     /**
      * Download All User contacts from firebase and sync them to realm.
      * @param context      for realm instance

@@ -10,4 +10,4 @@ import com.shareyourproxy.api.domain.model.User
  * @param imageView user image
  * @param textView  user name label
  */
-class UserSelectedEvent(val imageView: View, val textView: View, val user: User)
+internal final class UserSelectedEvent(val imageView: View, val textView: View, val user: User)

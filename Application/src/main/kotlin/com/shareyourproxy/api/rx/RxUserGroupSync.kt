@@ -17,7 +17,7 @@ import rx.functions.Func2
 /**
  * Add and delete user groups.
  */
-object RxUserGroupSync {
+internal object RxUserGroupSync {
     fun addUserGroup(context: Context, user: User, group: Group): EventCallback {
         return Observable.zip(
                 saveRealmUserGroup(context, group, user),

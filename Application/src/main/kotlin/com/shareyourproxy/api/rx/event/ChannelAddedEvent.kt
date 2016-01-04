@@ -6,4 +6,4 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * Created by Evan on 11/9/15.
  */
-class ChannelAddedEvent(val user: User, val channel: Channel)
+internal final class ChannelAddedEvent(val user: User, val channel: Channel)

@@ -13,7 +13,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
  * @param user  logged in user
  * @param group this events group
  */
-class AddUserGroupCommand(val user: User, val group: Group) : BaseCommand() {
+internal final class AddUserGroupCommand(val user: User, val group: Group) : BaseCommand() {
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as Group)
 

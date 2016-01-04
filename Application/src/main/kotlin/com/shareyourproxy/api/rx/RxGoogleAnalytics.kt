@@ -15,7 +15,7 @@ import rx.Subscription
 /**
  * Log Google Analytics instances.
  */
-class RxGoogleAnalytics(context: Context) {
+internal final class RxGoogleAnalytics(context: Context) {
     val analytics: GoogleAnalytics = GoogleAnalytics.getInstance(context)
     val tracker: Tracker = analytics.newTracker(R.xml.global_tracker)
 

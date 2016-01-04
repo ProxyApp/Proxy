@@ -8,7 +8,7 @@ import com.shareyourproxy.api.domain.model.ActivityFeedItem
 /**
  * The activities feed has been downloaded.
  */
-class ActivityFeedDownloadedEvent(val feedItems: List<ActivityFeedItem>) : EventCallback() {
+internal final class ActivityFeedDownloadedEvent(val feedItems: List<ActivityFeedItem>) : EventCallback() {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeValue(feedItems)

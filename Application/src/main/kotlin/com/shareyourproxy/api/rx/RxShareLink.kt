@@ -17,7 +17,7 @@ import java.util.*
 /**
  * Handle shared link queue.
  */
-object RxShareLink {
+internal object RxShareLink {
     fun getShareLinkMessageObservable(context: Context, user: User, groups: ArrayList<GroupToggle>): EventCallback {
         return create(getSharedLinks(context, groups, user)).toBlocking().single()
     }
