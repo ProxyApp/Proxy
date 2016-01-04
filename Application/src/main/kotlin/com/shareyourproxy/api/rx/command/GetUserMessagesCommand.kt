@@ -4,7 +4,7 @@ import android.app.Service
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.rx.RxMessageSync.getFirebaseMessages
-import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
+import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
 
 
 /**
@@ -14,7 +14,7 @@ class GetUserMessagesCommand(private val userId: String) : BaseCommand() {
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String)
 
-    override fun execute(service: Service): EventCallback {
+    override fun execute(service: Service): UserMessagesDownloadedEventCallback {
         return getFirebaseMessages(service, userId)
     }
 

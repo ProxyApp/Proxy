@@ -11,7 +11,7 @@ import android.graphics.drawable.BitmapDrawable
  * @param res display metrics
  * @param bmp Bitmap
  */
-final internal class ContentDescriptionDrawable(res: Resources, bmp: Bitmap) : BitmapDrawable(res, bmp) {
+internal final class ContentDescriptionDrawable(res: Resources, bmp: Bitmap) : BitmapDrawable(res, bmp) {
     internal var contentDescription = ""
     internal fun setContentDescription(string: String): ContentDescriptionDrawable {
         contentDescription = string

@@ -15,7 +15,7 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import android.support.v4.app.Fragment as SupportFragment
 
-object ButterKnife {
+internal object ButterKnife {
     @JvmStatic fun unbind(target: Any) = LazyRegistry.reset(target)
     /**
      * View Bindings

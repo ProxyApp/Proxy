@@ -23,7 +23,7 @@ import timber.log.Timber
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
-class ProxyApplication : Application() {
+internal final class ProxyApplication : Application() {
     internal var currentUser: User = User()
     internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, MODE_PRIVATE)
 

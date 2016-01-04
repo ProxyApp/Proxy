@@ -33,7 +33,6 @@ final class ScrollOffBottomBehavior(context: Context, attrs: AttributeSet) : Flo
 
     override fun onNestedScroll(coordinatorLayout: CoordinatorLayout, child: FloatingActionButton, target: View, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
-
         if (animator == null || !animator!!.isRunning) {
             val totalScroll = (dyConsumed + dyUnconsumed)
             val targetTranslation = if (totalScroll > 0) viewHeight else getFabTranslationYForSnackbar(coordinatorLayout, child).toInt()

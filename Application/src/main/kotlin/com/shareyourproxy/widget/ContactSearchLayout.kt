@@ -27,7 +27,7 @@ import com.shareyourproxy.util.ViewUtils.getMenuIconDark
 /**
  * Search view to insert in the [AggregateFeedActivity].
  */
-class ContactSearchLayout : FrameLayout {
+internal final class ContactSearchLayout : FrameLayout {
     private val marginMicro: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxxtiny)
     private val marginTiny: Int = resources.getDimensionPixelSize(R.dimen.common_margin_xxtiny)
     private val drawableBackground: Drawable = getDrawable(resources, selector_contactsearchlayout, null)

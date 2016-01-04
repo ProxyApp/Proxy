@@ -34,7 +34,7 @@ import timber.log.Timber
 /**
  * Utility class for view functions.
  */
-object ViewUtils {
+internal object ViewUtils {
     /**
      * Hide software keyboard.
      * @param view View to open keyboard for.

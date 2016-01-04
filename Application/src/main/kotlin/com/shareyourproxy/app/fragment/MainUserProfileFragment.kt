@@ -16,12 +16,12 @@ import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
-import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.ShareLinkDialog
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.ViewState.EMPTY
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import rx.subscriptions.CompositeSubscription
 
@@ -110,7 +110,7 @@ class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfi
 
     private fun toggleFabVisibility(event: RecyclerViewDatasetChangedEvent) {
         if (event.adapter is ViewChannelAdapter) {
-            if (event.viewState == BaseRecyclerView.ViewState.EMPTY) {
+            if (event.viewState == EMPTY) {
                 floatingActionButtonAddChannel.visibility = GONE
                 floatingActionButtonShare.visibility = GONE
             } else {

@@ -11,7 +11,7 @@ import com.google.gson.stream.JsonWriter
 import java.io.IOException
 
 /**
- * From Jesse, implement hooks into a custom type adapter.
+ * Thanks Jesse, implement hooks in to a custom type adapter.
  */
 abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>) : TypeAdapterFactory {
 

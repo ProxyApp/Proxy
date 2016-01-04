@@ -28,7 +28,7 @@ import java.util.*
  * Cold Rx.Observable calls to handle syncing messages for Users.
  */
 object RxMessageSync {
-    fun getFirebaseMessages(context: Context, userId: String): EventCallback {
+    fun getFirebaseMessages(context: Context, userId: String): UserMessagesDownloadedEventCallback {
         return RestClient(context).herokuUserService.getUserMessages(userId).map { messages ->
             val notifications = ArrayList<Notification>()
             if (messages == null) {
@@ -51,7 +51,7 @@ object RxMessageSync {
                 }
                 UserMessagesDownloadedEventCallback(notifications)
             }
-        }.compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+        }.compose(RxHelper.observeMain<UserMessagesDownloadedEventCallback>()).toBlocking().single()
     }
 
     fun saveFirebaseMessage(context:Context, userId: String, message: Message): EventCallback {

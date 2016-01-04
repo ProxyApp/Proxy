@@ -21,17 +21,18 @@ import com.shareyourproxy.api.domain.model.ChannelToggle
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGroupChannelSync.getSelectedChannels
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
-import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
-import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.EDIT_GROUP
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.GroupEditType
+import com.shareyourproxy.util.Enumerations.GroupEditType.EDIT_GROUP
+import com.shareyourproxy.util.Enumerations.GroupEditType.PUBLIC_GROUP
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.PUBLIC_GROUPS
 import timber.log.Timber
 import java.util.*
 
-class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
+internal class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
     companion object{
         internal val TYPE_LIST_ITEM = 1
         internal val TYPE_LIST_HEADER = 2
@@ -45,7 +46,7 @@ class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, privat
     private var groupLabelHeaderViewHolder: HeaderViewHolder? = null
 
     init {
-        if (groupEditType == GroupEditType.PUBLIC_GROUP) {
+        if (groupEditType == PUBLIC_GROUP) {
             updatePublicChannels(userChannels)
         } else {
             updateChannels(userChannels, groupChannels)
@@ -76,7 +77,7 @@ class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, privat
         var count = 0
         if (groupEditType == EDIT_GROUP) {
             count = 2
-        } else if (groupEditType == GroupEditType.ADD_GROUP || groupEditType == GroupEditType.PUBLIC_GROUP) {
+        } else if (groupEditType == GroupEditType.ADD_GROUP || groupEditType == PUBLIC_GROUP) {
             count = 1
         }
         return channels.size() + count
@@ -146,7 +147,7 @@ class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, privat
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val view: View
         if (viewType == TYPE_LIST_HEADER) {
-            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
+            if (groupEditType == PUBLIC_GROUP) {
                 view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
                 return PublicHeaderViewHolder(view, clickListener)
             } else {
@@ -165,7 +166,7 @@ class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, privat
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder.itemViewType == TYPE_LIST_HEADER) {
-            if (groupEditType == GroupEditType.PUBLIC_GROUP) {
+            if (groupEditType == PUBLIC_GROUP) {
                 bindPublicHeaderViewData(holder as PublicHeaderViewHolder)
             } else {
                 bindHeaderViewData(holder as HeaderViewHolder)

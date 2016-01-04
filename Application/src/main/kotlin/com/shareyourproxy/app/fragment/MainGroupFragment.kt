@@ -38,13 +38,13 @@ import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventC
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback
 import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
-import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.*
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupAdapter
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.GroupEditType.*
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
 import rx.subscriptions.CompositeSubscription
@@ -72,7 +72,7 @@ class MainGroupFragment() : BaseFragment(), ItemClickListener {
      * Prompt user with a [EditGroupChannelsFragment] to add a new [Group].
      */
     private val onClickFab :View.OnClickListener = View.OnClickListener {
-        launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(), ADD_GROUP)
+        launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(),ADD_GROUP)
     }
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")

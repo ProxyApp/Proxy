@@ -213,7 +213,6 @@ private final class LoginActivity : GoogleApiActivity() {
         for (group in userGroups.values) {
             groupIds.add(group.id)
         }
-        RestClient(this).herokuUserService.putSharedLinks(groupIds, newUser.id).compose(observeMain<Any>()).subscribe()
         post(AddUserCommand(newUser))
         post(SyncContactsCommand(newUser))
         analytics.userAdded(newUser)

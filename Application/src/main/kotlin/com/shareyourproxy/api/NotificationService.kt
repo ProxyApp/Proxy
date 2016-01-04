@@ -14,11 +14,11 @@ import java.util.*
  * Service to pull for notification messages.
  */
 class NotificationService : Service() {
-    private val _binder = object : INotificationService.Stub() {
+    private val binder = object : INotificationService.Stub() {
         @Throws(RemoteException::class)
         override fun getNotifications(userId: String): ArrayList<Notification>? {
-            val eventData = GetUserMessagesCommand(userId).execute(this@NotificationService)
-                val notifications = (eventData as UserMessagesDownloadedEventCallback).notifications
+            val eventData :UserMessagesDownloadedEventCallback = GetUserMessagesCommand(userId).execute(this@NotificationService)
+                val notifications = eventData.notifications
                     return notifications
         }
     }
@@ -28,6 +28,6 @@ class NotificationService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        return _binder
+        return binder
     }
 }

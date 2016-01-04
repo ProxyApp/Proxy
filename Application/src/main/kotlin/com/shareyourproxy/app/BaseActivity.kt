@@ -28,7 +28,7 @@ import timber.log.Timber
 /**
  * Base abstraction for all activities to inherit from.
  */
-abstract class BaseActivity : AppCompatActivity() {
+internal abstract class BaseActivity : AppCompatActivity() {
     private var subscriptions: CompositeSubscription = CompositeSubscription()
     /**
      * Get currently logged in [User] in this [ProxyApplication].

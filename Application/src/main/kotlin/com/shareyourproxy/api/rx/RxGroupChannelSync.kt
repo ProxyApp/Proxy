@@ -12,7 +12,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.PublicChannelsUpdatedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupAddedEventCallback
-import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType
+import com.shareyourproxy.util.Enumerations
 import rx.Observable
 import rx.functions.Func1
 import rx.functions.Func2
@@ -47,7 +47,7 @@ object RxGroupChannelSync {
         }
     }
 
-    fun updateGroupChannels(context: Context, user: User, newTitle: String, oldGroup: Group, channels: HashSet<String>, groupEditType: GroupEditType): EventCallback {
+    fun updateGroupChannels(context: Context, user: User, newTitle: String, oldGroup: Group, channels: HashSet<String>, groupEditType: Enumerations.GroupEditType): EventCallback {
         return Observable.zip(saveRealmGroupChannels(context, user, newTitle, oldGroup, channels),
                 saveFirebaseGroupChannels(context, user.id, newTitle, oldGroup, channels),
                 zipAddGroupChannels(user, channels, oldGroup, groupEditType)).map(saveSharedLink(context)).toBlocking().single()
@@ -160,7 +160,7 @@ object RxGroupChannelSync {
         return RestClient(context).herokuUserService.addUserGroup(userId, group.id, newGroup)
     }
 
-    private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: GroupEditType): Func2<Group, Group, GroupChannelsUpdatedEventCallback> {
+    private fun zipAddGroupChannels(user: User, channels: HashSet<String>, oldGroup: Group, groupEditType: Enumerations.GroupEditType): Func2<Group, Group, GroupChannelsUpdatedEventCallback> {
         return Func2 { group, group2 -> GroupChannelsUpdatedEventCallback(user, oldGroup, group, channels, groupEditType) }
     }
 }

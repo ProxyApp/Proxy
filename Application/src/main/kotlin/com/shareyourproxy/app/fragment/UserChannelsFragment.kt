@@ -37,7 +37,6 @@ import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent
 import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
-import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.EditChannelDialog
@@ -45,6 +44,7 @@ import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.ViewState.EMPTY
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
 import rx.subscriptions.CompositeSubscription

@@ -15,7 +15,7 @@ import com.shareyourproxy.api.rx.event.TextViewEditorActionEvent
 /**
  * Custom Edit Text for listening to delete key actions.
  */
-class CustomEditText : EditText {
+internal final class CustomEditText : EditText {
 
     constructor(context: Context) : super(context) {
     }

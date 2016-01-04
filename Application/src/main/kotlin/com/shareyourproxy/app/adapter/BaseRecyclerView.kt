@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.TextView
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
+import com.shareyourproxy.util.Enumerations.ViewState
 
 /**
  * [BaseRecyclerView] that handles empty views.
@@ -19,7 +20,7 @@ import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 class BaseRecyclerView : RecyclerView {
     private var emptyView: View? = null
     private var loadingView: View? = null
-    var viewType: ViewState? = null
+    internal var viewType: ViewState? = null
     private var refreshView: View? = null
 
     /**
@@ -82,12 +83,12 @@ class BaseRecyclerView : RecyclerView {
     /**
      * Show or hide the empty view.
      */
-    fun updateViewState(event: RecyclerViewDatasetChangedEvent) {
+    internal fun updateViewState(event: RecyclerViewDatasetChangedEvent) {
         viewType = event.viewState
         when (viewType) {
-            BaseRecyclerView.ViewState.MAIN -> toggleVisibility(this)
-            BaseRecyclerView.ViewState.EMPTY -> toggleVisibility(emptyView)
-            BaseRecyclerView.ViewState.LOADING -> toggleVisibility(loadingView)
+            ViewState.MAIN -> toggleVisibility(this)
+            ViewState.EMPTY -> toggleVisibility(emptyView)
+            ViewState.LOADING -> toggleVisibility(loadingView)
         }
     }
 
@@ -122,13 +123,6 @@ class BaseRecyclerView : RecyclerView {
         if (loadingView !== view && loadingView != null) {
             loadingView!!.visibility = View.GONE
         }
-    }
-
-    /**
-     * The type of view state this recycler view is in.
-     */
-    enum class ViewState {
-        MAIN, EMPTY, LOADING
     }
 
     class SubHeadItemDecoration(context: Context, private val title: String) : RecyclerView.ItemDecoration() {

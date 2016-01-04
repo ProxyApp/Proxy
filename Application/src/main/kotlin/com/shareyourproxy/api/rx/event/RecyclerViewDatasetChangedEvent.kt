@@ -1,10 +1,10 @@
 package com.shareyourproxy.api.rx.event
 
 
-import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseRecyclerViewAdapter
+import com.shareyourproxy.util.Enumerations
 
 /**
- * Created by Evan on 11/2/15.
+ * Recycler view has changed data set.
  */
-class RecyclerViewDatasetChangedEvent(val adapter: BaseRecyclerViewAdapter, val viewState: BaseRecyclerView.ViewState)
+internal class RecyclerViewDatasetChangedEvent(val adapter: BaseRecyclerViewAdapter, val viewState: Enumerations.ViewState)

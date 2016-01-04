@@ -4,7 +4,7 @@ package com.shareyourproxy
 /**
  * Constant values for activity and fragment arguments, and shared preference keys.
  */
-object Constants {
+internal object Constants {
     //Key used to retrieve a saved user from shared preferences.
     const val KEY_LOGGED_IN_USER = "com.shareyourproxy.key_logged_in_user"
     //Bundled extra key for value containing the user profile to be opened with {@link

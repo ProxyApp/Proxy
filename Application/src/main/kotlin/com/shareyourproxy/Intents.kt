@@ -9,7 +9,7 @@ import com.shareyourproxy.api.domain.model.User
 /**
  * Contains constants for launching [Intent]s with [IntentLauncher].
  */
-object Intents {
+internal object Intents {
     private val clipboardComponentName = ComponentName("com.google.android.apps.docs", "com.google.android.apps.docs.app.SendTextToClipboardActivity")
     internal const val ACTION_DISPATCH = "com.shareyourproxy.intent.action.DISPATCH"
     internal const val ACTION_INTRODUCTION = "com.shareyourproxy.intent.action.INTRODUCTION"

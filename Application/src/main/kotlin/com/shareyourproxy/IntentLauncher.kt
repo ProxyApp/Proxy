@@ -32,13 +32,13 @@ import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback
-import com.shareyourproxy.app.EditGroupChannelsActivity
+import com.shareyourproxy.util.Enumerations
 
 
 /**
  * Utility for launching Activities.
  */
-object IntentLauncher {
+internal object IntentLauncher {
 
     /**
      * BEGIN Activity Intents: Launch an About Activity
@@ -66,7 +66,7 @@ object IntentLauncher {
      * @param group         selected
      * @param groupEditType add edit or public group
      */
-    internal fun launchEditGroupChannelsActivity(activity: Activity, group: Group, groupEditType: EditGroupChannelsActivity.GroupEditType) {
+    internal fun launchEditGroupChannelsActivity(activity: Activity, group: Group, groupEditType: Enumerations.GroupEditType) {
         val intent = Intent(ACTION_EDIT_GROUP_CHANNEL)
         intent.putExtra(ARG_SELECTED_GROUP, group)
         intent.putExtra(ARG_EDIT_GROUP_TYPE, groupEditType)

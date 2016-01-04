@@ -16,6 +16,8 @@ import com.shareyourproxy.Constants.KEY_DISMISSED_SHARE_PROFILE
 import com.shareyourproxy.Constants.KEY_DISMISSED_WHOOPS
 import com.shareyourproxy.R
 import com.shareyourproxy.R.color.*
+import com.shareyourproxy.R.dimen.common_svg_null_screen_mini
+import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.raw.*
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.R.styleable.*
@@ -33,15 +35,15 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.*
 /**
  * Dismissable Notification card for recycler view headers.
  */
-class DismissibleNotificationCard : FrameLayout {
+internal final class DismissibleNotificationCard : FrameLayout {
 
-    private val container: RelativeLayout by bindView(R.id.widget_notification_container)
-    private val title: TextView by bindView(R.id.widget_notification_content_title)
-    private val message: TextView by bindView(R.id.widget_notification_content_message)
-    private val imageView: ImageView by bindView(R.id.widget_notification_imageview)
-    private val dismissTextView: TextView by bindView(R.id.widget_notification_dismiss_text)
-    private val actionTextView: TextView by bindView(R.id.widget_notification_action_text)
-    private val dimenSvgNullSmall: Int by bindDimen(R.dimen.common_svg_null_screen_mini);
+    private val container: RelativeLayout by bindView(widget_notification_container)
+    private val title: TextView by bindView(widget_notification_content_title)
+    private val message: TextView by bindView(widget_notification_content_message)
+    private val imageView: ImageView by bindView(widget_notification_imageview)
+    private val dismissTextView: TextView by bindView(widget_notification_dismiss_text)
+    private val actionTextView: TextView by bindView(widget_notification_action_text)
+    private val dimenSvgNullSmall: Int by bindDimen(common_svg_null_screen_mini);
     private val onClickDismiss: OnClickListener = OnClickListener {
         visibility = GONE
         when (notificationCard) {
@@ -50,7 +52,7 @@ class DismissibleNotificationCard : FrameLayout {
             INVITE_FRIENDS,
             CUSTOM_URL,
             PUBLIC_GROUPS,
-            MAIN_GROUPS -> post(NotificationCardDismissEvent(adapter as BaseRecyclerViewAdapter, holder as BaseViewHolder, notificationCard, isHeaderOrFooter))
+            MAIN_GROUPS -> post(NotificationCardDismissEvent(adapter!!, holder!!, notificationCard, isHeaderOrFooter))
             else ->{}
         }
     }
@@ -61,7 +63,7 @@ class DismissibleNotificationCard : FrameLayout {
             INVITE_FRIENDS,
             CUSTOM_URL,
             PUBLIC_GROUPS,
-            MAIN_GROUPS -> post(NotificationCardActionEvent(adapter as BaseRecyclerViewAdapter, holder as BaseViewHolder, notificationCard, isHeaderOrFooter))
+            MAIN_GROUPS -> post(NotificationCardActionEvent(adapter!!, holder!!, notificationCard, isHeaderOrFooter))
             else -> {}
         }
     }

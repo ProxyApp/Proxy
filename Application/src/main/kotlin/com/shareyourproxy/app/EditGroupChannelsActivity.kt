@@ -15,10 +15,11 @@ import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.UpdateUserContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.UserGroupDeletedEventCallback
 import com.shareyourproxy.api.rx.event.ViewGroupContactsEvent
-import com.shareyourproxy.app.EditGroupChannelsActivity.GroupEditType.*
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.app.fragment.EditGroupChannelsFragment
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.GroupEditType
+import com.shareyourproxy.util.Enumerations.GroupEditType.*
 import com.shareyourproxy.util.ViewUtils.getMenuIconSecondary
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import rx.subscriptions.CompositeSubscription
@@ -27,7 +28,7 @@ import java.util.*
 /**
  * Add and remove newChannel permissions from a group.
  */
-final class EditGroupChannelsActivity : BaseActivity() {
+private final class EditGroupChannelsActivity : BaseActivity() {
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
     private var subscriptions: CompositeSubscription = CompositeSubscription()
 
@@ -112,9 +113,5 @@ final class EditGroupChannelsActivity : BaseActivity() {
             contacts.add(contactId)
         }
         post(UpdateUserContactsCommand(loggedInUser, contacts, loggedInUser.groups))
-    }
-
-    enum class GroupEditType {
-        ADD_GROUP, EDIT_GROUP, PUBLIC_GROUP
     }
 }

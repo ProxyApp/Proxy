@@ -40,7 +40,7 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
         rxBusObservable().subscribe(busObserver)
     }
 
-    fun removeNotificationCard(prefs: SharedPreferences, event: NotificationCardDismissEvent) {
+   internal fun removeNotificationCard(prefs: SharedPreferences, event: NotificationCardDismissEvent) {
         if (event.adapter.javaClass == this.javaClass) {
             if (event.holder is HeaderViewHolder) {
                 isHeaderVisible = false
@@ -196,6 +196,6 @@ abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recyclerView: Bas
             val TYPE_FOOTER = 2
         }
 
-        val notificationCard: DismissibleNotificationCard by bindView(adapter_dismissible_notification_card)
+        internal val notificationCard: DismissibleNotificationCard by bindView(adapter_dismissible_notification_card)
     }
 }

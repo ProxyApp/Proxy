@@ -7,4 +7,4 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 /**
  * Created by Evan on 11/10/15.
  */
-class NotificationCardDismissEvent(val adapter: BaseRecyclerViewAdapter, val holder: BaseViewHolder, val cardType: NotificationCard, val isHeader: Boolean)
+internal class NotificationCardDismissEvent(val adapter: BaseRecyclerViewAdapter, val holder: BaseViewHolder, val cardType: NotificationCard, val isHeader: Boolean)

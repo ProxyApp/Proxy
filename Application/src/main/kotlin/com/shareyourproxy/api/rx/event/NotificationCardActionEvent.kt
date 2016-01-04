@@ -5,6 +5,6 @@ import com.shareyourproxy.app.adapter.BaseViewHolder
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 
 /**
- * Created by Evan on 11/10/15.
+ * Notification card was clicked.
  */
-class NotificationCardActionEvent(private val adapter: BaseRecyclerViewAdapter, val holder: BaseViewHolder, val cardType: NotificationCard, val isHeader: Boolean)
+internal class NotificationCardActionEvent(private val adapter: BaseRecyclerViewAdapter, val holder: BaseViewHolder, val cardType: NotificationCard, val isHeader: Boolean)

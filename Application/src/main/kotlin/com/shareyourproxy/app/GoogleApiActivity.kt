@@ -35,14 +35,14 @@ import java.util.*
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
-abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private var googleApiClient: GoogleApiClient?  = null
+internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
+    private val googleApiClient: Lazy<GoogleApiClient> = lazy { buildOldGoogleApiClient(this) }
 
     protected fun connectGoogleApiClient() {
         when{
-            googleApiClient!!.isConnected -> onConnected(null)
-            googleApiClient!!.isConnecting ->{}
-            else -> googleApiClient?.connect()
+            googleApiClient.value.isConnected -> onConnected(null)
+            googleApiClient.value.isConnecting ->{}
+            else -> googleApiClient.value.connect()
         }
     }
 
@@ -56,12 +56,12 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     }
 
     protected fun signInToGoogle() {
-        val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient)
+        val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient.value)
         startActivityForResult(signInIntent, RC_NEW_SIGN_IN)
     }
 
     protected fun oldSignInToGoogle() {
-        refreshGooglePlusToken(this, googleApiClient).compose(singleObserveMain<String>()).subscribe(googleRefreshObserver())
+        refreshGooglePlusToken(this, googleApiClient.value).compose(singleObserveMain<String>()).subscribe(googleRefreshObserver())
     }
 
     private fun googleRefreshObserver(): JustSingle<String> {
@@ -80,7 +80,8 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
     protected fun createUserFromGoogle(acct: GoogleSignInAccount): User {
         val id = acct.id
         // Retrieve some profile information to personalize our app for the user.
-        val currentUser = RestClient(this).herokuUserService.getCurrentPerson(id).toBlocking().single()
+        //TODO create user from google plus call
+        val currentUser = RestClient(this).herokuUserService.getGooglePlusPerson(id).toBlocking().single()
         val userId = StringBuilder(GOOGLE_UID_PREFIX).append(id).toString()
         val firstName = currentUser.name.givenName
         val lastName = currentUser.name.familyName
@@ -105,15 +106,10 @@ abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnec
             return groups
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        googleApiClient = buildOldGoogleApiClient(this)
-    }
-
     override fun onStop() {
         super.onStop()
-        if (googleApiClient!!.isConnected) {
-            googleApiClient?.disconnect()
+        if (googleApiClient.value.isConnected) {
+            googleApiClient.value.disconnect()
         }
     }
 

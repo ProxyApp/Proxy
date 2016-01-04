@@ -34,7 +34,7 @@ object RxShareLink {
     }
 
     fun queryLinkIds(context: Context, userId: String): Func1<String, SharedLink> {
-        return Func1 { groupId -> RestClient(context).herokuUserService.getSharedLink(groupId, userId).toBlocking().single() }
+        return Func1 { groupId -> RestClient(context).herokuUserService.getSharedLink(userId,groupId).toBlocking().single() }
     }
 
     fun handleMessage(subscriber: Subscriber<in EventCallback>): Subscriber<String> {

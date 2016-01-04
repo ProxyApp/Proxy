@@ -27,7 +27,7 @@ class RestClient(private val context: Context) {
     }
 
     private fun buildGsonConverter(): Gson {
-        return GsonBuilder().registerTypeAdapterFactory(UserTypeAdapterFactory()).create()
+        return GsonBuilder().registerTypeAdapterFactory(UserTypeAdapterFactory).create()
     }
 
     val client: OkHttpClient get() {

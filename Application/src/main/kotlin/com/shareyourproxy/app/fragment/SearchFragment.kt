@@ -40,8 +40,6 @@ import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.api.rx.event.TextViewEditorActionEvent
 import com.shareyourproxy.api.rx.event.UserSelectedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
-import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.EMPTY
-import com.shareyourproxy.app.adapter.BaseRecyclerView.ViewState.MAIN
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.SearchUserAdapter
 import com.shareyourproxy.app.adapter.SearchUserAdapter.UserViewHolder
@@ -50,6 +48,8 @@ import com.shareyourproxy.util.ButterKnife.bindColorStateList
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindInt
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.Enumerations.ViewState.EMPTY
+import com.shareyourproxy.util.Enumerations.ViewState.MAIN
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
