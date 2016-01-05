@@ -31,10 +31,10 @@ internal final class RestClient(private val context: Context) {
     }
 
     val client: OkHttpClient get() {
-        val client = OkHttpClient()
-        client.networkInterceptors().add(HerokuInterceptor(context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE)))
-        client.networkInterceptors().add(httpLoggingInterceptor)
-        return client
+        val client = OkHttpClient().newBuilder()
+                .addNetworkInterceptor(HerokuInterceptor(context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE)))
+                .addNetworkInterceptor(httpLoggingInterceptor)
+        return client.build()
     }
 
     val oldClient: com.squareup.okhttp.OkHttpClient get() {

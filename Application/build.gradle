@@ -10,7 +10,7 @@ apply plugin: 'io.fabric'
 ext {
     kotlinVersion = "1.0.0-beta-4584"
     retrofitVersion = "2.0.0-SNAPSHOT"
-    okHTTPVersion = "3.0.0-SNAPSHOT"
+    okHTTPVersion = "3.0.0-RC1"
     playServicesVersion = "8.4.0"
     supportLibVersion = "23.1.1"
 }
