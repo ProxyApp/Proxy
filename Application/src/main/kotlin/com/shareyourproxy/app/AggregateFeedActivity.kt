@@ -61,7 +61,7 @@ private final class AggregateFeedActivity : BaseActivity() {
         }
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
     }

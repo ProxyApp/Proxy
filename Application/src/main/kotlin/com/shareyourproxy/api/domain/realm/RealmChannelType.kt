@@ -5,7 +5,7 @@ import io.realm.RealmObject
 import io.realm.annotations.RealmClass
 
 /**
- * Created by Evan on 5/4/15.
+ * A Channels Type, Twitter, Facebook, Google Plus.
  */
 @RealmClass
-public open class RealmChannelType(public open var weight: Int = ChannelType.Custom.ordinal, public open var label: String = ChannelType.Custom.label) : RealmObject()
+open class RealmChannelType(open var weight: Int = ChannelType.Custom.ordinal, open var label: String = ChannelType.Custom.label) : RealmObject()

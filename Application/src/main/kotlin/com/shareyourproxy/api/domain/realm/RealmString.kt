@@ -7,4 +7,4 @@ import io.realm.annotations.RealmClass
  * String value
  */
 @RealmClass
-public open class RealmString(public open var value: String = "") : RealmObject()
+open class RealmString(open var value: String = "") : RealmObject()

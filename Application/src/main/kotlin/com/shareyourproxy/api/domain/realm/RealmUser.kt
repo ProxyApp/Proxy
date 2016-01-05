@@ -10,15 +10,15 @@ import io.realm.annotations.RealmClass
  * Users have a basic profile that contains their specific [RealmChannel]s, [RealmContact]s, and [RealmGroup]s.
  */
 @RealmClass
-public open class RealmUser(
-        @PrimaryKey public open var id: String = "",
-        public open var first: String = "",
-        public open var last: String = "",
-        public open var fullName: String = "",
-        public open var email: String = "",
-        public open var profileURL: String = "",
-        public open var coverURL: String = "",
-        public open var channels: RealmList<RealmChannel> = RealmList(),
-        public open var contacts: RealmList<RealmString> = RealmList(),
-        public open var groups: RealmList<RealmGroup> = RealmList(),
-        public open var version: Int = 0) : RealmObject()
+open class RealmUser(
+        @PrimaryKey open var id: String = "",
+        open var first: String = "",
+        open var last: String = "",
+        open var fullName: String = "",
+        open var email: String = "",
+        open var profileURL: String = "",
+        open var coverURL: String = "",
+        open var channels: RealmList<RealmChannel> = RealmList(),
+        open var contacts: RealmList<RealmString> = RealmList(),
+        open var groups: RealmList<RealmGroup> = RealmList(),
+        open var version: Int = 0) : RealmObject()

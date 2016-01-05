@@ -20,39 +20,39 @@ internal object ButterKnife {
     /**
      * View Bindings
      */
-    public fun <V : View> View.bindView(id: Int): ReadOnlyProperty<View, V> = required(id, viewFinder)
-    public fun <V : View> Activity.bindView(id: Int): ReadOnlyProperty<Activity, V> = required(id, viewFinder)
-    public fun <V : View> Dialog.bindView(id: Int): ReadOnlyProperty<Dialog, V> = required(id, viewFinder)
-    public fun <V : View> Fragment.bindView(id: Int): ReadOnlyProperty<Fragment, V> = required(id, viewFinder)
-    public fun <V : View> SupportFragment.bindView(id: Int): ReadOnlyProperty<SupportFragment, V> = required(id, viewFinder)
-    public fun <V : View> ViewHolder.bindView(id: Int): ReadOnlyProperty<ViewHolder, V> = required(id, viewFinder)
+    fun <V : View> View.bindView(id: Int): ReadOnlyProperty<View, V> = required(id, viewFinder)
+    fun <V : View> Activity.bindView(id: Int): ReadOnlyProperty<Activity, V> = required(id, viewFinder)
+    fun <V : View> Dialog.bindView(id: Int): ReadOnlyProperty<Dialog, V> = required(id, viewFinder)
+    fun <V : View> Fragment.bindView(id: Int): ReadOnlyProperty<Fragment, V> = required(id, viewFinder)
+    fun <V : View> SupportFragment.bindView(id: Int): ReadOnlyProperty<SupportFragment, V> = required(id, viewFinder)
+    fun <V : View> ViewHolder.bindView(id: Int): ReadOnlyProperty<ViewHolder, V> = required(id, viewFinder)
     /**
      * View Bindings Optional
      */
-    public fun <V : View> View.bindOptionalView(id: Int): ReadOnlyProperty<View, V?> = optional(id, viewFinder)
-    public fun <V : View> Activity.bindOptionalView(id: Int): ReadOnlyProperty<Activity, V?> = optional(id, viewFinder)
-    public fun <V : View> Dialog.bindOptionalView(id: Int): ReadOnlyProperty<Dialog, V?> = optional(id, viewFinder)
-    public fun <V : View> Fragment.bindOptionalView(id: Int): ReadOnlyProperty<Fragment, V?> = optional(id, viewFinder)
-    public fun <V : View> SupportFragment.bindOptionalView(id: Int): ReadOnlyProperty<SupportFragment, V?> = optional(id, viewFinder)
-    public fun <V : View> ViewHolder.bindOptionalView(id: Int): ReadOnlyProperty<ViewHolder, V?> = optional(id, viewFinder)
+    fun <V : View> View.bindOptionalView(id: Int): ReadOnlyProperty<View, V?> = optional(id, viewFinder)
+    fun <V : View> Activity.bindOptionalView(id: Int): ReadOnlyProperty<Activity, V?> = optional(id, viewFinder)
+    fun <V : View> Dialog.bindOptionalView(id: Int): ReadOnlyProperty<Dialog, V?> = optional(id, viewFinder)
+    fun <V : View> Fragment.bindOptionalView(id: Int): ReadOnlyProperty<Fragment, V?> = optional(id, viewFinder)
+    fun <V : View> SupportFragment.bindOptionalView(id: Int): ReadOnlyProperty<SupportFragment, V?> = optional(id, viewFinder)
+    fun <V : View> ViewHolder.bindOptionalView(id: Int): ReadOnlyProperty<ViewHolder, V?> = optional(id, viewFinder)
     /**
      * Multiple View Bindings
      */
-    public fun <V : View> View.bindViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = required(ids, viewFinder)
-    public fun <V : View> Activity.bindViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = required(ids, viewFinder)
-    public fun <V : View> Dialog.bindViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = required(ids, viewFinder)
-    public fun <V : View> Fragment.bindViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = required(ids, viewFinder)
-    public fun <V : View> SupportFragment.bindViews(vararg ids: Int): ReadOnlyProperty<SupportFragment, List<V>> = required(ids, viewFinder)
-    public fun <V : View> ViewHolder.bindViews(vararg ids: Int): ReadOnlyProperty<ViewHolder, List<V>> = required(ids, viewFinder)
+    fun <V : View> View.bindViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = required(ids, viewFinder)
+    fun <V : View> Activity.bindViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = required(ids, viewFinder)
+    fun <V : View> Dialog.bindViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = required(ids, viewFinder)
+    fun <V : View> Fragment.bindViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = required(ids, viewFinder)
+    fun <V : View> SupportFragment.bindViews(vararg ids: Int): ReadOnlyProperty<SupportFragment, List<V>> = required(ids, viewFinder)
+    fun <V : View> ViewHolder.bindViews(vararg ids: Int): ReadOnlyProperty<ViewHolder, List<V>> = required(ids, viewFinder)
     /**
      * Multiple View Bindings Optional
      */
-    public fun <V : View> View.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = optional(ids, viewFinder)
-    public fun <V : View> Activity.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = optional(ids, viewFinder)
-    public fun <V : View> Dialog.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = optional(ids, viewFinder)
-    public fun <V : View> Fragment.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = optional(ids, viewFinder)
-    public fun <V : View> SupportFragment.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<SupportFragment, List<V>> = optional(ids, viewFinder)
-    public fun <V : View> ViewHolder.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<ViewHolder, List<V>> = optional(ids, viewFinder)
+    fun <V : View> View.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = optional(ids, viewFinder)
+    fun <V : View> Activity.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = optional(ids, viewFinder)
+    fun <V : View> Dialog.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = optional(ids, viewFinder)
+    fun <V : View> Fragment.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = optional(ids, viewFinder)
+    fun <V : View> SupportFragment.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<SupportFragment, List<V>> = optional(ids, viewFinder)
+    fun <V : View> ViewHolder.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<ViewHolder, List<V>> = optional(ids, viewFinder)
     /**
      * View findViewById
      */
@@ -65,12 +65,12 @@ internal object ButterKnife {
     /**
      * Dimen Bindings
      */
-    public fun View.bindDimen(id: Int): ReadOnlyProperty<View, Int> = required(id, dimenFinder)
-    public fun Activity.bindDimen(id: Int): ReadOnlyProperty<Activity, Int> = required(id, dimenFinder)
-    public fun Dialog.bindDimen(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, dimenFinder)
-    public fun Fragment.bindDimen(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, dimenFinder)
-    public fun SupportFragment.bindDimen(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, dimenFinder)
-    public fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindDimen(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, dimenFinder(context))
+    fun View.bindDimen(id: Int): ReadOnlyProperty<View, Int> = required(id, dimenFinder)
+    fun Activity.bindDimen(id: Int): ReadOnlyProperty<Activity, Int> = required(id, dimenFinder)
+    fun Dialog.bindDimen(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, dimenFinder)
+    fun Fragment.bindDimen(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, dimenFinder)
+    fun SupportFragment.bindDimen(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, dimenFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindDimen(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, dimenFinder(context))
     /**
      * Dimen getDimensionPixelSize(int)
      */
@@ -83,12 +83,12 @@ internal object ButterKnife {
     /**
      * Color<Int> bindings
      */
-    public fun View.bindColor(id: Int): ReadOnlyProperty<View, Int> = required(id, colorFinder)
-    public fun Activity.bindColor(id: Int): ReadOnlyProperty<Activity, Int> = required(id, colorFinder)
-    public fun Dialog.bindColor(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, colorFinder)
-    public fun Fragment.bindColor(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, colorFinder)
-    public fun SupportFragment.bindColor(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, colorFinder)
-    public fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindColor(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, colorFinder(context))
+    fun View.bindColor(id: Int): ReadOnlyProperty<View, Int> = required(id, colorFinder)
+    fun Activity.bindColor(id: Int): ReadOnlyProperty<Activity, Int> = required(id, colorFinder)
+    fun Dialog.bindColor(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, colorFinder)
+    fun Fragment.bindColor(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, colorFinder)
+    fun SupportFragment.bindColor(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, colorFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindColor(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, colorFinder(context))
     /**
      * Color ContextCompat.getColor(context,int)
      */
@@ -101,12 +101,12 @@ internal object ButterKnife {
     /**
      * ColorStateList bindings
      */
-    public fun View.bindColorStateList(id: Int): ReadOnlyProperty<View, ColorStateList> = requiredList(id, colorListFinder)
-    public fun Activity.bindColorStateList(id: Int): ReadOnlyProperty<Activity, ColorStateList> = requiredList(id, colorListFinder)
-    public fun Dialog.bindColorStateList(id: Int): ReadOnlyProperty<Dialog, ColorStateList> = requiredList(id, colorListFinder)
-    public fun Fragment.bindColorStateList(id: Int): ReadOnlyProperty<Fragment, ColorStateList> = requiredList(id, colorListFinder)
-    public fun SupportFragment.bindColorStateList(id: Int): ReadOnlyProperty<SupportFragment, ColorStateList> = requiredList(id, colorListFinder)
-    public fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindColorStateList(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, ColorStateList> = requiredList(id, colorListFinder(context))
+    fun View.bindColorStateList(id: Int): ReadOnlyProperty<View, ColorStateList> = requiredList(id, colorListFinder)
+    fun Activity.bindColorStateList(id: Int): ReadOnlyProperty<Activity, ColorStateList> = requiredList(id, colorListFinder)
+    fun Dialog.bindColorStateList(id: Int): ReadOnlyProperty<Dialog, ColorStateList> = requiredList(id, colorListFinder)
+    fun Fragment.bindColorStateList(id: Int): ReadOnlyProperty<Fragment, ColorStateList> = requiredList(id, colorListFinder)
+    fun SupportFragment.bindColorStateList(id: Int): ReadOnlyProperty<SupportFragment, ColorStateList> = requiredList(id, colorListFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindColorStateList(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, ColorStateList> = requiredList(id, colorListFinder(context))
     /**
      * Color ContextCompat.getColorStateList(context,int)
      */
@@ -119,12 +119,12 @@ internal object ButterKnife {
     /**
      * String Bindings RecyclerView.Adapter<RecyclerView.ViewHolder>
      */
-    public fun View.bindString(id: Int): ReadOnlyProperty<View, String> = requiredString(id, stringFinder)
-    public fun Activity.bindString(id: Int): ReadOnlyProperty<Activity, String> = requiredString(id, stringFinder)
-    public fun Dialog.bindString(id: Int): ReadOnlyProperty<Dialog, String> = requiredString(id, stringFinder)
-    public fun Fragment.bindString(id: Int): ReadOnlyProperty<Fragment, String> = requiredString(id, stringFinder)
-    public fun SupportFragment.bindString(id: Int): ReadOnlyProperty<SupportFragment, String> = requiredString(id, stringFinder)
-    public fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindString(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, String> = requiredString(id, stringFinder(context))
+    fun View.bindString(id: Int): ReadOnlyProperty<View, String> = requiredString(id, stringFinder)
+    fun Activity.bindString(id: Int): ReadOnlyProperty<Activity, String> = requiredString(id, stringFinder)
+    fun Dialog.bindString(id: Int): ReadOnlyProperty<Dialog, String> = requiredString(id, stringFinder)
+    fun Fragment.bindString(id: Int): ReadOnlyProperty<Fragment, String> = requiredString(id, stringFinder)
+    fun SupportFragment.bindString(id: Int): ReadOnlyProperty<SupportFragment, String> = requiredString(id, stringFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindString(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, String> = requiredString(id, stringFinder(context))
     /**
      * String getString()
      */
@@ -137,12 +137,12 @@ internal object ButterKnife {
     /**
      * Int Bindings
      */
-    public fun View.bindInt(id: Int): ReadOnlyProperty<View, Int> = required(id, intFinder)
-    public fun Activity.bindInt(id: Int): ReadOnlyProperty<Activity, Int> = required(id, intFinder)
-    public fun Dialog.bindInt(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, intFinder)
-    public fun Fragment.bindInt(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, intFinder)
-    public fun SupportFragment.bindInt(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, intFinder)
-    public fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindInt(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, intFinder(context))
+    fun View.bindInt(id: Int): ReadOnlyProperty<View, Int> = required(id, intFinder)
+    fun Activity.bindInt(id: Int): ReadOnlyProperty<Activity, Int> = required(id, intFinder)
+    fun Dialog.bindInt(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, intFinder)
+    fun Fragment.bindInt(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, intFinder)
+    fun SupportFragment.bindInt(id: Int): ReadOnlyProperty<SupportFragment, Int> = required(id, intFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindInt(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Int> = required(id, intFinder(context))
     /**
      * Int getInt()
      */
@@ -161,16 +161,22 @@ internal object ButterKnife {
 
     @Suppress("UNCHECKED_CAST")
     private fun <T, V : View> required(id: Int, finder: T.(Int) -> View?) = LazyView { t: T, desc -> t.finder(id) as V? ?: viewNotFound(id, desc) }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T, V : View> optional(id: Int, finder: T.(Int) -> View?) = LazyView { t: T, desc -> t.finder(id) as V? }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T, V : View> required(ids: IntArray, finder: T.(Int) -> View?) = LazyView { t: T, desc -> ids.map { t.finder(it) as V? ?: viewNotFound(it, desc) } }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T, V : View> optional(ids: IntArray, finder: T.(Int) -> View?) = LazyView { t: T, desc -> ids.map { t.finder(it) as V? }.filterNotNull() }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T> required(id: Int, finder: T.(Int) -> Int?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T> requiredString(id: Int, finder: T.(Int) -> String?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+
     @Suppress("UNCHECKED_CAST")
     private fun <T> requiredList(id: Int, finder: T.(Int) -> ColorStateList?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
 
@@ -179,6 +185,7 @@ internal object ButterKnife {
      */
     private class LazyView<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
         private object EMPTY
+
         private var value: Any? = EMPTY
 
         override fun getValue(thisRef: T, property: KProperty<*>): V {
@@ -194,6 +201,7 @@ internal object ButterKnife {
             value = EMPTY
         }
     }
+
     /**
      * Register fragments to a WeakHashMap for "unbinding".
      */
@@ -214,6 +222,7 @@ internal object ButterKnife {
      */
     private class LazyVal<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
         private object EMPTY
+
         private var value: Any? = EMPTY
 
         override fun getValue(thisRef: T, property: KProperty<*>): V {

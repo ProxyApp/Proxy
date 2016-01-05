@@ -40,7 +40,7 @@ internal abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recycler
         rxBusObservable().subscribe(busObserver)
     }
 
-   internal fun removeNotificationCard(prefs: SharedPreferences, event: NotificationCardDismissEvent) {
+    internal fun removeNotificationCard(prefs: SharedPreferences, event: NotificationCardDismissEvent) {
         if (event.adapter.javaClass == this.javaClass) {
             if (event.holder is HeaderViewHolder) {
                 isHeaderVisible = false
@@ -126,12 +126,12 @@ internal abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recycler
         super.onRemoved(getViewPositionOffset(position), count)
     }
 
-    public override fun onMoved(fromPosition: Int, toPosition: Int) {
+    override fun onMoved(fromPosition: Int, toPosition: Int) {
         super.onMoved(getViewPositionOffset(fromPosition),
                 getViewPositionOffset(toPosition))
     }
 
-    public override fun onChanged(position: Int, count: Int) {
+    override fun onChanged(position: Int, count: Int) {
         super.onChanged(getViewPositionOffset(position), count)
     }
 

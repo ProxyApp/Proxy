@@ -9,10 +9,10 @@ import io.realm.annotations.RealmClass
  * Contacts are [RealmUser]s who you'd like to communicate with.
  */
 @RealmClass
-public open class RealmContact(
-        @PrimaryKey public open var id: String = "",
-        public open var first: String = "",
-        public open var last: String = "",
-        public open var profileURL: String = "",
-        public open var coverURL: String = "",
-        public open var channels: RealmList<RealmString>? = null) : RealmObject()
+open class RealmContact(
+        @PrimaryKey open var id: String = "",
+        open var first: String = "",
+        open var last: String = "",
+        open var profileURL: String = "",
+        open var coverURL: String = "",
+        open var channels: RealmList<RealmString>? = null) : RealmObject()

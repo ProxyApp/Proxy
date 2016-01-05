@@ -44,13 +44,12 @@ import java.util.*
  * Log in with a google plus account.
  */
 private final class LoginActivity : GoogleApiActivity() {
-
     private val analytics = RxGoogleAnalytics(this)
     private val proxyLogo: TextView by bindView(R.id.activity_login_title)
     private val signInButton: SignInButton by bindView(R.id.activity_login_sign_in_button)
     private val svgUltraMinor: Int  by bindDimen(R.dimen.common_svg_ultra_minor)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
-    val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SyncAllContactsSuccessEvent || event is SyncAllContactsErrorEvent) {
@@ -63,11 +62,11 @@ private final class LoginActivity : GoogleApiActivity() {
             signInButton.isEnabled = true
         }
     }
-    val onClickSignIn: View.OnClickListener = View.OnClickListener {
+    private val onClickSignIn: View.OnClickListener = View.OnClickListener {
         connectGoogleApiClient()
     }
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         initialize()

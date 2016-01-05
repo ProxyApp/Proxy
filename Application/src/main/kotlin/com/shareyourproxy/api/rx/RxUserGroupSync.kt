@@ -18,14 +18,14 @@ import rx.functions.Func2
  * Add and delete user groups.
  */
 internal object RxUserGroupSync {
-    fun addUserGroup(context: Context, user: User, group: Group): EventCallback {
+    internal fun addUserGroup(context: Context, user: User, group: Group): EventCallback {
         return Observable.zip(
                 saveRealmUserGroup(context, group, user),
                 saveFirebaseUserGroup(context, user.id, group),
                 zipAddUserGroup()).map(saveSharedLink(context)).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
     }
 
-    fun deleteUserGroup(context: Context, user: User, group: Group): EventCallback {
+    internal fun deleteUserGroup(context: Context, user: User, group: Group): EventCallback {
         return Observable.zip(
                 deleteRealmUserGroup(context, group, user),
                 deleteFirebaseUserGroup(context, user.id, group),

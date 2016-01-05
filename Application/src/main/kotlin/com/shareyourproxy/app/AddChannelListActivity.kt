@@ -61,7 +61,7 @@ private final class AddChannelListActivity : BaseActivity() {
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom)
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         initializeSubscriptions()
     }

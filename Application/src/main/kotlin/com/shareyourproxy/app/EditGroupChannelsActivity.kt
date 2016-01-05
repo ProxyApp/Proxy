@@ -63,7 +63,7 @@ private final class EditGroupChannelsActivity : BaseActivity() {
         }
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
         subscriptions = CompositeSubscription();
         subscriptions.add(RxBusRelay.rxBusObservable().subscribe(onNextEvent(this)))

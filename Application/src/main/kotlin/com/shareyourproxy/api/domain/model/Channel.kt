@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.shareyourproxy.util.BaseParcelable
 
 /**
- * Channels are other apps and services that you will use to communicate with [Contact]s.
+ * Channels are other apps and services that you will share with [User] contacts.
  */
 internal data class Channel(val id: String, val label: String, val channelType: ChannelType, val actionAddress: String, val isPublic: Boolean) : BaseParcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {

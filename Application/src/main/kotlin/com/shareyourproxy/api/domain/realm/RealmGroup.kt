@@ -9,8 +9,8 @@ import io.realm.annotations.RealmClass
  * Groups only have names for now.
  */
 @RealmClass
-public open class RealmGroup(
-        @PrimaryKey public open var id: String = "",
-        public open var label: String = "",
-        public open var channels: RealmList<RealmString> = RealmList(),
-        public open var contacts: RealmList<RealmString> = RealmList()) : RealmObject()
+open class RealmGroup(
+        @PrimaryKey open var id: String = "",
+        open var label: String = "",
+        open var channels: RealmList<RealmString> = RealmList(),
+        open var contacts: RealmList<RealmString> = RealmList()) : RealmObject()

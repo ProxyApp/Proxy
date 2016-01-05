@@ -8,9 +8,9 @@ import io.realm.annotations.RealmClass
  * Channels are other apps and services that you will use to communicate with [RealmContact]s.
  */
 @RealmClass
-public open class RealmChannel(
-        @PrimaryKey public open var id: String = "",
-        public open var label: String = "",
-        public open var actionAddress: String = "",
-        public open var channelType: RealmChannelType = RealmChannelType(),
-        public open var isPublic: Boolean = false) : RealmObject()
+open class RealmChannel(
+        @PrimaryKey open var id: String = "",
+        open var label: String = "",
+        open var actionAddress: String = "",
+        open var channelType: RealmChannelType = RealmChannelType(),
+        open var is: Boolean = false) : RealmObject()
