@@ -1,6 +1,5 @@
 package com.shareyourproxy.app
 
-import android.Manifest
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -34,7 +33,6 @@ import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.tbruyelle.rxpermissions.RxPermissions
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.util.*
@@ -63,7 +61,7 @@ private final class LoginActivity : GoogleApiActivity() {
         }
     }
     private val onClickSignIn: View.OnClickListener = View.OnClickListener {
-        connectGoogleApiClient()
+        signInToGoogle()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,19 +94,6 @@ private final class LoginActivity : GoogleApiActivity() {
         signInButton.isEnabled = true
     }
 
-    override fun onOldGooglePlusTokenGen() {
-
-    }
-
-    override fun onConnected(bundle: Bundle?) {
-        super.onConnected(bundle)
-        getAccountsPermission();
-    }
-
-    override fun onConnectionSuspended(i: Int) {
-        connectGoogleApiClient()
-    }
-
     /**
      * onConnectionFailed is called when our Activity could not connect to Google Play services. onConnectionFailed indicates that the user needs to select an
      * account, grant permissions or resolve an onError in order to sign in.
@@ -120,9 +105,8 @@ private final class LoginActivity : GoogleApiActivity() {
         when (result.errorCode) {
             API_UNAVAILABLE -> apiUnavailable()
             SERVICE_VERSION_UPDATE_REQUIRED -> updateServiceVersion()
-            else -> resolveSignInError(result.resolution);
+            else -> {}
         }
-
     }
 
     private fun updateServiceVersion() {
@@ -143,7 +127,7 @@ private final class LoginActivity : GoogleApiActivity() {
     }
 
     /**
-     * Set the Logo image.drawable on this activities [ImageView].
+     * Set the Logo image drawable on this activities ImageView.
      */
     private fun drawLogo() {
         val draw = svgToBitmapDrawable(this, R.raw.ic_proxy_logo_typed, svgUltraMinor)
@@ -217,15 +201,4 @@ private final class LoginActivity : GoogleApiActivity() {
         analytics.userAdded(newUser)
     }
 
-    private fun getAccountsPermission() {
-        RxPermissions.getInstance(this)
-                .request(Manifest.permission.GET_ACCOUNTS)
-                .subscribe(object : JustObserver<Boolean>() {
-                    override fun next(t: Boolean) {
-                        if (t) {
-                            oldSignInToGoogle()
-                        }
-                    }
-                });
-    }
 }

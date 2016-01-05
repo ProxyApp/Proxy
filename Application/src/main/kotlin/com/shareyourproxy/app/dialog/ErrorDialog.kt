@@ -7,21 +7,33 @@ import android.support.v4.app.FragmentManager
 import android.view.ContextThemeWrapper
 import com.shareyourproxy.R
 import com.shareyourproxy.R.string.ok
+import com.shareyourproxy.util.ButterKnife.LazyVal
 
 
 /**
  * Dialog to handle onError messaging during login.
  */
-internal final class ErrorDialog(private val title: String, private val message: String) : BaseDialogFragment() {
-    private val TAG = ErrorDialog::class.java.simpleName
-    private val ARG_TITLE = "title"
-    private val ARG_MESSAGE = "message"
-    private val parcelTitle = arguments.getString(ARG_TITLE)
-    private val parcelMessage = arguments.getString(ARG_MESSAGE)
-    init {
-        arguments.putString(ARG_TITLE, title)
-        arguments.putString(ARG_MESSAGE, message)
+internal final class ErrorDialog private constructor(title: String, message: String) : BaseDialogFragment() {
+    private val parcelTitle: String by LazyVal { arguments.getString(ARG_TITLE) }
+    private val parcelMessage: String by LazyVal { arguments.getString(ARG_MESSAGE) }
+
+    companion object {
+        private val ARG_TITLE = "title"
+        private val ARG_MESSAGE = "message"
+        fun show(manager: FragmentManager, title: String, message: String): ErrorDialog {
+            return setArgs(manager, title, message)
+        }
+
+        private fun setArgs(manager: FragmentManager, title: String, message: String): ErrorDialog {
+            val dialog: ErrorDialog = ErrorDialog(title, message)
+            val args: Bundle = Bundle()
+            args.putString(ARG_TITLE, title)
+            args.putString(ARG_MESSAGE, message)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
     }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(ContextThemeWrapper(activity,
                 R.style.Widget_Proxy_App_Dialog))
@@ -37,7 +49,7 @@ internal final class ErrorDialog(private val title: String, private val message:
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): ErrorDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, ErrorDialog::class.java.simpleName)
         return this
     }
 }

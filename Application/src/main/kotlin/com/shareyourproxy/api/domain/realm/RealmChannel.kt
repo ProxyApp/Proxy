@@ -13,4 +13,4 @@ open class RealmChannel(
         open var label: String = "",
         open var actionAddress: String = "",
         open var channelType: RealmChannelType = RealmChannelType(),
-        open var is: Boolean = false) : RealmObject()
+        open var isPublic: Boolean = false) : RealmObject()

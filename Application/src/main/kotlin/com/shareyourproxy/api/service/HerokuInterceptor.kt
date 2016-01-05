@@ -13,11 +13,15 @@ internal final class HerokuInterceptor(private val sharedPrefs: SharedPreference
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = sharedPrefs.getString(KEY_GOOGLE_PLUS_AUTH, null)
-        val request = chain.request()
         if (token != null) {
-            request.headers().newBuilder().add("provider", "google").add("token", token).build()
+            val newRequest = chain.request().newBuilder()
+                    .addHeader("provider", "google")
+                    .addHeader("token", token)
+                    .build()
+            return chain.proceed(newRequest)
+        } else {
+            return chain.proceed(chain.request())
         }
-        return chain.proceed(request)
     }
 }
 

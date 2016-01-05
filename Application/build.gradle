@@ -35,9 +35,11 @@ def env_spotify_client_secret = env["SPOTIFY_CLIENT_SECRET"]
 def env_google_api_key = env["GOOGLE_API_KEY"]
 def env_google_debug_client_id = env["GOOGLE_DEBUG_CLIENT_ID"]
 def env_google_prod_client_id = env["GOOGLE_PROD_CLIENT_ID"]
+def env_google_web_client_id = env["GOOGLE_WEB_CLIENT_ID"]
 def google_api_key = properties.getProperty('GOOGLE_API_KEY', env_google_api_key)
 def google_debug_client_id = properties.getProperty('GOOGLE_DEBUG_CLIENT_ID', env_google_debug_client_id)
-def google_prod_client_id = properties.getProperty('GOOGLE_DEBUG_CLIENT_ID', env_google_prod_client_id)
+def google_prod_client_id = properties.getProperty('GOOGLE_PROD_CLIENT_ID', env_google_prod_client_id)
+def google_web_client_id = properties.getProperty('GOOGLE_WEB_CLIENT_ID', env_google_web_client_id)
 def tracker_id = properties.getProperty('GA_TRACKER_ID', env_google_tracker)
 def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
 def instagram_app_id = properties.getProperty('INSTAGRAM_APP_ID', env_instagram_app_id)
@@ -97,8 +99,7 @@ android {
             def env_key_alias = env["KEY_ALIAS"]
             def env_key_password = env["KEY_PASSWORD"]
             //Local build values
-            def keystore_password = properties.getProperty('KEYSTORE_PASSWORD',
-                    env_keystore_password)
+            def keystore_password = properties.getProperty('KEYSTORE_PASSWORD', env_keystore_password)
             def key_alias = properties.getProperty('KEY_ALIAS', env_key_alias)
             def key_password = properties.getProperty('KEY_PASSWORD', env_key_password)
             //Signed release commands
@@ -142,7 +143,7 @@ android {
             buildConfigField "String", "SPOTIFY_CLIENT_SECRET", spotify_client_secret
             buildConfigField "boolean", "USE_LEAK_CANARY", "false"
             buildConfigField "String", "GOOGLE_API_KEY", google_api_key
-            buildConfigField "String", "GOOGLE_CLIENT_ID", google_debug_client_id
+            buildConfigField "String", "GOOGLE_CLIENT_ID", google_web_client_id
         }
         release {
             debuggable false

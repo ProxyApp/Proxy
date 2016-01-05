@@ -9,7 +9,7 @@ import com.shareyourproxy.api.service.HerokuInterceptor
 import com.shareyourproxy.api.service.HerokuUserService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
+import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.GsonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.RxJavaCallAdapterFactory
@@ -21,15 +21,6 @@ import timber.log.Timber
 internal final class RestClient(private val context: Context) {
     val HEROKU_URL = "https://proxy-api.herokuapp.com/"
     val herokuUserService: HerokuUserService get() = buildClient(HEROKU_URL).create(HerokuUserService::class.java)
-
-    private fun buildClient(endPoint: String): Retrofit {
-        return Retrofit.Builder().baseUrl(endPoint).client(client).addConverterFactory(GsonConverterFactory.create(buildGsonConverter())).addCallAdapterFactory(RxJavaCallAdapterFactory.create()).build()
-    }
-
-    private fun buildGsonConverter(): Gson {
-        return GsonBuilder().registerTypeAdapterFactory(UserTypeAdapterFactory).create()
-    }
-
     val client: OkHttpClient get() {
         val client = OkHttpClient().newBuilder()
                 .addNetworkInterceptor(HerokuInterceptor(context.getSharedPreferences(Constants.MASTER_KEY, Context.MODE_PRIVATE)))
@@ -41,9 +32,22 @@ internal final class RestClient(private val context: Context) {
         return com.squareup.okhttp.OkHttpClient()
     }
 
+    private fun buildClient(endPoint: String): Retrofit {
+        return Retrofit.Builder()
+                .baseUrl(endPoint)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(buildGsonConverter()))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build()
+    }
+
+    private fun buildGsonConverter(): Gson {
+        return GsonBuilder().registerTypeAdapterFactory(UserTypeAdapterFactory).create()
+    }
+
     private val httpLoggingInterceptor: HttpLoggingInterceptor get() {
         val logging = HttpLoggingInterceptor(timberLogger)
-        logging.setLevel(BASIC)
+        logging.setLevel(BODY)
         return logging
     }
 

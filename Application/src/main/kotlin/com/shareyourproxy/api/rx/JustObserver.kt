@@ -24,7 +24,6 @@ internal abstract class JustObserver<T> : Observer<T> {
         Timber.v("${this.toString()} onNext obj: ${t.toString()}")
         next(t)
     }
-
     abstract fun next(t: T)
 
     open fun error(e: Throwable) {

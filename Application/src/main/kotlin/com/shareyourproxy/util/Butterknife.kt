@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat.getColorStateList
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
+import com.shareyourproxy.app.dialog.BaseDialogFragment
 import java.util.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -121,7 +122,7 @@ internal object ButterKnife {
      */
     fun View.bindString(id: Int): ReadOnlyProperty<View, String> = requiredString(id, stringFinder)
     fun Activity.bindString(id: Int): ReadOnlyProperty<Activity, String> = requiredString(id, stringFinder)
-    fun Dialog.bindString(id: Int): ReadOnlyProperty<Dialog, String> = requiredString(id, stringFinder)
+    fun BaseDialogFragment.bindString(id: Int): ReadOnlyProperty<BaseDialogFragment, String> = requiredString(id, stringFinder)
     fun Fragment.bindString(id: Int): ReadOnlyProperty<Fragment, String> = requiredString(id, stringFinder)
     fun SupportFragment.bindString(id: Int): ReadOnlyProperty<SupportFragment, String> = requiredString(id, stringFinder)
     fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindString(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, String> = requiredString(id, stringFinder(context))
@@ -130,7 +131,7 @@ internal object ButterKnife {
      */
     private val View.stringFinder: View.(Int) -> String? get() = { context.getString(it) }
     private val Activity.stringFinder: Activity.(Int) -> String? get() = { getString(it) }
-    private val Dialog.stringFinder: Dialog.(Int) -> String? get() = { context.getString(it) }
+    private val BaseDialogFragment.stringFinder: BaseDialogFragment.(Int) -> String? get() = { context.getString(it) }
     private val Fragment.stringFinder: Fragment.(Int) -> String? get() = { getString(it) }
     private val SupportFragment.stringFinder: SupportFragment.(Int) -> String? get() = { getString(it) }
     private fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.stringFinder(context: Context): RecyclerView.Adapter<T>.(Int) -> String? = { context.getString(it) }
@@ -172,20 +173,19 @@ internal object ButterKnife {
     private fun <T, V : View> optional(ids: IntArray, finder: T.(Int) -> View?) = LazyView { t: T, desc -> ids.map { t.finder(it) as V? }.filterNotNull() }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> required(id: Int, finder: T.(Int) -> Int?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+    private fun <T> required(id: Int, finder: T.(Int) -> Int?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> requiredString(id: Int, finder: T.(Int) -> String?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+    private fun <T> requiredString(id: Int, finder: T.(Int) -> String?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> requiredList(id: Int, finder: T.(Int) -> ColorStateList?) = LazyVal { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+    private fun <T> requiredList(id: Int, finder: T.(Int) -> ColorStateList?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
 
     /**
      * Like Kotlin's lazy delegate but the initializer gets the target and metadata passed to it
      */
     private class LazyView<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
         private object EMPTY
-
         private var value: Any? = EMPTY
 
         override fun getValue(thisRef: T, property: KProperty<*>): V {
@@ -220,9 +220,8 @@ internal object ButterKnife {
     /**
      * Just set the value and cast meta data.
      */
-    private class LazyVal<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
+    private class LazyRes<T, V>(private val initializer: (T, KProperty<*>) -> V) : ReadOnlyProperty<T, V> {
         private object EMPTY
-
         private var value: Any? = EMPTY
 
         override fun getValue(thisRef: T, property: KProperty<*>): V {
@@ -231,6 +230,22 @@ internal object ButterKnife {
             }
             @Suppress("UNCHECKED_CAST")
             return value as V
+        }
+    }
+
+    /**
+     * Just set the value and cast meta data.
+     */
+    class LazyVal<P>(private val initializer: () -> P) : ReadOnlyProperty<Any?, P> {
+        private object EMPTY
+        private var value: Any? = EMPTY
+
+        override fun getValue(thisRef: Any?, property: KProperty<*>): P {
+            if (value == EMPTY) {
+                value = initializer()
+            }
+            @Suppress("UNCHECKED_CAST")
+            return value as P
         }
     }
 }

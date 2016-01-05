@@ -36,4 +36,5 @@ internal open class BaseDialogFragment : DialogFragment() {
         super.onDestroy()
         ButterKnife.unbind(this)
     }
+
 }

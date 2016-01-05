@@ -1,9 +1,7 @@
 package com.shareyourproxy.app
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -25,29 +23,16 @@ import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustSingle
-import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
-import com.shareyourproxy.api.rx.RxLoginHelper.refreshGooglePlusToken
 import com.shareyourproxy.app.dialog.ErrorDialog
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.StringUtils
-import timber.log.Timber
 import java.util.*
 
 /**
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private val googleApiClient: Lazy<GoogleApiClient> = lazy { buildOldGoogleApiClient(this) }
-
-    protected fun connectGoogleApiClient() {
-        when{
-            googleApiClient.value.isConnected -> onConnected(null)
-            googleApiClient.value.isConnecting ->{}
-            else -> googleApiClient.value.connect()
-        }
-    }
-
-    open fun onOldGooglePlusTokenGen() {
-    }
+    private val googleApiClient: GoogleApiClient by LazyVal {buildGoogleApiClient(this)}
 
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
     }
@@ -56,19 +41,14 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     }
 
     protected fun signInToGoogle() {
-        val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient.value)
-        startActivityForResult(signInIntent, RC_NEW_SIGN_IN)
-    }
-
-    protected fun oldSignInToGoogle() {
-        refreshGooglePlusToken(this, googleApiClient.value).compose(singleObserveMain<String>()).subscribe(googleRefreshObserver())
+        val signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient)
+        startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
     private fun googleRefreshObserver(): JustSingle<String> {
         return object : JustSingle<String>() {
             override fun onSuccess(value: String) {
                 sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, value)
-                onOldGooglePlusTokenGen()
             }
         }
     }
@@ -108,8 +88,8 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
 
     override fun onStop() {
         super.onStop()
-        if (googleApiClient.value.isConnected) {
-            googleApiClient.value.disconnect()
+        if (googleApiClient.isConnected) {
+            googleApiClient.disconnect()
         }
     }
 
@@ -127,30 +107,16 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         when(requestCode){
-            RC_NEW_SIGN_IN -> rcNewSignIn(data)
+            RC_SIGN_IN -> signIn(data)
             else ->{}
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    /**
-     * Starts an appropriate intent or dialog for user interaction to resolve the current onError preventing the user from being signed in.  This could be a
-     * dialog allowing the user to select an account, an activity allowing the user to consent to the permissions being requested by your app, a setting to
-     * enable device networking, etc.
-     */
-    protected  fun resolveSignInError(intent : PendingIntent) {
-        try {
-            startIntentSenderForResult(intent.intentSender, RC_SIGN_IN, null, 0, 0, 0);
-        } catch (e: Throwable) {
-            Timber.i("Sign in intent could not be sent: ${Log.getStackTraceString(e)}")
-            connectGoogleApiClient()
-        }
-    }
-
-    private fun rcNewSignIn(data: Intent) {
+    private fun signIn(data: Intent) {
         val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
         if (result.isSuccess) {
-            sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode)
+            sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode).commit()
             onGooglePlusSignIn(result.signInAccount)
         } else {
             onGooglePlusError(result.status)
@@ -160,7 +126,6 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     companion object {
         val GOOGLE_UID_PREFIX = "google:"
         val RC_SIGN_IN = 0
-        private val RC_NEW_SIGN_IN = 1
         private val OPTIONS = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestServerAuthCode(BuildConfig.GOOGLE_CLIENT_ID).requestEmail().build()
         /**
          * Return log in onError dialog based on the type of onError.
@@ -171,10 +136,10 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
             if (message.trim { it <= ' ' }.isEmpty()) {
                 error = "null error message"
             }
-            ErrorDialog(activity.getString(R.string.login_error), "Error authenticating with Google: $error").show(activity.supportFragmentManager)
+            ErrorDialog.show(activity.supportFragmentManager, activity.getString(R.string.login_error), "Error authenticating with Google: $error")
         }
 
-        private fun buildGoogleApiClient(activity: GoogleApiActivity): GoogleApiClient {
+        fun buildGoogleApiClient(activity: GoogleApiActivity): GoogleApiClient {
             return GoogleApiClient.Builder(activity)
                     .addConnectionCallbacks(activity)
                     .enableAutoManage(activity, activity)
