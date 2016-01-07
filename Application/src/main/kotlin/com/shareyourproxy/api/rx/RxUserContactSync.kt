@@ -57,8 +57,8 @@ internal object RxUserContactSync {
 
     private fun getUserGroupPair(contactId: String?, userGroups: HashMap<String, Group>?): Pair<String?, Boolean> {
         if (userGroups != null) {
-            for (entryGroup in userGroups.entries) {
-                val group = entryGroup.value
+            userGroups.entries.forEach {
+                val group = it.value
                 val groupContacts = group.contacts
                 for (groupContactId in groupContacts) {
                     if (groupContactId == contactId) {

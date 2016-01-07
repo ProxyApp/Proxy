@@ -128,11 +128,9 @@ internal abstract class BaseActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
-        val fragments = supportFragmentManager.fragments
-        if (fragments != null && fragments.size > 0) {
-            for (fragment in fragments) {
-                fragment?.onActivityResult(requestCode, resultCode, data)
-            }
+        val fragments = supportFragmentManager?.fragments
+        if (fragments?.size!! > 0) {
+            fragments?.forEach { it?.onActivityResult(requestCode, resultCode, data) }
         }
     }
 }

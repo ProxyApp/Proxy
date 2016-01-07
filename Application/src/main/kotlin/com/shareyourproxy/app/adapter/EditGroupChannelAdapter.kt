@@ -33,16 +33,17 @@ import timber.log.Timber
 import java.util.*
 
 internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyclerView, private val clickListener: ItemClickListener, internal var groupLabel: String, userChannels: HashMap<String, Channel>, groupChannels: HashSet<String>, private val groupEditType: GroupEditType) : BaseRecyclerViewAdapter() {
-    companion object{
+    companion object {
         internal val TYPE_LIST_ITEM = 1
         internal val TYPE_LIST_HEADER = 2
         internal val TYPE_LIST_DELETE_FOOTER = 3
     }
+
     private val channels: SortedList<ChannelToggle> = SortedList(ChannelToggle::class.java, sortedCallback, userChannels.size)
     private val stringTitle: String by bindString(recyclerView.context, R.string.people_in_this_group)
     private val stringButton: String by bindString(recyclerView.context, R.string.view_group_members)
     private val contactsListener: View.OnClickListener = View.OnClickListener { post(ViewGroupContactsEvent()) }
-    internal val selectedChannels: HashSet<String> get()= getSelectedChannels(channels)
+    internal val selectedChannels: HashSet<String> get() = getSelectedChannels(channels)
     private var groupLabelHeaderViewHolder: HeaderViewHolder? = null
 
     init {
@@ -85,8 +86,8 @@ internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyc
 
     internal val toggledChannels: ArrayList<ChannelToggle> get() {
         val channels = ArrayList<ChannelToggle>(channels.size())
-        for (i in 0..channels.size - 1) {
-            val newChannel = channels[i]
+        (0..channels.size - 1).forEach {
+            val newChannel = channels[it]
             channels.add(newChannel)
         }
         return channels
@@ -179,13 +180,9 @@ internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyc
     private fun updateChannels(userChannels: HashMap<String, Channel>?, groupChannels: HashSet<String>) {
         if (userChannels != null) {
             val channelToggles = ArrayList<ChannelToggle>()
-            for (userChannel in userChannels.entries) {
-                channelToggles.add(ChannelToggle(userChannel.value, channelInGroup(userChannel.value, groupChannels)))
-            }
+            userChannels.entries.forEach { channelToggles.add(ChannelToggle(it.value, channelInGroup(it.value, groupChannels))) }
             channels.beginBatchedUpdates()
-            for (channel in channelToggles) {
-                channels.add(channel)
-            }
+            channelToggles.forEach { channels.add(it) }
             channels.endBatchedUpdates()
         }
     }
@@ -193,10 +190,9 @@ internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyc
     private fun updatePublicChannels(userChannels: HashMap<String, Channel>?) {
         if (userChannels != null) {
             val channelToggles = ArrayList<ChannelToggle>()
-            for (userChannel in userChannels.entries) {
-                val channel = userChannel.value
-                channelToggles.add(
-                        ChannelToggle(channel, channel.isPublic))
+            userChannels.entries.forEach {
+                val channel = it.value
+                channelToggles.add(ChannelToggle(channel, channel.isPublic))
             }
             channels.beginBatchedUpdates()
             for (channel in channelToggles) {
@@ -207,11 +203,9 @@ internal final class EditGroupChannelAdapter(private val recyclerView: BaseRecyc
     }
 
     private fun channelInGroup(userChannel: Channel, groupChannels: HashSet<String>?): Boolean {
-        if (groupChannels != null) {
-            for (groupChannel in groupChannels) {
-                if (groupChannel == userChannel.id) {
-                    return true
-                }
+        groupChannels?.forEach {
+            if (it == userChannel.id) {
+                return true
             }
         }
         return false

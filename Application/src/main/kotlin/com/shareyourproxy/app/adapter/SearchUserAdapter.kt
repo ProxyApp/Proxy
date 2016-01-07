@@ -84,8 +84,8 @@ internal final class SearchUserAdapter(private val recyclerView: BaseRecyclerVie
         var count = 0
         val fullnameArray = fullname.toUpperCase(Locale.US).toCharArray()
         val queryStringArray = queryString.toUpperCase(Locale.US).toCharArray()
-        for (i in queryStringArray.indices) {
-            if (fullnameArray[i] == queryStringArray[i]) {
+        queryStringArray.indices.forEach {
+            if (fullnameArray[it] == queryStringArray[it]) {
                 ++count
             }
         }

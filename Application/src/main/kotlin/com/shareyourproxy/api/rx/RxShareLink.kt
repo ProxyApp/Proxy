@@ -34,7 +34,7 @@ internal object RxShareLink {
     }
 
     fun queryLinkIds(context: Context, userId: String): Func1<String, SharedLink> {
-        return Func1 { groupId -> RestClient(context).herokuUserService.getSharedLink(userId,groupId).toBlocking().single() }
+        return Func1 { groupId -> RestClient(context).herokuUserService.getSharedLink(userId, groupId).toBlocking().single() }
     }
 
     fun handleMessage(subscriber: Subscriber<in EventCallback>): Subscriber<String> {
@@ -67,9 +67,9 @@ internal object RxShareLink {
         return Func1 { groupToggles ->
             val analytics = RxGoogleAnalytics(context)
             val checkedGroups = ArrayList<String>(groupToggles.size)
-            for (groupEntry in groupToggles) {
-                if (groupEntry.isChecked) {
-                    val group = groupEntry.group
+            groupToggles.forEach {
+                if (it.isChecked) {
+                    val group = it.group
                     analytics.shareLinkGenerated(group)
                     checkedGroups.add(group.id)
                 }

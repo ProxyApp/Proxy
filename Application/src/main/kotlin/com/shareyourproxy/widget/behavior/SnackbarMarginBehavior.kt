@@ -54,9 +54,9 @@ internal final class SnackbarMarginBehavior(context: Context, attrs: AttributeSe
     private fun getFabTranslationYForSnackbar(parent: CoordinatorLayout, view: View?): Float {
         var minOffset = 0f
         val dependencies = parent.getDependencies(view)
-        for (i in 0..dependencies.size) {
-            if (dependencies[i] is Snackbar.SnackbarLayout) {
-                val translation = getTranslationY(dependencies[i]).minus(dependencies[i].height.toFloat())
+        (0..dependencies.size).forEach {
+            if (dependencies[it] is Snackbar.SnackbarLayout) {
+                val translation = getTranslationY(dependencies[it]).minus(dependencies[it].height.toFloat())
                 minOffset = Math.min(minOffset, translation)
             }
         }

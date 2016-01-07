@@ -28,8 +28,8 @@ internal final class SaveGroupChannelAdapter(recyclerView: BaseRecyclerView, gro
 
     internal val isAnyItemChecked: Boolean get() {
         val groups = data
-        for (group in groups) {
-            if (group.isChecked) {
+        groups.forEach {
+            if (it.isChecked) {
                 return true
             }
         }
@@ -40,7 +40,7 @@ internal final class SaveGroupChannelAdapter(recyclerView: BaseRecyclerView, gro
     val isPublicChecked: Boolean get() = lastItem.isChecked
 
     init {
-        val groupToggles : ArrayList<GroupToggle> = ArrayList(groups.size)
+        val groupToggles: ArrayList<GroupToggle> = ArrayList(groups.size)
         for (group in groups.entries) {
             val newEntry = GroupToggle(group.value, false)
             groupToggles.add(newEntry)

@@ -100,9 +100,9 @@ internal final class ContactProfileFragment(contact: User, loggedInUserId: Strin
         val list = queryContactGroups(loggedInUser, contact)
         toggleGroups.addAll(list)
         val selectedGroupsList = ArrayList<Group>(list.size)
-        for (groupToggle in list) {
-            if (groupToggle.isChecked) {
-                selectedGroupsList.add(groupToggle.group)
+        list.forEach {
+            if (it.isChecked) {
+                selectedGroupsList.add(it.group)
             }
         }
         return selectedGroupsList

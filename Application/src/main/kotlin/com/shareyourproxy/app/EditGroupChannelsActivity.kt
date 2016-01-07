@@ -109,9 +109,7 @@ private final class EditGroupChannelsActivity : BaseActivity() {
 
     private fun updateUserContacts(event: UserGroupDeletedEventCallback) {
         val contacts = ArrayList<String>()
-        for (contactId in event.group.contacts) {
-            contacts.add(contactId)
-        }
+        event.group.contacts.forEach { contacts.add(it) }
         post(UpdateUserContactsCommand(loggedInUser, contacts, loggedInUser.groups))
     }
 }

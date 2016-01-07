@@ -210,9 +210,7 @@ private final class LoginActivity : GoogleApiActivity() {
         loggedInUser = newUser
         val userGroups = newUser.groups
         val groupIds = ArrayList<String>(userGroups.size)
-        for (group in userGroups.values) {
-            groupIds.add(group.id)
-        }
+        userGroups.values.forEach { groupIds.add(it.id) }
         post(AddUserCommand(newUser))
         post(SyncContactsCommand(newUser))
         analytics.userAdded(newUser)

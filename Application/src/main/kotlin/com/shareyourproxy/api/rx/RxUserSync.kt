@@ -48,9 +48,7 @@ internal object RxUserSync {
     private fun saveRealmUsers(context: Context): Func1<ArrayList<User>, HashMap<String, User>> {
         return Func1 { users ->
             val usersMap = HashMap<String, User>(users.size)
-            for (user in users) {
-                usersMap.put(user.id, user)
-            }
+            users.forEach { usersMap.put(it.id, it) }
             updateRealmUser(context, usersMap)
             usersMap
         }

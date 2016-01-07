@@ -19,10 +19,8 @@ internal final class ShareLinkAdapter(private val recyclerView: BaseRecyclerView
     private var lastCheckedView: CheckedTextView = CheckedTextView(recyclerView.context)
 
     init {
-        val groupToggles : ArrayList<GroupToggle> = ArrayList(groups.size)
-        for (group in groups.values) {
-            groupToggles.add(GroupToggle(group, false))
-        }
+        val groupToggles: ArrayList<GroupToggle> = ArrayList(groups.size)
+        groups.values.forEach { groupToggles.add(GroupToggle(it, false)) }
         refreshData(groupToggles)
     }
 

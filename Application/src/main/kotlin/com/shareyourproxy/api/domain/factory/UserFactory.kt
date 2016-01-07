@@ -34,9 +34,7 @@ internal object UserFactory {
      */
     fun createModelUsers(realmUsers: RealmResults<RealmUser>): HashMap<String, User> {
         val users = HashMap<String, User>()
-        for (realmUser in realmUsers) {
-            users.put(realmUser.id, createModelUser(realmUser))
-        }
+        realmUsers.forEach { users.put(it.id, createModelUser(it)) }
         return users
     }
 

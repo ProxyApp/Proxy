@@ -29,13 +29,11 @@ internal object UserTypeAdapter : TypeAdapter<User>() {
     }
 
     fun beforeWrite(toSerialize: JsonElement) {
-        if(toSerialize.isJsonObject) {
+        if (toSerialize.isJsonObject) {
             removeFullName(toSerialize)
-        }else if(toSerialize.isJsonObject){
+        } else if (toSerialize.isJsonObject) {
             val custom = toSerialize.asJsonArray
-            for(user in custom){
-                removeFullName(user)
-            }
+            custom.forEach { removeFullName(it) }
         }
     }
 

@@ -15,9 +15,9 @@ internal object RealmContactFactory {
      */
     fun getRealmContacts(contacts: HashSet<String>): RealmList<RealmString> {
         val realmContactArray = RealmList<RealmString>()
-        for (id in contacts) {
+        contacts.forEach {
             val realmContact = RealmString()
-            realmContact.value = id
+            realmContact.value = it
             realmContactArray.add(realmContact)
         }
         return realmContactArray

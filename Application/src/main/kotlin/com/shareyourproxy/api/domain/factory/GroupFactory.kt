@@ -21,9 +21,7 @@ internal object GroupFactory {
      */
     fun getModelGroups(realmGroupArray: RealmList<RealmGroup>): HashMap<String, Group> {
         val groups = HashMap<String, Group>(realmGroupArray.size)
-        for (realmGroup in realmGroupArray) {
-            groups.put(realmGroup.id, getModelGroup(realmGroup))
-        }
+        realmGroupArray.forEach { groups.put(it.id, getModelGroup(it)) }
         return groups
     }
 

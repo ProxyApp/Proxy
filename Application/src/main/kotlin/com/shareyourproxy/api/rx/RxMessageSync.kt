@@ -30,7 +30,7 @@ import java.util.*
  * Cold Rx.Observable calls to handle syncing messages for Users.
  */
 internal object RxMessageSync {
-    private val userMessageCallback: Func1<Message, EventCallback> get() = Func1 {UserMessageAddedEventCallback(it) }
+    private val userMessageCallback: Func1<Message, EventCallback> get() = Func1 { UserMessageAddedEventCallback(it) }
 
     fun getFirebaseMessages(context: Context, userId: String): UserMessagesDownloadedEventCallback {
         return RestClient(context).herokuUserService.downloadAndPurgeUserMessages(userId).map({ mapNewMessages(context, it, userId) })
@@ -40,9 +40,9 @@ internal object RxMessageSync {
 
     private fun mapNewMessages(context: Context, messages: ArrayList<Message>, userId: String): UserMessagesDownloadedEventCallback {
         val notifications = ArrayList<Notification>()
-        for (message in messages) {
-            val fullName = message.fullName
-            val intent = getPendingUserProfileIntent(context, userId, message)
+        messages.forEach {
+            val fullName = it.fullName
+            val intent = getPendingUserProfileIntent(context, userId, it)
             val builder = Builder(context)
                     .setLargeIcon(getProxyIcon(context))
                     .setSmallIcon(R.mipmap.ic_proxy_notification)

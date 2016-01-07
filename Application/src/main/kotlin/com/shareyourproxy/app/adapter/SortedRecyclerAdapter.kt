@@ -92,9 +92,7 @@ internal abstract class SortedRecyclerAdapter<T>(clazz: Class<T>, private val re
 
     val data: ArrayList<T> get() {
         val datas = ArrayList<T>(sortedList.size())
-        for (i in 0..sortedList.size() - 1) {
-            datas.add(i, sortedList.get(i))
-        }
+        (0..sortedList.size() - 1).forEach { datas.add(it, sortedList.get(it)) }
         return datas
     }
 

@@ -39,10 +39,10 @@ internal object RxQuery {
             }
             val realm = Realm.getInstance(context)
             realm.refresh()
-            for (contactId in contactIds) {
-                val realmUser = realm.where<RealmUser>(RealmUser::class.java).equalTo("id", contactId).findFirst()
+            contactIds.forEach {
+                val realmUser = realm.where<RealmUser>(RealmUser::class.java).equalTo("id", it).findFirst()
                 if (realmUser != null) {
-                    contacts.put(contactId, createModelUser(realmUser))
+                    contacts.put(it, createModelUser(realmUser))
                 }
             }
             realm.close()
@@ -69,12 +69,12 @@ internal object RxQuery {
                 //check the contacts groups for the logged in user and gather the channel
                 // Id's of that group
                 if (groups.size > 0) {
-                    for (group in groups.values) {
-                        val contacts = group.contacts
-                            for (contactId in contacts) {
-                                if (contactId == loggedInUserId) {
-                                    permissionedIds.addAll(group.channels)
-                                }
+                    groups.values.forEach {
+                        val contacts = it.contacts
+                        for (contactId in contacts) {
+                            if (contactId == loggedInUserId) {
+                                permissionedIds.addAll(it.channels)
+                            }
                         }
                     }
                     // for the above key set data, find the channels associated
@@ -86,9 +86,9 @@ internal object RxQuery {
                     }
                 }
                 // add public channels
-                for (channel in channels.values) {
-                    if (channel.isPublic) {
-                        permissionedChannels.put(channel.id, channel)
+                channels.values.forEach {
+                    if (it.isPublic) {
+                        permissionedChannels.put(it.id, it)
                     }
                 }
                 permissionedChannels
@@ -100,7 +100,7 @@ internal object RxQuery {
         return Observable.just<Context>(context).map<User>(getRealmUser(userId)).compose<User>(observeMain<User>()).toBlocking().single()
     }
 
-    fun getUserContactScore(context:Context, userId: String): Observable<Int> {
+    fun getUserContactScore(context: Context, userId: String): Observable<Int> {
         return RestClient(context).herokuUserService.userFollowerCount(userId).compose<Int>(observeMain<Int>())
     }
 
@@ -128,7 +128,7 @@ internal object RxQuery {
         return Observable.just<String>(queryName).map<HashMap<String, User>>(searchLocalUserString(context, userId))
     }
 
-    private fun searchRemoteMatchingUsers(context:Context, queryName: String): Observable<HashMap<String, User>> {
+    private fun searchRemoteMatchingUsers(context: Context, queryName: String): Observable<HashMap<String, User>> {
         return Observable.just<String>(queryName).map<HashMap<String, User>>(searchRemoteUserString(context))
     }
 

@@ -14,10 +14,8 @@ internal object ContactFactory {
      * @return HashSet of contact id values
      */
     fun getContactIdSet(values: RealmList<RealmString>): HashSet<String> {
-            val contactList = HashSet<String>(values.size)
-            for (realmContact in values) {
-                contactList.add(realmContact.value)
-            }
-            return contactList
+        val contactList = HashSet<String>(values.size)
+        values.forEach { contactList.add(it.value) }
+        return contactList
     }
 }

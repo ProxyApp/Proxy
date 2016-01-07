@@ -35,9 +35,9 @@ internal object RxGroupContactSync {
         return Func1 { groupToggles ->
             var groupHasContact = false
             val contactInGroup = ArrayList<Group>()
-            for (groupToggle in groupToggles) {
-                val groupId = groupToggle.group.id
-                if (groupToggle.isChecked) {
+            groupToggles.forEach {
+                val groupId = it.group.id
+                if (it.isChecked) {
                     groupHasContact = true
                     user.groups[groupId]?.contacts?.add(contactId)
                     contactInGroup.add(user.groups[groupId]!!)

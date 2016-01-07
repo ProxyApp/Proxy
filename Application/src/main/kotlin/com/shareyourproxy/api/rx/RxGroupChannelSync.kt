@@ -33,11 +33,11 @@ internal object RxGroupChannelSync {
             try {
                 val channelId = channel.id
                 val newGroups = HashMap<String, Group>(groups.size)
-                for (entryGroup in groups) {
-                    if (entryGroup.isChecked) {
-                        entryGroup.group.channels.add(channelId)
+                groups.forEach {
+                    if (it.isChecked) {
+                        it.group.channels.add(channelId)
                     }
-                    newGroups.put(entryGroup.group.id, entryGroup.group)
+                    newGroups.put(it.group.id, it.group)
                 }
                 subscriber.onNext(newGroups)
                 subscriber.onCompleted()
@@ -131,8 +131,8 @@ internal object RxGroupChannelSync {
     private val selectedChannels: Func1<SortedList<ChannelToggle>, HashSet<String>>
         get() = Func1 { groupEditChannels ->
             val selectedChannels = HashSet<String>()
-            for (i in 0..groupEditChannels.size() - 1) {
-                val editChannel = groupEditChannels.get(i)
+            (0..groupEditChannels.size() - 1).forEach {
+                val editChannel = groupEditChannels.get(it)
                 if (editChannel.inGroup) {
                     val channel = editChannel.channel
                     selectedChannels.add(channel.id)
@@ -155,7 +155,7 @@ internal object RxGroupChannelSync {
         }
     }
 
-    private fun saveFirebaseGroupChannels(context:Context, userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
+    private fun saveFirebaseGroupChannels(context: Context, userId: String, newTitle: String, group: Group, channels: HashSet<String>): Observable<Group> {
         val newGroup = group.copy(label = newTitle, channels = channels)
         return RestClient(context).herokuUserService.addUserGroup(userId, newGroup)
     }

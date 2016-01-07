@@ -53,7 +53,8 @@ internal final class DismissibleNotificationCard : FrameLayout {
             CUSTOM_URL,
             PUBLIC_GROUPS,
             MAIN_GROUPS -> post(NotificationCardDismissEvent(adapter!!, holder!!, notificationCard, isHeaderOrFooter))
-            else ->{}
+            else -> {
+            }
         }
     }
     private val onClickAction: OnClickListener = OnClickListener {
@@ -64,7 +65,8 @@ internal final class DismissibleNotificationCard : FrameLayout {
             CUSTOM_URL,
             PUBLIC_GROUPS,
             MAIN_GROUPS -> post(NotificationCardActionEvent(adapter!!, holder!!, notificationCard, isHeaderOrFooter))
-            else -> {}
+            else -> {
+            }
         }
     }
     private val isHeaderOrFooter: Boolean get() = holder is HeaderViewHolder
@@ -155,9 +157,9 @@ internal final class DismissibleNotificationCard : FrameLayout {
 
         companion object {
             operator fun get(intValue: Int): NotificationCard {
-                for (notificationCard in NotificationCard.values()) {
-                    if (notificationCard.value == intValue) {
-                        return notificationCard
+                NotificationCard.values().forEach {
+                    if (it.value == intValue) {
+                        return it
                     }
                 }
                 return WHOOPS

@@ -14,6 +14,7 @@ import com.shareyourproxy.Constants
 import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.api.CommandIntentService.Companion.ARG_COMMAND_CLASS
 import com.shareyourproxy.api.CommandIntentService.Companion.ARG_RESULT_BASE_EVENT
+import com.shareyourproxy.api.CommandIntentService.Companion.ARG_RESULT_RECEIVER
 import com.shareyourproxy.api.domain.model.Message
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
@@ -62,9 +63,7 @@ internal final class RxAppDataManager(private val app: ProxyApplication, private
             Timber.i("Checking for notifications, attempt: ${timesCalled.toInt()}")
             val eventData: UserMessagesDownloadedEventCallback = GetUserMessagesCommand(app.currentUser.id).execute(app)
             val notifications = eventData.notifications
-            for (notification in notifications) {
-                notificationManager.notify(notification.hashCode(), notification)
-            }
+            notifications.forEach { notificationManager.notify(it.hashCode(), it) }
         }
     }
     private val resultReceiver: ResultReceiver = object : ResultReceiver(null) {
@@ -90,7 +89,7 @@ internal final class RxAppDataManager(private val app: ProxyApplication, private
         Timber.i("BaseCommand: ${event.toString()}")
         val intent = Intent(app, CommandIntentService::class.java)
         intent.putExtra(ARG_COMMAND_CLASS, event)
-        intent.putExtra(CommandIntentService.ARG_RESULT_RECEIVER, resultReceiver)
+        intent.putExtra(ARG_RESULT_RECEIVER, resultReceiver)
         app.startService(intent)
     }
 

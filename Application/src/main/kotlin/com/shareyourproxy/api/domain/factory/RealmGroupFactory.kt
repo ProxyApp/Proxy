@@ -18,8 +18,8 @@ internal object RealmGroupFactory {
      */
     fun getRealmGroups(groupHashMap: HashMap<String, Group>): RealmList<RealmGroup> {
         val realmGroupArray = RealmList<RealmGroup>()
-        for (entryGroup in groupHashMap.entries) {
-            val group = entryGroup.value
+        groupHashMap.entries.forEach {
+            val group = it.value
             val realmGroup = RealmGroup()
             realmGroup.id = group.id
             realmGroup.label = group.label

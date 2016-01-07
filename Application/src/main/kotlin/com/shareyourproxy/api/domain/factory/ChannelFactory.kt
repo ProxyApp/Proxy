@@ -47,9 +47,7 @@ internal object ChannelFactory {
      */
     fun getModelChannels(realmChannels: RealmList<RealmChannel>): HashMap<String, Channel> {
         val channels = HashMap<String, Channel>(realmChannels.size)
-        for (realmChannel in realmChannels) {
-            channels.put(realmChannel.id, createModelInstance(realmChannel))
-        }
+        realmChannels.forEach { channels.put(it.id, createModelInstance(it)) }
         return channels
     }
 

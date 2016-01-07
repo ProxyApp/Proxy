@@ -17,14 +17,12 @@ internal object RealmUserFactory {
      * @return RealmUser
      */
     fun createRealmUser(user: User): RealmUser {
-        return RealmUser(user.id,user.first,user.last,user.fullName,user.email,user.profileURL,user.coverURL,getRealmChannels(user.channels),getRealmContacts(user.contacts),getRealmGroups(user.groups),user.androidVersion)
+        return RealmUser(user.id, user.first, user.last, user.fullName, user.email, user.profileURL, user.coverURL, getRealmChannels(user.channels), getRealmContacts(user.contacts), getRealmGroups(user.groups), user.androidVersion)
     }
 
     fun createRealmUsers(users: Map<String, User>): RealmList<RealmUser> {
         val realmUsers = RealmList<RealmUser>()
-        for (user in users.entries) {
-            realmUsers.add(createRealmUser(user.value))
-        }
+        users.entries.forEach { realmUsers.add(createRealmUser(it.value)) }
         return realmUsers
     }
 }

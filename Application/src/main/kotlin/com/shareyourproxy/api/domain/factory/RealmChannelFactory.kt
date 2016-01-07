@@ -13,11 +13,10 @@ internal object RealmChannelFactory {
     fun getRealmChannels(channels: HashMap<String, Channel>): RealmList<RealmChannel> {
         val realmChannelArray: RealmList<RealmChannel>
         realmChannelArray = RealmList<RealmChannel>()
-        for (channelEntry in channels.entries) {
-            val channel = channelEntry.value
+        channels.entries.forEach {
+            val channel = it.value
             val realmChannel = RealmChannel()
             val realmChannelType = RealmChannelType()
-            //construct the newChannel section
 
             //construct the newChannel type
             realmChannelType.weight = channel.channelType.weight

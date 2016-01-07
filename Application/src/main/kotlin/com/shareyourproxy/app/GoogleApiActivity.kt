@@ -32,7 +32,7 @@ import java.util.*
  * Base abstraction for classes to inherit common google plus login callbacks and functions.
  */
 internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks, OnConnectionFailedListener {
-    private val googleApiClient: GoogleApiClient by LazyVal {buildGoogleApiClient(this)}
+    private val googleApiClient: GoogleApiClient by LazyVal { buildGoogleApiClient(this) }
 
     open fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
     }
@@ -79,8 +79,8 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
         get() {
             val groups = HashMap<String, Group>(3)
             val groupLabels = resources.getStringArray(R.array.default_groups)
-            for (label in groupLabels) {
-                val group = Group(UUID.randomUUID().toString(), label, HashSet(), HashSet())
+            groupLabels.forEach {
+                val group = Group(UUID.randomUUID().toString(), it, HashSet(), HashSet())
                 groups.put(group.id, group)
             }
             return groups
@@ -106,9 +106,10 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        when(requestCode){
+        when (requestCode) {
             RC_SIGN_IN -> signIn(data)
-            else ->{}
+            else -> {
+            }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

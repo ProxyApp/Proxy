@@ -52,11 +52,11 @@ internal enum class ChannelType private constructor(val weight: Int, val label: 
     companion object {
         fun valueOfLabel(label: String): ChannelType {
             val values = ChannelType.values()
-            for (value in values) {
-                val channelLabel = value.label.toLowerCase()
+            values.forEach {
+                val channelLabel = it.label.toLowerCase()
                 val lowerCaseLabel = label.toLowerCase()
                 if (channelLabel == lowerCaseLabel) {
-                    return value
+                    return it
                 }
             }
             Timber.e("Bad ChannelType: $label")
