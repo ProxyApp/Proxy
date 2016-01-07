@@ -9,10 +9,11 @@ apply plugin: 'io.fabric'
 
 ext {
     kotlinVersion = "1.0.0-beta-4584"
-    retrofitVersion = "2.0.0-SNAPSHOT"
+    retrofitVersion = "2.0.0-beta3"
     okHTTPVersion = "3.0.0-RC1"
     playServicesVersion = "8.4.0"
     supportLibVersion = "23.1.1"
+    realmVersion = "0.87.1"
 }
 def Properties properties = new Properties()
 def localProps = project.rootProject.file('local.properties')
@@ -251,12 +252,12 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxkotlin:0.30.1'
     //Realm
-    compile 'io.realm:realm-android:0.87.0'
+    compile "io.realm:realm-android:${realmVersion}"
+    kapt "io.realm:realm-annotations:${realmVersion}"
+    kapt "io.realm:realm-annotations-processor:${realmVersion}"
     //SVG Compat
     compile 'com.caverock:androidsvg:1.2.2-beta-1'
     //Third party
-    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.0@aar'
-    compile 'com.github.orhanobut:hawk:1.21'
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     //Bug Tracking
     compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {

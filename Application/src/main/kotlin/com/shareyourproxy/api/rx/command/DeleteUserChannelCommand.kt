@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.Channel
@@ -16,8 +16,8 @@ internal final class DeleteUserChannelCommand(val user: User, val channel: Chann
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as Channel, parcel.readValue(CL) as Int)
 
-    override fun execute(service: Service): EventCallback {
-        return deleteChannel(service, user, channel, position)
+    override fun execute(context: Context): EventCallback {
+        return deleteChannel(context, user, channel, position)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

@@ -73,8 +73,8 @@ import com.shareyourproxy.api.rx.command.eventcallback.GroupContactsUpdatedEvent
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
@@ -130,9 +130,9 @@ internal abstract class UserProfileFragment() : BaseFragment() {
                 deleteUserChannel(event)
             } else if (event is SyncContactsCommand) {
                 swipeRefreshLayout.isRefreshing = true
-            } else if (event is SyncAllContactsSuccessEvent) {
+            } else if (event is SyncContactsSuccessEvent) {
                 swipeRefreshLayout.isRefreshing = false
-            } else if (event is SyncAllContactsErrorEvent) {
+            } else if (event is SyncContactsErrorEvent) {
                 swipeRefreshLayout.isRefreshing = false
             } else if (event is SelectUserChannelEvent) {
                 onChannelSelected(event)

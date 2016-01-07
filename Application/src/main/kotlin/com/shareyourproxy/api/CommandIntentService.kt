@@ -28,7 +28,6 @@ internal final class CommandIntentService : IntentService(CommandIntentService.T
         } catch (e: Exception) {
             logError(intent, result, e)
         }
-
     }
 
     private fun logError(intent: Intent, result: ResultReceiver, e: Exception) {
@@ -37,7 +36,6 @@ internal final class CommandIntentService : IntentService(CommandIntentService.T
     }
 
     companion object {
-
         val TAG = CommandIntentService::class.java.simpleName
         val ARG_COMMAND_CLASS = "com.shareyourproxy.api.CommandIntentService.command_class"
         val ARG_RESULT_RECEIVER = "com.shareyourproxy.api.CommandIntentService.api.result_receiver"

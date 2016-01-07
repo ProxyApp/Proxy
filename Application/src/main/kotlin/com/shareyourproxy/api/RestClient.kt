@@ -4,7 +4,8 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.shareyourproxy.Constants
-import com.shareyourproxy.api.domain.factory.UserTypeAdapterFactory
+import com.shareyourproxy.api.domain.factory.UserTypeAdapter
+import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.service.HerokuInterceptor
 import com.shareyourproxy.api.service.HerokuUserService
 import okhttp3.OkHttpClient
@@ -42,7 +43,7 @@ internal final class RestClient(private val context: Context) {
     }
 
     private fun buildGsonConverter(): Gson {
-        return GsonBuilder().registerTypeAdapterFactory(UserTypeAdapterFactory).create()
+        return GsonBuilder().registerTypeAdapter(User::class.java, UserTypeAdapter).create()
     }
 
     private val httpLoggingInterceptor: HttpLoggingInterceptor get() {

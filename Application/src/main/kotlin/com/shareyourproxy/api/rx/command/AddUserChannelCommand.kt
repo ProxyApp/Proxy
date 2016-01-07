@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.Channel
@@ -17,8 +17,8 @@ internal final class AddUserChannelCommand(val user: User, val newChannel: Chann
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as Channel, parcel.readValue(CL) as Channel)
 
-    override fun execute(service: Service): EventCallback {
-        return saveUserChannel(service, user, oldChannel, newChannel)
+    override fun execute(context: Context): EventCallback {
+        return saveUserChannel(context, user, oldChannel, newChannel)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

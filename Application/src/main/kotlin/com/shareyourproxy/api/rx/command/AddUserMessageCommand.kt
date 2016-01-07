@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.Message
@@ -15,8 +15,8 @@ internal final class AddUserMessageCommand(val userId: String, val message: Mess
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as String, parcel.readValue(CL) as Message)
 
-    override fun execute(service: Service): EventCallback {
-        return saveFirebaseMessage(service, userId, message)
+    override fun execute(context: Context): EventCallback {
+        return saveFirebaseMessage(context, userId, message)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

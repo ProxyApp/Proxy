@@ -21,7 +21,7 @@ internal abstract class JustObserver<T> : Observer<T> {
     }
 
     override fun onNext(t: T) {
-        Timber.v("${this.toString()} onNext obj: ${t.toString()}")
+        Timber.v("${this.javaClass.toString()} onNext obj: ${t.toString()}")
         next(t)
     }
     abstract fun next(t: T)

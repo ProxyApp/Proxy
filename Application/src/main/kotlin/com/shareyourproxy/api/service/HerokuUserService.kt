@@ -139,19 +139,25 @@ internal interface HerokuUserService {
      * Get a user's messages.
      */
     @GET(MESSAGES)
-    fun getUserMessages(@Path("userId") userId: String): Observable<HashMap<String, Message>>
+    fun getUserMessages(@Path("userId") userId: String): Observable<ArrayList<Message>>
+
+    /**
+     * Delete a user's messages.
+     */
+    @GET(MESSAGES)
+    fun downloadAndPurgeUserMessages(@Query("userId") userId: String): Observable<ArrayList<Message>>
 
     /**
      * Add a user message.
      */
     @PUT(MESSAGES)
-    fun addUserMessage(@Path("userId") userId: String, @Body message: HashMap<String, Message>): Observable<HashMap<String, Message>>
+    fun addUserMessage(@Path("userId") userId: String, @Body message: Message): Observable<Message>
 
     /**
      * Delete a user's messages.
      */
     @DELETE(MESSAGES)
-    fun deleteAllUserMessages(@Query("userId") userId: String): Observable<Message>
+    fun deleteAllUserMessages(@Query("userId") userId: String): Observable<ArrayList<Message>>
 
     /**
      * Return a list of [User]s from an input set of UUIDs.

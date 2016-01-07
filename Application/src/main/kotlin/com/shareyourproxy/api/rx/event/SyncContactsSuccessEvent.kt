@@ -8,7 +8,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Sync all users command has successfully completed.
  */
-internal final class SyncAllContactsSuccessEvent : EventCallback() {
+internal final class SyncContactsSuccessEvent : EventCallback() {
 
     override fun describeContents(): Int = 0
 
@@ -16,12 +16,12 @@ internal final class SyncAllContactsSuccessEvent : EventCallback() {
     }
 
     companion object {
-        val CREATOR: Parcelable.Creator<SyncAllContactsSuccessEvent> = object : Parcelable.Creator<SyncAllContactsSuccessEvent> {
-            override fun createFromParcel(parcel: Parcel): SyncAllContactsSuccessEvent {
-                return SyncAllContactsSuccessEvent()
+        val CREATOR: Parcelable.Creator<SyncContactsSuccessEvent> = object : Parcelable.Creator<SyncContactsSuccessEvent> {
+            override fun createFromParcel(parcel: Parcel): SyncContactsSuccessEvent {
+                return SyncContactsSuccessEvent()
             }
 
-            override fun newArray(size: Int): Array<SyncAllContactsSuccessEvent?> {
+            override fun newArray(size: Int): Array<SyncContactsSuccessEvent?> {
                 return arrayOfNulls(size)
             }
         }

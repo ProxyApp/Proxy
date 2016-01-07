@@ -16,7 +16,11 @@ import com.shareyourproxy.Constants.KEY_PLAY_INTRODUCTION
 import com.shareyourproxy.IntentLauncher.launchIntroductionActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.R
+import com.shareyourproxy.R.dimen.common_svg_ultra_minor
+import com.shareyourproxy.R.id.activity_login_sign_in_button
+import com.shareyourproxy.R.id.activity_login_title
 import com.shareyourproxy.R.string.login_error_update_play_service
+import com.shareyourproxy.R.string.retrofit_general_error
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
@@ -25,10 +29,11 @@ import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxHelper
 import com.shareyourproxy.api.rx.RxHelper.observeMain
+import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.AddUserCommand
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
-import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
@@ -43,14 +48,14 @@ import java.util.*
  */
 private final class LoginActivity : GoogleApiActivity() {
     private val analytics = RxGoogleAnalytics(this)
-    private val proxyLogo: TextView by bindView(R.id.activity_login_title)
-    private val signInButton: SignInButton by bindView(R.id.activity_login_sign_in_button)
-    private val svgUltraMinor: Int  by bindDimen(R.dimen.common_svg_ultra_minor)
+    private val proxyLogo: TextView by bindView(activity_login_title)
+    private val signInButton: SignInButton by bindView(activity_login_sign_in_button)
+    private val svgUltraMinor: Int  by bindDimen(common_svg_ultra_minor)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is SyncAllContactsSuccessEvent || event is SyncAllContactsErrorEvent) {
+            if (event is SyncContactsSuccessEvent || event is SyncContactsErrorEvent) {
                 login()
             }
         }
@@ -105,7 +110,8 @@ private final class LoginActivity : GoogleApiActivity() {
         when (result.errorCode) {
             API_UNAVAILABLE -> apiUnavailable()
             SERVICE_VERSION_UPDATE_REQUIRED -> updateServiceVersion()
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -150,12 +156,12 @@ private final class LoginActivity : GoogleApiActivity() {
     }
 
     /**
-     * Get Database [User]..\
+     * Get a Firebase [User].
      * @param account user account
      */
     private fun getUserFromFirebase(account: GoogleSignInAccount) {
         val userId = StringBuilder(GoogleApiActivity.GOOGLE_UID_PREFIX).append(account.id).toString()
-        RestClient(this).herokuUserService.getUser(userId).compose(observeMain<User>()).subscribe(getUserObserver(this, account))
+        RestClient(this).herokuUserService.getUser(userId).compose(RxHelper.observeIO<User>()).subscribe(getUserObserver(this, account))
     }
 
     /**
@@ -171,15 +177,26 @@ private final class LoginActivity : GoogleApiActivity() {
                 if (user == User()) {
                     addUserToDatabase(createUserFromGoogle(acct))
                 } else {
-                    RxHelper.updateRealmUser(activity, user)
+                    updateRealmUser(activity, user)
                     loggedInUser = user
-                    RestClient(activity).herokuUserService.updateUserVersion(user.id, VERSION_CODE).compose(observeMain<String>()).subscribe()
+                    RestClient(activity).herokuUserService
+                            .updateUserVersion(user.id, VERSION_CODE)
+                            .compose(observeMain<String>())
+                            .subscribe(updateVersionObserver())
                     post(SyncContactsCommand(user))
                 }
             }
 
+            private fun updateVersionObserver(): JustObserver<String> {
+                return object : JustObserver<String>() {
+                    override fun next(t: String) {
+                        Timber.i("User version updated")
+                    }
+                }
+            }
+
             override fun error(e: Throwable) {
-                GoogleApiActivity.showErrorDialog(activity, getString(R.string.retrofit_general_error))
+                GoogleApiActivity.showErrorDialog(activity, getString(retrofit_general_error))
                 signInButton.isEnabled = true
             }
         }

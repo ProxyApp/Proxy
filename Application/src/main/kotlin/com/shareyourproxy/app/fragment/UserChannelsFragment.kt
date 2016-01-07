@@ -35,7 +35,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCall
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCallback
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
@@ -83,7 +83,7 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
                 addUserChannel(event)
             } else if (event is UserChannelDeletedEventCallback) {
                 deleteUserChannel(event)
-            } else if (event is SyncAllContactsSuccessEvent) {
+            } else if (event is SyncContactsSuccessEvent) {
                 if (isLoggedInUser) {
                     syncUsersContacts()
                 }

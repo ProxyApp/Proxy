@@ -8,8 +8,8 @@ import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxLoginHelper.loginObservable
-import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment.Companion.ARG_SELECT_PROFILE_TAB
 import com.shareyourproxy.app.fragment.DispatchFragment
 import rx.subscriptions.CompositeSubscription
@@ -23,9 +23,9 @@ private final class DispatchActivity : GoogleApiActivity() {
     private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is SyncAllContactsSuccessEvent) {
+            if (event is SyncContactsSuccessEvent) {
                 goToUserFeedActivity()
-            } else if (event is SyncAllContactsErrorEvent) {
+            } else if (event is SyncContactsErrorEvent) {
                 goToLoginActivity()
             }
         }

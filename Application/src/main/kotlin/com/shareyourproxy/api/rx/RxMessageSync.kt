@@ -2,25 +2,27 @@ package com.shareyourproxy.api.rx
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.BitmapFactory.decodeResource
 import android.graphics.Color
-import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.Builder
 import android.support.v4.app.TaskStackBuilder
 import com.shareyourproxy.Intents.getUserProfileIntent
 import com.shareyourproxy.R
+import com.shareyourproxy.R.mipmap.ic_proxy
 import com.shareyourproxy.R.string.added_you
 import com.shareyourproxy.R.string.app_name
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Message
-import com.shareyourproxy.api.domain.model.User
+import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.RxQuery.getRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessageAddedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEventCallback
 import com.shareyourproxy.app.UserContactActivity
-import rx.Observable
+import rx.Subscription
 import rx.functions.Func1
 import java.util.*
 
@@ -28,45 +30,48 @@ import java.util.*
  * Cold Rx.Observable calls to handle syncing messages for Users.
  */
 internal object RxMessageSync {
+    private val userMessageCallback: Func1<Message, EventCallback> get() = Func1 {UserMessageAddedEventCallback(it) }
+
     fun getFirebaseMessages(context: Context, userId: String): UserMessagesDownloadedEventCallback {
-        return RestClient(context).herokuUserService.getUserMessages(userId).map { messages ->
-            val notifications = ArrayList<Notification>()
-            if (messages == null) {
-                UserMessagesDownloadedEventCallback(notifications)
-            } else {
-                for (message in messages.entries) {
-                    val fullName = message.value.fullName
-                    val intent = getPendingUserProfileIntent(context, userId, message.value)
-                    val _builder = NotificationCompat.Builder(context)
-                            .setLargeIcon(getProxyIcon(context))
-                            .setSmallIcon(R.mipmap.ic_proxy_notification)
-                            .setAutoCancel(true)
-                            .setVibrate(longArrayOf(1000, 1000))
-                            .setLights(Color.MAGENTA, 1000, 1000)
-                            .setContentTitle(context.getString(app_name))
-                            .setContentText(context.getString(added_you, fullName))
-                            .setContentIntent(intent)
-
-                    notifications.add(_builder.build())
-                }
-                UserMessagesDownloadedEventCallback(notifications)
-            }
-        }.compose(RxHelper.observeMain<UserMessagesDownloadedEventCallback>()).toBlocking().single()
+        return RestClient(context).herokuUserService.downloadAndPurgeUserMessages(userId).map({ mapNewMessages(context, it, userId) })
+                .compose(observeMain<UserMessagesDownloadedEventCallback>())
+                .toBlocking().single()
     }
 
-    fun saveFirebaseMessage(context:Context, userId: String, message: Message): EventCallback {
-        val messages = HashMap<String, Message>()
-        messages.put(message.id, message)
-        return RestClient(context).herokuUserService.addUserMessage(userId, messages).map(userMessageCallback).compose(RxHelper.observeMain<EventCallback>()).toBlocking().single()
+    private fun mapNewMessages(context: Context, messages: ArrayList<Message>, userId: String): UserMessagesDownloadedEventCallback {
+        val notifications = ArrayList<Notification>()
+        for (message in messages) {
+            val fullName = message.fullName
+            val intent = getPendingUserProfileIntent(context, userId, message)
+            val builder = Builder(context)
+                    .setLargeIcon(getProxyIcon(context))
+                    .setSmallIcon(R.mipmap.ic_proxy_notification)
+                    .setAutoCancel(true)
+                    .setVibrate(longArrayOf(1000, 1000))
+                    .setLights(Color.MAGENTA, 1000, 1000)
+                    .setContentTitle(context.getString(app_name))
+                    .setContentText(context.getString(added_you, fullName))
+                    .setContentIntent(intent)
+
+            notifications.add(builder.build())
+        }
+        return UserMessagesDownloadedEventCallback(notifications)
     }
 
-    fun deleteAllFirebaseMessages(context:Context, user: User): Observable<Message> {
-        val contactId = user.id
-        return RestClient(context).herokuUserService.deleteAllUserMessages(contactId).compose(RxHelper.observeMain<Message>())
+    fun saveFirebaseMessage(context: Context, userId: String, message: Message): EventCallback {
+        return RestClient(context).herokuUserService
+                .addUserMessage(userId, message)
+                .map(userMessageCallback)
+                .compose(observeMain<EventCallback>())
+                .toBlocking().single()
+    }
+
+    fun deleteAllFirebaseMessages(context: Context, userId: String): Subscription {
+        return RestClient(context).herokuUserService.deleteAllUserMessages(userId).compose(observeMain<ArrayList<Message>>()).subscribe()
     }
 
     private fun getProxyIcon(context: Context): Bitmap {
-        return BitmapFactory.decodeResource(context.resources, R.mipmap.ic_proxy)
+        return decodeResource(context.resources, ic_proxy)
     }
 
     private fun getPendingUserProfileIntent(context: Context, loggedInUserId: String, message: Message): PendingIntent {
@@ -76,9 +81,7 @@ internal object RxMessageSync {
         val stackBuilder = TaskStackBuilder.create(context)
         stackBuilder.addParentStack(UserContactActivity::class.java)
         stackBuilder.addNextIntent(resultIntent)
-        return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        return stackBuilder.getPendingIntent(0, FLAG_UPDATE_CURRENT)
     }
-
-    private val userMessageCallback: Func1<HashMap<String, Message>, EventCallback> get() = Func1 { message -> UserMessageAddedEventCallback(message) }
 }
 

@@ -15,14 +15,24 @@ import java.io.IOException
  */
 internal abstract class CustomTypeAdapterFactory<C>(private val customizedClass: Class<C>) : TypeAdapterFactory {
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
-        return if (type.rawType == customizedClass) customizeMyClassAdapter(gson, type as TypeToken<C>) as TypeAdapter<T> else null
+        return checkType(gson, type)
     }
 
-    private fun customizeMyClassAdapter(gson: Gson, type: TypeToken<C>): TypeAdapter<C> {
-        val delegate = gson.getAdapter(type)
+    private fun <T> checkType(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
+        return when (type.rawType) {
+            customizedClass -> customizeMyClassAdapter(gson, type) as TypeAdapter<T>
+            else -> null
+        }
+    }
+
+    private fun <T> customizeMyClassAdapter(gson: Gson, type: TypeToken<T>): TypeAdapter<C> {
+        val delegate = gson.getAdapter(customizedClass)
         val elementAdapter = gson.getAdapter(JsonElement::class.java)
+        return getTypeAdapter(type, delegate, elementAdapter)
+    }
+
+    private fun <T> getTypeAdapter(type: TypeToken<T>, delegate: TypeAdapter<C>, elementAdapter: TypeAdapter<JsonElement>): TypeAdapter<C> {
         return object : TypeAdapter<C>() {
             @Throws(IOException::class)
             override fun write(out: JsonWriter, value: C) {

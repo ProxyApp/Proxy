@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.Group
@@ -17,8 +17,8 @@ internal class SaveGroupChannelsCommand(private val user: User, private val newT
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as String, parcel.readValue(CL) as Group, parcel.readValue(CL) as HashSet<String>, parcel.readValue(CL) as Enumerations.GroupEditType)
 
-    override fun execute(service: Service): EventCallback {
-        return updateGroupChannels(service, user, newTitle, group, channels, groupEditType)
+    override fun execute(context: Context): EventCallback {
+        return updateGroupChannels(context, user, newTitle, group, channels, groupEditType)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

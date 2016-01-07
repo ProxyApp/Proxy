@@ -1,11 +1,10 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.ChannelToggle
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxGroupChannelSync
 import com.shareyourproxy.api.rx.RxGroupChannelSync.updatePublicGroupChannels
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import java.util.*
@@ -18,8 +17,8 @@ internal final class SavePublicGroupChannelsCommand(private val user: User, priv
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<ChannelToggle>)
 
-    override fun execute(service: Service): EventCallback {
-        return updatePublicGroupChannels(service, user, channels)
+    override fun execute(context: Context): EventCallback {
+        return updatePublicGroupChannels(context, user, channels)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

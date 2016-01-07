@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.rx.command
 
-import android.app.Service
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createPublicChannel
@@ -22,10 +22,10 @@ internal final class AddGroupChannelAndPublicCommand(val user: User, val groups:
     @Suppress("UNCHECKED_CAST")
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as ArrayList<GroupToggle>, parcel.readValue(CL) as Channel)
 
-    override fun execute(service: Service): EventCallback {
+    override fun execute(context: Context): EventCallback {
         val publicChannel = createPublicChannel(channel, true)
-        val updatedUser = RxGroupChannelSync.addUserGroupsChannel(service, user, groups, publicChannel)
-        return saveUserChannel(service, updatedUser.user, channel, publicChannel)
+        val updatedUser = RxGroupChannelSync.addUserGroupsChannel(context, user, groups, publicChannel)
+        return saveUserChannel(context, updatedUser.user, channel, publicChannel)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

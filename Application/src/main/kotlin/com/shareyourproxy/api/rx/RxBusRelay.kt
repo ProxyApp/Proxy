@@ -28,7 +28,7 @@ internal object RxBusRelay : BaseParcelable {
         return Observable.defer { bus.toSerialized().onBackpressureLatest().compose<Any>(RxHelper.observeMain()) }
     }
 
-    fun toIOThreadObservable(): Observable<Any> {
+    fun ioThreadObservable(): Observable<Any> {
         return Observable.defer { bus.toSerialized().onBackpressureLatest().compose<Any>(RxHelper.observeIO()) }
     }
 

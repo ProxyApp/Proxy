@@ -9,8 +9,7 @@ import io.realm.annotations.RealmClass
 /**
  * Users have a basic profile that contains their specific [RealmChannel]s, [RealmContact]s, and [RealmGroup]s.
  */
-@RealmClass
-open class RealmUser(
+@RealmClass open class RealmUser(
         @PrimaryKey open var id: String = "",
         open var first: String = "",
         open var last: String = "",

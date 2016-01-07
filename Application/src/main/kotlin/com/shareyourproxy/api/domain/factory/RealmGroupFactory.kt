@@ -30,13 +30,18 @@ internal object RealmGroupFactory {
         return realmGroupArray
     }
 
-    private fun createRealmStringList(values: HashSet<String>): RealmList<RealmString> {
+    private fun createRealmStringList(values: HashSet<String>?): RealmList<RealmString> {
         val list = RealmList<RealmString>()
-        for (id in values) {
-            val newChannel = RealmString()
-            newChannel.value = id
-            list.add(newChannel)
+        return when (values) {
+            null -> list
+            else -> {
+                for (id in values) {
+                    val newChannel = RealmString()
+                    newChannel.value = id
+                    list.add(newChannel)
+                }
+                list
+            }
         }
-        return list
     }
 }

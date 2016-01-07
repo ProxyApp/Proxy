@@ -83,12 +83,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.facebook.FacebookActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-        </activity>
-        <activity
             android:name=".app.GroupContactsActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
@@ -140,14 +134,6 @@
         <service
             android:name=".api.CommandIntentService"
             android:exported="false"/>
-        <service
-            android:name=".api.NotificationService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.shareyourproxy.intent.action.NOTIFICATION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </service>
         <!-- Meta -->
         <meta-data
             android:name="com.google.android.gms.version"

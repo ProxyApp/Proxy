@@ -7,7 +7,7 @@ import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import rx.functions.Func1
 import java.util.*
 
@@ -30,7 +30,7 @@ internal object RxUserSync {
                     .compose(RxHelper.observeMain<EventCallback>())
                     .toBlocking().single()
         else
-            SyncAllContactsSuccessEvent()
+            SyncContactsSuccessEvent()
     }
 
     fun saveUser(context: Context, newUser: User): EventCallback {

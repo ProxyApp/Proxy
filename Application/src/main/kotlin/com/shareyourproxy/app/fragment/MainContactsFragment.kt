@@ -35,8 +35,8 @@ import com.shareyourproxy.api.rx.RxQuery
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.LoggedInUserUpdatedEventCallback
 import com.shareyourproxy.api.rx.event.NotificationCardActionEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsErrorEvent
-import com.shareyourproxy.api.rx.event.SyncAllContactsSuccessEvent
+import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
+import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.api.rx.event.UserSelectedEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
@@ -81,9 +81,9 @@ internal final class MainContactsFragment() : BaseFragment(), ItemClickListener 
                 userUpdated(event)
             } else if (event is SyncContactsCommand) {
                 swipeRefreshLayout.isRefreshing = true
-            } else if (event is SyncAllContactsSuccessEvent) {
+            } else if (event is SyncContactsSuccessEvent) {
                 swipeRefreshLayout.isRefreshing = false
-            } else if (event is SyncAllContactsErrorEvent) {
+            } else if (event is SyncContactsErrorEvent) {
                 swipeRefreshLayout.isRefreshing = false
             } else if (event is NotificationCardActionEvent) {
                 launchInviteFriendIntent(activity)
