@@ -8,6 +8,8 @@ import com.shareyourproxy.api.domain.factory.UserTypeAdapter
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.service.HerokuInterceptor
 import com.shareyourproxy.api.service.HerokuUserService
+import com.shareyourproxy.util.ToIntConverterFactory
+import com.shareyourproxy.util.ToStringConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
@@ -37,13 +39,17 @@ internal final class RestClient(private val context: Context) {
         return Retrofit.Builder()
                 .baseUrl(endPoint)
                 .client(client)
+                .addConverterFactory(ToStringConverterFactory())
+                .addConverterFactory(ToIntConverterFactory())
                 .addConverterFactory(GsonConverterFactory.create(buildGsonConverter()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
     }
 
     private fun buildGsonConverter(): Gson {
-        return GsonBuilder().registerTypeAdapter(User::class.java, UserTypeAdapter).create()
+        return GsonBuilder()
+                .registerTypeAdapter(User::class.java, UserTypeAdapter)
+                .create()
     }
 
     private val httpLoggingInterceptor: HttpLoggingInterceptor get() {

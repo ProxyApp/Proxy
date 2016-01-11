@@ -8,6 +8,7 @@ import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxHelper.observeMain
+import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
 import rx.Single
@@ -21,17 +22,17 @@ internal object RxLoginHelper {
 
     fun loginSubscription(activity: BaseActivity): Subscription {
         return Single.create(createLoginFlow(activity))
-                .compose(RxHelper.singleObserveMain<String>())
+                .compose(RxHelper.singleObserveMain<Int>())
                 .subscribe(loginObserver())
     }
 
-    private fun loginObserver(): JustSingle<String> {
-        return object : JustSingle<String>(RxLoginHelper::class.java){}
+    private fun loginObserver(): JustSingle<Int> {
+        return object : JustSingle<Int>(RxLoginHelper::class.java) {}
     }
 
-    private fun createLoginFlow(activity: BaseActivity): Single.OnSubscribe<String> {
-        return object : Single.OnSubscribe<String> {
-            override fun call(subscriber: SingleSubscriber<in String>) {
+    private fun createLoginFlow(activity: BaseActivity): Single.OnSubscribe<Int> {
+        return object : Single.OnSubscribe<Int> {
+            override fun call(subscriber: SingleSubscriber<in Int>) {
                 var user: User? = null
                 try {
                     //even if we have a user saved, if this isn't present, go to login.
@@ -52,7 +53,7 @@ internal object RxLoginHelper {
                         if (user != null) {
                             RestClient(activity).herokuUserService
                                     .updateUserVersion(user.id, VERSION_CODE)
-                                    .compose(observeMain<String>())
+                                    .compose(observeMain<Int>())
                                     .subscribe(updateUserVersionObserver(user, subscriber))
                         } else {
                             launchLoginActivity(activity)
@@ -66,11 +67,11 @@ internal object RxLoginHelper {
                 }
             }
 
-            fun updateUserVersionObserver(user: User, subscriber: SingleSubscriber<in String>): JustObserver<String> {
-                return object : JustObserver<String>(RxLoginHelper::class.java) {
+            fun updateUserVersionObserver(user: User, subscriber: SingleSubscriber<in Int>): JustObserver<Int> {
+                return object : JustObserver<Int>(RxLoginHelper::class.java) {
                     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-                    override fun next(version:String) {
-                        RxHelper.updateRealmUser(activity, user)
+                    override fun next(version: Int) {
+                        updateRealmUser(activity, user)
                         post(SyncContactsCommand(user))
                         subscriber.onSuccess(version)
                     }

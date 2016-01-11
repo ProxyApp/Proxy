@@ -41,13 +41,13 @@ internal interface HerokuUserService {
      * Update multiple [User] [Group]s.
      */
     @PUT(USER_GROUPS)
-    fun updateUserGroups(@Header("userId") userId: String, @Header("groups") group: HashMap<String, Group>): Observable<Group>
+    fun updateUserGroups(@Header("userId") userId: String, @Body group: HashMap<String, Group>): Observable<Group>
 
     /**
      * Add a [User] [Group].
      */
     @PUT(USER_GROUPS)
-    fun addUserGroup(@Header("userId") userId: String, @Header("group") group: Group): Observable<Group>
+    fun addUserGroup(@Header("userId") userId: String, @Body group: Group): Observable<Group>
 
     /**
      * Delete a [User] [Group].
@@ -73,14 +73,14 @@ internal interface HerokuUserService {
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addUserChannel(@Header("userId") userId: String, @Header("channel") channel: Channel): Observable<Channel>
+    fun addUserChannel(@Header("userId") userId: String, @Body channel: Channel): Observable<Channel>
 
     /**
      * Add multiple [Channel]s.
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addUserChannels(@Header("userId") userId: String, @Header("channel") channel: HashMap<String, Channel>): Observable<HashMap<String, Channel>>
+    fun addUserChannels(@Header("userId") userId: String, @Body channel: HashMap<String, Channel>): Observable<HashMap<String, Channel>>
 
     /**
      * Get a [User]'s [Group]s.
@@ -94,7 +94,7 @@ internal interface HerokuUserService {
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addGroupChannel(@Header("userId") userId: String, @Header("groupId") groupId: String, @Header("channels") channels: ArrayList<String>): Observable<AbstractMap.SimpleEntry<String, String>>
+    fun addGroupChannel(@Header("userId") userId: String, @Header("groupId") groupId: String, @Body channels: ArrayList<String>): Observable<AbstractMap.SimpleEntry<String, String>>
 
     /**
      * Delete a [User]s [Channel]s
@@ -121,14 +121,14 @@ internal interface HerokuUserService {
      * @param userId unique id for [User] table
      */
     @PUT(USER_VERSION)
-    fun updateUserVersion(@Header("userId") userId: String, @Header("version") version: Int): Observable<String>
+    fun updateUserVersion(@Header("userId") userId: String, @Header("version") version: Int): Observable<Int>
 
     /**
      * Add a [SharedLink]
      * @param sharedId shared link identifier
      */
     @PUT(SHARED)
-    fun addSharedLink(@Header("sharedId") sharedId: String, @Header("link") link: SharedLink): Observable<SharedLink>
+    fun addSharedLink(@Header("sharedId") sharedId: String,  @Body link: SharedLink): Observable<SharedLink>
 
     /**
      * Delete Shared Link
@@ -152,7 +152,7 @@ internal interface HerokuUserService {
      * Add a user message.
      */
     @PUT(MESSAGES)
-    fun addUserMessage(@Header("userId") userId: String, @Header("message") message: Message): Observable<Message>
+    fun addUserMessage(@Header("userId") userId: String,  @Body message: Message): Observable<Message>
 
     /**
      * Delete a user's messages.
@@ -177,7 +177,7 @@ internal interface HerokuUserService {
     /**
      * Get basic profile information from a google plus user.
      */
-    @Headers("auth:"+ GOOGLE_API_KEY)
+    @Headers("auth:" + GOOGLE_API_KEY)
     @GET(GOOGLE_PERSON)
     fun getGooglePlusPerson(@Header("userId") userId: String): Observable<GooglePerson>
 }

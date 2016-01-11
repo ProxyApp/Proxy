@@ -40,6 +40,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.ViewChannelAdapter
 import com.shareyourproxy.app.dialog.EditChannelDialog
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
@@ -47,15 +48,20 @@ import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.Enumerations.ViewState.EMPTY
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SHARE_PROFILE
-import rx.subscriptions.CompositeSubscription
 import java.util.*
 
 /**
  * A User's channels
  */
-internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemLongClickListener {
-    init {
-        arguments.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
+internal final class UserChannelsFragment private constructor(contact: User) : BaseFragment(), ItemLongClickListener {
+    companion object {
+        fun create(contact: User): UserChannelsFragment {
+            val fragment = UserChannelsFragment(contact)
+            val args: Bundle = Bundle()
+            args.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     private val recyclerView: BaseRecyclerView by bindView(fragment_user_channel_recyclerview)
@@ -67,12 +73,11 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
     private val contactNullTitle: String by bindString(fragment_userprofile_contact_empty_title)
     private val marginNullScreen: Int by bindDimen(common_svg_null_screen_mini)
     private val colorBlue: Int by bindColor(R.color.common_blue)
-    private val userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
-    private val isLoggedInUser: Boolean = isLoggedInUser(userContact)
-    private val adapter: ViewChannelAdapter = ViewChannelAdapter(recyclerView, sharedPreferences, isShowHeader(if (isLoggedInUser) loggedInUser.channels else null), this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val drawableDoge: Drawable = svgToBitmapDrawable(activity, ic_ghost_doge, marginNullScreen)
-    private val drawableSloth: Drawable = svgToBitmapDrawable(activity, ic_ghost_sloth, marginNullScreen)
+    private val userContact: User by LazyVal { arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE) }
+    private val isLoggedInUser: Boolean by LazyVal { isLoggedInUser(userContact) }
+    private val adapter: ViewChannelAdapter by LazyVal { ViewChannelAdapter(recyclerView, sharedPreferences, isShowHeader(if (isLoggedInUser) loggedInUser.channels else null), this) }
+    private val drawableDoge: Drawable by LazyVal { svgToBitmapDrawable(activity, ic_ghost_doge, marginNullScreen) }
+    private val drawableSloth: Drawable by LazyVal { svgToBitmapDrawable(activity, ic_ghost_sloth, marginNullScreen) }
     private val onClickAddChannel: View.OnClickListener = OnClickListener {
         launchChannelListActivity(activity)
     }
@@ -102,7 +107,7 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
+        rxBusObservable().subscribe(onNextEvent)
         if (isLoggedInUser) {
             syncUsersContacts()
         } else {
@@ -113,7 +118,6 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
 
     override fun onPause() {
         super.onPause()
-        subscriptions.unsubscribe()
     }
 
     override fun onItemClick(view: View, position: Int) {
@@ -182,8 +186,8 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
     }
 
     private fun getSharedChannels() {
-        subscriptions.add(queryPermissionedChannels(userContact, loggedInUser.id)
-                .subscribe(permissionedObserver()))
+        queryPermissionedChannels(userContact, loggedInUser.id)
+                .subscribe(permissionedObserver())
     }
 
     private fun permissionedObserver(): JustObserver<HashMap<String, Channel>> {

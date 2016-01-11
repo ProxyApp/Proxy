@@ -1,12 +1,14 @@
 package com.shareyourproxy.app.fragment
 
 import android.R.color.white
+import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.TextView
-import com.shareyourproxy.Constants
+import com.shareyourproxy.Constants.ARG_LOGGEDIN_USER_ID
+import com.shareyourproxy.Constants.ARG_USER_SELECTED_PROFILE
 import com.shareyourproxy.IntentLauncher.launchChannelListActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.*
@@ -28,10 +30,16 @@ import rx.subscriptions.CompositeSubscription
 /**
  * Display the logged in users profile and channels.
  */
-internal final class MainUserProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
-    init {
-        arguments.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, contact)
-        arguments.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)
+internal final class MainUserProfileFragment private constructor(contact: User, loggedInUserId: String) : UserProfileFragment() {
+    companion object {
+        fun create(contact: User, loggedInUserId: String): MainUserProfileFragment {
+            val fragment = MainUserProfileFragment(contact, loggedInUserId)
+            val args: Bundle = Bundle()
+            args.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
+            args.putString(ARG_LOGGEDIN_USER_ID, loggedInUserId)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     private val subscriptions: CompositeSubscription = CompositeSubscription()

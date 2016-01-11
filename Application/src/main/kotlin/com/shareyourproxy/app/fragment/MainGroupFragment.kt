@@ -29,8 +29,8 @@ import com.shareyourproxy.api.domain.factory.GroupFactory
 import com.shareyourproxy.api.domain.factory.GroupFactory.PUBLIC
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.command.AddUserGroupCommand
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
@@ -41,13 +41,13 @@ import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupAdapter
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.Enumerations.GroupEditType.*
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.MAIN_GROUPS
-import rx.subscriptions.CompositeSubscription
 import java.util.*
 
 /**
@@ -65,9 +65,8 @@ internal final class MainGroupFragment() : BaseFragment(), ItemClickListener {
     private val refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
     }
-    private val showHeader = !sharedPreferences.getBoolean(MAIN_GROUPS.key, false)
-    private val adapter: GroupAdapter = GroupAdapter(recyclerView, sharedPreferences, showHeader, this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
+    private val showHeader by LazyVal { !sharedPreferences.getBoolean(MAIN_GROUPS.key, false) }
+    private val adapter: GroupAdapter by LazyVal{ GroupAdapter(recyclerView, sharedPreferences, showHeader, this) }
     /**
      * Prompt user with a [EditGroupChannelsFragment] to add a new [Group].
      */
@@ -103,13 +102,12 @@ internal final class MainGroupFragment() : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
+        rxBusObservable().subscribe(busObserver)
         adapter.refreshGroupData(loggedInUser.groups)
     }
 
     override fun onPause() {
         super.onPause()
-        subscriptions.unsubscribe()
         //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.isRefreshing = false
     }

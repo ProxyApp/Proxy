@@ -3,6 +3,7 @@ package com.shareyourproxy.widget
 import android.content.Context
 import android.support.v4.content.ContextCompat.getColor
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -36,7 +37,6 @@ import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.*
  * Dismissable Notification card for recycler view headers.
  */
 internal final class DismissibleNotificationCard : FrameLayout {
-
     private val container: RelativeLayout by bindView(widget_notification_container)
     private val title: TextView by bindView(widget_notification_content_title)
     private val message: TextView by bindView(widget_notification_content_message)
@@ -44,7 +44,7 @@ internal final class DismissibleNotificationCard : FrameLayout {
     private val dismissTextView: TextView by bindView(widget_notification_dismiss_text)
     private val actionTextView: TextView by bindView(widget_notification_action_text)
     private val dimenSvgNullSmall: Int by bindDimen(common_svg_null_screen_mini);
-    private val onClickDismiss: OnClickListener = OnClickListener {
+    private val onClickDismiss: View.OnClickListener = android.view.View.OnClickListener {
         visibility = GONE
         when (notificationCard) {
             SAFE_INFO,
@@ -57,7 +57,7 @@ internal final class DismissibleNotificationCard : FrameLayout {
             }
         }
     }
-    private val onClickAction: OnClickListener = OnClickListener {
+    private val onClickAction: View.OnClickListener = android.view.View.OnClickListener {
         when (notificationCard) {
             SAFE_INFO,
             SHARE_PROFILE,

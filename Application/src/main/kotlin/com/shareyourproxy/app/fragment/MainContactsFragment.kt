@@ -12,6 +12,7 @@ import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ScrollView
@@ -28,8 +29,8 @@ import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxQuery
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
@@ -42,12 +43,12 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.UserContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.INVITE_FRIENDS
-import rx.subscriptions.CompositeSubscription
 
 /**
  * A recyclerView of Favorite [User]s.
@@ -65,13 +66,10 @@ internal final class MainContactsFragment() : BaseFragment(), ItemClickListener 
     private val refreshListener: OnRefreshListener = OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
     }
-    private val catDrawable: Drawable = svgToBitmapDrawable(activity, R.raw.ic_gato, marginNullScreen)
-    private val showHeader = !sharedPreferences.getBoolean(INVITE_FRIENDS.key, false)
-    private val adapter: UserContactsAdapter = UserContactsAdapter.newInstance(recyclerView, sharedPreferences, showHeader, this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val onClickInvite: View.OnClickListener = View.OnClickListener {
-        launchInviteFriendIntent(activity)
-    }
+    private val catDrawable: Drawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_gato, marginNullScreen) }
+    private val showHeader by LazyVal { !sharedPreferences.getBoolean(INVITE_FRIENDS.key, false) }
+    private val adapter: UserContactsAdapter by LazyVal { UserContactsAdapter.newInstance(recyclerView, sharedPreferences, showHeader, this) }
+    private val onClickInvite = OnClickListener { launchInviteFriendIntent(activity) }
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainContactsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
@@ -92,22 +90,24 @@ internal final class MainContactsFragment() : BaseFragment(), ItemClickListener 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_contacts_main, container, false)
+        return inflater.inflate(R.layout.fragment_contacts_main, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         emptyButton.setOnClickListener(onClickInvite)
         initializeRecyclerView()
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
-        return rootView
     }
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
+        rxBusObservable().subscribe(busObserver)
         checkRefresh(loggedInUser)
     }
 
     override fun onPause() {
         super.onPause()
-        subscriptions.unsubscribe()
         //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.isRefreshing = false
     }

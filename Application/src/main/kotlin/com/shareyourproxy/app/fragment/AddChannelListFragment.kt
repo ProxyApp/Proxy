@@ -5,7 +5,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.shareyourproxy.R
+import com.shareyourproxy.R.id.fragment_channel_list_recyclerview
 import com.shareyourproxy.R.layout.fragment_channellist
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
@@ -14,6 +14,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.dialog.AddChannelDialog
 import com.shareyourproxy.app.dialog.AddRedditChannelDialog
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindView
 
 /**
@@ -21,8 +22,8 @@ import com.shareyourproxy.util.ButterKnife.bindView
  */
 internal final class AddChannelListFragment() : BaseFragment(), ItemClickListener {
 
-    private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_channel_list_recyclerview)
-    private val adapter: AddChannelAdapter = AddChannelAdapter(recyclerView, sharedPreferences, this)
+    private val recyclerView: BaseRecyclerView by bindView(fragment_channel_list_recyclerview)
+    private val adapter: AddChannelAdapter by LazyVal{ AddChannelAdapter(recyclerView, sharedPreferences, this)}
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(fragment_channellist, container, false)

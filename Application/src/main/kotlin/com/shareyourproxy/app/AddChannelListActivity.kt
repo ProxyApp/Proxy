@@ -7,17 +7,17 @@ import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
 import com.shareyourproxy.api.rx.event.ChannelAddedEvent
 import com.shareyourproxy.app.dialog.SaveGroupChannelDialog
 import com.shareyourproxy.app.fragment.AddChannelListFragment
+import com.shareyourproxy.util.ButterKnife
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
 /**
@@ -25,11 +25,10 @@ import timber.log.Timber
  */
 private final class AddChannelListActivity : BaseActivity() {
 
-    private val analytics = RxGoogleAnalytics(this)
+    private val analytics by ButterKnife.LazyVal{RxGoogleAnalytics(this) }
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
     private val addChannel: String by bindString(R.string.add_channel)
     private val addAnotherChannel: String by bindString(R.string.add_another_channel)
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +69,10 @@ private final class AddChannelListActivity : BaseActivity() {
      * Create a composite subscription field to handle unsubscribing in onPause.
      */
     fun initializeSubscriptions() {
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(object : JustObserver<Any>(AddChannelListActivity::class.java) {
+        rxBusObservable().subscribe(activityObserver)
+    }
+
+    private val activityObserver = object : JustObserver<Any>(AddChannelListActivity::class.java) {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any) {
                 if (event is UserChannelAddedEventCallback) {
@@ -81,8 +83,8 @@ private final class AddChannelListActivity : BaseActivity() {
                     ChannelAddedEvent(event)
                 }
             }
-        }))
-    }
+        }
+
 
     fun showAddGroupChannelDialog(event: AddChannelDialogSuccessEvent) {
         SaveGroupChannelDialog(event.channel, event.user).show(supportFragmentManager)
@@ -103,10 +105,5 @@ private final class AddChannelListActivity : BaseActivity() {
             analytics.channelEdited(event.oldChannel.channelType)
         }
         toolbar.title = addAnotherChannel
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
     }
 }

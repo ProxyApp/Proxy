@@ -18,19 +18,18 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener
 import com.shareyourproxy.app.adapter.DrawerAdapter
 import com.shareyourproxy.app.adapter.DrawerAdapter.DrawerItem
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindView
-import rx.subscriptions.CompositeSubscription
 
 
 /**
  * Drawer Fragment to handle displaying a user profile with options.
  */
 internal final class MainDrawerFragment() : BaseFragment(), ItemLongClickListener {
-
+    private val clazz = MainDrawerFragment::class.java;
     private val drawerRecyclerView: BaseRecyclerView by bindView(fragment_drawer_recyclerview)
-    private val adapter: DrawerAdapter = DrawerAdapter(loggedInUser, this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainDrawerFragment::class.java) {
+    private val adapter: DrawerAdapter by LazyVal { DrawerAdapter(loggedInUser, this) }
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(clazz) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is LoggedInUserUpdatedEventCallback) {
@@ -40,19 +39,17 @@ internal final class MainDrawerFragment() : BaseFragment(), ItemLongClickListene
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_drawer, container, false)
+        return inflater.inflate(R.layout.fragment_drawer, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initializeRecyclerView()
-        return view
     }
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(busObserver))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
+        rxBusObservable().subscribe(busObserver)
     }
 
     override fun onItemClick(view: View, position: Int) {

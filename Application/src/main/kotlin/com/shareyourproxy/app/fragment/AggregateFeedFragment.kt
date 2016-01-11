@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout.*
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.Toolbar
+import android.view.Gravity.START
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,8 @@ import com.shareyourproxy.R.raw.ic_account_circle
 import com.shareyourproxy.R.raw.ic_group
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
+import com.shareyourproxy.api.rx.event.OnMenuPressedEvent
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
 import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
@@ -30,7 +32,6 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.util.ViewUtils.tintDrawableCompat
 import com.shareyourproxy.widget.ContactSearchLayout
 import com.shareyourproxy.widget.ContentDescriptionDrawable
-import rx.subscriptions.CompositeSubscription
 import java.util.Arrays.asList
 
 /**
@@ -43,15 +44,14 @@ internal final class AggregateFeedFragment() : BaseFragment() {
         val ARG_SELECT_GROUP_TAB = 2
     }
 
-    private val toolbar: Toolbar by bindView(R.id.include_toolbar)
+    private val toolbar: Toolbar by bindView(include_toolbar)
     private val drawerLayout: DrawerLayout by bindView(activity_main_drawer_layout)
     private val viewPager: ViewPager by bindView(fragment_main_viewpager)
     private val slidingTabLayout: TabLayout by bindView(fragment_main_sliding_tabs)
     private val selectedColor: Int by bindColor(R.color.common_blue)
     private val unselectedColor: Int by bindColor(common_proxy_dark_disabled)
     private val marginSVGLarge: Int by bindDimen(common_rect_small)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val contactSearchLayout: ContactSearchLayout by LazyVal { ContactSearchLayout(activity, drawerLayout) }
+    private val contactSearchLayout: ContactSearchLayout by LazyVal { ContactSearchLayout(activity) }
     private val userDrawable: ContentDescriptionDrawable
             by LazyVal { svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile)) }
     private val contactDrawable: ContentDescriptionDrawable
@@ -61,8 +61,9 @@ internal final class AggregateFeedFragment() : BaseFragment() {
     private val observer: JustObserver<Any> = object : JustObserver<Any>(AggregateFeedFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is SearchClickedEvent) {
-                launchSearchActivity(activity, contactSearchLayout.containerView, contactSearchLayout.searchTextView, contactSearchLayout.menuImageView)
+            when (event) {
+                is SearchClickedEvent -> launchSearchActivity(activity, contactSearchLayout.containerView, contactSearchLayout.searchTextView, contactSearchLayout.menuImageView)
+                is OnMenuPressedEvent -> drawerLayout.openDrawer(START)
             }
         }
     }
@@ -95,12 +96,7 @@ internal final class AggregateFeedFragment() : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(observer))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
+        rxBusObservable().subscribe(observer)
     }
 
     /**
@@ -145,7 +141,7 @@ internal final class AggregateFeedFragment() : BaseFragment() {
      */
     private fun initializeFragments() {
         val user = loggedInUser
-        val fragmentArray = asList(MainUserProfileFragment(user, user.id), MainContactsFragment(), MainGroupFragment())
+        val fragmentArray = asList(MainUserProfileFragment.create(user, user.id), MainContactsFragment(), MainGroupFragment())
         viewPager.adapter = BasePagerAdapter(fragmentArray, childFragmentManager)
     }
 }

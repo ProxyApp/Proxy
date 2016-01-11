@@ -1,19 +1,14 @@
 package com.shareyourproxy.app.adapter
 
 import android.content.SharedPreferences
-import android.view.LayoutInflater
-import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
-import com.shareyourproxy.R
-import com.shareyourproxy.R.id.adapter_dismissible_notification_card
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.event.NotificationCardDismissEvent
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_FOOTER
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_HEADER
 import com.shareyourproxy.app.adapter.NotificationRecyclerAdapter.NotificationViewHolder.Companion.TYPE_LIST_ITEM
-import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard
 
@@ -80,12 +75,12 @@ internal abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recycler
     }
 
     private fun footerViewHolder(parent: ViewGroup): FooterViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
+        val view = DismissibleNotificationCard(parent.context)
         return FooterViewHolder(view, null)
     }
 
     private fun headerViewHolder(parent: ViewGroup): HeaderViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_dismissible_notification, parent, false)
+        val view = DismissibleNotificationCard(parent.context)
         return HeaderViewHolder(view, null)
     }
 
@@ -177,25 +172,25 @@ internal abstract class NotificationRecyclerAdapter<T>(clazz: Class<T>, recycler
     /**
      * ViewHolder for the lists header.
      */
-    internal final class HeaderViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
+    internal final class HeaderViewHolder(view: DismissibleNotificationCard, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
     }
 
     /**
      * ViewHolder for the lists footer.
      */
-    internal final class FooterViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
+    internal final class FooterViewHolder(view: DismissibleNotificationCard, itemClickListener: BaseViewHolder.ItemClickListener?) : NotificationViewHolder(view, itemClickListener) {
     }
 
     /**
      * ViewHolder for switching on type.
      */
-    open class NotificationViewHolder(view: View, itemClickListener: BaseViewHolder.ItemClickListener?) : BaseViewHolder(view, itemClickListener) {
+    open class NotificationViewHolder(view: DismissibleNotificationCard, itemClickListener: BaseViewHolder.ItemClickListener?) : BaseViewHolder(view, itemClickListener) {
         companion object {
             val TYPE_HEADER = 0
             val TYPE_LIST_ITEM = 1
             val TYPE_FOOTER = 2
         }
 
-        internal val notificationCard: DismissibleNotificationCard by bindView(adapter_dismissible_notification_card)
+        internal val notificationCard: DismissibleNotificationCard = view
     }
 }

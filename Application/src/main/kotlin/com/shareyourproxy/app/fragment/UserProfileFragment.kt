@@ -7,11 +7,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.AppBarLayout.OnOffsetChangedListener
-import android.support.design.widget.CollapsingToolbarLayout
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar.LENGTH_INDEFINITE
 import android.support.design.widget.Snackbar.make
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener
 import android.support.v7.graphics.Palette
 import android.util.Log
 import android.view.LayoutInflater
@@ -56,6 +56,8 @@ import com.shareyourproxy.IntentLauncher.launchXboxLiveIntent
 import com.shareyourproxy.IntentLauncher.launchYoIntent
 import com.shareyourproxy.IntentLauncher.launchYoutubeIntent
 import com.shareyourproxy.R
+import com.shareyourproxy.R.color.common_blue
+import com.shareyourproxy.R.dimen.common_svg_large
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.RestClient
@@ -75,6 +77,7 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserChannelDeletedEventCa
 import com.shareyourproxy.api.rx.event.SelectUserChannelEvent
 import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
@@ -82,7 +85,6 @@ import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getAlphaOverlayHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchy
 import com.shareyourproxy.util.ViewUtils.getUserImageHierarchyNoFade
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
 /**
@@ -98,27 +100,19 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     private val followersTextView: TextView by bindView(fragment_user_profile_header_followers)
     private val stringCalculating: String by bindString(calculating)
     private val stringErrorCalculating: String by bindString(error_calculating)
-    protected val collapsingToolbarLayout: CollapsingToolbarLayout by bindView(fragment_user_profile_collapsing_toolbar)
-    protected val loggedInUserId = arguments.getString(Constants.ARG_LOGGEDIN_USER_ID)
-    protected val contact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
-    protected val colorBlue: Int by bindColor(R.color.common_blue)
-    protected val svgLarge: Int by bindDimen(R.dimen.common_svg_large)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val analytics: RxGoogleAnalytics = RxGoogleAnalytics(activity)
-    private val userChannelsFragment: UserChannelsFragment = UserChannelsFragment(contact)
-    private val refreshListener: SwipeRefreshLayout.OnRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+    private val analytics: RxGoogleAnalytics by LazyVal { RxGoogleAnalytics(activity) }
+    private val userChannelsFragment: UserChannelsFragment by LazyVal { UserChannelsFragment.create(contact) }
+    private val refreshListener = OnRefreshListener {
         post(SyncContactsCommand(loggedInUser))
         getUserContactScore(context, contact.id).subscribe(contactScoreObserver)
     }
 
-    /**
+    /**w
      * Get a click listener to add a deleted channel.
      * @return click listener
      */
     private val addChannelClickListener: View.OnClickListener = View.OnClickListener { post(AddUserChannelCommand(loggedInUser, deletedChannel!!)) }
-
     private val offsetListener = OnOffsetChangedListener { appBarLayout, offset -> swipeRefreshLayout.isEnabled = offset == 0 }
-
     private val onNextEvent = object : JustObserver<Any>(UserProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
@@ -139,7 +133,6 @@ internal abstract class UserProfileFragment() : BaseFragment() {
             }
         }
     }
-
     private val paletteProcessor: BasePostprocessor = object : BasePostprocessor() {
         override fun process(bitmap: Bitmap?) {
             Palette.Builder(bitmap).generate(paletteAsyncListener)
@@ -168,16 +161,22 @@ internal abstract class UserProfileFragment() : BaseFragment() {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(integer: Int) {
             if (activity != null) {
-                followersTextView.text = getString(R.string.user_profile_followers, integer)
+                followersTextView.text = getString(user_profile_followers, integer)
             }
         }
 
         override fun error(e: Throwable) {
             if (activity != null) {
-                followersTextView.text = getString(R.string.user_profile_followers, stringErrorCalculating)
+                followersTextView.text = getString(user_profile_followers, stringErrorCalculating)
             }
         }
     }
+    protected val collapsingToolbarLayout: android.support.design.widget.CollapsingToolbarLayout by bindView(com.shareyourproxy.R.id.fragment_user_profile_collapsing_toolbar)
+    protected val loggedInUserId by LazyVal { arguments.getString(Constants.ARG_LOGGEDIN_USER_ID) }
+    protected val contact: User by LazyVal { arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE) }
+    protected val colorBlue: Int by bindColor(common_blue)
+    protected val svgLarge: Int by bindDimen(common_svg_large)
+
     private var deletedChannel: Channel? = null
 
     override fun onAttach(context: Context?) {
@@ -194,7 +193,7 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     }
 
     protected open fun onCreateView(rootView: View) {
-        followersTextView.text = getString(R.string.user_profile_followers, stringCalculating)
+        followersTextView.text = getString(user_profile_followers, stringCalculating)
         appBarLayout.addOnOffsetChangedListener(offsetListener)
         initializeSwipeRefresh(swipeRefreshLayout, refreshListener)
         initializeUserChannels()
@@ -204,12 +203,11 @@ internal abstract class UserProfileFragment() : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
+        rxBusObservable().subscribe(onNextEvent)
     }
 
     override fun onPause() {
         super.onPause()
-        subscriptions.unsubscribe()
         //if we're refreshing data, get rid of the UI
         swipeRefreshLayout.isRefreshing = false
     }
@@ -230,8 +228,8 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     private fun checkLoggedInUserValue(loggedInUserId: String) {
         try {
             //set the shared preferences user if it matches the logged in user id
-            if (sharedPrefJsonUser?.id.equals(loggedInUserId)) {
-                loggedInUser = sharedPrefJsonUser!!
+            if (sharedPrefJsonUser.id.equals(loggedInUserId)) {
+                loggedInUser = sharedPrefJsonUser
             } else {
                 loggedInUser = RestClient(context).herokuUserService.getUser(loggedInUserId).toBlocking().single()
             }

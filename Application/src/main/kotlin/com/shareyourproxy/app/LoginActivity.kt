@@ -182,15 +182,15 @@ private final class LoginActivity : GoogleApiActivity() {
                     loggedInUser = user
                     RestClient(activity).herokuUserService
                             .updateUserVersion(user.id, VERSION_CODE)
-                            .compose(observeMain<String>())
+                            .compose(observeMain<Int>())
                             .subscribe(updateVersionObserver())
                     post(SyncContactsCommand(user))
                 }
             }
 
-            private fun updateVersionObserver(): JustObserver<String> {
-                return object : JustObserver<String>(LoginActivity::class.java) {
-                    override fun next(t: String) {
+            private fun updateVersionObserver(): JustObserver<Int> {
+                return object : JustObserver<Int>(LoginActivity::class.java) {
+                    override fun next(t: Int) {
                         Timber.i("User version updated")
                     }
                 }

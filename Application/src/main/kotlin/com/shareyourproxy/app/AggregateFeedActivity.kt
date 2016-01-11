@@ -7,13 +7,12 @@ import com.shareyourproxy.IntentLauncher.launchInviteFriendIntent
 import com.shareyourproxy.IntentLauncher.launchUserProfileActivity
 import com.shareyourproxy.R
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent
 import com.shareyourproxy.app.adapter.DrawerAdapter
 import com.shareyourproxy.app.dialog.ShareLinkDialog
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
 
@@ -22,12 +21,11 @@ import timber.log.Timber
  */
 private final class AggregateFeedActivity : BaseActivity() {
     private val analytics = RxGoogleAnalytics(this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>(AggregateFeedActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is SelectDrawerItemEvent) {
-                onDrawerItemSelected(event)
+            when (event) {
+                is SelectDrawerItemEvent -> onDrawerItemSelected(event)
             }
         }
     }
@@ -63,12 +61,6 @@ private final class AggregateFeedActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
+        rxBusObservable().subscribe(busObserver)
     }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
-    }
-
 }

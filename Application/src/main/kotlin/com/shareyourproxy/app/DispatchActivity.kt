@@ -61,7 +61,6 @@ private final class DispatchActivity : GoogleApiActivity() {
      */
     private fun initialize() {
         deleteRealm()
-//        goFullScreen()
         signInToGoogle()
     }
 
