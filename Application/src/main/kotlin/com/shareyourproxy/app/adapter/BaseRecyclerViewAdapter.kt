@@ -7,13 +7,14 @@ import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE
 import android.text.style.TextAppearanceSpan
-import com.shareyourproxy.R
+import com.shareyourproxy.R.color.*
 import com.shareyourproxy.R.string.channel_view_item_content
 import com.shareyourproxy.R.string.item1_return_item2
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body_Disabled
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelType
+import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.util.ViewUtils.getCircularDrawableImage
 
 /**
@@ -75,43 +76,43 @@ internal abstract class BaseRecyclerViewAdapter : RecyclerView.Adapter<BaseViewH
      * @return color int
      */
     protected fun getChannelBackgroundColor(context: Context, channelType: ChannelType): Int {
-        when (channelType) {
-            ChannelType.Custom -> return getColor(context, R.color.common_text_secondary)
-            ChannelType.Phone -> return getColor(context, R.color.common_indigo)
-            ChannelType.SMS -> return getColor(context, R.color.common_light_blue)
-            ChannelType.Email -> return getColor(context, R.color.common_red)
-            ChannelType.Web, ChannelType.URL -> return getColor(context, R.color.common_blue_dark)
-            ChannelType.Facebook -> return getColor(context, R.color.common_facebook)
-            ChannelType.Twitter -> return getColor(context, R.color.common_twitter)
-            ChannelType.Meerkat -> return getColor(context, R.color.common_meerkat)
-            ChannelType.Snapchat -> return getColor(context, R.color.common_snapchat)
-            ChannelType.Spotify -> return getColor(context, R.color.common_spotify)
-            ChannelType.Reddit -> return getColor(context, R.color.common_reddit)
-            ChannelType.Linkedin -> return getColor(context, R.color.common_linkedin)
-            ChannelType.FBMessenger -> return getColor(context, R.color.common_fb_messenger)
-            ChannelType.Hangouts -> return getColor(context, R.color.common_hangouts)
-            ChannelType.Whatsapp -> return getColor(context, R.color.common_whatsapp)
-            ChannelType.Yo -> return getColor(context, R.color.common_yo)
-            ChannelType.Googleplus -> return getColor(context, R.color.common_google_plus)
-            ChannelType.Github -> return getColor(context, R.color.common_github)
-            ChannelType.Address -> return getColor(context, R.color.common_address)
-            ChannelType.Slack -> return getColor(context, R.color.common_slack)
-            ChannelType.Youtube -> return getColor(context, R.color.common_youtube)
-            ChannelType.Instagram -> return getColor(context, R.color.common_instagram)
-            ChannelType.Tumblr -> return getColor(context, R.color.common_tumblr)
-            ChannelType.Ello -> return getColor(context, R.color.common_ello)
-            ChannelType.Venmo -> return getColor(context, R.color.common_venmo)
-            ChannelType.Periscope -> return getColor(context, R.color.common_periscope)
-            ChannelType.Medium -> return getColor(context, R.color.common_medium)
-            ChannelType.Soundcloud -> return getColor(context, R.color.common_soundcloud)
-            ChannelType.Skype -> return getColor(context, R.color.common_skype)
-            ChannelType.LeagueOfLegends -> return getColor(context, R.color.common_leagueoflegends)
-            ChannelType.PlaystationNetwork -> return getColor(context, R.color.common_playstation)
-            ChannelType.NintendoNetwork -> return getColor(context, R.color.common_nintendo)
-            ChannelType.Steam -> return getColor(context, R.color.common_steam)
-            ChannelType.Twitch -> return getColor(context, R.color.common_twitch)
-            ChannelType.XboxLive -> return getColor(context, R.color.common_xbox)
-            else -> return getColor(context, R.color.common_text_secondary)
+        return when (channelType) {
+            Custom -> getColor(context, common_text_secondary)
+            Phone -> getColor(context, common_indigo)
+            SMS -> getColor(context, common_light_blue)
+            Email -> getColor(context, common_red)
+            Web, URL -> getColor(context, common_blue_dark)
+            Facebook -> getColor(context, common_facebook)
+            Twitter -> getColor(context, common_twitter)
+            Meerkat -> getColor(context, common_meerkat)
+            Snapchat -> getColor(context, common_snapchat)
+            Spotify -> getColor(context, common_spotify)
+            Reddit -> getColor(context, common_reddit)
+            Linkedin -> getColor(context, common_linkedin)
+            FBMessenger -> getColor(context, common_fb_messenger)
+            Hangouts -> getColor(context, common_hangouts)
+            Whatsapp -> getColor(context, common_whatsapp)
+            Yo -> getColor(context, common_yo)
+            Googleplus -> getColor(context, common_google_plus)
+            Github -> getColor(context, common_github)
+            Address -> getColor(context, common_address)
+            Slack -> getColor(context, common_slack)
+            Youtube -> getColor(context, common_youtube)
+            Instagram -> getColor(context, common_instagram)
+            Tumblr -> getColor(context, common_tumblr)
+            Ello -> getColor(context, common_ello)
+            Venmo -> getColor(context, common_venmo)
+            Periscope -> getColor(context, common_periscope)
+            Medium -> getColor(context, common_medium)
+            Soundcloud -> getColor(context, common_soundcloud)
+            Skype -> getColor(context, common_skype)
+            LeagueOfLegends -> getColor(context, common_leagueoflegends)
+            PlaystationNetwork -> getColor(context, common_playstation)
+            NintendoNetwork -> getColor(context, common_nintendo)
+            Steam -> getColor(context, common_steam)
+            Twitch -> getColor(context, common_twitch)
+            XboxLive -> getColor(context, common_xbox)
+            else -> getColor(context, common_text_secondary)
         }
     }
 
@@ -120,5 +121,4 @@ internal abstract class BaseRecyclerViewAdapter : RecyclerView.Adapter<BaseViewH
      */
     protected fun getChannelDrawable(channel: Channel, channelType: ChannelType, context: Context) =
             getChannelIconDrawable(context, channel, getChannelBackgroundColor(context, channelType))
-
 }
