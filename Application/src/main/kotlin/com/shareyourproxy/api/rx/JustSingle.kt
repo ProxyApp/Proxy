@@ -8,12 +8,12 @@ import timber.log.Timber
 /**
  * Single subscriber that logs.
  */
-internal abstract class JustSingle<T> : SingleSubscriber<T>() {
+internal abstract class JustSingle<T>(private val clazz:Class<*>) : SingleSubscriber<T>() {
     override fun onSuccess(value: T) {
-        Timber.v("${this.toString()} Success obj: ${value.toString()}")
+        Timber.v("${clazz.simpleName} Success obj: ${value.toString()}")
     }
 
     override fun onError(e: Throwable) {
-        Timber.e(Log.getStackTraceString(e))
+        Timber.e("${clazz.simpleName}: ${Log.getStackTraceString(e)}")
     }
 }

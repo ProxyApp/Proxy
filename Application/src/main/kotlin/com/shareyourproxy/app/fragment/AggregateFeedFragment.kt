@@ -22,6 +22,7 @@ import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.event.SearchClickedEvent
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
@@ -50,11 +51,14 @@ internal final class AggregateFeedFragment() : BaseFragment() {
     private val unselectedColor: Int by bindColor(common_proxy_dark_disabled)
     private val marginSVGLarge: Int by bindDimen(common_rect_small)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val contactSearchLayout: ContactSearchLayout = ContactSearchLayout(activity, drawerLayout)
-    private val userDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile))
-    private val contactDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts))
-    private val groupDrawable: ContentDescriptionDrawable = svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups))
-    private val observer: JustObserver<Any> = object : JustObserver<Any>() {
+    private val contactSearchLayout: ContactSearchLayout by LazyVal { ContactSearchLayout(activity, drawerLayout) }
+    private val userDrawable: ContentDescriptionDrawable
+            by LazyVal { svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile)) }
+    private val contactDrawable: ContentDescriptionDrawable
+            by LazyVal { svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts)) }
+    private val groupDrawable: ContentDescriptionDrawable
+            by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups)) }
+    private val observer: JustObserver<Any> = object : JustObserver<Any>(AggregateFeedFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SearchClickedEvent) {

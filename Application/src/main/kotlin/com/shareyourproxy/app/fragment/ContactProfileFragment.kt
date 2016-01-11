@@ -39,7 +39,7 @@ internal final class ContactProfileFragment(contact: User, loggedInUserId: Strin
     private val onClickGroup: View.OnClickListener = View.OnClickListener {
         UserGroupsDialog(toggleGroups, contact).show(fragmentManager)
     }
-    private val onNextEvent = object : JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>(ContactProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is GroupContactsUpdatedEventCallback) {

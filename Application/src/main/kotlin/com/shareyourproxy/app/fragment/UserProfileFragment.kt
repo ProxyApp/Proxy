@@ -119,7 +119,7 @@ internal abstract class UserProfileFragment() : BaseFragment() {
 
     private val offsetListener = OnOffsetChangedListener { appBarLayout, offset -> swipeRefreshLayout.isEnabled = offset == 0 }
 
-    private val onNextEvent = object : JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>(UserProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is GroupContactsUpdatedEventCallback) {
@@ -164,7 +164,7 @@ internal abstract class UserProfileFragment() : BaseFragment() {
         }
     }
 
-    private val contactScoreObserver: JustObserver<Int> = object : JustObserver<Int>() {
+    private val contactScoreObserver: JustObserver<Int> = object : JustObserver<Int>(UserProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(integer: Int) {
             if (activity != null) {

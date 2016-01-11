@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.shareyourproxy.api.domain.model.User
-import com.shareyourproxy.api.rx.RxUserSync
+import com.shareyourproxy.api.rx.RxUserSync.saveUser
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 
 
@@ -16,7 +16,7 @@ internal final class AddUserCommand(val user: User) : BaseCommand() {
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User)
 
     override fun execute(context: Context): EventCallback {
-        return RxUserSync.saveUser(context, user)
+        return saveUser(context, user)
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -24,6 +24,7 @@ internal final class AddUserCommand(val user: User) : BaseCommand() {
     }
 
     companion object {
+        private val CL = AddUserCommand::class.java.classLoader
         val CREATOR: Parcelable.Creator<AddUserCommand> = object : Parcelable.Creator<AddUserCommand> {
             override fun createFromParcel(parcel: Parcel): AddUserCommand {
                 return AddUserCommand(parcel)
@@ -33,8 +34,5 @@ internal final class AddUserCommand(val user: User) : BaseCommand() {
                 return arrayOfNulls(size)
             }
         }
-
-        private val CL = AddUserCommand::class.java.classLoader
     }
-
 }

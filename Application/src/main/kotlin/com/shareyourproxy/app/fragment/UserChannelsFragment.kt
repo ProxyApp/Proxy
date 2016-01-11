@@ -76,7 +76,7 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
     private val onClickAddChannel: View.OnClickListener = OnClickListener {
         launchChannelListActivity(activity)
     }
-    private val onNextEvent = object : JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>(UserChannelsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is UserChannelAddedEventCallback) {
@@ -187,7 +187,7 @@ internal final class UserChannelsFragment(contact: User) : BaseFragment(), ItemL
     }
 
     private fun permissionedObserver(): JustObserver<HashMap<String, Channel>> {
-        return object : JustObserver<HashMap<String, Channel>>() {
+        return object : JustObserver<HashMap<String, Channel>>(UserChannelsFragment::class.java) {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(channels: HashMap<String, Channel>) {
                 adapter.updateChannels(channels)

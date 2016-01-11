@@ -12,9 +12,9 @@ internal data class ActivityFeedItem(val handle: String, val subtext: String, va
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(handle)
         dest.writeString(subtext)
-        dest.writeSerializable(channelType)
+        dest.writeValue(channelType)
         dest.writeString(actionAddress)
-        dest.writeSerializable(timestamp)
+        dest.writeValue(timestamp)
         dest.writeValue(isError)
     }
 
@@ -24,7 +24,6 @@ internal data class ActivityFeedItem(val handle: String, val subtext: String, va
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<ActivityFeedItem?> = arrayOfNulls(size)
         }
-
-        private fun readParcel(parcel: Parcel) = ActivityFeedItem(parcel.readString(), parcel.readString(), parcel.readSerializable() as ChannelType, parcel.readString(), parcel.readSerializable() as Date, parcel.readValue(CL) as Boolean)
+        private fun readParcel(parcel: Parcel) = ActivityFeedItem(parcel.readString(), parcel.readString(), parcel.readValue(CL) as ChannelType, parcel.readString(), parcel.readValue(CL) as Date, parcel.readValue(CL) as Boolean)
     }
 }

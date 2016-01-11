@@ -86,7 +86,7 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
      * Observe the next event.
      * @return next event observer
      */
-    private val onNextEvent = object : JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>(SearchFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is UserSelectedEvent) {
@@ -183,7 +183,7 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
         }
     }
 
-    private val getUsersObserver = object : JustObserver<String>() {
+    private val getUsersObserver = object : JustObserver<String>(SearchFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(queryName: String) {
             val trimmedName: String = queryName.trim { it <= ' ' }

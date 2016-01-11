@@ -3,24 +3,24 @@ package com.shareyourproxy.app
 import android.os.Bundle
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 import android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.Status
 import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
-import com.shareyourproxy.api.rx.RxLoginHelper.loginObservable
+import com.shareyourproxy.api.rx.RxLoginHelper.loginSubscription
 import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment.Companion.ARG_SELECT_PROFILE_TAB
 import com.shareyourproxy.app.fragment.DispatchFragment
-import rx.subscriptions.CompositeSubscription
 
 /**
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the [AggregateFeedActivity] if we have a cached user or send them to
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
 private final class DispatchActivity : GoogleApiActivity() {
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+    private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>(DispatchActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SyncContactsSuccessEvent) {
@@ -41,13 +41,19 @@ private final class DispatchActivity : GoogleApiActivity() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(rxBusObserver))
-        subscriptions.add(loginObservable(this).subscribe())
     }
 
     override fun onPause() {
         super.onPause()
-        subscriptions.unsubscribe()
+    }
+
+    override fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {
+        rxBusObservable().subscribe(rxBusObserver)
+        loginSubscription(this)
+    }
+
+    override fun onGooglePlusError(status: Status) {
+        goToLoginActivity()
     }
 
     /**
@@ -55,7 +61,8 @@ private final class DispatchActivity : GoogleApiActivity() {
      */
     private fun initialize() {
         deleteRealm()
-        goFullScreen()
+//        goFullScreen()
+        signInToGoogle()
     }
 
     /**

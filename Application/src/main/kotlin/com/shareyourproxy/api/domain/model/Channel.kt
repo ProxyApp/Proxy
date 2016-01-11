@@ -8,10 +8,12 @@ import com.shareyourproxy.util.BaseParcelable
  * Channels are other apps and services that you will share with [User] contacts.
  */
 internal data class Channel(val id: String, val label: String, val channelType: ChannelType, val actionAddress: String, val isPublic: Boolean) : BaseParcelable {
+    constructor() : this("", "", ChannelType.Custom, "", false)
+
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(label)
-        dest.writeSerializable(channelType)
+        dest.writeValue(channelType)
         dest.writeString(actionAddress)
         dest.writeValue(isPublic)
     }
@@ -22,7 +24,6 @@ internal data class Channel(val id: String, val label: String, val channelType: 
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<Channel?> = arrayOfNulls(size)
         }
-
-        private fun readParcel(parcel: Parcel) = Channel(parcel.readString(), parcel.readString(), parcel.readSerializable() as ChannelType, parcel.readString(), parcel.readValue(CL) as Boolean)
+        private fun readParcel(parcel: Parcel) = Channel(parcel.readString(), parcel.readString(), parcel.readValue(CL) as ChannelType, parcel.readString(), parcel.readValue(CL) as Boolean)
     }
 }

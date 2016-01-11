@@ -30,7 +30,7 @@ internal final class MainDrawerFragment() : BaseFragment(), ItemLongClickListene
     private val drawerRecyclerView: BaseRecyclerView by bindView(fragment_drawer_recyclerview)
     private val adapter: DrawerAdapter = DrawerAdapter(loggedInUser, this)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainDrawerFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is LoggedInUserUpdatedEventCallback) {

@@ -74,7 +74,7 @@ internal final class MainGroupFragment() : BaseFragment(), ItemClickListener {
     private val onClickFab :View.OnClickListener = View.OnClickListener {
         launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(),ADD_GROUP)
     }
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainGroupFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is UserGroupAddedEventCallback) {

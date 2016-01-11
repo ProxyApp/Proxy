@@ -62,7 +62,7 @@ internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener
     private val adapter: GroupContactsAdapter =GroupContactsAdapter(recyclerView, this)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val fishDrawable: Drawable = svgToBitmapDrawable(activity, ic_fish, marginNullScreen)
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(GroupContactsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is UserSelectedEvent) {

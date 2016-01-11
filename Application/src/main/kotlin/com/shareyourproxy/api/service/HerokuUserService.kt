@@ -1,6 +1,6 @@
 package com.shareyourproxy.api.service
 
-import com.google.android.gms.plus.model.people.Person
+import com.shareyourproxy.BuildConfig.GOOGLE_API_KEY
 import com.shareyourproxy.api.domain.model.*
 import com.shareyourproxy.api.service.HerokuPaths.GOOGLE_PERSON
 import com.shareyourproxy.api.service.HerokuPaths.MESSAGES
@@ -27,7 +27,7 @@ internal interface HerokuUserService {
      * @return user observable
      */
     @GET(USER)
-    fun getUser(@Query("id") userId: String): Observable<User>
+    fun getUser(@Header("userId") userId: String): Observable<User>
 
     /**
      * Save a [User].
@@ -35,147 +35,149 @@ internal interface HerokuUserService {
      * @param user   [User] data
      */
     @PUT(USER)
-    fun updateUser(@Query("userId") userId: String, @Body user: User): Observable<User>
+    fun updateUser(@Header("userId") userId: String, @Body user: User): Observable<User>
 
     /**
      * Update multiple [User] [Group]s.
      */
     @PUT(USER_GROUPS)
-    fun updateUserGroups(@Query("userId") userId: String, @Body group: HashMap<String, Group>): Observable<Group>
+    fun updateUserGroups(@Header("userId") userId: String, @Header("groups") group: HashMap<String, Group>): Observable<Group>
 
     /**
      * Add a [User] [Group].
      */
     @PUT(USER_GROUPS)
-    fun addUserGroup(@Query("userId") userId: String, @Body group: Group): Observable<Group>
+    fun addUserGroup(@Header("userId") userId: String, @Header("group") group: Group): Observable<Group>
 
     /**
      * Delete a [User] [Group].
      */
     @DELETE(USER_GROUPS)
-    fun deleteUserGroup(@Query("userId") userId: String, @Query("groupId") groupId: String): Observable<Group>
+    fun deleteUserGroup(@Header("userId") userId: String, @Header("groupId") groupId: String): Observable<Group>
 
     /**
      * Add a [User] contact id.
      * @param userId unique id for [User] table
      */
     @PUT(USER_CONTACTS)
-    fun addUserContact(@Query("userId") userId: String, @Body contactId: String): Observable<String>
+    fun addUserContact(@Header("userId") userId: String, @Header("contactId") contactId: String): Observable<String>
 
     /**
      * Delete a [User] contact.
      */
     @DELETE(USER_CONTACTS)
-    fun deleteUserContact(@Query("userId") userId: String, @Query("contactId") contactId: String): Observable<String>
+    fun deleteUserContact(@Header("userId") userId: String, @Header("contactId") contactId: String): Observable<String>
 
     /**
      * Add a [Channel].
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addUserChannel(@Query("userId") userId: String, @Body channel: Channel): Observable<Channel>
+    fun addUserChannel(@Header("userId") userId: String, @Header("channel") channel: Channel): Observable<Channel>
 
     /**
      * Add multiple [Channel]s.
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addUserChannels(@Query("userId") userId: String, @Body channel: HashMap<String, Channel>): Observable<HashMap<String, Channel>>
+    fun addUserChannels(@Header("userId") userId: String, @Header("channel") channel: HashMap<String, Channel>): Observable<HashMap<String, Channel>>
 
     /**
      * Get a [User]'s [Group]s.
      * @param userId unique id for [User] table
      */
     @GET(USER_CHANNELS)
-    fun listGroupChannels(@Query("userId") userId: String, @Query("groupId") groupId: String): Observable<HashMap<String, Channel>>
+    fun listGroupChannels(@Header("userId") userId: String, @Header("groupId") groupId: String): Observable<HashMap<String, Channel>>
 
     /**
      * Add a [Channel].
      * @param userId unique id for [User] table
      */
     @PUT(USER_CHANNELS)
-    fun addGroupChannel(@Query("userId") userId: String, @Query("groupId") groupId: String, @Body channels: ArrayList<String>): Observable<AbstractMap.SimpleEntry<String, String>>
+    fun addGroupChannel(@Header("userId") userId: String, @Header("groupId") groupId: String, @Header("channels") channels: ArrayList<String>): Observable<AbstractMap.SimpleEntry<String, String>>
 
     /**
      * Delete a [User]s [Channel]s
      */
     @DELETE(USER_CHANNELS)
-    fun deleteUserChannel(@Query("userId") userId: String, @Body channelId: String): Observable<Channel>
+    fun deleteUserChannel(@Header("userId") userId: String, @Header("channelId") channelId: String): Observable<Channel>
 
     /**
      * Get a users shared link.
      * @return user observable
      */
     @GET(USER_SHARED)
-    fun getSharedLink(@Query("userId") userId: String, @Query("groupId") groupId: String): Observable<SharedLink>
+    fun getSharedLink(@Header("userId") userId: String, @Header("groupId") groupId: String): Observable<SharedLink>
 
     /**
      * Get the total number of user followers.
      * @return user observable
      */
     @GET(USER_FOLLOWER_COUNT)
-    fun userFollowerCount(@Query("userId") userId: String): Observable<Int>
+    fun userFollowerCount(@Header("userId") userId: String): Observable<Int>
+
     /**
      * Save a user's android version.
      * @param userId unique id for [User] table
      */
     @PUT(USER_VERSION)
-    fun updateUserVersion(@Query("userId") userId: String, @Body version: Int): Observable<String>
+    fun updateUserVersion(@Header("userId") userId: String, @Header("version") version: Int): Observable<String>
 
     /**
      * Add a [SharedLink]
      * @param sharedId shared link identifier
      */
     @PUT(SHARED)
-    fun addSharedLink(@Path("sharedId") sharedId: String, @Body link: SharedLink): Observable<SharedLink>
+    fun addSharedLink(@Header("sharedId") sharedId: String, @Header("link") link: SharedLink): Observable<SharedLink>
 
     /**
      * Delete Shared Link
      */
     @DELETE(SHARED)
-    fun deleteSharedLink(@Path("sharedId") sharedId: String): Observable<SharedLink>
+    fun deleteSharedLink(@Header("sharedId") sharedId: String): Observable<SharedLink>
 
     /**
      * Get a user's messages.
      */
     @GET(MESSAGES)
-    fun getUserMessages(@Path("userId") userId: String): Observable<ArrayList<Message>>
+    fun getUserMessages(@Header("userId") userId: String): Observable<ArrayList<Message>>
 
     /**
      * Delete a user's messages.
      */
     @GET(MESSAGES)
-    fun downloadAndPurgeUserMessages(@Query("userId") userId: String): Observable<ArrayList<Message>>
+    fun downloadAndPurgeUserMessages(@Header("userId") userId: String): Observable<ArrayList<Message>>
 
     /**
      * Add a user message.
      */
     @PUT(MESSAGES)
-    fun addUserMessage(@Path("userId") userId: String, @Body message: Message): Observable<Message>
+    fun addUserMessage(@Header("userId") userId: String, @Header("message") message: Message): Observable<Message>
 
     /**
      * Delete a user's messages.
      */
     @DELETE(MESSAGES)
-    fun deleteAllUserMessages(@Query("userId") userId: String): Observable<ArrayList<Message>>
+    fun deleteAllUserMessages(@Header("userId") userId: String): Observable<ArrayList<Message>>
 
     /**
      * Return a list of [User]s from an input set of UUIDs.
      * @return array list of users observable
      */
     @GET(USERS)
-    fun listUsers(@Query("users") users: HashSet<String>): Observable<ArrayList<User>>
+    fun listUsers(@Header("users") users: HashSet<String>): Observable<ArrayList<User>>
 
     /**
-     * Search for users who's first, last and first + last name match the query string.
+     * Search for users who's first, last and first + last name match the header string.
      * @return user observable
      */
     @GET(SEARCH)
-    fun searchUsers(@Query("name") name: String): Observable<ArrayList<User>>
+    fun searchUsers(@Header("name") name: String): Observable<ArrayList<User>>
 
     /**
      * Get basic profile information from a google plus user.
      */
+    @Headers("auth:"+ GOOGLE_API_KEY)
     @GET(GOOGLE_PERSON)
-    fun getGooglePlusPerson(@Query("userId") userId: String): Observable<Person>
+    fun getGooglePlusPerson(@Header("userId") userId: String): Observable<GooglePerson>
 }

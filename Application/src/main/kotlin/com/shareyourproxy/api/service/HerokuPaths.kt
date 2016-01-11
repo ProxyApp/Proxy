@@ -4,7 +4,7 @@ package com.shareyourproxy.api.service
  * Commonly used path endpoints.
  */
 internal object HerokuPaths {
-    const val GOOGLE_PERSON = "/google/person"
+    const val GOOGLE_PERSON = "/users/google/person"
     const val MESSAGES = "/messages"
     const val SEARCH = "/users/search"
     const val SHARED = "/shared"

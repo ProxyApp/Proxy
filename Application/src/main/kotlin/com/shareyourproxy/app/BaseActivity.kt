@@ -116,7 +116,7 @@ internal abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun onNextEvent(activity: Activity): JustObserver<Any> {
-        return object : JustObserver<Any>() {
+        return object : JustObserver<Any>(BaseActivity::class.java) {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any) {
                 if (event is ShareLinkEventCallback) {

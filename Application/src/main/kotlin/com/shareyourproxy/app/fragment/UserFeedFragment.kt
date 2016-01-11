@@ -42,7 +42,7 @@ internal final class UserFeedFragment() : BaseFragment(), ItemClickListener {
     private val userContact: User = arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val adapter: ActivityFeedAdapter = ActivityFeedAdapter(recyclerView, userContact, this)
-    private val activityFeedObserver = object : JustObserver<ActivityFeedDownloadedEvent>() {
+    private val activityFeedObserver = object : JustObserver<ActivityFeedDownloadedEvent>(UserFeedFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: ActivityFeedDownloadedEvent) {
             activityFeedDownloaded(event)

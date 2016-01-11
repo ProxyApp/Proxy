@@ -52,5 +52,5 @@ internal final class RestClient(private val context: Context) {
         return logging
     }
 
-    private val timberLogger: HttpLoggingInterceptor.Logger get() = HttpLoggingInterceptor.Logger { message -> Timber.tag("OkHttp").d(message) }
+    private val timberLogger: HttpLoggingInterceptor.Logger get() = HttpLoggingInterceptor.Logger {Timber.tag("OkHttp").d(it) }
 }

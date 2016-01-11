@@ -72,7 +72,7 @@ internal final class MainContactsFragment() : BaseFragment(), ItemClickListener 
     private val onClickInvite: View.OnClickListener = View.OnClickListener {
         launchInviteFriendIntent(activity)
     }
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainContactsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is UserSelectedEvent) {

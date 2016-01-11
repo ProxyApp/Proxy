@@ -33,7 +33,9 @@ internal object RxMessageSync {
     private val userMessageCallback: Func1<Message, EventCallback> get() = Func1 { UserMessageAddedEventCallback(it) }
 
     fun getFirebaseMessages(context: Context, userId: String): UserMessagesDownloadedEventCallback {
-        return RestClient(context).herokuUserService.downloadAndPurgeUserMessages(userId).map({ mapNewMessages(context, it, userId) })
+        return RestClient(context).herokuUserService
+                .downloadAndPurgeUserMessages(userId)
+                .map({ mapNewMessages(context, it, userId) })
                 .compose(observeMain<UserMessagesDownloadedEventCallback>())
                 .toBlocking().single()
     }

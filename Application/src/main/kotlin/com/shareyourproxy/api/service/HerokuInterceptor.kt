@@ -15,12 +15,11 @@ internal final class HerokuInterceptor(private val sharedPrefs: SharedPreference
         val token = sharedPrefs.getString(KEY_GOOGLE_PLUS_AUTH, null)
         if (token != null) {
             val newRequest = chain.request().newBuilder()
-                    .addHeader("token", token)
-                    .build()
-            return chain.proceed(newRequest)
+            return chain.proceed(newRequest.header("token", token).build())
         } else {
             return chain.proceed(chain.request())
         }
     }
 }
+
 

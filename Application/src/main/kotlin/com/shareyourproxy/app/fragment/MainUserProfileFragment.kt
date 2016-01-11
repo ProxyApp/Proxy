@@ -46,7 +46,7 @@ internal final class MainUserProfileFragment(contact: User, loggedInUserId: Stri
     private val onClickShare: View.OnClickListener = View.OnClickListener {
         ShareLinkDialog(loggedInUser.groups).show(activity.supportFragmentManager)
     }
-    private val onNextEvent = object : JustObserver<Any>() {
+    private val onNextEvent = object : JustObserver<Any>(MainUserProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is RecyclerViewDatasetChangedEvent) {

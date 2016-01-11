@@ -23,7 +23,7 @@ import timber.log.Timber
 private final class AggregateFeedActivity : BaseActivity() {
     private val analytics = RxGoogleAnalytics(this)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>(AggregateFeedActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SelectDrawerItemEvent) {

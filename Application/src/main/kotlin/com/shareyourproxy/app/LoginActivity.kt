@@ -27,7 +27,7 @@ import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
-import com.shareyourproxy.api.rx.RxHelper
+import com.shareyourproxy.api.rx.RxHelper.observeIO
 import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.RxHelper.updateRealmUser
 import com.shareyourproxy.api.rx.command.AddUserCommand
@@ -52,7 +52,7 @@ private final class LoginActivity : GoogleApiActivity() {
     private val signInButton: SignInButton by bindView(activity_login_sign_in_button)
     private val svgUltraMinor: Int  by bindDimen(common_svg_ultra_minor)
     private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>(LoginActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             if (event is SyncContactsSuccessEvent || event is SyncContactsErrorEvent) {
@@ -161,20 +161,21 @@ private final class LoginActivity : GoogleApiActivity() {
      */
     private fun getUserFromFirebase(account: GoogleSignInAccount) {
         val userId = StringBuilder(GoogleApiActivity.GOOGLE_UID_PREFIX).append(account.id).toString()
-        RestClient(this).herokuUserService.getUser(userId).compose(RxHelper.observeIO<User>()).subscribe(getUserObserver(this, account))
+        RestClient(this).herokuUserService.getUser(userId).compose(observeIO<User>()).subscribe(getUserObserver(this, account))
     }
 
     /**
-     * This Observer eventually calls SyncAllContactsCommand which calls login.
+     * This Observer eventually calls SyncAllContactsCommand which calls login. User created in [UserTypeAdapter].
      * @param activity context
      * @param acct user account
      * @return current user
      */
     private fun getUserObserver(activity: BaseActivity, acct: GoogleSignInAccount): JustObserver<User> {
-        return object : JustObserver<User>() {
+        return object : JustObserver<User>(LoginActivity::class.java) {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(user: User) {
-                if (user == User()) {
+                //Empty User() construction has an empty Id
+                if (user.id.isEmpty()) {
                     addUserToDatabase(createUserFromGoogle(acct))
                 } else {
                     updateRealmUser(activity, user)
@@ -188,7 +189,7 @@ private final class LoginActivity : GoogleApiActivity() {
             }
 
             private fun updateVersionObserver(): JustObserver<String> {
-                return object : JustObserver<String>() {
+                return object : JustObserver<String>(LoginActivity::class.java) {
                     override fun next(t: String) {
                         Timber.i("User version updated")
                     }

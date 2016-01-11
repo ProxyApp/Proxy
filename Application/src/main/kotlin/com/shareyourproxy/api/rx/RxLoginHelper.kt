@@ -7,20 +7,26 @@ import com.shareyourproxy.IntentLauncher.launchLoginActivity
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxBusRelay.post
-import com.shareyourproxy.api.rx.RxHelper.observeIO
-import com.shareyourproxy.api.rx.RxHelper.singleObserveMain
+import com.shareyourproxy.api.rx.RxHelper.observeMain
 import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.app.BaseActivity
 import rx.Single
 import rx.SingleSubscriber
+import rx.Subscription
 
 /**
  * Handle login functions.
  */
 internal object RxLoginHelper {
 
-    fun loginObservable(activity: BaseActivity): Single<String> {
-        return Single.create(createLoginFlow(activity)).compose(singleObserveMain<String>())
+    fun loginSubscription(activity: BaseActivity): Subscription {
+        return Single.create(createLoginFlow(activity))
+                .compose(RxHelper.singleObserveMain<String>())
+                .subscribe(loginObserver())
+    }
+
+    private fun loginObserver(): JustSingle<String> {
+        return object : JustSingle<String>(RxLoginHelper::class.java){}
     }
 
     private fun createLoginFlow(activity: BaseActivity): Single.OnSubscribe<String> {
@@ -46,7 +52,7 @@ internal object RxLoginHelper {
                         if (user != null) {
                             RestClient(activity).herokuUserService
                                     .updateUserVersion(user.id, VERSION_CODE)
-                                    .compose(observeIO<String>())
+                                    .compose(observeMain<String>())
                                     .subscribe(updateUserVersionObserver(user, subscriber))
                         } else {
                             launchLoginActivity(activity)
@@ -55,13 +61,13 @@ internal object RxLoginHelper {
                     }
                 } catch (e: Exception) {
                     // remove the cached user if we fail
-                    activity.sharedPreferences.edit().remove(KEY_LOGGED_IN_USER)
+                    activity.sharedPreferences.edit().remove(KEY_LOGGED_IN_USER).commit()
                     subscriber.onError(e)
                 }
             }
 
             fun updateUserVersionObserver(user: User, subscriber: SingleSubscriber<in String>): JustObserver<String> {
-                return object : JustObserver<String>() {
+                return object : JustObserver<String>(RxLoginHelper::class.java) {
                     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
                     override fun next(version:String) {
                         RxHelper.updateRealmUser(activity, user)
@@ -71,6 +77,7 @@ internal object RxLoginHelper {
 
                     override fun error(e: Throwable) {
                         super.error(e)
+                        launchLoginActivity(activity)
                         subscriber.onError(e)
                     }
                 }

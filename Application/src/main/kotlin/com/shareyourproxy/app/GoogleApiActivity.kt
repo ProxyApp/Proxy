@@ -17,7 +17,7 @@ import com.google.android.gms.plus.Plus
 import com.google.android.gms.plus.Plus.*
 import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.BuildConfig.VERSION_CODE
-import com.shareyourproxy.Constants
+import com.shareyourproxy.Constants.KEY_GOOGLE_PLUS_AUTH
 import com.shareyourproxy.R
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Group
@@ -46,9 +46,9 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     }
 
     private fun googleRefreshObserver(): JustSingle<String> {
-        return object : JustSingle<String>() {
+        return object : JustSingle<String>(GoogleApiActivity::class.java) {
             override fun onSuccess(value: String) {
-                sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, value)
+                sharedPreferences.edit().putString(KEY_GOOGLE_PLUS_AUTH, value)
             }
         }
     }
@@ -60,17 +60,14 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     protected fun createUserFromGoogle(acct: GoogleSignInAccount): User {
         val id = acct.id
         // Retrieve some profile information to personalize our app for the user.
-        //TODO create user from google plus call
         val currentUser = RestClient(this).herokuUserService.getGooglePlusPerson(id).toBlocking().single()
         val userId = StringBuilder(GOOGLE_UID_PREFIX).append(id).toString()
-        val firstName = currentUser.name.givenName
-        val lastName = currentUser.name.familyName
+        val firstName = currentUser.name.first
+        val lastName = currentUser.name.last
         val fullName = StringUtils.buildFullName(firstName, lastName)
         val email = acct.email
         val profileURL = acct.photoUrl.toString()
-        val cover = currentUser.cover
-        val coverPhoto = cover?.coverPhoto
-        var coverURL: String = if (coverPhoto != null) coverPhoto.url else ""
+        var coverURL: String = currentUser.cover.coverPhoto.url
         //Create a new User with empty groups, contacts, and channels
         return User(userId, firstName, lastName, fullName, email, profileURL, coverURL, HashMap(), HashSet(), defaultGroups, VERSION_CODE)
     }
@@ -117,7 +114,7 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
     private fun signIn(data: Intent) {
         val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
         if (result.isSuccess) {
-            sharedPreferences.edit().putString(Constants.KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode).commit()
+            sharedPreferences.edit().putString(KEY_GOOGLE_PLUS_AUTH, result.signInAccount.serverAuthCode).commit()
             onGooglePlusSignIn(result.signInAccount)
         } else {
             onGooglePlusError(result.status)

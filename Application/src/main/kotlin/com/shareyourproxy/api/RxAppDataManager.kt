@@ -45,7 +45,7 @@ internal final class RxAppDataManager(private val app: ProxyApplication, private
     private val notificationManager: NotificationManager = app.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     private val gson = GsonBuilder().create()
     private val pollingObservable: Observable<Long> = Observable.interval(3, TimeUnit.MINUTES).compose(observeIO<Long>())
-    private val busObserver: JustObserver<Any> = object : JustObserver<Any>() {
+    private val busObserver: JustObserver<Any> = object : JustObserver<Any>(RxAppDataManager::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             when (event) {
@@ -57,7 +57,7 @@ internal final class RxAppDataManager(private val app: ProxyApplication, private
             }
         }
     }
-    private val intervalObserver = object : JustObserver<Long>() {
+    private val intervalObserver = object : JustObserver<Long>(RxAppDataManager::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(timesCalled: Long) {
             Timber.i("Checking for notifications, attempt: ${timesCalled.toInt()}")

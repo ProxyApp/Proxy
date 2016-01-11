@@ -70,7 +70,7 @@ private final class AddChannelListActivity : BaseActivity() {
      * Create a composite subscription field to handle unsubscribing in onPause.
      */
     fun initializeSubscriptions() {
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(object : JustObserver<Any>() {
+        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(object : JustObserver<Any>(AddChannelListActivity::class.java) {
             @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun next(event: Any) {
                 if (event is UserChannelAddedEventCallback) {
