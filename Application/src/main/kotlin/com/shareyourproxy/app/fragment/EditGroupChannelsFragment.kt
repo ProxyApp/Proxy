@@ -12,6 +12,7 @@ import com.shareyourproxy.Constants.ARG_EDIT_GROUP_TYPE
 import com.shareyourproxy.Constants.ARG_SELECTED_GROUP
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.menu_edit_group_channel_save
+import com.shareyourproxy.R.layout.fragment_edit_group_channel
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.DeleteUserGroupCommand
@@ -42,10 +43,13 @@ internal final class EditGroupChannelsFragment() : BaseFragment(), ItemClickList
     private val adapter: EditGroupChannelAdapter by LazyVal { EditGroupChannelAdapter(recyclerView, this, selectedGroup.label, loggedInUser.channels, selectedGroup.channels, groupEditType) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_edit_group_channel, container, false)
+        return inflater.inflate(fragment_edit_group_channel, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         initializeRecyclerView()
-        return rootView
     }
 
     override fun onItemClick(view: View, position: Int) {

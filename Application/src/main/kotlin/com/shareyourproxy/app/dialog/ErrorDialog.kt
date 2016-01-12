@@ -14,9 +14,6 @@ import com.shareyourproxy.util.ButterKnife.LazyVal
  * Dialog to handle onError messaging during login.
  */
 internal final class ErrorDialog private constructor(title: String, message: String) : BaseDialogFragment() {
-    private val parcelTitle: String by LazyVal { arguments.getString(ARG_TITLE) }
-    private val parcelMessage: String by LazyVal { arguments.getString(ARG_MESSAGE) }
-
     companion object {
         private val ARG_TITLE = "title"
         private val ARG_MESSAGE = "message"
@@ -25,7 +22,7 @@ internal final class ErrorDialog private constructor(title: String, message: Str
         }
 
         private fun setArgs(manager: FragmentManager, title: String, message: String): ErrorDialog {
-            val dialog: ErrorDialog = ErrorDialog(title, message)
+            val dialog= ErrorDialog(title, message)
             val args: Bundle = Bundle()
             args.putString(ARG_TITLE, title)
             args.putString(ARG_MESSAGE, message)
@@ -33,6 +30,9 @@ internal final class ErrorDialog private constructor(title: String, message: Str
             return dialog.show(manager)
         }
     }
+
+    private val parcelTitle: String by LazyVal { arguments.getString(ARG_TITLE) }
+    private val parcelMessage: String by LazyVal { arguments.getString(ARG_MESSAGE) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(ContextThemeWrapper(activity,

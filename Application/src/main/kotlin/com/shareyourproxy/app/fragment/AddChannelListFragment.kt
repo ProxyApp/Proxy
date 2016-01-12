@@ -83,8 +83,8 @@ internal final class AddChannelListFragment() : BaseFragment(), ItemClickListene
             ChannelType.Periscope,
             ChannelType.Medium,
             ChannelType.Soundcloud,
-            ChannelType.Skype -> AddChannelDialog(clickedChannel.channelType).show(activity.supportFragmentManager)
-            ChannelType.Reddit -> AddRedditChannelDialog.newInstance(clickedChannel.channelType).show(activity.supportFragmentManager)
+            ChannelType.Skype -> AddChannelDialog.show(activity.supportFragmentManager,clickedChannel.channelType)
+            ChannelType.Reddit -> AddRedditChannelDialog.show(activity.supportFragmentManager)
             else -> {
             }
         }

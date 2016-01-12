@@ -47,7 +47,7 @@ internal final class ContactProfileFragment private constructor(user: User, logg
     private val toggleGroups = ArrayList<GroupToggle>()
     private val toolbar: Toolbar by bindView(fragment_user_profile_toolbar)
     private val onClickGroup: View.OnClickListener = View.OnClickListener {
-        UserGroupsDialog(toggleGroups, contact).show(fragmentManager)
+        UserGroupsDialog.show(fragmentManager,toggleGroups, contact)
     }
     private val onNextEvent = object : JustObserver<Any>(ContactProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")

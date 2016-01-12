@@ -28,6 +28,7 @@ import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
@@ -35,10 +36,8 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Add a channel that requires OAuth.
  */
-internal final class AddAuthChannelDialog(private val channel: Channel) : BaseDialogFragment() {
-    private val ARG_CHANNEL = "AddAuthChannelDialog.Channel"
-    private val TAG = AddAuthChannelDialog::class.java.simpleName
-    private val parcelChannel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)
+internal final class AddAuthChannelDialog private constructor(channel: Channel) : BaseDialogFragment() {
+    private val parcelChannel: Channel by LazyVal { arguments.getParcelable<Channel>(ARG_CHANNEL) }
     private val editTextActionAddress: EditText by bindView(dialog_channel_auth_action_address_edittext)
     private val floatLabelAddress: TextInputLayout by bindView(dialog_channel_auth_action_address_floatlabel)
     private val colorText: Int by bindColor(common_text)
@@ -59,8 +58,20 @@ internal final class AddAuthChannelDialog(private val channel: Channel) : BaseDi
     }
     private val positiveClicked = OnClickListener { dialogInterface, i -> addUserChannel() }
 
-    init{
-        arguments.putParcelable(ARG_CHANNEL, channel)
+
+    companion object {
+        private val ARG_CHANNEL = "AddAuthChannelDialog.Channel"
+        fun show(manager: FragmentManager, channel: Channel): AddAuthChannelDialog {
+            return setArgs(manager, channel)
+        }
+
+        private fun setArgs(manager: FragmentManager, channel: Channel): AddAuthChannelDialog {
+            val dialog = AddAuthChannelDialog(channel)
+            val args: Bundle = Bundle()
+            args.putParcelable(ARG_CHANNEL, channel)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -100,7 +111,7 @@ internal final class AddAuthChannelDialog(private val channel: Channel) : BaseDi
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): AddAuthChannelDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, AddAuthChannelDialog::class.java.simpleName)
         return this
     }
 

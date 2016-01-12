@@ -37,10 +37,25 @@ import org.solovyev.android.views.llm.LinearLayoutManager
 /**
  * Save a new channel to selected groups after creating it.
  */
-internal final class SaveGroupChannelDialog(private val channel: Channel, private val user: User) : BaseDialogFragment() {
-    private val ARG_CHANNEL = "com.shareyourproxy.savegroupchanneldialog.arg.channel"
-    private val ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user"
-    private val TAG = SaveGroupChannelDialog::class.java.simpleName
+internal final class SaveGroupChannelDialog private constructor(channel: Channel, user: User) : BaseDialogFragment() {
+    companion object {
+        private val ARG_CHANNEL = "com.shareyourproxy.savegroupchanneldialog.arg.channel"
+        private val ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user"
+        fun show(manager: FragmentManager, channel: Channel, user: User): SaveGroupChannelDialog {
+            return setArgs(manager, channel, user)
+        }
+
+        private fun setArgs(manager: FragmentManager, channel: Channel, user: User): SaveGroupChannelDialog {
+            val dialog = SaveGroupChannelDialog(channel, user)
+            val args: Bundle = Bundle()
+            args.putParcelable(ARG_CHANNEL, channel)
+            args.putParcelable(ARG_USER, user)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
+    }
+
+
     private val recyclerView: BaseRecyclerView by bindView(dialog_user_groups_recyclerview)
     private val message: TextView by bindView(dialog_user_groups_message)
     private val colorText: Int by bindColor(common_text)
@@ -51,11 +66,6 @@ internal final class SaveGroupChannelDialog(private val channel: Channel, privat
     private val negativeClicked = OnClickListener { dialogInterface, i -> updateChannel(dialogInterface) }
     private val positiveClicked = OnClickListener { DialogInterface, i -> dispatchUpdatedUserGroups() }
     private val adapter: SaveGroupChannelAdapter = SaveGroupChannelAdapter(recyclerView, user.groups)
-
-    init {
-        arguments.putParcelable(ARG_USER, user)
-        arguments.putParcelable(ARG_CHANNEL, channel)
-    }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
@@ -96,7 +106,7 @@ internal final class SaveGroupChannelDialog(private val channel: Channel, privat
     }
 
     private fun updateChannel(dialogInterface: DialogInterface) {
-        post(ChannelAddedEvent(user, parcelChannel))
+        post(ChannelAddedEvent(parcelUser, parcelChannel))
         dialogInterface.dismiss()
     }
 
@@ -118,7 +128,7 @@ internal final class SaveGroupChannelDialog(private val channel: Channel, privat
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): SaveGroupChannelDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, SaveGroupChannelDialog::class.java.simpleName)
         return this
     }
 

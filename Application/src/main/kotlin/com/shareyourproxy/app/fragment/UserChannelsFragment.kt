@@ -131,7 +131,7 @@ internal final class UserChannelsFragment private constructor(contact: User) : B
     override fun onItemLongClick(view: View, position: Int) {
         val channel = adapter.getItemData(position)
         if (isLoggedInUser) {
-            EditChannelDialog(channel, position).show(fragmentManager)
+            EditChannelDialog.show(fragmentManager,channel, position)
         }
     }
 

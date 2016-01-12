@@ -55,10 +55,10 @@ import com.shareyourproxy.IntentLauncher.launchWhatsAppIntent
 import com.shareyourproxy.IntentLauncher.launchXboxLiveIntent
 import com.shareyourproxy.IntentLauncher.launchYoIntent
 import com.shareyourproxy.IntentLauncher.launchYoutubeIntent
-import com.shareyourproxy.R
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.dimen.common_svg_large
 import com.shareyourproxy.R.id.*
+import com.shareyourproxy.R.layout.fragment_user_profile
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.Channel
@@ -169,7 +169,6 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     protected val contact: User by LazyVal { arguments.getParcelable<User>(ARG_USER_SELECTED_PROFILE) }
     protected val colorBlue: Int by bindColor(common_blue)
     protected val svgLarge: Int by bindDimen(common_svg_large)
-
     private var deletedChannel: Channel? = null
 
     override fun onAttach(context: Context?) {
@@ -178,7 +177,7 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_user_profile, container, false)
+        return inflater.inflate(fragment_user_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -291,23 +290,18 @@ internal abstract class UserProfileFragment() : BaseFragment() {
             ChannelType.Soundcloud -> launchSoundCloudIntent(activity, actionAddress)
             ChannelType.Skype -> launchSkypeIntent(activity, actionAddress)
             ChannelType.Yo -> launchYoIntent(activity, actionAddress)
-            ChannelType.Custom -> {
-            }
-            ChannelType.Slack -> {
-            }
+            ChannelType.Custom -> { }
+            ChannelType.Slack -> { }
             ChannelType.Hangouts -> launchHangoutsIntent(activity, actionAddress)
             ChannelType.Whatsapp -> launchWhatsAppIntent(activity, actionAddress)
-            ChannelType.Periscope -> {
-            }
+            ChannelType.Periscope -> { }
             ChannelType.PlaystationNetwork -> launchPlaystationNetworkIntent(activity, actionAddress)
             ChannelType.NintendoNetwork -> launchNintendoNetworkIntent(activity, actionAddress)
             ChannelType.Steam -> launchSteamIntent(activity, actionAddress)
             ChannelType.Twitch -> launchTwitchIntent(activity, actionAddress)
             ChannelType.XboxLive -> launchXboxLiveIntent(activity, actionAddress)
-            ChannelType.LeagueOfLegends -> {
-            }
-            else -> {
-            }
+            ChannelType.LeagueOfLegends -> { }
+            else -> { }
         }
 
     }

@@ -23,6 +23,7 @@ import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.SaveGroupContactsCommand
 import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.UserGroupsAdapter
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindView
 import org.solovyev.android.views.llm.LinearLayoutManager
@@ -31,24 +32,33 @@ import java.util.*
 /**
  * This Dialog provides a toggle selection to add a User contactId to the logged in User's various saved groups.
  */
-internal final class UserGroupsDialog(private val groups: ArrayList<GroupToggle>, private val user: User) : BaseDialogFragment() {
-    private val TAG = UserGroupsDialog::class.java.simpleName
-    private val ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList"
-    private val ARG_USER = "com.shareyourproxy.app.dialog.User"
+internal final class UserGroupsDialog private constructor(groups: ArrayList<GroupToggle>, user: User) : BaseDialogFragment() {
+    companion object {
+        private val ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList"
+        private val ARG_USER = "com.shareyourproxy.app.dialog.User"
+        fun show(manager: FragmentManager, groups: ArrayList<GroupToggle>, user:User): UserGroupsDialog {
+            return setArgs(manager, groups, user)
+        }
+
+        private fun setArgs(manager: FragmentManager, groups: ArrayList<GroupToggle>, user:User): UserGroupsDialog {
+            val dialog= UserGroupsDialog(groups, user)
+            val args: Bundle = Bundle()
+            args.putParcelableArrayList(ARG_GROUPS, groups)
+            args.putParcelable(ARG_USER, user)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
+    }
+
     private val recyclerView: BaseRecyclerView by bindView(R.id.dialog_user_groups_recyclerview)
     private val textView: TextView by bindView(R.id.dialog_user_groups_message)
     private val colorText: Int by bindColor(common_text)
     private val colorBlue: Int by bindColor(common_blue)
-    private val parcelUser: User = arguments.getParcelable<User>(ARG_USER)
-    private val parcelGroups: ArrayList<GroupToggle> = arguments.getParcelableArrayList<GroupToggle>(ARG_GROUPS)
-    private var adapter: UserGroupsAdapter = UserGroupsAdapter(recyclerView, parcelGroups)
+    private val parcelUser: User by LazyVal{ arguments.getParcelable<User>(ARG_USER) }
+    private val parcelGroups: ArrayList<GroupToggle> by LazyVal{ arguments.getParcelableArrayList<GroupToggle>(ARG_GROUPS) }
+    private val adapter: UserGroupsAdapter by LazyVal{ UserGroupsAdapter(recyclerView, parcelGroups) }
     private val negativeClicked = OnClickListener { dialogInterface, i -> dialogInterface.dismiss() }
     private val positiveClicked = OnClickListener { dialogInterface, i -> dispatchUpdatedUserGroups() }
-
-    init {
-        arguments.putParcelableArrayList(ARG_GROUPS, groups)
-        arguments.putParcelable(ARG_USER, user)
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
         super.onCreateDialog(savedInstanceState)
@@ -99,7 +109,7 @@ internal final class UserGroupsDialog(private val groups: ArrayList<GroupToggle>
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): UserGroupsDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, UserGroupsDialog::class.java.simpleName)
         return this
     }
 }

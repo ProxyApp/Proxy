@@ -30,6 +30,7 @@ import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
@@ -39,9 +40,22 @@ import java.util.*
 /**
  * Add a new [Channel] to a [User].
  */
-internal final class AddChannelDialog(private val channelType: ChannelType) : BaseDialogFragment() {
-    private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
-    private val TAG = AddChannelDialog::class.java.simpleName
+internal final class AddChannelDialog private constructor(channelType: ChannelType) : BaseDialogFragment() {
+    companion object {
+        private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
+        fun show(manager: FragmentManager, channelType: ChannelType): AddChannelDialog {
+            return setArgs(manager, channelType)
+        }
+
+        private fun setArgs(manager: FragmentManager, channelType: ChannelType): AddChannelDialog {
+            val dialog = AddChannelDialog(channelType)
+            val args: Bundle = Bundle()
+            args.putSerializable(ARG_CHANNEL_TYPE, channelType)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
+    }
+
     private val editTextActionAddress: EditText by bindView(dialog_channel_action_address_edittext)
     private val negativeClicked = OnClickListener { dialogInterface, i ->
         hideSoftwareKeyboard(editTextActionAddress)
@@ -53,7 +67,7 @@ internal final class AddChannelDialog(private val channelType: ChannelType) : Ba
     private val colorText: Int by bindColor(common_text)
     private val colorBlue: Int by bindColor(common_blue)
     private val stringRequired: String by bindString(required)
-    private val parcelChannelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
+    private val parcelChannelType: ChannelType by LazyVal{ arguments.getSerializable(ARG_CHANNEL_TYPE) as ChannelType}
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
@@ -115,8 +129,8 @@ internal final class AddChannelDialog(private val channelType: ChannelType) : Ba
     }
 
     private fun initializeDisplayValues() {
-        val name = channelType.label
-        when (channelType) {
+        val name = parcelChannelType.label
+        when (parcelChannelType) {
             Address -> {
                 dialogTitle = getString(dialog_addchannel_title_add_blank, name)
                 channelAddressHint = getString(dialog_channel_hint_address_blank_handle, name)
@@ -311,7 +325,7 @@ internal final class AddChannelDialog(private val channelType: ChannelType) : Ba
         val labelContent = editTextLabel.text.toString().trim { it <= ' ' }
         if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
             val id = UUID.randomUUID().toString()
-            val channel = createModelInstance(id, labelContent, channelType, actionContent)
+            val channel = createModelInstance(id, labelContent, parcelChannelType, actionContent)
             val user = loggedInUser
             post(AddUserChannelCommand(user, channel))
             user.channels.put(channel.id, channel)
@@ -325,7 +339,7 @@ internal final class AddChannelDialog(private val channelType: ChannelType) : Ba
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): AddChannelDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, AddChannelDialog::class.java.simpleName)
         return this
     }
 }

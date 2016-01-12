@@ -25,19 +25,31 @@ import com.shareyourproxy.R.string.required
 import com.shareyourproxy.R.string.save
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.factory.ChannelFactory.createModelInstance
-import com.shareyourproxy.api.domain.model.ChannelType
+import com.shareyourproxy.api.domain.model.ChannelType.Reddit
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
-import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
+import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 import java.util.*
 
 /**
  * Add a new Reddit [Channel] to a [User].
  */
 internal final class AddRedditChannelDialog : BaseDialogFragment() {
+    companion object {
+        private val ARG_CHANNEL_TYPE = "AddRedditChannelDialog.ChannelType"
+        fun show(manager: FragmentManager): AddRedditChannelDialog {
+            return setArgs(manager)
+        }
+
+        private fun setArgs(manager: FragmentManager): AddRedditChannelDialog {
+            val dialog = AddRedditChannelDialog()
+            return dialog.show(manager)
+        }
+    }
+
     private val editTextActionAddress: EditText by bindView(dialog_reddit_channel_action_address_edittext)
     private val negativeClicked = DialogInterface.OnClickListener { dialogInterface, i ->
         hideSoftwareKeyboard(editTextActionAddress)
@@ -51,7 +63,6 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
     private val colorText: Int by bindColor(common_text)
     private val colorBlue: Int by bindColor(common_blue)
     private val stringRequired: String by bindString(required)
-    private val channelType: ChannelType = ChannelType.valueOfLabel(arguments.getString(ARG_CHANNEL_TYPE))
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
@@ -104,7 +115,7 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
         val labelContent = editTextLabel.text.toString().trim { it <= ' ' }
         if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
             val id = UUID.randomUUID().toString()
-            val channel = createModelInstance(id, labelContent, channelType, actionContent)
+            val channel = createModelInstance(id, labelContent, Reddit, actionContent)
             post(AddUserChannelCommand(loggedInUser, channel))
         }
     }
@@ -157,7 +168,7 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
     }
 
     private fun initializeDisplayValues() {
-        val name = channelType.label
+        val name = Reddit.label
         dialogTitle = getString(R.string.dialog_addchannel_title_add_blank, name)
         channelAddressHint = getString(R.string.dialog_addchannel_hint_address_reddit_username)
         channelLabelHint = getString(R.string.label)
@@ -183,30 +194,8 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): AddRedditChannelDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, AddRedditChannelDialog::class.java.simpleName)
         return this
-    }
-
-    companion object {
-
-
-        private val ARG_CHANNEL_TYPE = "AddRedditChannelDialog.ChannelType"
-        private val TAG = AddRedditChannelDialog::class.java.simpleName
-
-        /**
-         * Create a new instance of a [AddRedditChannelDialog].
-
-         * @return A [AddRedditChannelDialog]
-         */
-        fun newInstance(channelType: ChannelType): AddRedditChannelDialog {
-            //Bundle arguments
-            val bundle = Bundle()
-            bundle.putString(ARG_CHANNEL_TYPE, channelType.label)
-            //create dialog instance
-            val dialog = AddRedditChannelDialog()
-            dialog.arguments = bundle
-            return dialog
-        }
     }
 }
 

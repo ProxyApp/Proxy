@@ -34,19 +34,7 @@ import java.util.*
  * Share links to group channels in your web profile.
  */
 internal final class ShareLinkDialog private constructor(groups: HashMap<String, Group>) : BaseDialogFragment() {
-    private val message: TextView by bindView(dialog_sharelink_message_text)
-    private val recyclerView: BaseRecyclerView by bindView(dialog_sharelink_recyclerview)
-    private val colorText: Int by bindColor(common_text)
-    private val colorBlue: Int by bindColor(common_blue)
-    @Suppress("UNCHECKED_CAST")
-    private val parcelGroups: HashMap<String, Group> by LazyVal { arguments.getSerializable(ARG_GROUPS) as HashMap<String, Group> }
-    private val adapter: ShareLinkAdapter by LazyVal { ShareLinkAdapter(recyclerView, parcelGroups) }
-    private val positiveClicked: DialogInterface.OnClickListener = OnClickListener { dialogInterface, i -> post(GenerateShareLinkCommand(loggedInUser, adapter.data)) }
-    private val negativeClicked: DialogInterface.OnClickListener = OnClickListener { dialogInterface, i -> dialogInterface.dismiss() }
-
-
     companion object {
-        private val TAG = ShareLinkDialog::class.java.simpleName
         private val ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group"
         fun show(manager: FragmentManager, groups: HashMap<String, Group>): ShareLinkDialog {
             return setArgs(manager, groups)
@@ -57,9 +45,19 @@ internal final class ShareLinkDialog private constructor(groups: HashMap<String,
             val args: Bundle = Bundle()
             args.putSerializable(ARG_GROUPS, groups)
             dialog.arguments = args
-            return dialog.apply { this.show(manager, TAG) }
+            return dialog.show(manager)
         }
     }
+
+    private val message: TextView by bindView(dialog_sharelink_message_text)
+    private val recyclerView: BaseRecyclerView by bindView(dialog_sharelink_recyclerview)
+    private val colorText: Int by bindColor(common_text)
+    private val colorBlue: Int by bindColor(common_blue)
+    @Suppress("UNCHECKED_CAST")
+    private val parcelGroups: HashMap<String, Group> by LazyVal { arguments.getSerializable(ARG_GROUPS) as HashMap<String, Group> }
+    private val adapter: ShareLinkAdapter by LazyVal { ShareLinkAdapter(recyclerView, parcelGroups) }
+    private val positiveClicked: DialogInterface.OnClickListener = OnClickListener { dialogInterface, i -> post(GenerateShareLinkCommand(loggedInUser, adapter.data)) }
+    private val negativeClicked: DialogInterface.OnClickListener = OnClickListener { dialogInterface, i -> dialogInterface.dismiss() }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
@@ -92,5 +90,15 @@ internal final class ShareLinkDialog private constructor(groups: HashMap<String,
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.hasFixedSize()
         recyclerView.adapter = adapter
+    }
+
+    /**
+     * Use the private string TAG from this class as an identifier.
+     * @param fragmentManager manager of fragments
+     * @return this dialog
+     */
+    fun show(fragmentManager: FragmentManager): ShareLinkDialog {
+        show(fragmentManager, ShareLinkDialog::class.java.simpleName)
+        return this
     }
 }

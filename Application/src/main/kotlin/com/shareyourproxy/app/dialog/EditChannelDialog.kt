@@ -28,6 +28,7 @@ import com.shareyourproxy.api.domain.model.ChannelType.*
 import com.shareyourproxy.api.rx.RxBusRelay.post
 import com.shareyourproxy.api.rx.command.AddUserChannelCommand
 import com.shareyourproxy.api.rx.command.DeleteUserChannelCommand
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
@@ -36,10 +37,24 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Dialog that handles editing a selected channel.
  */
-internal final class EditChannelDialog(private val channel: Channel, private val position: Int) : BaseDialogFragment() {
-    private val ARG_CHANNEL = "EditChannelDialog.Channel"
-    private val ARG_POSITION = "EditChannelDialog.Position"
-    private val TAG = AddChannelDialog::class.java.simpleName
+internal final class EditChannelDialog private constructor(channel: Channel, position: Int) : BaseDialogFragment() {
+    companion object {
+        private val ARG_CHANNEL = "EditChannelDialog.Channel"
+        private val ARG_POSITION = "EditChannelDialog.Position"
+        fun show(manager: FragmentManager, channel: Channel, position: Int): EditChannelDialog {
+            return setArgs(manager, channel, position)
+        }
+
+        private fun setArgs(manager: FragmentManager, channel: Channel, position: Int): EditChannelDialog {
+            val dialog = EditChannelDialog(channel, position)
+            val args: Bundle = Bundle()
+            args.putParcelable(ARG_CHANNEL, channel)
+            args.putInt(ARG_POSITION, position)
+            dialog.arguments = args
+            return dialog.show(manager)
+        }
+    }
+
     private val editTextActionAddress: EditText by bindView(dialog_channel_action_address_edittext)
     private val editTextLabel: EditText by bindView(dialog_channel_label_edittext)
     private val floatLabelChannelLabel: TextInputLayout by bindView(dialog_channel_label_floatlabel)
@@ -48,19 +63,19 @@ internal final class EditChannelDialog(private val channel: Channel, private val
     private val colorBlue: Int by bindColor(common_blue)
     private val stringRequired: String by bindString(required)
     // Transient
-    private val parcelChannel: Channel = arguments.getParcelable<Channel>(ARG_CHANNEL)
+    private val parcelChannel: Channel by LazyVal { arguments.getParcelable<Channel>(ARG_CHANNEL) }
     /**
      * EditorActionListener that detects when the software keyboard's done or enter button is pressed.
      */
     private val onEditorActionListener = OnEditorActionListener { v, actionId, event ->
-        when(actionId){
+        when (actionId) {
             KeyEvent.KEYCODE_ENDCALL,
             KeyEvent.KEYCODE_ENTER -> updateChannelAndExit()
             else -> false
         }
     }
     private val parcelPosition: Int = arguments.getInt(ARG_POSITION)
-    private val negativeClicked = OnClickListener {dialogInterface, i -> hideSoftwareKeyboard(editTextActionAddress) }
+    private val negativeClicked = OnClickListener { dialogInterface, i -> hideSoftwareKeyboard(editTextActionAddress) }
     private val positiveClicked = View.OnClickListener { updateChannelAndExit() }
     private val deleteClicked = OnClickListener { dialogInterface, i ->
         post(DeleteUserChannelCommand(loggedInUser, parcelChannel, parcelPosition))
@@ -70,11 +85,6 @@ internal final class EditChannelDialog(private val channel: Channel, private val
     private var channelAddressHint: String = ""
     private var channelLabelHint: String = ""
 
-    init{
-        arguments.putParcelable(ARG_CHANNEL, channel)
-        arguments.putInt(ARG_POSITION, position)
-    }
-
     /**
      * Dispatch a Channel Added Event
      */
@@ -82,14 +92,14 @@ internal final class EditChannelDialog(private val channel: Channel, private val
         val actionContent = editTextActionAddress.text.toString().trim { it <= ' ' }
         val labelContent = editTextLabel.text.toString().trim { it <= ' ' }
         if (!TextUtils.isEmpty(actionContent.trim { it <= ' ' })) {
-            val id = channel.id
-            val channelType = channel.channelType
-            val channel = if (channel.channelType.equals(Facebook))
-                createModelInstance(id, channel.label, channelType, actionContent)
+            val id = parcelChannel.id
+            val channelType = parcelChannel.channelType
+            val channel = if (parcelChannel.channelType.equals(Facebook))
+                createModelInstance(id, parcelChannel.label, channelType, actionContent)
             else
                 createModelInstance(id, labelContent, channelType, actionContent)
             //post and save
-            post(AddUserChannelCommand(loggedInUser, channel, channel))
+            post(AddUserChannelCommand(loggedInUser, channel, parcelChannel))
         }
     }
 
@@ -138,8 +148,8 @@ internal final class EditChannelDialog(private val channel: Channel, private val
     }
 
     private fun initializeDisplayValues() {
-        val name = channel.channelType.label
-        when (channel.channelType) {
+        val name = parcelChannel.channelType.label
+        when (parcelChannel.channelType) {
             Address -> {
                 dialogTitle = getString(dialog_addchannel_title_add_blank, name)
                 channelAddressHint = getString(dialog_channel_hint_address_blank_handle, name)
@@ -329,14 +339,14 @@ internal final class EditChannelDialog(private val channel: Channel, private val
      */
     private fun initializeEditText() {
         editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
-        editTextActionAddress.setText(channel.actionAddress)
+        editTextActionAddress.setText(parcelChannel.actionAddress)
         floatLabelAddress.hint = channelAddressHint
 
-        if (channel.channelType.equals(Facebook)) {
+        if (parcelChannel.channelType.equals(Facebook)) {
             editTextLabel.visibility = View.GONE
             floatLabelChannelLabel.visibility = View.GONE
         } else {
-            editTextLabel.setText(channel.label)
+            editTextLabel.setText(parcelChannel.label)
             floatLabelChannelLabel.hint = channelLabelHint
         }
     }
@@ -349,7 +359,7 @@ internal final class EditChannelDialog(private val channel: Channel, private val
      * @return this dialog
      */
     fun show(fragmentManager: FragmentManager): EditChannelDialog {
-        show(fragmentManager, TAG)
+        show(fragmentManager, AddChannelDialog::class.java.simpleName)
         return this
     }
 }

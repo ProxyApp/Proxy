@@ -9,6 +9,7 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.id.activity_fragment_container
 import com.shareyourproxy.R.id.activity_toolbar
 import com.shareyourproxy.R.layout.common_activity_fragment_container
+import com.shareyourproxy.R.raw.ic_clear
 import com.shareyourproxy.R.string.add_another_channel
 import com.shareyourproxy.R.string.add_channel
 import com.shareyourproxy.api.rx.JustObserver
@@ -48,7 +49,7 @@ private final class AddChannelListActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(common_activity_fragment_container)
-        buildToolbar(toolbar, addChannel, getMenuIcon(this, R.raw.ic_clear))
+        buildToolbar(toolbar, addChannel, getMenuIcon(this, ic_clear))
         if (savedInstanceState == null) {
             val fragment = AddChannelListFragment()
             supportFragmentManager.beginTransaction().replace(activity_fragment_container, fragment).commit()
@@ -75,7 +76,7 @@ private final class AddChannelListActivity : BaseActivity() {
 
 
     private fun showAddGroupChannelDialog(event: AddChannelDialogSuccessEvent) {
-        SaveGroupChannelDialog(event.channel, event.user).show(supportFragmentManager)
+        SaveGroupChannelDialog.show(supportFragmentManager,event.channel, event.user)
     }
 
     private fun ChannelAddedEvent(event: ChannelAddedEvent) {

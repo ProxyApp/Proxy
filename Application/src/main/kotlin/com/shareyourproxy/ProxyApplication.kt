@@ -1,8 +1,7 @@
 package com.shareyourproxy
 
-import android.app.Application
 import android.content.SharedPreferences
-import android.support.multidex.MultiDex
+import android.support.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -23,7 +22,7 @@ import timber.log.Timber
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
-internal final class ProxyApplication : Application() {
+internal final class ProxyApplication : MultiDexApplication() {
     internal var currentUser: User = User()
     internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, MODE_PRIVATE)
 
@@ -33,7 +32,6 @@ internal final class ProxyApplication : Application() {
     }
 
    private fun initialize() {
-        MultiDex.install(this)
         RxAppDataManager(this, sharedPreferences)
         if (USE_LEAK_CANARY) {
             refWatcher = LeakCanary.install(this)
