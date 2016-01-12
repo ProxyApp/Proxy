@@ -16,20 +16,37 @@ import com.shareyourproxy.IntentLauncher.launchShareLinkIntent
 import com.shareyourproxy.ProxyApplication
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback
 import com.shareyourproxy.api.rx.event.OnBackPressedEvent
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 
 /**
  * Base abstraction for all activities to inherit from.
  */
 internal abstract class BaseActivity : AppCompatActivity() {
-    private var subscriptions: CompositeSubscription = CompositeSubscription()
+    /**
+     * Get the common shared preferences used to save a copy of the logged in user.
+     * @return common shared preferences
+     */
+    val sharedPreferences: SharedPreferences
+        get() = (application as ProxyApplication).sharedPreferences
+
+    val sharedPrefJsonUser: User
+        get() {
+            var user: User = User()
+            val jsonUser = sharedPreferences.getString(Constants.KEY_LOGGED_IN_USER, null)
+            val gson = GsonBuilder().create()
+            try {
+                user = gson.fromJson(jsonUser, User::class.java)
+            } catch (e: Exception) {
+                Timber.e(Log.getStackTraceString(e))
+            }
+            return user
+        }
     /**
      * Get currently logged in [User] in this [ProxyApplication].
      * @return logged in user
@@ -80,34 +97,9 @@ internal abstract class BaseActivity : AppCompatActivity() {
         Realm.deleteRealm(config)
     }
 
-    /**
-     * Get the common shared preferences used to save a copy of the logged in user.
-     * @return common shared preferences
-     */
-    val sharedPreferences: SharedPreferences
-        get() = (application as ProxyApplication).sharedPreferences
-
-    val sharedPrefJsonUser: User
-        get() {
-            var user: User = User()
-            val jsonUser = sharedPreferences.getString(Constants.KEY_LOGGED_IN_USER, null)
-            val gson = GsonBuilder().create()
-            try {
-                user = gson.fromJson(jsonUser, User::class.java)
-            } catch (e: Exception) {
-                Timber.e(Log.getStackTraceString(e))
-            }
-            return user
-        }
-
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(onNextEvent(this)))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
+        rxBusObservable().subscribe(onNextEvent(this))
     }
 
     override fun onBackPressed() {

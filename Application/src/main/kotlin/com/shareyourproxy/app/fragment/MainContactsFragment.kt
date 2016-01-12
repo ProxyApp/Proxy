@@ -73,18 +73,12 @@ internal final class MainContactsFragment() : BaseFragment(), ItemClickListener 
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainContactsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is UserSelectedEvent) {
-                onUserSelected(event)
-            } else if (event is LoggedInUserUpdatedEventCallback) {
-                userUpdated(event)
-            } else if (event is SyncContactsCommand) {
-                swipeRefreshLayout.isRefreshing = true
-            } else if (event is SyncContactsSuccessEvent) {
-                swipeRefreshLayout.isRefreshing = false
-            } else if (event is SyncContactsErrorEvent) {
-                swipeRefreshLayout.isRefreshing = false
-            } else if (event is NotificationCardActionEvent) {
-                launchInviteFriendIntent(activity)
+            when(event){
+                is UserSelectedEvent ->  onUserSelected(event)
+                is LoggedInUserUpdatedEventCallback ->  userUpdated(event)
+                is SyncContactsCommand ->swipeRefreshLayout.isRefreshing = true
+                is SyncContactsSuccessEvent,is SyncContactsErrorEvent -> swipeRefreshLayout.isRefreshing = false
+                is NotificationCardActionEvent -> launchInviteFriendIntent(activity)
             }
         }
     }

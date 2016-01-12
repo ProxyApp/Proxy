@@ -116,20 +116,13 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     private val onNextEvent = object : JustObserver<Any>(UserProfileFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is GroupContactsUpdatedEventCallback) {
-                groupContactsUpdatedEvent(event)
-            } else if (event is UserChannelAddedEventCallback) {
-                addUserChannel(event)
-            } else if (event is UserChannelDeletedEventCallback) {
-                deleteUserChannel(event)
-            } else if (event is SyncContactsCommand) {
-                swipeRefreshLayout.isRefreshing = true
-            } else if (event is SyncContactsSuccessEvent) {
-                swipeRefreshLayout.isRefreshing = false
-            } else if (event is SyncContactsErrorEvent) {
-                swipeRefreshLayout.isRefreshing = false
-            } else if (event is SelectUserChannelEvent) {
-                onChannelSelected(event)
+            when (event) {
+                is GroupContactsUpdatedEventCallback -> groupContactsUpdatedEvent(event)
+                is UserChannelAddedEventCallback -> addUserChannel(event)
+                is UserChannelDeletedEventCallback -> deleteUserChannel(event)
+                is SyncContactsCommand -> swipeRefreshLayout.isRefreshing = true
+                is SyncContactsSuccessEvent, is SyncContactsErrorEvent -> swipeRefreshLayout.isRefreshing = false
+                is SelectUserChannelEvent -> onChannelSelected(event)
             }
         }
     }

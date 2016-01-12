@@ -21,6 +21,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter
 import com.shareyourproxy.app.adapter.EditGroupChannelAdapter.Companion.TYPE_LIST_DELETE_FOOTER
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.Enumerations
 import com.shareyourproxy.util.Enumerations.GroupEditType.PUBLIC_GROUP
@@ -35,10 +36,10 @@ internal final class EditGroupChannelsFragment() : BaseFragment(), ItemClickList
      * Check whether this fragment is Adding a group, Editing a group, or a Public group.
      * @return [GroupEditType] constants.
      */
-    private val groupEditType: Enumerations.GroupEditType = activity.intent.extras.getSerializable(ARG_EDIT_GROUP_TYPE) as Enumerations.GroupEditType
+    private val groupEditType: Enumerations.GroupEditType by LazyVal { activity.intent.extras.getSerializable(ARG_EDIT_GROUP_TYPE) as Enumerations.GroupEditType }
     private val recyclerView: BaseRecyclerView by bindView(R.id.fragment_group_edit_channel_recyclerview)
-    private val selectedGroup: Group = activity.intent.extras.getParcelable<Group>(ARG_SELECTED_GROUP)
-    private val adapter: EditGroupChannelAdapter = EditGroupChannelAdapter(recyclerView, this, selectedGroup.label, loggedInUser.channels, selectedGroup.channels, groupEditType)
+    private val selectedGroup: Group by LazyVal { activity.intent.extras.getParcelable<Group>(ARG_SELECTED_GROUP) }
+    private val adapter: EditGroupChannelAdapter by LazyVal { EditGroupChannelAdapter(recyclerView, this, selectedGroup.label, loggedInUser.channels, selectedGroup.channels, groupEditType) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_edit_group_channel, container, false)

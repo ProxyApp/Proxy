@@ -6,8 +6,13 @@ import android.support.design.widget.Snackbar.make
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.shareyourproxy.R
+import com.shareyourproxy.R.id.activity_fragment_container
+import com.shareyourproxy.R.id.activity_toolbar
+import com.shareyourproxy.R.layout.common_activity_fragment_container
+import com.shareyourproxy.R.string.add_another_channel
+import com.shareyourproxy.R.string.add_channel
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
+import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.command.eventcallback.UserChannelAddedEventCallback
 import com.shareyourproxy.api.rx.event.AddChannelDialogSuccessEvent
@@ -25,26 +30,39 @@ import timber.log.Timber
  */
 private final class AddChannelListActivity : BaseActivity() {
 
-    private val analytics by ButterKnife.LazyVal{RxGoogleAnalytics(this) }
-    private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
-    private val addChannel: String by bindString(R.string.add_channel)
-    private val addAnotherChannel: String by bindString(R.string.add_another_channel)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.common_activity_fragment_container)
-        initialize()
-        if (savedInstanceState == null) {
-            val fragment = AddChannelListFragment()
-            supportFragmentManager.beginTransaction().replace(R.id.activity_fragment_container, fragment).commit()
+    private val analytics by ButterKnife.LazyVal { RxGoogleAnalytics(this) }
+    private val toolbar: Toolbar by bindView(activity_toolbar)
+    private val addChannel: String by bindString(add_channel)
+    private val addAnotherChannel: String by bindString(add_another_channel)
+    private val activityObserver = object : JustObserver<Any>(AddChannelListActivity::class.java) {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(event: Any) {
+            when (event) {
+                is UserChannelAddedEventCallback -> channelAdded(event)
+                is AddChannelDialogSuccessEvent -> showAddGroupChannelDialog(event)
+                is ChannelAddedEvent -> ChannelAddedEvent(event)
+            }
         }
     }
 
-    /**
-     * Initialize this view.
-     */
-    private fun initialize() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(common_activity_fragment_container)
         buildToolbar(toolbar, addChannel, getMenuIcon(this, R.raw.ic_clear))
+        if (savedInstanceState == null) {
+            val fragment = AddChannelListFragment()
+            supportFragmentManager.beginTransaction().replace(activity_fragment_container, fragment).commit()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        RxBusRelay.rxBusObservable().subscribe(activityObserver)
+    }
+
+    override fun onBackPressed() {
+        finish()
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -55,42 +73,12 @@ private final class AddChannelListActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        finish()
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom)
-    }
 
-    override fun onResume() {
-        super.onResume()
-        initializeSubscriptions()
-    }
-
-    /**
-     * Create a composite subscription field to handle unsubscribing in onPause.
-     */
-    fun initializeSubscriptions() {
-        rxBusObservable().subscribe(activityObserver)
-    }
-
-    private val activityObserver = object : JustObserver<Any>(AddChannelListActivity::class.java) {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(event: Any) {
-                if (event is UserChannelAddedEventCallback) {
-                    channelAdded(event)
-                } else if (event is AddChannelDialogSuccessEvent) {
-                    showAddGroupChannelDialog(event)
-                } else if (event is ChannelAddedEvent) {
-                    ChannelAddedEvent(event)
-                }
-            }
-        }
-
-
-    fun showAddGroupChannelDialog(event: AddChannelDialogSuccessEvent) {
+    private fun showAddGroupChannelDialog(event: AddChannelDialogSuccessEvent) {
         SaveGroupChannelDialog(event.channel, event.user).show(supportFragmentManager)
     }
 
-    fun ChannelAddedEvent(event: ChannelAddedEvent) {
+    private fun ChannelAddedEvent(event: ChannelAddedEvent) {
         showSnackBar(event)
     }
 
@@ -98,7 +86,7 @@ private final class AddChannelListActivity : BaseActivity() {
         make(toolbar, getString(R.string.blank_added, event.channel.channelType), LENGTH_LONG).show()
     }
 
-    fun channelAdded(event: UserChannelAddedEventCallback) {
+    private fun channelAdded(event: UserChannelAddedEventCallback) {
         if (event.oldChannel == null) {
             analytics.channelAdded(event.newChannel.channelType)
         } else {

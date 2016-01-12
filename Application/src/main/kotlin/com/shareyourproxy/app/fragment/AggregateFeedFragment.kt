@@ -52,12 +52,9 @@ internal final class AggregateFeedFragment() : BaseFragment() {
     private val unselectedColor: Int by bindColor(common_proxy_dark_disabled)
     private val marginSVGLarge: Int by bindDimen(common_rect_small)
     private val contactSearchLayout: ContactSearchLayout by LazyVal { ContactSearchLayout(activity) }
-    private val userDrawable: ContentDescriptionDrawable
-            by LazyVal { svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile)) }
-    private val contactDrawable: ContentDescriptionDrawable
-            by LazyVal { svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts)) }
-    private val groupDrawable: ContentDescriptionDrawable
-            by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups)) }
+    private val userDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile)) }
+    private val contactDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts)) }
+    private val groupDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups)) }
     private val observer: JustObserver<Any> = object : JustObserver<Any>(AggregateFeedFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {

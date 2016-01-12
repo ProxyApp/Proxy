@@ -20,6 +20,6 @@ internal data class GroupToggle(var group: Group, var isChecked: Boolean) : Base
             override fun newArray(size: Int): Array<GroupToggle?> = arrayOfNulls(size)
         }
 
-        private fun readParcel(parcel: Parcel) = GroupToggle(parcel.readParcelable(CL), parcel.readValue(CL) as Boolean)
+        private fun readParcel(parcel: Parcel) = GroupToggle(parcel.readValue(CL) as Group, parcel.readValue(CL) as Boolean)
     }
 }

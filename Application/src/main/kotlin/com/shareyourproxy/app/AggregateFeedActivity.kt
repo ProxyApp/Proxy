@@ -13,6 +13,7 @@ import com.shareyourproxy.api.rx.event.SelectDrawerItemEvent
 import com.shareyourproxy.app.adapter.DrawerAdapter
 import com.shareyourproxy.app.dialog.ShareLinkDialog
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
+import com.shareyourproxy.util.ButterKnife
 import timber.log.Timber
 
 
@@ -20,7 +21,7 @@ import timber.log.Timber
  * The main landing point after loggin in. This is tabbed activity with [Contact]s and [Group]s.
  */
 private final class AggregateFeedActivity : BaseActivity() {
-    private val analytics = RxGoogleAnalytics(this)
+    private val analytics by ButterKnife.LazyVal{ RxGoogleAnalytics(this)}
     private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>(AggregateFeedActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
@@ -38,18 +39,23 @@ private final class AggregateFeedActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        rxBusObservable().subscribe(busObserver)
+    }
+
     /**
      * [SelectDrawerItemEvent]. When a drawer item is selected, call a proper event flow.
      * @param event data
      */
-    fun onDrawerItemSelected(event: SelectDrawerItemEvent) {
+    private fun onDrawerItemSelected(event: SelectDrawerItemEvent) {
         when (event.drawerItem) {
             DrawerAdapter.DrawerItem.PROFILE -> {
                 val user = loggedInUser
                 analytics.userProfileViewed(user)
                 launchUserProfileActivity(this, user, user.id)
             }
-            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog(loggedInUser.groups).show(supportFragmentManager)
+            DrawerAdapter.DrawerItem.SHARE_PROFILE -> ShareLinkDialog.show(supportFragmentManager,loggedInUser.groups)
             DrawerAdapter.DrawerItem.INVITE_FRIEND -> launchInviteFriendIntent(this)
             DrawerAdapter.DrawerItem.TOUR -> launchIntroductionActivity(this)
             DrawerAdapter.DrawerItem.REPORT_ISSUE -> launchEmailIntent(this, getString(R.string.contact_proxy))
@@ -57,10 +63,5 @@ private final class AggregateFeedActivity : BaseActivity() {
             }
             else -> Timber.e("Invalid drawer item")
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        rxBusObservable().subscribe(busObserver)
     }
 }

@@ -6,6 +6,7 @@ import android.app.Fragment
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.support.v4.app.DialogFragment
 import android.support.v4.content.ContextCompat.getColor
 import android.support.v4.content.ContextCompat.getColorStateList
 import android.support.v4.content.res.ResourcesCompat.getDrawable
@@ -24,17 +25,16 @@ internal object ButterKnife {
      * View Bindings
      */
     fun <V : View> View.bindView(id: Int): ReadOnlyProperty<View, V> = required(id, viewFinder)
-
     fun <V : View> Activity.bindView(id: Int): ReadOnlyProperty<Activity, V> = required(id, viewFinder)
     fun <V : View> Dialog.bindView(id: Int): ReadOnlyProperty<Dialog, V> = required(id, viewFinder)
     fun <V : View> Fragment.bindView(id: Int): ReadOnlyProperty<Fragment, V> = required(id, viewFinder)
     fun <V : View> SupportFragment.bindView(id: Int): ReadOnlyProperty<SupportFragment, V> = required(id, viewFinder)
+    fun <V : View> DialogFragment.bindView(id: Int): ReadOnlyProperty<DialogFragment, V> = required(id, viewFinder)
     fun <V : View> ViewHolder.bindView(id: Int): ReadOnlyProperty<ViewHolder, V> = required(id, viewFinder)
     /**
      * View Bindings Optional
      */
     fun <V : View> View.bindOptionalView(id: Int): ReadOnlyProperty<View, V?> = optional(id, viewFinder)
-
     fun <V : View> Activity.bindOptionalView(id: Int): ReadOnlyProperty<Activity, V?> = optional(id, viewFinder)
     fun <V : View> Dialog.bindOptionalView(id: Int): ReadOnlyProperty<Dialog, V?> = optional(id, viewFinder)
     fun <V : View> Fragment.bindOptionalView(id: Int): ReadOnlyProperty<Fragment, V?> = optional(id, viewFinder)
@@ -54,7 +54,6 @@ internal object ButterKnife {
      * Multiple View Bindings Optional
      */
     fun <V : View> View.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = optional(ids, viewFinder)
-
     fun <V : View> Activity.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = optional(ids, viewFinder)
     fun <V : View> Dialog.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = optional(ids, viewFinder)
     fun <V : View> Fragment.bindOptionalViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = optional(ids, viewFinder)
@@ -68,6 +67,7 @@ internal object ButterKnife {
     private val Dialog.viewFinder: Dialog.(Int) -> View? get() = { findViewById(it) }
     private val Fragment.viewFinder: Fragment.(Int) -> View? get() = { view.findViewById(it) }
     private val SupportFragment.viewFinder: SupportFragment.(Int) -> View? get() = { view.findViewById(it) }
+    private val DialogFragment.viewFinder: DialogFragment.(Int) -> View? get() = { dialog.findViewById(it) }
     private val ViewHolder.viewFinder: ViewHolder.(Int) -> View? get() = { itemView.findViewById(it) }
     /**
      * Dimen Bindings

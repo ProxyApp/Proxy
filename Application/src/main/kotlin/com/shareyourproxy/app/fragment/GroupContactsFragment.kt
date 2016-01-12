@@ -25,8 +25,8 @@ import com.shareyourproxy.R.style.Proxy_TextAppearance_Body
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Body2
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxQuery.queryUserContacts
 import com.shareyourproxy.api.rx.command.eventcallback.GroupChannelsUpdatedEventCallback
 import com.shareyourproxy.api.rx.event.RecyclerViewDatasetChangedEvent
@@ -35,13 +35,13 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.GroupContactsAdapter
 import com.shareyourproxy.app.adapter.UserContactsAdapter.UserViewHolder
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.StringUtils.capitalize
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import rx.subscriptions.CompositeSubscription
 
 /**
  * Display the [User] contacts added to the selected [Group].
@@ -51,7 +51,7 @@ internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener
      * Get the group selected and bundled in this activities [IntentLauncher.launchEditGroupContactsActivity] call.
      * @return selected group
      */
-    private val groupArg: Group = activity.intent.extras.getParcelable<Parcelable>(ARG_SELECTED_GROUP) as Group
+    private val groupArg: Group by LazyVal { activity.intent.extras.getParcelable<Parcelable>(ARG_SELECTED_GROUP) as Group }
     private val toolbar: Toolbar by bindView(fragment_contacts_group_toolbar)
     private val recyclerView: BaseRecyclerView by bindView(fragment_contacts_group_recyclerview)
     private val emptyTextView: TextView by bindView(fragment_contacts_group_empty_textview)
@@ -59,18 +59,15 @@ internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener
     private val emptyTextMessage: String by bindString(fragment_contact_group_empty_message)
     private val marginNullScreen: Int by bindDimen(common_svg_null_screen_small)
     private val colorWhite: Int by bindColor(white)
-    private val adapter: GroupContactsAdapter =GroupContactsAdapter(recyclerView, this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val fishDrawable: Drawable = svgToBitmapDrawable(activity, ic_fish, marginNullScreen)
+    private val adapter: GroupContactsAdapter by LazyVal { GroupContactsAdapter(recyclerView, this) }
+    private val fishDrawable: Drawable by LazyVal { svgToBitmapDrawable(activity, ic_fish, marginNullScreen) }
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>(GroupContactsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is UserSelectedEvent) {
-                onUserSelected(event)
-            } else if (event is GroupChannelsUpdatedEventCallback) {
-                channelsUpdated(event)
-            } else if (event is RecyclerViewDatasetChangedEvent) {
-                recyclerView.updateViewState(event)
+            when (event) {
+                is UserSelectedEvent -> onUserSelected(event)
+                is GroupChannelsUpdatedEventCallback -> channelsUpdated(event)
+                is RecyclerViewDatasetChangedEvent -> recyclerView.updateViewState(event)
             }
         }
     }
@@ -86,13 +83,8 @@ internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(busObserver))
+        rxBusObservable().subscribe(busObserver)
         adapter.refreshData(queryUserContacts(activity, groupArg.contacts).values)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
     }
 
     override fun onItemClick(view: View, position: Int) {

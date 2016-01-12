@@ -24,8 +24,8 @@ import com.shareyourproxy.R.string.retrofit_general_error
 import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.JustObserver
-import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxBusRelay.post
+import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
 import com.shareyourproxy.api.rx.RxHelper.observeIO
 import com.shareyourproxy.api.rx.RxHelper.observeMain
@@ -35,10 +35,10 @@ import com.shareyourproxy.api.rx.command.SyncContactsCommand
 import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.util.*
 
@@ -47,11 +47,10 @@ import java.util.*
  * Log in with a google plus account.
  */
 private final class LoginActivity : GoogleApiActivity() {
-    private val analytics = RxGoogleAnalytics(this)
+    private val analytics by LazyVal { RxGoogleAnalytics(this) }
     private val proxyLogo: TextView by bindView(activity_login_title)
     private val signInButton: SignInButton by bindView(activity_login_sign_in_button)
     private val svgUltraMinor: Int  by bindDimen(common_svg_ultra_minor)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
     private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>(LoginActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
@@ -77,12 +76,7 @@ private final class LoginActivity : GoogleApiActivity() {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(RxBusRelay.rxBusObservable().subscribe(rxBusObserver))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.unsubscribe()
+        rxBusObservable().subscribe(rxBusObserver)
     }
 
     override fun onGooglePlusSignIn(acct: GoogleSignInAccount?) {

@@ -66,28 +66,22 @@ internal final class MainGroupFragment() : BaseFragment(), ItemClickListener {
         post(SyncContactsCommand(loggedInUser))
     }
     private val showHeader by LazyVal { !sharedPreferences.getBoolean(MAIN_GROUPS.key, false) }
-    private val adapter: GroupAdapter by LazyVal{ GroupAdapter(recyclerView, sharedPreferences, showHeader, this) }
+    private val adapter: GroupAdapter by LazyVal { GroupAdapter(recyclerView, sharedPreferences, showHeader, this) }
     /**
      * Prompt user with a [EditGroupChannelsFragment] to add a new [Group].
      */
-    private val onClickFab :View.OnClickListener = View.OnClickListener {
-        launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(),ADD_GROUP)
+    private val onClickFab: View.OnClickListener = View.OnClickListener {
+        launchEditGroupChannelsActivity(activity, GroupFactory.createBlankGroup(), ADD_GROUP)
     }
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>(MainGroupFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is UserGroupAddedEventCallback) {
-                addGroups(event)
-            } else if (event is GroupChannelsUpdatedEventCallback) {
-                updateGroup(event)
-            } else if (event is LoggedInUserUpdatedEventCallback) {
-                updateGroups(event.user.groups)
-            } else if (event is SyncContactsCommand) {
-                swipeRefreshLayout.isRefreshing = true
-            } else if (event is SyncContactsSuccessEvent) {
-                swipeRefreshLayout.isRefreshing = false
-            } else if (event is SyncContactsErrorEvent) {
-                swipeRefreshLayout.isRefreshing = false
+            when (event) {
+                is UserGroupAddedEventCallback -> addGroups(event)
+                is GroupChannelsUpdatedEventCallback -> updateGroup(event)
+                is LoggedInUserUpdatedEventCallback -> updateGroups(event.user.groups)
+                is SyncContactsCommand -> swipeRefreshLayout.isRefreshing = true
+                is SyncContactsSuccessEvent, is SyncContactsErrorEvent -> swipeRefreshLayout.isRefreshing = false
             }
         }
     }

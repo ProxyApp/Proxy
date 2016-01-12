@@ -38,6 +38,4 @@ internal final class GenerateShareLinkCommand(val user: User, val groups: ArrayL
             }
         }
     }
-
-
 }

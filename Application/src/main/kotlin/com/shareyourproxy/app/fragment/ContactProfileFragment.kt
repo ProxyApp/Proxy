@@ -1,12 +1,19 @@
 package com.shareyourproxy.app.fragment
 
+import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.view.View.VISIBLE
 import android.widget.Button
 import com.shareyourproxy.Constants
-import com.shareyourproxy.R
+import com.shareyourproxy.R.dimen.fragment_userprofile_header_contact_background_size
+import com.shareyourproxy.R.drawable.selector_button_blue
+import com.shareyourproxy.R.drawable.selector_button_grey
+import com.shareyourproxy.R.id.fragment_user_profile_header_button
 import com.shareyourproxy.R.id.fragment_user_profile_toolbar
+import com.shareyourproxy.R.raw.ic_groups
+import com.shareyourproxy.R.string.add_to_group
+import com.shareyourproxy.R.string.in_blank_groups
 import com.shareyourproxy.api.domain.model.Group
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
@@ -18,22 +25,25 @@ import com.shareyourproxy.app.dialog.UserGroupsDialog
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.getMenuIcon
-import rx.subscriptions.CompositeSubscription
 import java.util.*
 
 /**
  * Display a contacts profile and channels.
  */
-internal final class ContactProfileFragment(contact: User, loggedInUserId: String) : UserProfileFragment() {
-
-    init {
-        arguments.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, contact)
-        arguments.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)
+internal final class ContactProfileFragment private constructor(user: User, loggedInUserId: String) : UserProfileFragment() {
+    companion object {
+        fun create(user: User, loggedInUserId: String): ContactProfileFragment {
+            val fragment = ContactProfileFragment(user, loggedInUserId)
+            val args: Bundle = Bundle()
+            args.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, user)
+            args.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val groupButton: Button by bindView(R.id.fragment_user_profile_header_button)
-    private val marginContactHeight: Int by bindDimen(R.dimen.fragment_userprofile_header_contact_background_size)
+    private val groupButton: Button by bindView(fragment_user_profile_header_button)
+    private val marginContactHeight: Int by bindDimen(fragment_userprofile_header_contact_background_size)
     private val toggleGroups = ArrayList<GroupToggle>()
     private val toolbar: Toolbar by bindView(fragment_user_profile_toolbar)
     private val onClickGroup: View.OnClickListener = View.OnClickListener {
@@ -47,6 +57,18 @@ internal final class ContactProfileFragment(contact: User, loggedInUserId: Strin
             }
         }
     }
+    private val groupEditContacts: List<Group> get() {
+        toggleGroups.clear()
+        val list = queryContactGroups(loggedInUser, contact)
+        toggleGroups.addAll(list)
+        val selectedGroupsList = ArrayList<Group>(list.size)
+        list.forEach {
+            if (it.isChecked) {
+                selectedGroupsList.add(it.group)
+            }
+        }
+        return selectedGroupsList
+    }
 
     override fun onCreateView(rootView: View) {
         super.onCreateView(rootView)
@@ -55,12 +77,7 @@ internal final class ContactProfileFragment(contact: User, loggedInUserId: Strin
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
-    }
-
-    override fun onPause() {
-        super.onPause()
-        subscriptions.clear()
+        rxBusObservable().subscribe(onNextEvent)
     }
 
     /**
@@ -90,46 +107,30 @@ internal final class ContactProfileFragment(contact: User, loggedInUserId: Strin
     private fun initializeGroupButton() {
         groupButton.visibility = VISIBLE
         groupButton.setOnClickListener(onClickGroup)
-        groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(getMenuIcon(activity, R.raw.ic_groups), null, null, null)
+        groupButton.setCompoundDrawablesRelativeWithIntrinsicBounds(getMenuIcon(activity, ic_groups), null, null, null)
         updateGroupButtonText(groupEditContacts)
     }
 
-
-    private val groupEditContacts: List<Group> get() {
-        toggleGroups.clear()
-        val list = queryContactGroups(loggedInUser, contact)
-        toggleGroups.addAll(list)
-        val selectedGroupsList = ArrayList<Group>(list.size)
-        list.forEach {
-            if (it.isChecked) {
-                selectedGroupsList.add(it.group)
-            }
-        }
-        return selectedGroupsList
+    private fun groupContactsUpdatedEvent(event: GroupContactsUpdatedEventCallback) {
+        updateGroupButtonText(event.contactGroups)
     }
 
     @SuppressWarnings("unchecked")
     private fun updateGroupButtonText(list: List<Group>?) {
         if (list != null) {
-            val groupSize = list.size
-            if (groupSize == 0) {
-                groupButton.setText(R.string.add_to_group)
-                groupButton.setBackgroundResource(R.drawable.selector_button_blue)
-            } else if (groupSize == 1) {
-                groupButton.text = list[0].label
-                groupButton.setBackgroundResource(R.drawable.selector_button_grey)
-            } else if (groupSize > 1) {
-                groupButton.text = getString(R.string.in_blank_groups, groupSize)
-                groupButton.setBackgroundResource(R.drawable.selector_button_grey)
+            when (list.size) {
+                0 -> updateGroupButtonText(getString(add_to_group), selector_button_blue)
+                1 -> updateGroupButtonText(list[0].label, selector_button_grey)
+                else -> updateGroupButtonText(getString(in_blank_groups, list.size), selector_button_grey)
             }
         } else {
-            groupButton.setText(R.string.add_to_group)
-            groupButton.setBackgroundResource(R.drawable.selector_button_blue)
+            updateGroupButtonText(getString(add_to_group), selector_button_blue)
         }
     }
 
-    private fun groupContactsUpdatedEvent(event: GroupContactsUpdatedEventCallback) {
-        updateGroupButtonText(event.contactGroups)
+    private fun updateGroupButtonText(label: String, res: Int) {
+        groupButton.text = label
+        groupButton.setBackgroundResource(res)
     }
 
 }

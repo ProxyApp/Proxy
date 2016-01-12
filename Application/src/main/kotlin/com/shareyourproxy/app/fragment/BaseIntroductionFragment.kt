@@ -8,8 +8,8 @@ import android.text.style.LineHeightSpan
 import android.text.style.TextAppearanceSpan
 import android.widget.ImageView
 import android.widget.TextView
-import com.shareyourproxy.R
 import com.shareyourproxy.R.style.Proxy_TextAppearance_Headline_Inverse
+import com.shareyourproxy.R.style.Proxy_TextAppearance_Subhead_Inverse
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 
 /**
@@ -29,7 +29,7 @@ internal open class BaseIntroductionFragment() : BaseFragment() {
             //Title headline spacing
             sb.setSpan(lineHeightSpan, 0, introTitle.length, SPAN_INCLUSIVE_INCLUSIVE)
             //Body subhead text appearance
-            sb.setSpan(TextAppearanceSpan(context, R.style.Proxy_TextAppearance_Subhead_Inverse), introTitle.length, sb.length, SPAN_EXCLUSIVE_INCLUSIVE)
+            sb.setSpan(TextAppearanceSpan(context, Proxy_TextAppearance_Subhead_Inverse), introTitle.length, sb.length, SPAN_EXCLUSIVE_INCLUSIVE)
             textView.text = sb
         }
 

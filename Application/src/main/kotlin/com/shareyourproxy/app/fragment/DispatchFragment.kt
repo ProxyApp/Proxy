@@ -1,5 +1,6 @@
 package com.shareyourproxy.app.fragment
 
+import android.R.color.white
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff.Mode.SRC_ATOP
 import android.os.Bundle
@@ -10,9 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import com.shareyourproxy.R
+import com.shareyourproxy.R.dimen.common_svg_ultra
 import com.shareyourproxy.R.id.fragment_dispatch_image
 import com.shareyourproxy.R.id.fragment_dispatch_progress
+import com.shareyourproxy.R.layout.fragment_dispatch
 import com.shareyourproxy.R.raw.ic_doge_channels
 import com.shareyourproxy.util.ButterKnife.bindColorStateList
 import com.shareyourproxy.util.ButterKnife.bindDimen
@@ -25,11 +27,11 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 internal final class DispatchFragment() : BaseFragment() {
     private val textView: TextView by bindView(fragment_dispatch_image)
     private val progressBar: ProgressBar by bindView(fragment_dispatch_progress)
-    private val colorWhite: ColorStateList  by bindColorStateList(android.R.color.white)
-    private val logoSize: Int by bindDimen(R.dimen.common_svg_ultra)
+    private val colorWhite: ColorStateList  by bindColorStateList(white)
+    private val logoSize: Int by bindDimen(common_svg_ultra)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_dispatch, container, false)
+        return inflater.inflate(fragment_dispatch, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

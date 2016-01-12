@@ -1,6 +1,5 @@
 package com.shareyourproxy.app.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
@@ -19,7 +18,6 @@ internal final class AboutFragment() : BaseFragment() {
     private val toolbar: Toolbar by bindView(R.id.fragment_about_toolbar)
     private val title: String by bindString(about)
 
-    @SuppressLint("InflateParams")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(fragment_about, null, false);
     }

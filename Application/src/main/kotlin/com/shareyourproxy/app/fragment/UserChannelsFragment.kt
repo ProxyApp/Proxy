@@ -84,15 +84,18 @@ internal final class UserChannelsFragment private constructor(contact: User) : B
     private val onNextEvent = object : JustObserver<Any>(UserChannelsFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is UserChannelAddedEventCallback) {
-                addUserChannel(event)
-            } else if (event is UserChannelDeletedEventCallback) {
-                deleteUserChannel(event)
-            } else if (event is SyncContactsSuccessEvent) {
-                if (isLoggedInUser) {
-                    syncUsersContacts()
-                }
+            when(event){
+                is UserChannelAddedEventCallback -> addUserChannel(event)
+                is UserChannelDeletedEventCallback -> deleteUserChannel(event)
+                is SyncContactsSuccessEvent -> if (isLoggedInUser) { syncUsersContacts() }
             }
+        }
+    }
+
+    private val permissionedObserver = object : JustObserver<HashMap<String, Channel>>(UserChannelsFragment::class.java) {
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun next(channels: HashMap<String, Channel>) {
+            adapter.updateChannels(channels)
         }
     }
 
@@ -187,17 +190,7 @@ internal final class UserChannelsFragment private constructor(contact: User) : B
 
     private fun getSharedChannels() {
         queryPermissionedChannels(userContact, loggedInUser.id)
-                .subscribe(permissionedObserver())
-    }
-
-    private fun permissionedObserver(): JustObserver<HashMap<String, Channel>> {
-        return object : JustObserver<HashMap<String, Channel>>(UserChannelsFragment::class.java) {
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-            override fun next(channels: HashMap<String, Channel>) {
-                adapter.updateChannels(channels)
-            }
-
-        }
+                .subscribe(permissionedObserver)
     }
 
     private fun syncUsersContacts() {

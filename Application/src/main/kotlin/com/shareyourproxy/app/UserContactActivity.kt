@@ -8,13 +8,14 @@ import com.shareyourproxy.IntentLauncher.launchMainActivity
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.app.fragment.AggregateFeedFragment
 import com.shareyourproxy.app.fragment.ContactProfileFragment
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import timber.log.Timber
 
 /**
  * Activity that handles displaying a [User] profile.
  */
 internal final class UserContactActivity : BaseActivity() {
-    private val userExtra: User get() = intent.extras.getParcelable<User>(ARG_USER_SELECTED_PROFILE)
+    private val userExtra: User by LazyVal { intent.extras.getParcelable<User>(ARG_USER_SELECTED_PROFILE) }
 
     override fun onBackPressed() {
         super.onBackPressed()

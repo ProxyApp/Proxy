@@ -43,6 +43,7 @@ import com.shareyourproxy.app.adapter.BaseRecyclerView
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemClickListener
 import com.shareyourproxy.app.adapter.SearchUserAdapter
 import com.shareyourproxy.app.adapter.SearchUserAdapter.UserViewHolder
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindColorStateList
 import com.shareyourproxy.util.ButterKnife.bindDimen
@@ -55,7 +56,6 @@ import com.shareyourproxy.util.ViewUtils.showSoftwareKeyboard
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.widget.CustomEditText
 import rx.Observer
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.util.*
 
@@ -77,11 +77,10 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
     private val dimenSvgLarge: Int by bindDimen(common_svg_large)
     private val colorGray: Int by bindColor(common_gray)
     private val colorBlue: ColorStateList by bindColorStateList(common_blue)
-    private val adapter: SearchUserAdapter = SearchUserAdapter(recyclerView, this)
-    private val subscriptions: CompositeSubscription = CompositeSubscription()
-    private val sexBotDrawable: Drawable = svgToBitmapDrawable(activity, R.raw.ic_sexbot, sexBotSize)
-    private val backArrowDrawable: Drawable = svgToBitmapDrawable(activity, R.raw.ic_arrow_back, dimenSvgLarge, colorGray)
-    private val clearSearchDrawable: Drawable = svgToBitmapDrawable(activity, R.raw.ic_clear, dimenSvgLarge, colorGray)
+    private val adapter: SearchUserAdapter by LazyVal { SearchUserAdapter(recyclerView, this) }
+    private val sexBotDrawable: Drawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_sexbot, sexBotSize) }
+    private val backArrowDrawable: Drawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_arrow_back, dimenSvgLarge, colorGray) }
+    private val clearSearchDrawable: Drawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_clear, dimenSvgLarge, colorGray) }
     /**
      * Observe the next event.
      * @return next event observer
@@ -208,8 +207,8 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        subscriptions.add(rxBusObservable().subscribe(onNextEvent))
-        subscriptions.add(textWatcherObserverable().compose(observeMain<String>()).subscribe(getUsersObserver))
+        rxBusObservable().subscribe(onNextEvent)
+        textWatcherObserverable().compose(observeMain<String>()).subscribe(getUsersObserver)
         //search entered text
         post(editText.text.toString().trim { it <= ' ' })
         showSoftwareKeyboard(editText)
@@ -218,7 +217,6 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
     override fun onPause() {
         super.onPause()
         hideSoftwareKeyboard(view)
-        subscriptions.unsubscribe()
     }
 
     override fun onItemClick(view: View, position: Int) {

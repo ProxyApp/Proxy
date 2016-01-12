@@ -20,13 +20,12 @@ import com.shareyourproxy.app.fragment.DispatchFragment
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
 private final class DispatchActivity : GoogleApiActivity() {
-    private val rxBusObserver: JustObserver<Any> get() = object : JustObserver<Any>(DispatchActivity::class.java) {
+    private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>(DispatchActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
-            if (event is SyncContactsSuccessEvent) {
-                goToUserFeedActivity()
-            } else if (event is SyncContactsErrorEvent) {
-                goToLoginActivity()
+            when (event) {
+                is SyncContactsSuccessEvent -> goToUserFeedActivity()
+                is SyncContactsErrorEvent -> goToLoginActivity()
             }
         }
     }
