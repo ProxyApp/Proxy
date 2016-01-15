@@ -7,14 +7,6 @@ apply plugin: 'findbugs'
 apply plugin: 'maven'
 apply plugin: 'io.fabric'
 
-ext {
-    kotlinVersion = "1.0.0-beta-4584"
-    retrofitVersion = "2.0.0-beta3"
-    okHTTPVersion = "3.0.0-RC1"
-    playServicesVersion = "8.4.0"
-    supportLibVersion = "23.1.1"
-    realmVersion = "0.87.1"
-}
 def Properties properties = new Properties()
 def localProps = project.rootProject.file('local.properties')
 def lintConfigFile = project.rootProject.file('lint.xml')
@@ -22,32 +14,14 @@ if (localProps.exists()) {
     properties.load(localProps.newDataInputStream())
 }
 def env = System.getenv()
-def env_twitter_key = env["TWITTER_KEY"]
-def twitter_key = properties.getProperty('TWITTER_KEY', env_twitter_key)
-def env_twitter_secret = env["TWITTER_SECRET"]
-def twitter_secret = properties.getProperty('TWITTER_SECRET', env_twitter_secret)
 def env_google_tracker = env["GA_TRACKER_ID"]
 def env_firebase_endpoint = env["FIREBASE_ENDPOINT"]
-def env_instagram_app_id = env["INSTAGRAM_APP_ID"]
-def env_instagram_app_secret = env["INSTAGRAM_APP_SECRET"]
-def env_webview_redirect = env["WEBVIEW_REDIRECT"]
-def env_spotify_client_id = env["SPOTIFY_CLIENT_ID"]
-def env_spotify_client_secret = env["SPOTIFY_CLIENT_SECRET"]
 def env_google_api_key = env["GOOGLE_API_KEY"]
-def env_google_debug_client_id = env["GOOGLE_DEBUG_CLIENT_ID"]
-def env_google_prod_client_id = env["GOOGLE_PROD_CLIENT_ID"]
 def env_google_web_client_id = env["GOOGLE_WEB_CLIENT_ID"]
 def google_api_key = properties.getProperty('GOOGLE_API_KEY', env_google_api_key)
-def google_debug_client_id = properties.getProperty('GOOGLE_DEBUG_CLIENT_ID', env_google_debug_client_id)
-def google_prod_client_id = properties.getProperty('GOOGLE_PROD_CLIENT_ID', env_google_prod_client_id)
 def google_web_client_id = properties.getProperty('GOOGLE_WEB_CLIENT_ID', env_google_web_client_id)
 def tracker_id = properties.getProperty('GA_TRACKER_ID', env_google_tracker)
 def firebase_endpoint = properties.getProperty('FIREBASE_ENDPOINT', env_firebase_endpoint)
-def instagram_app_id = properties.getProperty('INSTAGRAM_APP_ID', env_instagram_app_id)
-def instagram_app_secret = properties.getProperty('INSTAGRAM_APP_SECRET', env_instagram_app_secret)
-def webview_redirect = properties.getProperty('WEBVIEW_REDIRECT', env_webview_redirect)
-def spotify_client_id = properties.getProperty('SPOTIFY_CLIENT_ID', env_spotify_client_id)
-def spotify_client_secret = properties.getProperty('SPOTIFY_CLIENT_SECRET', env_spotify_client_secret)
 
 android {
     compileSdkVersion 23
@@ -135,13 +109,6 @@ android {
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "false"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
             buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
-            buildConfigField "String", "TWITTER_KEY", twitter_key
-            buildConfigField "String", "TWITTER_SECRET", twitter_secret
-            buildConfigField "String", "INSTAGRAM_APP_ID", instagram_app_id
-            buildConfigField "String", "WEBVIEW_REDIRECT", webview_redirect
-            buildConfigField "String", "INSTAGRAM_APP_SECRET", instagram_app_secret
-            buildConfigField "String", "SPOTIFY_CLIENT_ID", spotify_client_id
-            buildConfigField "String", "SPOTIFY_CLIENT_SECRET", spotify_client_secret
             buildConfigField "boolean", "USE_LEAK_CANARY", "false"
             buildConfigField "String", "GOOGLE_API_KEY", google_api_key
             buildConfigField "String", "GOOGLE_CLIENT_ID", google_web_client_id
@@ -155,24 +122,15 @@ android {
             buildConfigField "boolean", "USE_GOOGLE_ANALYTICS", "true"
             buildConfigField "String", "GA_TRACKER_ID", tracker_id
             buildConfigField "String", "FIREBASE_ENDPOINT", firebase_endpoint
-            buildConfigField "String", "TWITTER_KEY", twitter_key
-            buildConfigField "String", "TWITTER_SECRET", twitter_secret
-            buildConfigField "String", "INSTAGRAM_APP_ID", instagram_app_id
-            buildConfigField "String", "WEBVIEW_REDIRECT", webview_redirect
-            buildConfigField "String", "INSTAGRAM_APP_SECRET", instagram_app_secret
-            buildConfigField "String", "SPOTIFY_CLIENT_ID", spotify_client_id
-            buildConfigField "String", "SPOTIFY_CLIENT_SECRET", spotify_client_secret
             buildConfigField "boolean", "USE_LEAK_CANARY", "false"
             buildConfigField "String", "GOOGLE_API_KEY", google_api_key
-            buildConfigField "String", "GOOGLE_CLIENT_ID", google_prod_client_id
+            buildConfigField "String", "GOOGLE_CLIENT_ID", google_web_client_id
 
             signingConfig signingConfigs.release
         }
     }
     lintOptions {
         disable 'InvalidPackage'
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
         abortOnError false
         lintConfig = lintConfigFile
     }
@@ -212,6 +170,33 @@ afterEvaluate {
 //    gradleVersion = '2.9'
 //    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 //}
+ext {
+    //Google
+    playServicesVersion = "8.4.0"
+    supportLibVersion = "23.1.1"
+    multiDexVersion = "1.0.1"
+    //kotlin
+    kotlinVersion = "1.0.0-beta-4584"
+    //Rx
+    rxKotlinVersion = "0.30.1"
+    rxAndroidVersion = "1.1.0"
+    rxRelayVersion = "1.0.0"
+    //HTTP
+    retrofitVersion = "2.0.0-beta3"
+    okHTTPVersion = "3.0.0"
+    //UI
+    pagerIndicatorVersion = "2.4.1@aar"
+    layoutManagerVersion = "0.5@aar"
+    //Realm
+    realmVersion = "0.87.1"
+    //Images
+    androidSVGVersion = "1.2.2-beta-1"
+    frescoVersion = "0.8.1"
+    //Diagnostic
+    leakCanaryVersion = "1.3.1"
+    timberVersion = "4.1.0"
+    crashlyticsVersion = "2.5.1@aar"
+}
 
 dependencies {
     //Local
@@ -219,10 +204,7 @@ dependencies {
     //JetBrains
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
     //Google
-    compile "com.google.android.gms:play-services-plus:${playServicesVersion}"
-    compile "com.google.android.gms:play-services-base:${playServicesVersion}"
     compile "com.google.android.gms:play-services-analytics:${playServicesVersion}"
-    compile "com.google.android.gms:play-services-identity:${playServicesVersion}"
     compile "com.google.android.gms:play-services-auth:${playServicesVersion}"
     apply plugin: 'com.google.gms.google-services'
     //Android
@@ -232,11 +214,11 @@ dependencies {
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
-    compile 'com.android.support:multidex:1.0.1'
+    compile "com.android.support:multidex:${multiDexVersion}"
     //Jake
-    compile 'fr.avianey.com.viewpagerindicator:library:2.4.1@aar'
-    compile 'com.jakewharton.timber:timber:4.1.0'
-    compile 'com.jakewharton.rxrelay:rxrelay:1.0.0'
+    compile "fr.avianey.com.viewpagerindicator:library:${pagerIndicatorVersion}"
+    compile "com.jakewharton.timber:timber:${timberVersion}"
+    compile "com.jakewharton.rxrelay:rxrelay:${rxRelayVersion}"
     //Square
     compile "com.squareup.retrofit2:retrofit:${retrofitVersion}"
     compile "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"
@@ -244,24 +226,24 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit-adapters:${retrofitVersion}"
     compile "com.squareup.okhttp3:okhttp:${okHTTPVersion}"
     compile "com.squareup.okhttp3:logging-interceptor:${okHTTPVersion}"
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    debugCompile "com.squareup.leakcanary:leakcanary-android:${leakCanaryVersion}"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:${leakCanaryVersion}"
     //Facebook
-    compile 'com.facebook.fresco:fresco:0.8.1'
-    compile 'com.facebook.fresco:imagepipeline-okhttp:0.8.1'
+    compile "com.facebook.fresco:fresco:${frescoVersion}"
+    compile "com.facebook.fresco:imagepipeline-okhttp:${frescoVersion}"
     //ReactiveX
-    compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'io.reactivex:rxkotlin:0.30.1'
+    compile "io.reactivex:rxandroid:${rxAndroidVersion}"
+    compile "io.reactivex:rxkotlin:${rxKotlinVersion}"
     //Realm
     compile "io.realm:realm-android:${realmVersion}"
     kapt "io.realm:realm-annotations:${realmVersion}"
     kapt "io.realm:realm-annotations-processor:${realmVersion}"
     //SVG Compat
-    compile 'com.caverock:androidsvg:1.2.2-beta-1'
+    compile "com.caverock:androidsvg:${androidSVGVersion}"
     //Third party
-    compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
+    compile "org.solovyev.android.views:linear-layout-manager:${layoutManagerVersion}"
     //Bug Tracking
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
+    compile("com.crashlytics.sdk.android:crashlytics:${crashlyticsVersion}") {
         transitive = true;
     }
 }
