@@ -86,7 +86,7 @@ internal final class AddAuthChannelDialog private constructor(channel: Channel) 
                 .setNegativeButton(cancel, negativeClicked)
                 .setNeutralButton(common_help, helpClicked)
                 .create()
-
+        dialog.setOnShowListener(onShowListener)
         // Show the SW Keyboard on dialog start. Always.
         dialog.window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         dialog.window.attributes.width = MATCH_PARENT
@@ -94,8 +94,8 @@ internal final class AddAuthChannelDialog private constructor(channel: Channel) 
         return dialog
     }
 
-    override fun onStart() {
-        super.onStart()
+
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         // Setup Button Colors
         setButtonTint(dialog.getButton(BUTTON_POSITIVE), colorBlue)

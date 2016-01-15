@@ -6,15 +6,10 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.Scopes.EMAIL
-import com.google.android.gms.common.Scopes.PLUS_ME
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
-import com.google.android.gms.common.api.Scope
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.plus.Plus
-import com.google.android.gms.plus.Plus.*
 import com.shareyourproxy.BuildConfig
 import com.shareyourproxy.BuildConfig.VERSION_CODE
 import com.shareyourproxy.Constants.KEY_GOOGLE_PLUS_AUTH
@@ -143,18 +138,6 @@ internal abstract class GoogleApiActivity : BaseActivity(), ConnectionCallbacks,
                     .enableAutoManage(activity, activity)
                     .addApi(Auth.GOOGLE_SIGN_IN_API, OPTIONS)
                     .build()
-        }
-
-        private fun buildOldGoogleApiClient(activity: GoogleApiActivity): GoogleApiClient {
-            return GoogleApiClient.Builder(activity)
-                    .addConnectionCallbacks(activity)
-                    .addOnConnectionFailedListener(activity)
-                    .addApi(API, Plus.PlusOptions.builder().build())
-                    .addScope(SCOPE_PLUS_LOGIN)
-                    .addScope(Scope(PLUS_ME))
-                    .addScope(Scope(EMAIL))
-                    .addScope(SCOPE_PLUS_PROFILE)
-                    .build();
         }
     }
 }

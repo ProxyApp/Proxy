@@ -17,7 +17,7 @@ import rx.functions.Func1
  * Sync newChannel operations.
  */
 internal object RxUserChannelSync {
-    fun saveUserChannel(context: Context, oldUser: User, oldChannel: Channel?, newChannel: Channel): UserChannelAddedEventCallback {
+    fun saveUserChannel(context: Context, oldUser: User, oldChannel: Channel, newChannel: Channel): UserChannelAddedEventCallback {
         return Observable.just(oldUser)
                 .map(putUserChannel(newChannel))
                 .map(addRealmUser(context))
@@ -64,8 +64,7 @@ internal object RxUserChannelSync {
         }
     }
 
-    private fun userChannelAddedEventCallback(
-            oldChannel: Channel?, newChannel: Channel): Func1<User, UserChannelAddedEventCallback> {
+    private fun userChannelAddedEventCallback(oldChannel: Channel, newChannel: Channel): Func1<User, UserChannelAddedEventCallback> {
         return Func1 { user -> UserChannelAddedEventCallback(user, oldChannel, newChannel) }
     }
 

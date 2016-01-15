@@ -86,10 +86,9 @@ internal final class AddChannelDialog private constructor(channelType: ChannelTy
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {
         super.onCreateDialog(savedInstanceState)
-        val view = activity.layoutInflater.inflate(dialog_add_channel, null, false)
         initializeDisplayValues()
 
-        editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
+        val view = activity.layoutInflater.inflate(dialog_add_channel, null, false)
         val dialog = AlertDialog.Builder(activity, Widget_Proxy_App_Dialog)
                 .setTitle(dialogTitle)
                 .setView(view)
@@ -97,6 +96,7 @@ internal final class AddChannelDialog private constructor(channelType: ChannelTy
                 .setNegativeButton(cancel, negativeClicked)
                 .create()
 
+        dialog.setOnShowListener(onShowListener)
         // Show the SW Keyboard on dialog start. Always.
         dialog.window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         dialog.window.attributes.width = MATCH_PARENT
@@ -104,8 +104,7 @@ internal final class AddChannelDialog private constructor(channelType: ChannelTy
         return dialog
     }
 
-    override fun onStart() {
-        super.onStart()
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText)
@@ -114,6 +113,7 @@ internal final class AddChannelDialog private constructor(channelType: ChannelTy
         //Setup TextInput hints.
         floatLabelAddress.hint = channelAddressHint
         floatLabelChannelLabel.hint = channelLabelHint
+        editTextActionAddress.setOnEditorActionListener(onEditorActionListener)
     }
 
     private fun saveChannelAndExit(): Boolean {

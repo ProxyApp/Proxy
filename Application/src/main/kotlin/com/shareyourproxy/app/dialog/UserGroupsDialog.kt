@@ -2,6 +2,7 @@ package com.shareyourproxy.app.dialog
 
 import android.R.string.cancel
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
@@ -13,8 +14,7 @@ import com.shareyourproxy.R
 import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_text
 import com.shareyourproxy.R.layout.dialog_user_groups
-import com.shareyourproxy.R.string.dialog_edit_user_groups
-import com.shareyourproxy.R.string.save
+import com.shareyourproxy.R.string.*
 import com.shareyourproxy.R.style.Widget_Proxy_App_Dialog
 import com.shareyourproxy.api.domain.model.GroupToggle
 import com.shareyourproxy.api.domain.model.User
@@ -70,19 +70,19 @@ internal final class UserGroupsDialog private constructor(groups: ArrayList<Grou
                 .setPositiveButton(save, positiveClicked)
                 .setNegativeButton(cancel, negativeClicked)
                 .create()
-
-        textView.text = getString(R.string.dialog_group_channel_message)
+        dialog.setOnShowListener(onShowListener)
         dialog.setCanceledOnTouchOutside(false)
         dialog.window.attributes.width = WindowManager.LayoutParams.MATCH_PARENT
         return dialog
     }
 
-    override fun onStart() {
-        super.onStart()
+
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText)
         initializeRecyclerView()
+        textView.text = getString(dialog_group_channel_message)
     }
 
     /**

@@ -147,6 +147,7 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
                 .setNegativeButton(cancel, negativeClicked)
                 .create()
 
+        dialog.setOnShowListener(onShowListener)
         // Show the SW Keyboard on dialog start. Always.
         dialog.window.setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
@@ -158,8 +159,7 @@ internal final class AddRedditChannelDialog : BaseDialogFragment() {
         return dialog
     }
 
-    override fun onStart() {
-        super.onStart()
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText)

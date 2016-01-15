@@ -203,7 +203,7 @@ internal final class UserChannelsFragment private constructor(contact: User) : B
     }
 
     private fun addUserChannel(event: UserChannelAddedEventCallback) {
-        if (event.oldChannel != null) {
+        if (event.oldChannel != Channel()) {
             adapter.updateItem(event.oldChannel, event.newChannel)
         } else {
             adapter.addItem(event.newChannel)

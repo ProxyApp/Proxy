@@ -11,9 +11,9 @@ import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 /**
  * Add a channel.
  */
-internal final class AddUserChannelCommand(val user: User, val newChannel: Channel, val oldChannel: Channel?) : BaseCommand() {
+internal final class AddUserChannelCommand(val user: User, val newChannel: Channel, val oldChannel: Channel) : BaseCommand() {
 
-    constructor(user: User, newChannel: Channel) : this(user, newChannel, null)
+    constructor(user: User, newChannel: Channel) : this(user, newChannel, Channel())
 
     private constructor(parcel: Parcel) : this(parcel.readValue(CL) as User, parcel.readValue(CL) as Channel, parcel.readValue(CL) as Channel)
 

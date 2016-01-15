@@ -5,13 +5,14 @@ import android.support.design.widget.Snackbar.LENGTH_LONG
 import android.support.design.widget.Snackbar.make
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
-import com.shareyourproxy.R
+import com.shareyourproxy.R.anim.fade_in
+import com.shareyourproxy.R.anim.slide_out_bottom
 import com.shareyourproxy.R.id.activity_fragment_container
 import com.shareyourproxy.R.id.activity_toolbar
 import com.shareyourproxy.R.layout.common_activity_fragment_container
 import com.shareyourproxy.R.raw.ic_clear
-import com.shareyourproxy.R.string.add_another_channel
-import com.shareyourproxy.R.string.add_channel
+import com.shareyourproxy.R.string.*
+import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
@@ -63,7 +64,7 @@ private final class AddChannelListActivity : BaseActivity() {
 
     override fun onBackPressed() {
         finish()
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_bottom)
+        overridePendingTransition(fade_in, slide_out_bottom)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -84,11 +85,11 @@ private final class AddChannelListActivity : BaseActivity() {
     }
 
     private fun showSnackBar(event: ChannelAddedEvent) {
-        make(toolbar, getString(R.string.blank_added, event.channel.channelType), LENGTH_LONG).show()
+        make(toolbar, getString(blank_added, event.channel.channelType), LENGTH_LONG).show()
     }
 
     private fun channelAdded(event: UserChannelAddedEventCallback) {
-        if (event.oldChannel == null) {
+        if (event.oldChannel.equals(Channel())) {
             analytics.channelAdded(event.newChannel.channelType)
         } else {
             analytics.channelEdited(event.oldChannel.channelType)

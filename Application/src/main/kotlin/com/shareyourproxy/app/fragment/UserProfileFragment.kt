@@ -252,7 +252,7 @@ internal abstract class UserProfileFragment() : BaseFragment() {
     }
 
     private fun addUserChannel(event: UserChannelAddedEventCallback) {
-        if (event.oldChannel != null) {
+        if (event.oldChannel != Channel()) {
             showChangesSavedSnackBar(coordinatorLayout)
         }
     }

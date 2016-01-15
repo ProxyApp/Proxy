@@ -78,22 +78,21 @@ internal final class SaveGroupChannelDialog private constructor(channel: Channel
                 .setNegativeButton(cancel, negativeClicked)
                 .create()
 
-        message.text = stringMessage
+        dialog.setOnShowListener(onShowListener)
         // Show the SW Keyboard on dialog start. Always.
         dialog.window.attributes.width = MATCH_PARENT
         dialog.window.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         dialog.setCanceledOnTouchOutside(false)
         return dialog
     }
-
-    override fun onStart() {
-        super.onStart()
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         // Setup Button Colors
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEUTRAL), colorText)
         initializeRecyclerView()
+        message.text = stringMessage
     }
 
     /**

@@ -114,6 +114,8 @@ internal final class EditChannelDialog private constructor(channel: Channel, pos
                 .setPositiveButton(save, null)
                 .setNegativeButton(cancel, negativeClicked)
                 .setNeutralButton(delete, deleteClicked).create()
+
+        dialog.setOnShowListener(onShowListener)
         //Override the dialog wrapping content and cancel dismiss on click outside
         // of the dialog window
         dialog.window.attributes.width = WindowManager.LayoutParams.MATCH_PARENT
@@ -125,8 +127,7 @@ internal final class EditChannelDialog private constructor(channel: Channel, pos
         return dialog
     }
 
-    override fun onStart() {
-        super.onStart()
+    private val onShowListener = DialogInterface.OnShowListener {
         val dialog = dialog as AlertDialog
         setButtonTint(dialog.getButton(Dialog.BUTTON_POSITIVE), colorBlue)
         setButtonTint(dialog.getButton(Dialog.BUTTON_NEGATIVE), colorText)
