@@ -44,7 +44,6 @@ internal object ButterKnife {
      * Multiple View Bindings
      */
     fun <V : View> View.bindViews(vararg ids: Int): ReadOnlyProperty<View, List<V>> = required(ids, viewFinder)
-
     fun <V : View> Activity.bindViews(vararg ids: Int): ReadOnlyProperty<Activity, List<V>> = required(ids, viewFinder)
     fun <V : View> Dialog.bindViews(vararg ids: Int): ReadOnlyProperty<Dialog, List<V>> = required(ids, viewFinder)
     fun <V : View> Fragment.bindViews(vararg ids: Int): ReadOnlyProperty<Fragment, List<V>> = required(ids, viewFinder)
@@ -73,7 +72,6 @@ internal object ButterKnife {
      * Dimen Bindings
      */
     fun View.bindDimen(id: Int): ReadOnlyProperty<View, Int> = required(id, dimenFinder)
-
     fun Activity.bindDimen(id: Int): ReadOnlyProperty<Activity, Int> = required(id, dimenFinder)
     fun Dialog.bindDimen(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, dimenFinder)
     fun Fragment.bindDimen(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, dimenFinder)
@@ -92,7 +90,6 @@ internal object ButterKnife {
      * Color<Int> bindings
      */
     fun View.bindColor(id: Int): ReadOnlyProperty<View, Int> = required(id, colorFinder)
-
     fun Activity.bindColor(id: Int): ReadOnlyProperty<Activity, Int> = required(id, colorFinder)
     fun Dialog.bindColor(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, colorFinder)
     fun Fragment.bindColor(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, colorFinder)
@@ -111,7 +108,6 @@ internal object ButterKnife {
      * ColorStateList bindings
      */
     fun View.bindColorStateList(id: Int): ReadOnlyProperty<View, ColorStateList> = requiredList(id, colorListFinder)
-
     fun Activity.bindColorStateList(id: Int): ReadOnlyProperty<Activity, ColorStateList> = requiredList(id, colorListFinder)
     fun Dialog.bindColorStateList(id: Int): ReadOnlyProperty<Dialog, ColorStateList> = requiredList(id, colorListFinder)
     fun Fragment.bindColorStateList(id: Int): ReadOnlyProperty<Fragment, ColorStateList> = requiredList(id, colorListFinder)
@@ -130,7 +126,6 @@ internal object ButterKnife {
      * String Bindings RecyclerView.Adapter<RecyclerView.ViewHolder>
      */
     fun View.bindString(id: Int): ReadOnlyProperty<View, String> = requiredString(id, stringFinder)
-
     fun Activity.bindString(id: Int): ReadOnlyProperty<Activity, String> = requiredString(id, stringFinder)
     fun BaseDialogFragment.bindString(id: Int): ReadOnlyProperty<BaseDialogFragment, String> = requiredString(id, stringFinder)
     fun Fragment.bindString(id: Int): ReadOnlyProperty<Fragment, String> = requiredString(id, stringFinder)
@@ -149,7 +144,6 @@ internal object ButterKnife {
      * Int Bindings
      */
     fun View.bindInt(id: Int): ReadOnlyProperty<View, Int> = required(id, intFinder)
-
     fun Activity.bindInt(id: Int): ReadOnlyProperty<Activity, Int> = required(id, intFinder)
     fun Dialog.bindInt(id: Int): ReadOnlyProperty<Dialog, Int> = required(id, intFinder)
     fun Fragment.bindInt(id: Int): ReadOnlyProperty<Fragment, Int> = required(id, intFinder)
@@ -168,7 +162,6 @@ internal object ButterKnife {
      * Drawable Bindings
      */
     fun View.bindDrawable(id: Int): ReadOnlyProperty<View, Drawable> = requiredDrawable(id, drawableFinder)
-
     fun Activity.bindDrawable(id: Int): ReadOnlyProperty<Activity, Drawable> = requiredDrawable(id, drawableFinder)
     fun Dialog.bindDrawable(id: Int): ReadOnlyProperty<Dialog, Drawable> = requiredDrawable(id, drawableFinder)
     fun Fragment.bindDrawable(id: Int): ReadOnlyProperty<Fragment, Drawable> = requiredDrawable(id, drawableFinder)
@@ -187,7 +180,6 @@ internal object ButterKnife {
      * Error Messaging
      */
     private fun viewNotFound(id: Int, desc: KProperty<*>): Nothing = throw IllegalStateException("View ID $id for '${desc.name}' not found.")
-
     private fun attrNotFound(id: Int, desc: KProperty<*>): Nothing = throw IllegalStateException("Attribute ID $id for '${desc.name}' not found.")
 
     @Suppress("UNCHECKED_CAST")
