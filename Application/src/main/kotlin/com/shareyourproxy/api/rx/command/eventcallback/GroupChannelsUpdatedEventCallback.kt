@@ -21,7 +21,7 @@ internal class GroupChannelsUpdatedEventCallback(user: User, val oldGroup: Group
 
     companion object {
         private val CL = GroupChannelsUpdatedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<GroupChannelsUpdatedEventCallback> = object : Parcelable.Creator<GroupChannelsUpdatedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<GroupChannelsUpdatedEventCallback> = object : Parcelable.Creator<GroupChannelsUpdatedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): GroupChannelsUpdatedEventCallback {
                 return GroupChannelsUpdatedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as Group, parcel.readValue(CL) as Group, parcel.readValue(CL) as HashSet<String>, parcel.readValue(CL) as Enumerations.GroupEditType)

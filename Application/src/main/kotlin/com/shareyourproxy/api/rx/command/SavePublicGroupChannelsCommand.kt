@@ -27,7 +27,7 @@ internal final class SavePublicGroupChannelsCommand(private val user: User, priv
     }
 
     companion object {
-        val CREATOR: Parcelable.Creator<SavePublicGroupChannelsCommand> = object : Parcelable.Creator<SavePublicGroupChannelsCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<SavePublicGroupChannelsCommand> = object : Parcelable.Creator<SavePublicGroupChannelsCommand> {
             override fun createFromParcel(parcel: Parcel): SavePublicGroupChannelsCommand {
                 return SavePublicGroupChannelsCommand(parcel)
             }

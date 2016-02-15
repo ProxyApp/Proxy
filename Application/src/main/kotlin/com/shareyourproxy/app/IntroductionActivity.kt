@@ -7,7 +7,7 @@ import com.shareyourproxy.app.fragment.MainIntroductionFragment
 /**
  * Introduce a user with a view pager flow.
  */
-private final class IntroductionActivity : BaseActivity() {
+internal final class IntroductionActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {

@@ -28,7 +28,7 @@ internal final class UpdateUserContactsCommand(val user: User, val contacts: Arr
 
     companion object {
         private val CL = UpdateUserContactsCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UpdateUserContactsCommand> = object : Parcelable.Creator<UpdateUserContactsCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<UpdateUserContactsCommand> = object : Parcelable.Creator<UpdateUserContactsCommand> {
             override fun createFromParcel(parcel: Parcel): UpdateUserContactsCommand {
                 return UpdateUserContactsCommand(parcel)
             }

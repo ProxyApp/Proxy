@@ -15,7 +15,7 @@ internal data class Message(val id: String, val contactId: String, val fullName:
     }
 
     companion object {
-        val CREATOR = object : Parcelable.Creator<Message> {
+        @JvmField val CREATOR = object : Parcelable.Creator<Message> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<Message?> = arrayOfNulls(size)
         }

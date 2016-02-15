@@ -18,7 +18,7 @@ internal final class UserChannelAddedEventCallback(user: User, val oldChannel: C
 
     companion object {
         private val CL = UserChannelAddedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserChannelAddedEventCallback> = object : Parcelable.Creator<UserChannelAddedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserChannelAddedEventCallback> = object : Parcelable.Creator<UserChannelAddedEventCallback> {
             override fun createFromParcel(parcel: Parcel): UserChannelAddedEventCallback {
                 return UserChannelAddedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as Channel, parcel.readValue(CL) as Channel)
             }

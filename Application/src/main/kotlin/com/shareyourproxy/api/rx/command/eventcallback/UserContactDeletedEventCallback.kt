@@ -16,7 +16,7 @@ internal final class UserContactDeletedEventCallback(user: User, private val con
 
     companion object {
         private val CL = UserContactDeletedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserContactDeletedEventCallback> = object : Parcelable.Creator<UserContactDeletedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserContactDeletedEventCallback> = object : Parcelable.Creator<UserContactDeletedEventCallback> {
             override fun createFromParcel(parcel: Parcel): UserContactDeletedEventCallback {
                 return UserContactDeletedEventCallback(
                         parcel.readValue(CL) as User, parcel.readValue(CL) as String)

@@ -18,7 +18,7 @@ internal final class GroupContactsUpdatedEventCallback(user: User, val contactId
 
     companion object {
         private val CL = GroupContactsUpdatedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<GroupContactsUpdatedEventCallback> = object : Parcelable.Creator<GroupContactsUpdatedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<GroupContactsUpdatedEventCallback> = object : Parcelable.Creator<GroupContactsUpdatedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): GroupContactsUpdatedEventCallback {
                 return GroupContactsUpdatedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as String, parcel.readValue(CL) as List<Group>)

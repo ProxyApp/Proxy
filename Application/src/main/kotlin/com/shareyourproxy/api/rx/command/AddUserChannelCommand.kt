@@ -29,7 +29,7 @@ internal final class AddUserChannelCommand(val user: User, val newChannel: Chann
 
     companion object {
         private val CL = AddUserChannelCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddUserChannelCommand> = object : Parcelable.Creator<AddUserChannelCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddUserChannelCommand> = object : Parcelable.Creator<AddUserChannelCommand> {
             override fun createFromParcel(parcel: Parcel): AddUserChannelCommand {
                 return AddUserChannelCommand(parcel)
             }

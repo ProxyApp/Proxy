@@ -29,7 +29,7 @@ internal final class DeleteUserGroupCommand(val user: User, val group: Group) : 
 
     companion object {
         private val CL = DeleteUserGroupCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<DeleteUserGroupCommand> = object : Parcelable.Creator<DeleteUserGroupCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<DeleteUserGroupCommand> = object : Parcelable.Creator<DeleteUserGroupCommand> {
             override fun createFromParcel(parcel: Parcel): DeleteUserGroupCommand {
                 return DeleteUserGroupCommand(parcel)
             }

@@ -26,7 +26,7 @@ internal final class AddUserMessageCommand(val userId: String, val message: Mess
 
     companion object {
         private val CL = AddUserMessageCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddUserMessageCommand> = object : Parcelable.Creator<AddUserMessageCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddUserMessageCommand> = object : Parcelable.Creator<AddUserMessageCommand> {
             override fun createFromParcel(parcel: Parcel): AddUserMessageCommand {
                 return AddUserMessageCommand(parcel)
             }

@@ -31,7 +31,7 @@ internal class SaveGroupChannelsCommand(private val user: User, private val newT
 
     companion object {
         private val CL = SaveGroupChannelsCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<SaveGroupChannelsCommand> = object : Parcelable.Creator<SaveGroupChannelsCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<SaveGroupChannelsCommand> = object : Parcelable.Creator<SaveGroupChannelsCommand> {
             override fun createFromParcel(parcel: Parcel): SaveGroupChannelsCommand {
                 return SaveGroupChannelsCommand(parcel)
             }

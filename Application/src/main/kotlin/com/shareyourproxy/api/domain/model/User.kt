@@ -28,7 +28,7 @@ internal data class User(val id: String, val first: String, val last: String, va
 
     companion object {
         val CL = User::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<User> {
+        @JvmField val CREATOR = object : Parcelable.Creator<User> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<User?> = arrayOfNulls(size)
         }

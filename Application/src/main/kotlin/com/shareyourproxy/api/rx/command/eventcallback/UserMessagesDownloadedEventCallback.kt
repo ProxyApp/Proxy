@@ -16,7 +16,7 @@ internal final class UserMessagesDownloadedEventCallback(val notifications: Arra
 
     companion object {
         private val CL = UserMessagesDownloadedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserMessagesDownloadedEventCallback> = object : Parcelable.Creator<UserMessagesDownloadedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserMessagesDownloadedEventCallback> = object : Parcelable.Creator<UserMessagesDownloadedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): UserMessagesDownloadedEventCallback {
                 return UserMessagesDownloadedEventCallback(parcel.readValue(CL) as ArrayList<Notification>)

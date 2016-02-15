@@ -28,7 +28,7 @@ internal final class GenerateShareLinkCommand(val user: User, val groups: ArrayL
 
     companion object {
         private val CL = GenerateShareLinkCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<GenerateShareLinkCommand> = object : Parcelable.Creator<GenerateShareLinkCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<GenerateShareLinkCommand> = object : Parcelable.Creator<GenerateShareLinkCommand> {
             override fun createFromParcel(parcel: Parcel): GenerateShareLinkCommand {
                 return GenerateShareLinkCommand(parcel)
             }

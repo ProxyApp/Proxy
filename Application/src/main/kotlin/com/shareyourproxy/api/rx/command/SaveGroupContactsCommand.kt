@@ -28,7 +28,7 @@ internal final class SaveGroupContactsCommand(val user: User, val groups: ArrayL
 
     companion object {
         private val CL = SaveGroupContactsCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<SaveGroupContactsCommand> = object : Parcelable.Creator<SaveGroupContactsCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<SaveGroupContactsCommand> = object : Parcelable.Creator<SaveGroupContactsCommand> {
             override fun createFromParcel(parcel: Parcel): SaveGroupContactsCommand {
                 return SaveGroupContactsCommand(parcel)
             }

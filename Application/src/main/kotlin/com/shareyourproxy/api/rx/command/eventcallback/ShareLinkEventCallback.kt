@@ -14,7 +14,7 @@ internal final class ShareLinkEventCallback(val message: String) : EventCallback
 
     companion object {
         private val CL = ShareLinkEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<ShareLinkEventCallback> = object : Parcelable.Creator<ShareLinkEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<ShareLinkEventCallback> = object : Parcelable.Creator<ShareLinkEventCallback> {
             override fun createFromParcel(parcel: Parcel): ShareLinkEventCallback {
                 return ShareLinkEventCallback(parcel.readValue(CL) as String)
             }

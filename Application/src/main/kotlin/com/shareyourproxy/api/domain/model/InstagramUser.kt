@@ -18,7 +18,7 @@ internal data class InstagramUser(val id: String, val username: String, val full
     }
 
     companion object {
-        val CREATOR = object : Parcelable.Creator<InstagramUser> {
+        @JvmField val CREATOR = object : Parcelable.Creator<InstagramUser> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<InstagramUser?> = arrayOfNulls(size)
         }

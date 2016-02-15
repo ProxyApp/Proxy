@@ -15,7 +15,7 @@ internal data class GroupToggle(var group: Group, var isChecked: Boolean) : Base
 
     companion object {
         private val CL = GroupToggle::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<GroupToggle> {
+        @JvmField val CREATOR = object : Parcelable.Creator<GroupToggle> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<GroupToggle?> = arrayOfNulls(size)
         }

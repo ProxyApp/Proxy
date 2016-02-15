@@ -16,7 +16,7 @@ internal final class UserMessageAddedEventCallback(val message: Message) : Event
 
     companion object {
         private val CL = UserMessageAddedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserMessageAddedEventCallback> = object : Parcelable.Creator<UserMessageAddedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserMessageAddedEventCallback> = object : Parcelable.Creator<UserMessageAddedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): UserMessageAddedEventCallback {
                 return UserMessageAddedEventCallback(parcel.readValue(CL) as Message)

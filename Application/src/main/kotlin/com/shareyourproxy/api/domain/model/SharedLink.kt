@@ -18,7 +18,7 @@ internal data class SharedLink(val id: String, val userId: String, val groupId: 
     }
 
     companion object {
-        val CREATOR = object : Parcelable.Creator<SharedLink> {
+        @JvmField val CREATOR = object : Parcelable.Creator<SharedLink> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<SharedLink?> = arrayOfNulls(size)
         }

@@ -16,7 +16,7 @@ internal data class GooglePerson(val name: GoogleName, val email: String, @Seria
 
     companion object {
         val CL = GooglePerson::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<GooglePerson> {
+        @JvmField val CREATOR = object : Parcelable.Creator<GooglePerson> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<GooglePerson?> = arrayOfNulls(size)
         }
@@ -32,7 +32,7 @@ internal data class GooglePerson(val name: GoogleName, val email: String, @Seria
         }
 
         companion object {
-            val CREATOR = object : Parcelable.Creator<GoogleName> {
+            @JvmField val CREATOR = object : Parcelable.Creator<GoogleName> {
                 override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
                 override fun newArray(size: Int): Array<GoogleName?> = arrayOfNulls(size)
             }
@@ -50,7 +50,7 @@ internal data class GooglePerson(val name: GoogleName, val email: String, @Seria
 
         companion object {
             val CL = GoogleProfileImage::class.java.classLoader
-            val CREATOR = object : Parcelable.Creator<GoogleProfileImage> {
+            @JvmField val CREATOR = object : Parcelable.Creator<GoogleProfileImage> {
                 override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
                 override fun newArray(size: Int): Array<GoogleProfileImage?> = arrayOfNulls(size)
             }
@@ -67,7 +67,7 @@ internal data class GooglePerson(val name: GoogleName, val email: String, @Seria
 
         companion object {
             val CL = GoogleCover::class.java.classLoader
-            val CREATOR = object : Parcelable.Creator<GoogleCover> {
+            @JvmField val CREATOR = object : Parcelable.Creator<GoogleCover> {
                 override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
                 override fun newArray(size: Int): Array<GoogleCover?> = arrayOfNulls(size)
             }
@@ -85,7 +85,7 @@ internal data class GooglePerson(val name: GoogleName, val email: String, @Seria
         }
 
         companion object {
-            val CREATOR = object : Parcelable.Creator<GoogleCoverPhoto> {
+            @JvmField val CREATOR = object : Parcelable.Creator<GoogleCoverPhoto> {
                 override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
                 override fun newArray(size: Int): Array<GoogleCoverPhoto?> = arrayOfNulls(size)
             }

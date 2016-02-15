@@ -19,7 +19,7 @@ internal final class UserGroupDeletedEventCallback(user: User, val group: Group)
 
     companion object {
         private val CL = UserGroupDeletedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserGroupDeletedEventCallback> = object : Parcelable.Creator<UserGroupDeletedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserGroupDeletedEventCallback> = object : Parcelable.Creator<UserGroupDeletedEventCallback> {
             override fun createFromParcel(parcel: Parcel): UserGroupDeletedEventCallback {
                 return UserGroupDeletedEventCallback(
                         parcel.readValue(CL) as User, parcel.readValue(CL) as Group)

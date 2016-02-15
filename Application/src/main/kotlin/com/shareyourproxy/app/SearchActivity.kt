@@ -8,7 +8,7 @@ import com.shareyourproxy.app.fragment.SearchFragment
 /**
  * Activity to handle displaying contacts and searching for new ones.
  */
-private final class SearchActivity : BaseActivity() {
+internal final class SearchActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

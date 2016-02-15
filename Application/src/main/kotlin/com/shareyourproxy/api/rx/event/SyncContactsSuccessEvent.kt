@@ -16,7 +16,7 @@ internal final class SyncContactsSuccessEvent : EventCallback() {
     }
 
     companion object {
-        val CREATOR: Parcelable.Creator<SyncContactsSuccessEvent> = object : Parcelable.Creator<SyncContactsSuccessEvent> {
+        @JvmField val CREATOR: Parcelable.Creator<SyncContactsSuccessEvent> = object : Parcelable.Creator<SyncContactsSuccessEvent> {
             override fun createFromParcel(parcel: Parcel): SyncContactsSuccessEvent {
                 return SyncContactsSuccessEvent()
             }

@@ -28,7 +28,7 @@ internal final class DeleteUserChannelCommand(val user: User, val channel: Chann
 
     companion object {
         private val CL = DeleteUserChannelCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<DeleteUserChannelCommand> = object : Parcelable.Creator<DeleteUserChannelCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<DeleteUserChannelCommand> = object : Parcelable.Creator<DeleteUserChannelCommand> {
             override fun createFromParcel(parcel: Parcel): DeleteUserChannelCommand {
                 return DeleteUserChannelCommand(parcel)
             }

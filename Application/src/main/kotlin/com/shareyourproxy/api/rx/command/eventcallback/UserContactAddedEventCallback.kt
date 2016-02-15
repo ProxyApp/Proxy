@@ -16,7 +16,7 @@ internal final class UserContactAddedEventCallback(user: User, val contactId: St
 
     companion object {
         private val CL = UserContactAddedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserContactAddedEventCallback> = object : Parcelable.Creator<UserContactAddedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserContactAddedEventCallback> = object : Parcelable.Creator<UserContactAddedEventCallback> {
             override fun createFromParcel(parcel: Parcel): UserContactAddedEventCallback {
                 return UserContactAddedEventCallback(
                         parcel.readValue(CL) as User, parcel.readValue(CL) as String)

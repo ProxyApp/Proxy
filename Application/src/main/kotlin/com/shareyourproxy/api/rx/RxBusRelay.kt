@@ -12,7 +12,7 @@ import timber.log.Timber
  * to easily send messages over this [PublishSubject] Bus.
  */
 internal object RxBusRelay : BaseParcelable {
-    val CREATOR: Parcelable.Creator<RxBusRelay> = object : Parcelable.Creator<RxBusRelay> {
+    @JvmField val CREATOR: Parcelable.Creator<RxBusRelay> = object : Parcelable.Creator<RxBusRelay> {
         override fun createFromParcel(parcel: Parcel): RxBusRelay {
             return this@RxBusRelay
         }

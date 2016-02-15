@@ -17,7 +17,7 @@ internal final class PublicChannelsUpdatedEventCallback(user: User, val newChann
 
     companion object {
         private val CL = PublicChannelsUpdatedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<PublicChannelsUpdatedEventCallback> = object : Parcelable.Creator<PublicChannelsUpdatedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<PublicChannelsUpdatedEventCallback> = object : Parcelable.Creator<PublicChannelsUpdatedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): PublicChannelsUpdatedEventCallback {
                 return PublicChannelsUpdatedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as HashMap<String, Channel>)

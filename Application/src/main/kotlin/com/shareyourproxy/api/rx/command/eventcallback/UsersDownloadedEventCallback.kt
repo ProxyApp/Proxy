@@ -16,7 +16,7 @@ internal final class UsersDownloadedEventCallback(loggedInUser: User, val users:
 
     companion object {
         private val CL = UsersDownloadedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UsersDownloadedEventCallback> = object : Parcelable.Creator<UsersDownloadedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UsersDownloadedEventCallback> = object : Parcelable.Creator<UsersDownloadedEventCallback> {
             @Suppress("UNCHECKED_CAST")
             override fun createFromParcel(parcel: Parcel): UsersDownloadedEventCallback {
                 return UsersDownloadedEventCallback(parcel.readValue(CL) as User, parcel.readValue(CL) as HashMap<String, User>)

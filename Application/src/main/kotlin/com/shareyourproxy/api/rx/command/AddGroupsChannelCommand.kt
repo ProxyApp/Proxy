@@ -32,7 +32,7 @@ internal final class AddGroupsChannelCommand(val user: User, val groups: ArrayLi
 
     companion object {
         private val CL = AddGroupsChannelCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddGroupsChannelCommand> = object : Parcelable.Creator<AddGroupsChannelCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddGroupsChannelCommand> = object : Parcelable.Creator<AddGroupsChannelCommand> {
             override fun createFromParcel(parcel: Parcel): AddGroupsChannelCommand {
                 return AddGroupsChannelCommand(parcel)
             }

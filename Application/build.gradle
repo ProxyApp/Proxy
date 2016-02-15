@@ -103,6 +103,8 @@ android {
     buildTypes {
         debug {
             debuggable true
+            minifyEnabled false
+            shrinkResources false
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
             //disable google analytics
@@ -226,8 +228,8 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
     compile "com.squareup.okhttp3:okhttp:${okHTTPVersion}"
     compile "com.squareup.okhttp3:logging-interceptor:${okHTTPVersion}"
-    compile "com.google.dagger:dagger:${daggerVersion}"
-    compile "com.google.dagger:dagger-compiler:${daggerVersion}"
+//    compile "com.google.dagger:dagger:${daggerVersion}"
+//    compile "com.google.dagger:dagger-compiler:${daggerVersion}"
     //Facebook
     compile "com.facebook.fresco:fresco:${frescoVersion}"
     compile "com.facebook.fresco:imagepipeline-okhttp:${frescoVersion}"

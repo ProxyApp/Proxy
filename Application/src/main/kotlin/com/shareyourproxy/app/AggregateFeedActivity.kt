@@ -20,7 +20,7 @@ import timber.log.Timber
 /**
  * The main landing point after loggin in. This is tabbed activity with [Contact]s and [Group]s.
  */
-private final class AggregateFeedActivity : BaseActivity() {
+internal final class AggregateFeedActivity : BaseActivity() {
     private val analytics by ButterKnife.LazyVal{ RxGoogleAnalytics(this)}
     private val busObserver: JustObserver<Any> get() = object : JustObserver<Any>(AggregateFeedActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")

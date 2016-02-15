@@ -24,7 +24,7 @@ internal final class SyncContactsCommand(val user: User) : BaseCommand() {
 
     companion object {
         private val CL = SyncContactsCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<SyncContactsCommand> = object : Parcelable.Creator<SyncContactsCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<SyncContactsCommand> = object : Parcelable.Creator<SyncContactsCommand> {
             override fun createFromParcel(parcel: Parcel): SyncContactsCommand {
                 return SyncContactsCommand(parcel)
             }

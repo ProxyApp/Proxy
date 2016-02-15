@@ -20,7 +20,7 @@ internal data class Channel(val id: String, val label: String, val channelType: 
 
     companion object {
         val CL = Channel::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<Channel> {
+        @JvmField val CREATOR = object : Parcelable.Creator<Channel> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<Channel?> = arrayOfNulls(size)
         }

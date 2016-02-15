@@ -455,7 +455,7 @@ class CirclePageIndicator : View, PageIndicator {
 
         companion object {
             @SuppressWarnings("UnusedDeclaration")
-            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(`in`: Parcel): SavedState {
                     return SavedState(`in`)
                 }

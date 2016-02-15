@@ -28,7 +28,7 @@ internal final class AddUserGroupCommand(val user: User, val group: Group) : Bas
 
     companion object {
         private val CL = AddUserGroupCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddUserGroupCommand> = object : Parcelable.Creator<AddUserGroupCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddUserGroupCommand> = object : Parcelable.Creator<AddUserGroupCommand> {
             override fun createFromParcel(parcel: Parcel): AddUserGroupCommand {
                 return AddUserGroupCommand(parcel)
             }

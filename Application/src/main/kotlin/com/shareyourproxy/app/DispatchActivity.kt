@@ -19,7 +19,7 @@ import com.shareyourproxy.app.fragment.DispatchFragment
  * Activity to check if we have a cached user in SharedPreferences. Send the user to the [AggregateFeedActivity] if we have a cached user or send them to
  * [LoginActivity] if we need to login to google services and download a current user. Delete cached Realm data on startup. Fullscreen activity.
  */
-private final class DispatchActivity : GoogleApiActivity() {
+internal final class DispatchActivity : GoogleApiActivity() {
     private val rxBusObserver: JustObserver<Any> = object : JustObserver<Any>(DispatchActivity::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {

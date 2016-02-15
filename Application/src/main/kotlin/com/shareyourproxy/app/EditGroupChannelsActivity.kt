@@ -36,7 +36,7 @@ import java.util.*
 /**
  * Add and remove newChannel permissions from a group.
  */
-private final class EditGroupChannelsActivity : BaseActivity() {
+internal final class EditGroupChannelsActivity : BaseActivity() {
     private val toolbar: Toolbar by bindView(R.id.activity_toolbar)
     private val selectedGroup: Group by LazyVal { intent.extras.getParcelable<Group>(ARG_SELECTED_GROUP) }
     private val addOrEdit: GroupEditType by LazyVal { intent.extras.getSerializable(ARG_EDIT_GROUP_TYPE) as GroupEditType }

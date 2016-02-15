@@ -18,7 +18,7 @@ internal final class UserGroupAddedEventCallback(user: User, val group: Group) :
 
     companion object {
         private val CL = UserGroupAddedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<UserGroupAddedEventCallback> = object : Parcelable.Creator<UserGroupAddedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<UserGroupAddedEventCallback> = object : Parcelable.Creator<UserGroupAddedEventCallback> {
             override fun createFromParcel(parcel: Parcel): UserGroupAddedEventCallback {
                 return UserGroupAddedEventCallback(
                         parcel.readValue(CL) as User, parcel.readValue(CL) as Group)

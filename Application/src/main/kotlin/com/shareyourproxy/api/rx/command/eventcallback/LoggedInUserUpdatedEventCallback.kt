@@ -11,7 +11,7 @@ import com.shareyourproxy.api.domain.model.User
 internal final class LoggedInUserUpdatedEventCallback(user: User) : UserEventCallback(user) {
     companion object {
         private val CL = LoggedInUserUpdatedEventCallback::class.java.classLoader
-        val CREATOR: Parcelable.Creator<LoggedInUserUpdatedEventCallback> = object : Parcelable.Creator<LoggedInUserUpdatedEventCallback> {
+        @JvmField val CREATOR: Parcelable.Creator<LoggedInUserUpdatedEventCallback> = object : Parcelable.Creator<LoggedInUserUpdatedEventCallback> {
 
             override fun createFromParcel(parcel: Parcel): LoggedInUserUpdatedEventCallback {
                 return LoggedInUserUpdatedEventCallback(parcel.readValue(CL) as User)

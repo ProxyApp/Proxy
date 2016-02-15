@@ -15,7 +15,7 @@ internal class ChannelToggle(var channel: Channel, var inGroup: Boolean) : BaseP
 
     companion object {
         val CL = ChannelToggle::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<ChannelToggle> {
+        @JvmField val CREATOR = object : Parcelable.Creator<ChannelToggle> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<ChannelToggle?> = arrayOfNulls(size)
         }

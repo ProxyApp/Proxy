@@ -24,7 +24,7 @@ internal final class GetUserMessagesCommand(private val userId: String) : BaseCo
 
     companion object {
         private val CL = GetUserMessagesCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<GetUserMessagesCommand> = object : Parcelable.Creator<GetUserMessagesCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<GetUserMessagesCommand> = object : Parcelable.Creator<GetUserMessagesCommand> {
             override fun createFromParcel(parcel: Parcel): GetUserMessagesCommand {
                 return GetUserMessagesCommand(parcel)
             }

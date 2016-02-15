@@ -46,7 +46,7 @@ import java.util.*
 /**
  * Log in with a google plus account.
  */
-private final class LoginActivity : GoogleApiActivity() {
+internal final class LoginActivity : GoogleApiActivity() {
     private val analytics by LazyVal { RxGoogleAnalytics(this) }
     private val proxyLogo: TextView by bindView(activity_login_title)
     private val signInButton: SignInButton by bindView(activity_login_sign_in_button)

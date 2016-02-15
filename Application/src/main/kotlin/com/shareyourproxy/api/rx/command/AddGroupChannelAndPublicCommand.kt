@@ -36,7 +36,7 @@ internal final class AddGroupChannelAndPublicCommand(val user: User, val groups:
 
     companion object {
         private val CL = AddGroupChannelAndPublicCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddGroupChannelAndPublicCommand> = object : Parcelable.Creator<AddGroupChannelAndPublicCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddGroupChannelAndPublicCommand> = object : Parcelable.Creator<AddGroupChannelAndPublicCommand> {
             override fun createFromParcel(parcel: Parcel): AddGroupChannelAndPublicCommand {
                 return AddGroupChannelAndPublicCommand(parcel)
             }

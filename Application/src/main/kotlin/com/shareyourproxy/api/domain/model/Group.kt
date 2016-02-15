@@ -20,7 +20,7 @@ internal data class Group(val id: String, val label: String, val channels: HashS
 
     companion object {
         val CL = Group::class.java.classLoader
-        val CREATOR = object : Parcelable.Creator<Group> {
+        @JvmField val CREATOR = object : Parcelable.Creator<Group> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<Group?> = arrayOfNulls(size)
         }

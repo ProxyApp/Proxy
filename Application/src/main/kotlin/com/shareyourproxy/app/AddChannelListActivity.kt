@@ -30,7 +30,7 @@ import timber.log.Timber
 /**
  * Activity that displays a list of Channels for a user to add to their [UserProfileFragment].
  */
-private final class AddChannelListActivity : BaseActivity() {
+internal final class AddChannelListActivity : BaseActivity() {
 
     private val analytics by ButterKnife.LazyVal { RxGoogleAnalytics(this) }
     private val toolbar: Toolbar by bindView(activity_toolbar)

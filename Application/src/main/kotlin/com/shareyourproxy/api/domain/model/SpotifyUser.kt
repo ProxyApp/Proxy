@@ -14,7 +14,7 @@ internal data class SpotifyUser(val id: String,val name: String,val uri: String)
         dest.writeString(uri)
     }
     companion object {
-        val CREATOR = object : Parcelable.Creator<SpotifyUser> {
+        @JvmField val CREATOR = object : Parcelable.Creator<SpotifyUser> {
             override fun createFromParcel(parcel: Parcel) = readParcel(parcel)
             override fun newArray(size: Int): Array<SpotifyUser?> = arrayOfNulls(size)
         }

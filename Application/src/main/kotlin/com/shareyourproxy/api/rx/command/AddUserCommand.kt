@@ -25,7 +25,7 @@ internal final class AddUserCommand(val user: User) : BaseCommand() {
 
     companion object {
         private val CL = AddUserCommand::class.java.classLoader
-        val CREATOR: Parcelable.Creator<AddUserCommand> = object : Parcelable.Creator<AddUserCommand> {
+        @JvmField val CREATOR: Parcelable.Creator<AddUserCommand> = object : Parcelable.Creator<AddUserCommand> {
             override fun createFromParcel(parcel: Parcel): AddUserCommand {
                 return AddUserCommand(parcel)
             }
