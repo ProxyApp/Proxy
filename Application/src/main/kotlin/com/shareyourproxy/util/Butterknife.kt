@@ -159,6 +159,24 @@ internal object ButterKnife {
     private val SupportFragment.intFinder: SupportFragment.(Int) -> Int? get() = { resources.getInteger(it) }
     private val <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.intFinder: RecyclerView.Adapter<T>.(Context, Int) -> Int? get() = { context, res -> context.resources.getInteger(res) }
     /**
+     * Boolean Bindings
+     */
+    fun View.bindBool(id: Int): ReadOnlyProperty<View, Boolean> = requiredBool(id, boolFinder)
+    fun Activity.bindBool(id: Int): ReadOnlyProperty<Activity, Boolean> = requiredBool(id, boolFinder)
+    fun Dialog.bindBool(id: Int): ReadOnlyProperty<Dialog, Boolean> = requiredBool(id, boolFinder)
+    fun Fragment.bindBool(id: Int): ReadOnlyProperty<Fragment, Boolean> = requiredBool(id, boolFinder)
+    fun SupportFragment.bindBool(id: Int): ReadOnlyProperty<SupportFragment, Boolean> = requiredBool(id, boolFinder)
+    fun <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.bindBool(context: Context, id: Int): ReadOnlyProperty<RecyclerView.Adapter<T>, Boolean> = requiredBool(context, id, boolFinder)
+    /**
+     * Boolean getBool()
+     */
+    private val View.boolFinder: View.(Int) -> Boolean? get() = { resources.getBoolean(it) }
+    private val Activity.boolFinder: Activity.(Int) -> Boolean? get() = { resources.getBoolean(it) }
+    private val Dialog.boolFinder: Dialog.(Int) -> Boolean? get() = { context.resources.getBoolean(it) }
+    private val Fragment.boolFinder: Fragment.(Int) -> Boolean? get() = { resources.getBoolean(it) }
+    private val SupportFragment.boolFinder: SupportFragment.(Int) -> Boolean? get() = { resources.getBoolean(it) }
+    private val <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.boolFinder: RecyclerView.Adapter<T>.(Context, Int) -> Boolean? get() = { context, res -> context.resources.getBoolean(res) }
+    /**
      * Drawable Bindings
      */
     fun View.bindDrawable(id: Int): ReadOnlyProperty<View, Drawable> = requiredDrawable(id, drawableFinder)
@@ -196,6 +214,8 @@ internal object ButterKnife {
 
     private fun <T> required(id: Int, finder: T.(Int) -> Int?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
     private fun <T> required(context: Context, id: Int, finder: T.(Context, Int) -> Int?) = LazyRes { t: T, desc -> t.finder(context, id) ?: attrNotFound(id, desc) }
+    private fun <T> requiredBool(id: Int, finder: T.(Int) -> Boolean?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
+    private fun <T> requiredBool(context: Context, id: Int, finder: T.(Context, Int) -> Boolean?) = LazyRes { t: T, desc -> t.finder(context, id) ?: attrNotFound(id, desc) }
     private fun <T> requiredString(id: Int, finder: T.(Int) -> String?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }
     private fun <T> requiredString(context: Context, id: Int, finder: T.(Context, Int) -> String?) = LazyRes { t: T, desc -> t.finder(context, id) ?: attrNotFound(id, desc) }
     private fun <T> requiredDrawable(id: Int, finder: T.(Int) -> Drawable?) = LazyRes { t: T, desc -> t.finder(id) ?: attrNotFound(id, desc) }

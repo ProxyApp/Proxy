@@ -2,6 +2,7 @@
 <FrameLayout android:id="@+id/fragment_introduction_main_container"
              xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:circle="http://schemas.android.com/lib/com.shareyourproxy.widget.CirclePageIndicator"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
@@ -10,17 +11,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.viewpagerindicator.CirclePageIndicator
+    <com.shareyourproxy.widget.CirclePageIndicator
         android:id="@+id/fragment_introduction_main_pageindicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/common_margin_xxhuge"
-        app:fillColor="@android:color/white"
-        app:paddingEnd="@dimen/common_margin_xxtiny"
-        app:pageColor="@color/common_divider"
-        app:radius="@dimen/common_margin_xxxtiny"
-        app:strokeWidth="0dp"/>
+        circle:fillColor="@android:color/white"
+        circle:paddingEnd="@dimen/common_margin_xxtiny"
+        circle:pageColor="@color/common_divider"
+        circle:radius="@dimen/common_margin_xxxtiny"
+        circle:strokeWidth="0dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fragment_introduction_main_fab"

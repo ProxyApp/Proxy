@@ -79,4 +79,9 @@
     <!--Common primary color deep purple (500)-->
     <color name="common_deep_purple">#673AB7</color>
 
+    <!--Circle Page Indicator-->
+    <color name="default_circle_indicator_fill_color">#FFFFFFFF</color>
+    <color name="default_circle_indicator_page_color">#00000000</color>
+    <color name="default_circle_indicator_stroke_color">#FFDDDDDD</color>
+
 </resources>

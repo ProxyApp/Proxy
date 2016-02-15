@@ -57,11 +57,14 @@ android {
                            'src/main/res/images',
                            'src/main/res/layouts',
                            'src/main/res/layouts/activity',
-                           'src/main/res/layouts/fragment',
-                           'src/main/res/layouts/dialog',
                            'src/main/res/layouts/adapter',
                            'src/main/res/layouts/common',
-                           'src/main/res/layouts/widget'
+                           'src/main/res/layouts/dialog',
+                           'src/main/res/layouts/fragment',
+                           'src/main/res/layouts/menu',
+                           'src/main/res/layouts/widget',
+                           'src/main/res/transition',
+                           'src/main/res/values'
             ]
         }
     }
@@ -215,7 +218,6 @@ dependencies {
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:palette-v7:${supportLibVersion}"
     //Jake
-    compile "fr.avianey.com.viewpagerindicator:library:${pagerIndicatorVersion}"
     compile "com.jakewharton.timber:timber:${timberVersion}"
     compile "com.jakewharton.rxrelay:rxrelay:${rxRelayVersion}"
     //Square

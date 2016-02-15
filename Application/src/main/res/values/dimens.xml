@@ -31,4 +31,11 @@
     <dimen name="fragment_userprofile_header_title_top_margin">138dp</dimen>
     <dimen name="fragment_userprofile_header_followers_top_margin">168dp</dimen>
     <dimen name="fragment_userprofile_header_button_top_margin">194dp</dimen>
+
+    <!--Circle Page Indicator-->
+    <bool name="default_circle_indicator_centered">true</bool>
+    <integer name="default_circle_indicator_orientation">0</integer>
+    <dimen name="default_circle_indicator_radius">3dp</dimen>
+    <bool name="default_circle_indicator_snap">false</bool>
+    <dimen name="default_circle_indicator_stroke_width">1dp</dimen>
 </resources>

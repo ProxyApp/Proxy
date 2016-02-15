@@ -26,7 +26,7 @@ import com.shareyourproxy.util.ButterKnife.bindColorStateList
 import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
-import com.viewpagerindicator.CirclePageIndicator
+import com.shareyourproxy.widget.CirclePageIndicator
 import java.util.Arrays.asList
 
 /**
