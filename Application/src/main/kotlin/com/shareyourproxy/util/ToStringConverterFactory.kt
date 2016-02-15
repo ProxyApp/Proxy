@@ -16,7 +16,7 @@ internal final class ToStringConverterFactory : Converter.Factory() {
         return null
     }
 
-    override fun requestBodyConverter(type: Type?, annotations: Array<Annotation>?, retrofit: Retrofit?): Converter<*, RequestBody>? {
+    override fun requestBodyConverter(type: Type?, parameterAnnotations: Array<out Annotation>?, methodAnnotations: Array<out Annotation>?, retrofit: Retrofit?): Converter<*, RequestBody>? {
         if (String::class.java == type) {
             return Converter<String, RequestBody> { value -> RequestBody.create(MEDIA_TYPE, value) }
         }

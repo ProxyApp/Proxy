@@ -216,7 +216,7 @@ internal final class SearchFragment() : BaseFragment(), ItemClickListener {
 
     override fun onPause() {
         super.onPause()
-        hideSoftwareKeyboard(view)
+        if (view != null) hideSoftwareKeyboard(view!!)
     }
 
     override fun onItemClick(view: View, position: Int) {

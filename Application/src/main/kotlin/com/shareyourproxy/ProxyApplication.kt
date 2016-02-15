@@ -1,7 +1,7 @@
 package com.shareyourproxy
 
+import android.app.Application
 import android.content.SharedPreferences
-import android.support.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -12,8 +12,6 @@ import com.shareyourproxy.api.RestClient
 import com.shareyourproxy.api.RxAppDataManager
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.RxGoogleAnalytics
-import com.squareup.leakcanary.LeakCanary
-import com.squareup.leakcanary.RefWatcher
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import io.realm.RealmConfiguration
@@ -22,7 +20,7 @@ import timber.log.Timber
 /**
  * Proxy application that handles syncing the current user and handling BaseCommands.
  */
-internal final class ProxyApplication : MultiDexApplication() {
+internal final class ProxyApplication : Application() {
     internal var currentUser: User = User()
     internal val sharedPreferences: SharedPreferences get() = getSharedPreferences(MASTER_KEY, MODE_PRIVATE)
 
@@ -33,9 +31,6 @@ internal final class ProxyApplication : MultiDexApplication() {
 
    private fun initialize() {
         RxAppDataManager(this, sharedPreferences)
-        if (USE_LEAK_CANARY) {
-            refWatcher = LeakCanary.install(this)
-        }
         initializeBuildConfig()
         initializeRealm()
         initializeFresco()
@@ -67,13 +62,6 @@ internal final class ProxyApplication : MultiDexApplication() {
             Fabric.with(this, Crashlytics(), Answers())
         } else {
             Fabric.with(this, Answers())
-        }
-    }
-
-    companion object {
-        private var refWatcher: RefWatcher? = null
-        fun watchForLeak(obj: Any) {
-            refWatcher?.watch(obj)
         }
     }
 }

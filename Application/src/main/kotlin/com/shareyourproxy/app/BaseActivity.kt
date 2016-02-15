@@ -76,9 +76,9 @@ internal abstract class BaseActivity : AppCompatActivity() {
     internal fun buildToolbar(toolbar: Toolbar, title: String, icon: Drawable?) {
         setSupportActionBar(toolbar)
         val bar = supportActionBar
-        bar.title = title
-        bar.setDisplayHomeAsUpEnabled(true)
-        bar.setHomeAsUpIndicator(icon)
+        bar?.title = title
+        bar?.setDisplayHomeAsUpEnabled(true)
+        bar?.setHomeAsUpIndicator(icon)
     }
 
     internal fun buildCustomToolbar(toolbar: Toolbar, customView: View) {
@@ -93,7 +93,10 @@ internal abstract class BaseActivity : AppCompatActivity() {
      * Function to delete the main realm configuration.
      */
     protected fun deleteRealm() {
-        val config = RealmConfiguration.Builder(this).deleteRealmIfMigrationNeeded().schemaVersion(BuildConfig.VERSION_CODE.toLong()).build()
+        val config = RealmConfiguration.Builder(this)
+                .deleteRealmIfMigrationNeeded()
+                .schemaVersion(BuildConfig.VERSION_CODE.toLong())
+                .build()
         Realm.deleteRealm(config)
     }
 

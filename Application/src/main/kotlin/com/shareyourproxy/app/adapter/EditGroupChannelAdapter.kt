@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.shareyourproxy.R
 import com.shareyourproxy.R.id.*
+import kotlin.comparisons.compareValues
 import com.shareyourproxy.R.string.required
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.ChannelToggle

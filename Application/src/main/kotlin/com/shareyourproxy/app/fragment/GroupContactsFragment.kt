@@ -115,7 +115,7 @@ internal final class GroupContactsFragment() : BaseFragment(), ItemClickListener
      */
     private fun initialize() {
         initializeRecyclerView()
-        buildToolbar(toolbar, capitalize(groupArg.label), null)
+        buildToolbar(toolbar, capitalize(groupArg.label))
     }
 
     /**

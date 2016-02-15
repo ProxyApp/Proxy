@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
+import android.support.v7.widget.LinearLayoutManager
 import android.view.WindowManager
 import android.widget.TextView
 import com.shareyourproxy.R
@@ -26,13 +27,12 @@ import com.shareyourproxy.app.adapter.UserGroupsAdapter
 import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindView
-import org.solovyev.android.views.llm.LinearLayoutManager
 import java.util.*
 
 /**
  * This Dialog provides a toggle selection to add a User contactId to the logged in User's various saved groups.
  */
-internal final class UserGroupsDialog private constructor(groups: ArrayList<GroupToggle>, user: User) : BaseDialogFragment() {
+internal final class UserGroupsDialog private constructor() : BaseDialogFragment() {
     companion object {
         private val ARG_GROUPS = "com.shareyourproxy.app.dialog.UserGroupsList"
         private val ARG_USER = "com.shareyourproxy.app.dialog.User"
@@ -41,7 +41,7 @@ internal final class UserGroupsDialog private constructor(groups: ArrayList<Grou
         }
 
         private fun setArgs(manager: FragmentManager, groups: ArrayList<GroupToggle>, user:User): UserGroupsDialog {
-            val dialog= UserGroupsDialog(groups, user)
+            val dialog= UserGroupsDialog()
             val args: Bundle = Bundle()
             args.putParcelableArrayList(ARG_GROUPS, groups)
             args.putParcelable(ARG_USER, user)

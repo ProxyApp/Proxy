@@ -29,10 +29,10 @@ import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 /**
  * Display the logged in users profile and channels.
  */
-internal final class MainUserProfileFragment private constructor(contact: User, loggedInUserId: String) : UserProfileFragment() {
+internal final class MainUserProfileFragment private constructor() : UserProfileFragment() {
     companion object {
         fun create(contact: User, loggedInUserId: String): MainUserProfileFragment {
-            val fragment = MainUserProfileFragment(contact, loggedInUserId)
+            val fragment = MainUserProfileFragment()
             val args: Bundle = Bundle()
             args.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
             args.putString(ARG_LOGGEDIN_USER_ID, loggedInUserId)

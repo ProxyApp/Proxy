@@ -65,7 +65,7 @@ internal object ButterKnife {
     private val Activity.viewFinder: Activity.(Int) -> View? get() = { findViewById(it) }
     private val Dialog.viewFinder: Dialog.(Int) -> View? get() = { findViewById(it) }
     private val Fragment.viewFinder: Fragment.(Int) -> View? get() = { view.findViewById(it) }
-    private val SupportFragment.viewFinder: SupportFragment.(Int) -> View? get() = { view.findViewById(it) }
+    private val SupportFragment.viewFinder: SupportFragment.(Int) -> View? get() = { view?.findViewById(it) }
     private val DialogFragment.viewFinder: DialogFragment.(Int) -> View? get() = { dialog.findViewById(it) }
     private val ViewHolder.viewFinder: ViewHolder.(Int) -> View? get() = { itemView.findViewById(it) }
     /**

@@ -125,7 +125,18 @@ internal object IntentLauncher {
      * @param textView search textview to animate
      * @param menu     hamburger icon to animate
      */
-    internal fun launchSearchActivity(activity: Activity, container: View?, textView: View, menu: View) {
+    internal fun launchSearchActivity(activity: Activity) {
+        val intent = Intent(ACTION_SEARCH_VIEW)
+            activity.startActivity(intent)
+    }
+
+    /**
+     * Launch the [SearchActivity].
+     * @param activity The context used to start this intent
+     * @param textView search textview to animate
+     * @param menu     hamburger icon to animate
+     */
+    internal fun launchSearchActivityTransition(activity: Activity, container: View?, textView: View, menu: View) {
         val intent = Intent(ACTION_SEARCH_VIEW)
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {

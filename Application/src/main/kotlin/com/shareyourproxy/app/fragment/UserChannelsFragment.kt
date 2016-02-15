@@ -53,10 +53,10 @@ import java.util.*
 /**
  * A User's channels
  */
-internal final class UserChannelsFragment private constructor(contact: User) : BaseFragment(), ItemLongClickListener {
+internal final class UserChannelsFragment private constructor() : BaseFragment(), ItemLongClickListener {
     companion object {
         fun create(contact: User): UserChannelsFragment {
-            val fragment = UserChannelsFragment(contact)
+            val fragment = UserChannelsFragment()
             val args: Bundle = Bundle()
             args.putParcelable(ARG_USER_SELECTED_PROFILE, contact)
             fragment.arguments = args

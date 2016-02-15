@@ -37,7 +37,7 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Dialog that handles editing a selected channel.
  */
-internal final class EditChannelDialog private constructor(channel: Channel, position: Int) : BaseDialogFragment() {
+internal final class EditChannelDialog private constructor() : BaseDialogFragment() {
     companion object {
         private val ARG_CHANNEL = "EditChannelDialog.Channel"
         private val ARG_POSITION = "EditChannelDialog.Position"
@@ -46,7 +46,7 @@ internal final class EditChannelDialog private constructor(channel: Channel, pos
         }
 
         private fun setArgs(manager: FragmentManager, channel: Channel, position: Int): EditChannelDialog {
-            val dialog = EditChannelDialog(channel, position)
+            val dialog = EditChannelDialog()
             val args: Bundle = Bundle()
             args.putParcelable(ARG_CHANNEL, channel)
             args.putInt(ARG_POSITION, position)

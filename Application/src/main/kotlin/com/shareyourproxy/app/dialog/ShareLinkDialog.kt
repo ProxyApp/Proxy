@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
+import android.support.v7.widget.LinearLayoutManager
 import android.view.WindowManager.LayoutParams.MATCH_PARENT
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
 import android.widget.TextView
@@ -27,13 +28,12 @@ import com.shareyourproxy.app.adapter.ShareLinkAdapter
 import com.shareyourproxy.util.ButterKnife.LazyVal
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindView
-import org.solovyev.android.views.llm.LinearLayoutManager
 import java.util.*
 
 /**
  * Share links to group channels in your web profile.
  */
-internal final class ShareLinkDialog private constructor(groups: HashMap<String, Group>) : BaseDialogFragment() {
+internal final class ShareLinkDialog private constructor() : BaseDialogFragment() {
     companion object {
         private val ARG_GROUPS = "com.shareyourproxy.sharelinkdialog.group"
         fun show(manager: FragmentManager, groups: HashMap<String, Group>): ShareLinkDialog {
@@ -41,7 +41,7 @@ internal final class ShareLinkDialog private constructor(groups: HashMap<String,
         }
 
         private fun setArgs(manager: FragmentManager, groups: HashMap<String, Group>): ShareLinkDialog {
-            val dialog = ShareLinkDialog(groups)
+            val dialog = ShareLinkDialog()
             val args: Bundle = Bundle()
             args.putSerializable(ARG_GROUPS, groups)
             dialog.arguments = args

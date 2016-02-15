@@ -18,11 +18,15 @@ import android.view.animation.Interpolator
  * Behavior for floating aciton buttons.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal final class ScrollOffBottomBehavior(context: Context, attrs: AttributeSet) : FloatingActionButton.Behavior() {
+internal final class ScrollOffBottomBehavior() : FloatingActionButton.Behavior() {
     private val animationInterpolator: Interpolator = FastOutSlowInInterpolator()
     private var fabTranslationY: Float = 0F
     private var viewHeight: Int = 0
     private var animator: ObjectAnimator? = null
+
+    @Suppress("UNUSED_PARAMETER")
+    public constructor(context: Context, attrs: AttributeSet) : this() {
+    }
 
     override fun onLayoutChild(parent: CoordinatorLayout, child: FloatingActionButton, layoutDirection: Int): Boolean {
         val lp = child.layoutParams as ViewGroup.MarginLayoutParams
@@ -74,7 +78,7 @@ internal final class ScrollOffBottomBehavior(context: Context, attrs: AttributeS
     private fun getFabTranslationYForSnackbar(parent: CoordinatorLayout, view: View?): Float {
         var minOffset = 0f
         val dependencies = parent.getDependencies(view)
-        if(!dependencies.isEmpty()) {
+        if (!dependencies.isEmpty()) {
             (0..dependencies.size).forEach {
                 if (dependencies[it] is Snackbar.SnackbarLayout) {
                     val translation = ViewCompat.getTranslationY(dependencies[it]).minus(dependencies[it].height.toFloat())

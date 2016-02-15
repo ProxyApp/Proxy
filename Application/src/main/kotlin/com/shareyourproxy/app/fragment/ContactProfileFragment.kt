@@ -30,10 +30,10 @@ import java.util.*
 /**
  * Display a contacts profile and channels.
  */
-internal final class ContactProfileFragment private constructor(user: User, loggedInUserId: String) : UserProfileFragment() {
+internal final class ContactProfileFragment private constructor() : UserProfileFragment() {
     companion object {
         fun create(user: User, loggedInUserId: String): ContactProfileFragment {
-            val fragment = ContactProfileFragment(user, loggedInUserId)
+            val fragment = ContactProfileFragment()
             val args: Bundle = Bundle()
             args.putParcelable(Constants.ARG_USER_SELECTED_PROFILE, user)
             args.putString(Constants.ARG_LOGGEDIN_USER_ID, loggedInUserId)
@@ -98,7 +98,7 @@ internal final class ContactProfileFragment private constructor(user: User, logg
 
     private fun setToolbarTitle() {
         val title = contact.fullName
-        buildToolbar(toolbar, title, null)
+        buildToolbar(toolbar, title)
     }
 
     /**

@@ -23,6 +23,6 @@ internal final class AboutFragment() : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        buildToolbar(toolbar, title, null)
+        buildToolbar(toolbar, title)
     }
 }

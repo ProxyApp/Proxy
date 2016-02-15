@@ -13,12 +13,12 @@ import android.view.ViewGroup
 import com.shareyourproxy.Constants.ARG_MAINFRAGMENT_SELECTED_TAB
 import com.shareyourproxy.IntentLauncher.launchSearchActivity
 import com.shareyourproxy.R
+import com.shareyourproxy.R.color.common_blue
 import com.shareyourproxy.R.color.common_proxy_dark_disabled
 import com.shareyourproxy.R.dimen.common_rect_small
 import com.shareyourproxy.R.id.*
 import com.shareyourproxy.R.layout.fragment_main
-import com.shareyourproxy.R.raw.ic_account_circle
-import com.shareyourproxy.R.raw.ic_group
+import com.shareyourproxy.R.raw.*
 import com.shareyourproxy.R.string.*
 import com.shareyourproxy.api.rx.JustObserver
 import com.shareyourproxy.api.rx.RxBusRelay.rxBusObservable
@@ -30,7 +30,6 @@ import com.shareyourproxy.util.ButterKnife.bindDimen
 import com.shareyourproxy.util.ButterKnife.bindView
 import com.shareyourproxy.util.ViewUtils.svgToBitmapDrawable
 import com.shareyourproxy.util.ViewUtils.tintDrawableCompat
-import com.shareyourproxy.widget.ContactSearchLayout
 import com.shareyourproxy.widget.ContentDescriptionDrawable
 import java.util.Arrays.asList
 
@@ -48,18 +47,17 @@ internal final class AggregateFeedFragment() : BaseFragment() {
     private val drawerLayout: DrawerLayout by bindView(activity_main_drawer_layout)
     private val viewPager: ViewPager by bindView(fragment_main_viewpager)
     private val slidingTabLayout: TabLayout by bindView(fragment_main_sliding_tabs)
-    private val selectedColor: Int by bindColor(R.color.common_blue)
+    private val selectedColor: Int by bindColor(common_blue)
     private val unselectedColor: Int by bindColor(common_proxy_dark_disabled)
     private val marginSVGLarge: Int by bindDimen(common_rect_small)
-    private val contactSearchLayout: ContactSearchLayout by LazyVal { ContactSearchLayout(activity) }
     private val userDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, ic_account_circle, marginSVGLarge, unselectedColor, getString(profile)) }
     private val contactDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, ic_group, marginSVGLarge, unselectedColor, getString(contacts)) }
-    private val groupDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, R.raw.ic_groups, marginSVGLarge, unselectedColor, getString(groups)) }
+    private val groupDrawable: ContentDescriptionDrawable by LazyVal { svgToBitmapDrawable(activity, ic_groups, marginSVGLarge, unselectedColor, getString(groups)) }
     private val observer: JustObserver<Any> = object : JustObserver<Any>(AggregateFeedFragment::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {
             when (event) {
-                is SearchClickedEvent -> launchSearchActivity(activity, contactSearchLayout.containerView, contactSearchLayout.searchTextView, contactSearchLayout.menuImageView)
+                is SearchClickedEvent -> launchSearchActivity(activity)
                 is OnMenuPressedEvent -> drawerLayout.openDrawer(START)
             }
         }
@@ -71,15 +69,14 @@ internal final class AggregateFeedFragment() : BaseFragment() {
     private val onTabSelectedListener: OnTabSelectedListener = object : OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.currentItem = tab.position
-            tintDrawableCompat(tab.icon, selectedColor)
+            tintDrawableCompat(tab.icon!!, selectedColor)
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab) {
-            tintDrawableCompat(tab.icon, unselectedColor)
+            tintDrawableCompat(tab.icon!!, unselectedColor)
         }
 
         override fun onTabReselected(tab: TabLayout.Tab) {
-
         }
     }
 
@@ -101,7 +98,7 @@ internal final class AggregateFeedFragment() : BaseFragment() {
      */
     private fun initialize() {
         initializeDrawerFragment()
-        buildCustomToolbar(toolbar, contactSearchLayout)
+        buildToolbar(toolbar,"META")
         initializeFragments()
         initializeTabs()
     }
@@ -129,8 +126,8 @@ internal final class AggregateFeedFragment() : BaseFragment() {
         viewPager.addOnPageChangeListener(TabLayoutOnPageChangeListener(slidingTabLayout))
         //set the default selected tab
         val tab = slidingTabLayout.getTabAt(activity.intent.extras.getInt(ARG_MAINFRAGMENT_SELECTED_TAB))
-        tintDrawableCompat(tab.icon, selectedColor)
-        tab.select()
+        tintDrawableCompat(tab?.icon!!, selectedColor)
+        tab?.select()
     }
 
     /**

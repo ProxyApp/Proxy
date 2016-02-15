@@ -13,14 +13,19 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.animation.Interpolator
+import kotlin.comparisons.compareValues
 
 /**
  * Behavior for App bar layout.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal final class SnackbarMarginBehavior(context: Context, attrs: AttributeSet) : AppBarLayout.ScrollingViewBehavior() {
+internal final class SnackbarMarginBehavior() : AppBarLayout.ScrollingViewBehavior() {
     private val animationInterpolator: Interpolator = FastOutSlowInInterpolator()
     private var viewTranslationY: Float = 0F
+
+    @Suppress("UNUSED_PARAMETER")
+    public constructor(context: Context, attrs: AttributeSet) : this() {
+    }
 
     override fun onDependentViewChanged(parent: CoordinatorLayout, child: View?, dependency: View): Boolean {
         if (dependency is Snackbar.SnackbarLayout) {

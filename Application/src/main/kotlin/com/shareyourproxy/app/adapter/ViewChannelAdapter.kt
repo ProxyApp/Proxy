@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import kotlin.comparisons.compareValues
 import com.shareyourproxy.R
 import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.app.adapter.BaseViewHolder.ItemLongClickListener

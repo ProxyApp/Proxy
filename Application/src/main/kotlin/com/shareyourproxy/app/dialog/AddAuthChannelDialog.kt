@@ -36,7 +36,7 @@ import com.shareyourproxy.util.ViewUtils.hideSoftwareKeyboard
 /**
  * Add a channel that requires OAuth.
  */
-internal final class AddAuthChannelDialog private constructor(channel: Channel) : BaseDialogFragment() {
+internal final class AddAuthChannelDialog private constructor() : BaseDialogFragment() {
     private val parcelChannel: Channel by LazyVal { arguments.getParcelable<Channel>(ARG_CHANNEL) }
     private val editTextActionAddress: EditText by bindView(dialog_channel_auth_action_address_edittext)
     private val floatLabelAddress: TextInputLayout by bindView(dialog_channel_auth_action_address_floatlabel)
@@ -66,7 +66,7 @@ internal final class AddAuthChannelDialog private constructor(channel: Channel) 
         }
 
         private fun setArgs(manager: FragmentManager, channel: Channel): AddAuthChannelDialog {
-            val dialog = AddAuthChannelDialog(channel)
+            val dialog = AddAuthChannelDialog()
             val args: Bundle = Bundle()
             args.putParcelable(ARG_CHANNEL, channel)
             dialog.arguments = args

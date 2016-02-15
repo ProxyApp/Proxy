@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialog
+import android.support.v7.widget.LinearLayoutManager
 import android.view.WindowManager.LayoutParams.MATCH_PARENT
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
 import android.widget.TextView
@@ -31,13 +32,12 @@ import com.shareyourproxy.app.adapter.SaveGroupChannelAdapter
 import com.shareyourproxy.util.ButterKnife.bindColor
 import com.shareyourproxy.util.ButterKnife.bindString
 import com.shareyourproxy.util.ButterKnife.bindView
-import org.solovyev.android.views.llm.LinearLayoutManager
 
 
 /**
  * Save a new channel to selected groups after creating it.
  */
-internal final class SaveGroupChannelDialog private constructor(channel: Channel, user: User) : BaseDialogFragment() {
+internal final class SaveGroupChannelDialog private constructor() : BaseDialogFragment() {
     companion object {
         private val ARG_CHANNEL = "com.shareyourproxy.savegroupchanneldialog.arg.channel"
         private val ARG_USER = "com.shareyourproxy.savegroupchanneldialog.arg.user"
@@ -46,7 +46,7 @@ internal final class SaveGroupChannelDialog private constructor(channel: Channel
         }
 
         private fun setArgs(manager: FragmentManager, channel: Channel, user: User): SaveGroupChannelDialog {
-            val dialog = SaveGroupChannelDialog(channel, user)
+            val dialog = SaveGroupChannelDialog()
             val args: Bundle = Bundle()
             args.putParcelable(ARG_CHANNEL, channel)
             args.putParcelable(ARG_USER, user)
@@ -65,7 +65,7 @@ internal final class SaveGroupChannelDialog private constructor(channel: Channel
     private val parcelUser: User = arguments.getParcelable<User>(ARG_USER)
     private val negativeClicked = OnClickListener { dialogInterface, i -> updateChannel(dialogInterface) }
     private val positiveClicked = OnClickListener { DialogInterface, i -> dispatchUpdatedUserGroups() }
-    private val adapter: SaveGroupChannelAdapter = SaveGroupChannelAdapter(recyclerView, user.groups)
+    private val adapter: SaveGroupChannelAdapter = SaveGroupChannelAdapter(recyclerView, parcelUser.groups)
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): AppCompatDialog {

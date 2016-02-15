@@ -2,6 +2,7 @@ package com.shareyourproxy.api.rx
 
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.shareyourproxy.api.domain.model.Channel
 import com.shareyourproxy.api.domain.model.User
 import com.shareyourproxy.api.rx.command.eventcallback.EventCallback
 import com.shareyourproxy.api.rx.command.eventcallback.ShareLinkEventCallback
@@ -41,7 +42,7 @@ internal object RxFabricAnalytics {
     private fun logChannelAddedEvent(answers: Answers, event: UserChannelAddedEventCallback) {
         val channelType = event.newChannel.channelType.label
 
-        if (event.oldChannel == null) {
+        if (event.oldChannel == Channel()) {
             answers.logCustom(CustomEvent("Channel Added").putCustomAttribute("Channel Type", channelType))
         } else {
             answers.logCustom(CustomEvent("Channel Edited").putCustomAttribute("Channel Type", channelType))

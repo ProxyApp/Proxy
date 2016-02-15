@@ -34,7 +34,6 @@ internal object RxBusRelay : BaseParcelable {
 
     /**
      * Post an event on [PublishSubject].
-
      * @param event event object.
      */
     fun post(event: Any?) {

@@ -33,10 +33,11 @@ import com.shareyourproxy.api.rx.command.eventcallback.UserMessagesDownloadedEve
 import com.shareyourproxy.api.rx.command.eventcallback.UsersDownloadedEventCallback
 import com.shareyourproxy.api.rx.event.SyncContactsErrorEvent
 import com.shareyourproxy.api.rx.event.SyncContactsSuccessEvent
+import com.shareyourproxy.util.ButterKnife.LazyVal
 import rx.Observable
 import timber.log.Timber
 import java.util.*
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.MINUTES
 
 /**
  * Manage data at an application context level.
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit
 internal final class RxAppDataManager(private val app: ProxyApplication, private val prefs: SharedPreferences) {
     private val notificationManager: NotificationManager = app.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     private val gson = GsonBuilder().create()
-    private val pollingObservable: Observable<Long> = Observable.interval(3, TimeUnit.MINUTES).compose(observeIO<Long>())
+    private val pollingObservable: Observable<Long> by LazyVal { Observable.interval(3, MINUTES).compose(observeIO<Long>()) }
     private val busObserver: JustObserver<Any> = object : JustObserver<Any>(RxAppDataManager::class.java) {
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun next(event: Any) {

@@ -57,7 +57,6 @@ internal object RxUserChannelSync {
     private fun saveChannelToFirebase(context: Context, channel: Channel): Func1<User, User> {
         return Func1 { user ->
             val userId = user.id
-            val channelId = channel.id
             RestClient(context).herokuUserService.addUserChannel(userId, channel).subscribe()
             RestClient(context).herokuUserService.updateUserGroups(userId, user.groups).subscribe()
             user

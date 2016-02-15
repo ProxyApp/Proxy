@@ -18,6 +18,7 @@ import com.shareyourproxy.widget.DismissibleNotificationCard
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.CUSTOM_URL
 import com.shareyourproxy.widget.DismissibleNotificationCard.NotificationCard.SAFE_INFO
 import java.util.Arrays.asList
+import kotlin.comparisons.compareValues
 
 /**
  * Adapter that handles displaying channels.

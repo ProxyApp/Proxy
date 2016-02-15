@@ -40,7 +40,7 @@ import java.util.*
 /**
  * Add a new [Channel] to a [User].
  */
-internal final class AddChannelDialog private constructor(channelType: ChannelType) : BaseDialogFragment() {
+internal final class AddChannelDialog private constructor() : BaseDialogFragment() {
     companion object {
         private val ARG_CHANNEL_TYPE = "AddChannelDialog.ChannelType"
         fun show(manager: FragmentManager, channelType: ChannelType): AddChannelDialog {
@@ -48,7 +48,7 @@ internal final class AddChannelDialog private constructor(channelType: ChannelTy
         }
 
         private fun setArgs(manager: FragmentManager, channelType: ChannelType): AddChannelDialog {
-            val dialog = AddChannelDialog(channelType)
+            val dialog = AddChannelDialog()
             val args: Bundle = Bundle()
             args.putSerializable(ARG_CHANNEL_TYPE, channelType)
             dialog.arguments = args
