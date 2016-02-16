@@ -6,6 +6,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'maven'
 apply plugin: 'io.fabric'
+apply from: 'jacoco.gradle'
 
 def Properties properties = new Properties()
 def localProps = project.rootProject.file('local.properties')
@@ -31,7 +32,8 @@ android {
     def versionMajor = 0
     def versionMinor = 2
     def versionPatch = 7
-    def versionBuild = 3 // bump for dogfood builds, public betas, etc.
+    // bump for dogfood builds, public betas, etc.
+    def versionBuild = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
 
     defaultConfig {
         minSdkVersion 17
