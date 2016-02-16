@@ -3,10 +3,12 @@ package com.shareyourproxy.util
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.res.Resources
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Bitmap.Config.ARGB_8888
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.PorterDuff.Mode.SRC
 import android.graphics.PorterDuff.Mode.SRC_IN
-import android.graphics.Shader.TileMode.CLAMP
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -26,7 +28,10 @@ import com.facebook.drawee.drawable.ScalingUtils.ScaleType.FIT_CENTER
 import com.facebook.drawee.generic.GenericDraweeHierarchy
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder
 import com.facebook.drawee.generic.RoundingParams.asCircle
-import com.shareyourproxy.R
+import com.shareyourproxy.R.color.*
+import com.shareyourproxy.R.dimen.common_margin_xhuge
+import com.shareyourproxy.R.dimen.common_svg_large
+import com.shareyourproxy.R.mipmap.ic_proxy
 import com.shareyourproxy.api.domain.model.ChannelType
 import com.shareyourproxy.widget.ContentDescriptionDrawable
 import timber.log.Timber
@@ -65,107 +70,24 @@ internal object ViewUtils {
     }
 
     /**
-     * Alpha a bitmap by drawing ARGB layer on top of it.
-     * @param source Bitmap to alpha
-     * @return the circular bitmap resource
-     */
-    internal fun getAlphaBitmapImage(source: Bitmap): Bitmap {
-        val width = source.width
-        val height = source.height
-        val bitmap = Bitmap.createBitmap(width, height, source.config)
-        val canvas = Canvas(bitmap)
-        canvas.drawBitmap(source, 0f, 0f, null)
-        canvas.drawARGB(120, 0, 0, 0)
-        source.recycle()
-        return bitmap
-    }
-
-    /**
-     * Paint a circular bitmap.
-     * @param source          Bitmap to crop
-     * @param backgroundColor of the bitmap
-     * @return the circular bitmap resource
-     */
-    internal fun getCircularBitmapImage(source: Bitmap, backgroundColor: Int = Color.TRANSPARENT): Bitmap {
-        val size = Math.min(source.width, source.height)
-
-        val x = (source.width - size) / 2
-        val y = (source.height - size) / 2
-
-        val squaredBitmap = Bitmap.createBitmap(source, x, y, size, size)
-        val config = if (source.config != null) source.config else Bitmap.Config.ARGB_8888
-
-        if (squaredBitmap != source) {
-            source.recycle()
-        }
-
-        val bitmap = Bitmap.createBitmap(size, size, config)
-        val canvas = Canvas(bitmap)
-        //Set a BitmapShader as the paint for the source bitmap to draw itself as a circle.
-        val paint = Paint()
-        val shader = BitmapShader(squaredBitmap, CLAMP, CLAMP)
-        paint.setShader(shader)
-        paint.isAntiAlias = true
-
-        val r = size / 2f
-        val rOffset = r - 2
-
-        if (backgroundColor != Color.TRANSPARENT) {
-            val backgroundPaint = Paint()
-            backgroundPaint.color = backgroundColor
-            backgroundPaint.isAntiAlias = true
-            canvas.drawCircle(r, r, r, backgroundPaint)
-            canvas.drawCircle(rOffset, rOffset, rOffset, paint)
-        } else {
-            canvas.drawCircle(r, r, r, paint)
-        }
-        squaredBitmap.recycle()
-        return bitmap
-    }
-
-    /**
      * Paint a circular Drawable.
      * @param context         activity context
      * @param resourceId      Drawable to crop
      * @param backgroundColor of the bitmap
      * @return the circular bitmap resource
      */
-    internal fun getCircularDrawableImage(
-            context: Context, resourceId: Int, channelType: ChannelType, backgroundColor: Int): Drawable {
+    internal fun getCircularDrawableImage(context: Context, resourceId: Int, channelType: ChannelType, backgroundColor: Int): Drawable {
         val background = ShapeDrawable(OvalShape())
         background.setColorFilter(backgroundColor, SRC)
 
-        val backgroundRadius = context.resources.getDimensionPixelSize(R.dimen.common_margin_xhuge)
+        val backgroundRadius = context.resources.getDimensionPixelSize(common_margin_xhuge)
 
         background.intrinsicWidth = backgroundRadius
         background.intrinsicHeight = backgroundRadius
 
-        val source = svgToBitmapDrawable(context, resourceId,
-                backgroundRadius, channelType.resColor)
+        val source = svgToBitmapDrawable(context, resourceId, backgroundRadius, channelType.resColor)
         val layerDrawable = LayerDrawable(arrayOf(background, source))
 
-        val inset = backgroundRadius / 4
-        layerDrawable.setLayerInset(1, inset, inset, inset, inset)
-        return layerDrawable
-    }
-
-    /**
-     * Paint a circular bitmap.
-     * @param context         activity context
-     * @param source          drawable source
-     * @param backgroundColor of the bitmap
-     * @return the circular bitmap resource
-     */
-    internal fun getCircularDrawableImage(
-            context: Context, source: Drawable, backgroundColor: Int): Drawable {
-        val background = ShapeDrawable(OvalShape())
-        background.setColorFilter(backgroundColor, SRC)
-
-        val backgroundRadius = context.resources.getDimensionPixelSize(R.dimen.common_margin_large)
-        background.intrinsicWidth = backgroundRadius
-        background.intrinsicHeight = backgroundRadius
-
-        val layerDrawable = LayerDrawable(arrayOf(background, source))
         val inset = backgroundRadius / 4
         layerDrawable.setLayerInset(1, inset, inset, inset, inset)
         return layerDrawable
@@ -223,7 +145,7 @@ internal object ViewUtils {
             val svg = SVG.getFromResource(res, resourceId)
             val densitySize = dpToPx(res, size)
 
-            val bmp = Bitmap.createBitmap(dm, densitySize, densitySize, Bitmap.Config.ARGB_8888)
+            val bmp = Bitmap.createBitmap(dm, densitySize, densitySize, ARGB_8888)
             val canvas = Canvas(bmp)
             svg.renderToCanvas(canvas)
 
@@ -246,9 +168,8 @@ internal object ViewUtils {
      */
     internal fun getMenuIconDark(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
-        val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
-        return svgToBitmapDrawable(context, resId, size,
-                getColor(context, R.color.common_proxy_dark_selected))
+        val size = res.getDimensionPixelSize(common_svg_large)
+        return svgToBitmapDrawable(context, resId, size, getColor(context, common_proxy_dark_selected))
     }
 
     /**
@@ -258,9 +179,8 @@ internal object ViewUtils {
      */
     internal fun getMenuIcon(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
-        val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
-        return svgToBitmapDrawable(context, resId, size,
-                getColor(context, R.color.common_text_inverse))
+        val size = res.getDimensionPixelSize(common_svg_large)
+        return svgToBitmapDrawable(context, resId, size, getColor(context, common_text_inverse))
     }
 
     /**
@@ -270,23 +190,21 @@ internal object ViewUtils {
      */
     internal fun getMenuIconSecondary(context: Context, resId: Int): ContentDescriptionDrawable {
         val res = context.resources
-        val size = res.getDimensionPixelSize(R.dimen.common_svg_large)
-        return svgToBitmapDrawable(context, resId, size,
-                getColor(context, R.color.common_text_secondary_inverse))
+        val size = res.getDimensionPixelSize(common_svg_large)
+        return svgToBitmapDrawable(context, resId, size, getColor(context, common_text_secondary_inverse))
     }
 
     internal fun getUserImageHierarchyNoFade(context: Context): GenericDraweeHierarchy {
-        val placeHolder = getDrawable(context, R.mipmap.ic_proxy)
+        val placeHolder = getDrawable(context, ic_proxy)
         return GenericDraweeHierarchyBuilder(context.resources).setRoundingParams(asCircle()).setFailureImage(placeHolder, FIT_CENTER).setActualImageScaleType(FIT_CENTER).build()
     }
 
     internal fun getUserImageHierarchy(context: Context): GenericDraweeHierarchy {
-        val placeHolder = getDrawable(context, R.mipmap.ic_proxy)
+        val placeHolder = getDrawable(context, ic_proxy)
         return GenericDraweeHierarchyBuilder(context.resources).setFadeDuration(300).setRoundingParams(asCircle()).setPlaceholderImage(placeHolder, FIT_CENTER).setFailureImage(placeHolder, FIT_CENTER).setActualImageScaleType(FIT_CENTER).build()
     }
 
-    internal fun getAlphaOverlayHierarchy(
-            viewGroup: View, res: Resources): GenericDraweeHierarchy {
+    internal fun getAlphaOverlayHierarchy(viewGroup: View, res: Resources): GenericDraweeHierarchy {
         val alphaDrawable = ShapeDrawable(RectShape())
         val lp = viewGroup.layoutParams
         alphaDrawable.intrinsicHeight = lp.height
