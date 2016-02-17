@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     ext {
-        androidToolsVersion = "2.0.0-beta4"
+        androidToolsVersion = "2.0.0-beta5"
         kotlin_version = "1.0.0"
         aptVersion = "1.4"
         fabricToolsVersion = "1.+"

@@ -42,16 +42,6 @@ android {
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
 
-    splits {
-        abi {
-//            'mips', 'x86', 'x86_64','armeabi', 'arm64-v8a'
-            reset()
-            enable true
-            include 'armeabi-v7a'
-            universalApk false
-        }
-    }
-
     sourceSets {
         main {
             java.srcDirs += 'src/main/kotlin'
@@ -173,11 +163,6 @@ afterEvaluate {
     }
 }
 
-//manual update to gradle 2.9
-//task wrapper(type: Wrapper) {
-//    gradleVersion = '2.9'
-//    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
-//}
 ext {
     //Google
     playServicesVersion = "8.4.0"
