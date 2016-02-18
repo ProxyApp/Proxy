@@ -51,4 +51,3 @@
 -keepclassmembers class ** {
   ** base;
 }
--keep class com.shareyourproxy.** { *; }

@@ -1,5 +1,6 @@
 # Crashlytics 2.+
 -keep class com.crashlytics.** { *; }
+-keep class io.fabric.** { *; }
 -keep class com.crashlytics.android.**
 -keepattributes SourceFile,LineNumberTable,*Annotation*
 

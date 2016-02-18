@@ -9,5 +9,7 @@
 -keepattributes EnclosingMethod
 
 # Gson specific classes
+-dontwarn sun.misc.**
 -keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.stream.** { *; }
+-keep class com.google.gson.** { *; }

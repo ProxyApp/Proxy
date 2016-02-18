@@ -95,8 +95,16 @@ android {
     buildTypes {
         debug {
             debuggable true
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            FileCollection proGuardFileCollection = files { project.rootProject.file('proguard').listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return !file.isHidden();
+                }
+            }); }
+            proguardFiles(proGuardFileCollection)
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
             //disable google analytics
@@ -112,7 +120,12 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFile getDefaultProguardFile('proguard-android.txt')
-            FileCollection proGuardFileCollection = files { project.rootProject.file('proguard').listFiles() }
+            FileCollection proGuardFileCollection = files { project.rootProject.file('proguard').listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return !file.isHidden();
+                }
+            }); }
             proguardFiles(proGuardFileCollection)
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
@@ -215,8 +228,8 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
     compile "com.squareup.okhttp3:okhttp:${okHTTPVersion}"
     compile "com.squareup.okhttp3:logging-interceptor:${okHTTPVersion}"
-//    compile "com.google.dagger:dagger:${daggerVersion}"
-//    compile "com.google.dagger:dagger-compiler:${daggerVersion}"
+    compile "com.google.dagger:dagger:${daggerVersion}"
+    compile "com.google.dagger:dagger-compiler:${daggerVersion}"
     //Facebook
     compile "com.facebook.fresco:fresco:${frescoVersion}"
     compile "com.facebook.fresco:imagepipeline-okhttp:${frescoVersion}"

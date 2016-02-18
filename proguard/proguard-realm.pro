@@ -7,13 +7,12 @@
 -keep class io.realm.annotations.RealmModule
 -keep @io.realm.annotations.RealmModule class *
 -keep @io.realm.internal.Keep class * { *; }
--keep class io.realm.internal.Spec
 -keep class io.realm.internal.Mixed {*;}
 -keep class io.realm.exceptions.* { *; }
 -keep class io.realm.internal.async.BadVersionException { *; }
 -keep class io.realm.internal.OutOfMemoryError { *; }
 -keep class io.realm.internal.TableSpec { *; }
 -keep class io.realm.internal.Mixed { *; }
--keep class io.realm.internal.ColumnType { *; }
+-keep class io.realm.** { *; }
 -dontwarn javax.**
 -dontwarn io.realm.**

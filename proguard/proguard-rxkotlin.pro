@@ -1,2 +1,2 @@
--keep class rx.kotlin { *; }
+-keep class rx.** { *; }
 -dontwarn rx.**

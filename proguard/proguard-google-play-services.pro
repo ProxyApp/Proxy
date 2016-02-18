@@ -2,7 +2,7 @@
 ## https://developer.android.com/google/play-services/setup.html#Proguard ##
 
 -keep class * extends java.util.ListResourceBundle {
-    protected Object[][] getContents();
+    protected java.lang.Object[][] getContents();
 }
 
 -keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
@@ -17,3 +17,5 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
+
+-keep class com.google.android.gms.** { *; }
