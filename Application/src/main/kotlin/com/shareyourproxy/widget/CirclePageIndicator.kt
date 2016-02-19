@@ -288,6 +288,7 @@ class CirclePageIndicator : View, PageIndicator {
                     activePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex)
                 }
                 lastMotionX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, activePointerId))
+                performClick()
             }
         }
 

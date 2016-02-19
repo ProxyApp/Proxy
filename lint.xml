@@ -7,7 +7,6 @@
 
     <issue id="UnusedResources">
         <ignore path="**/res/values/strings.xml"/>
-        <ignore path="**/res/layouts/menu/menu_activity_aggregate_feed.xml"/>
         <ignore path="**/res/google-services/dev/debug/values/values.xml"/>
     </issue>
 
