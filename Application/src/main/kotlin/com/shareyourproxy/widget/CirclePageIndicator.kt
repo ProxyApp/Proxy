@@ -211,6 +211,10 @@ class CirclePageIndicator : View, PageIndicator {
         canvas.drawCircle(dX, dY, radius, paintFill)
     }
 
+    override fun performClick(): Boolean {
+        return super.performClick()
+    }
+
     override fun onTouchEvent(ev: android.view.MotionEvent): Boolean {
         if (super.onTouchEvent(ev)) {
             return true
