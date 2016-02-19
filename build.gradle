@@ -1,29 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-        mavenCentral()
-        jcenter()
-    }
-    ext {
-        androidToolsVersion = "2.0.0-beta5"
-        kotlin_version = "1.0.0"
-        aptVersion = "1.4"
-        fabricToolsVersion = "1.+"
-        hugoVersion = "1.2.1"
-    }
-    dependencies {
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-        classpath "com.android.tools.build:gradle:${androidToolsVersion}"
-        classpath "com.google.gms:google-services:${androidToolsVersion}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
-        classpath "com.neenbedankt.gradle.plugins:android-apt:${aptVersion}"
-        classpath "io.fabric.tools:gradle:${fabricToolsVersion}"
-        classpath "com.jakewharton.hugo:hugo-plugin:${hugoVersion}"
-    }
-}
-
 allprojects {
     repositories {
         flatDir {
@@ -35,28 +10,27 @@ allprojects {
         maven { url 'https://maven.fabric.io/public' }
         maven { url "https://jitpack.io" }
     }
+}
 
-    task checkstyle(type: Checkstyle) {
-        showViolations = true
-        configFile properties.CHECKSTYLE_DIR ? file(properties.CHECKSTYLE_DIR) : null
-        source 'src/main/java'
-        include '**/*.java'
-        exclude '**/gen/**'
-        classpath = files()
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+        mavenCentral()
+        jcenter()
     }
-
-    task findbugs(type: FindBugs) {
-        effort = 'max'
-        ignoreFailures = false
-
-        classes = fileTree('build/intermediates/classes/debug/')
-        source = fileTree('src/main/java/')
-        excludeFilter = properties.FINDBUGS_DIR ? file(properties.FINDBUGS_DIR) : null
-        classpath = files()
-
-        reports {
-            xml.enabled = false
-            html.enabled = true
-        }
+    ext {
+        androidToolsVersion = "2.0.0-beta5"
+        kotlin_version = "1.0.0"
+        fabricToolsVersion = "1.+"
+        hugoVersion = "1.2.1"
+    }
+    dependencies {
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+        classpath "com.android.tools.build:gradle:${androidToolsVersion}"
+        classpath "com.google.gms:google-services:${androidToolsVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath "io.fabric.tools:gradle:${fabricToolsVersion}"
+        classpath "com.jakewharton.hugo:hugo-plugin:${hugoVersion}"
     }
 }
