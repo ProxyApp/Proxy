@@ -101,7 +101,7 @@ internal object ButterKnife {
     private val View.colorFinder: View.(Int) -> Int? get() = { getColor(context, it) }
     private val Activity.colorFinder: Activity.(Int) -> Int? get() = { getColor(baseContext, it) }
     private val Dialog.colorFinder: Dialog.(Int) -> Int? get() = { getColor(context, it) }
-    private val Fragment.colorFinder: Fragment.(Int) -> Int? get() = { getColor(context, it) }
+    private val Fragment.colorFinder: Fragment.(Int) -> Int? get() = { getColor(activity, it) }
     private val SupportFragment.colorFinder: SupportFragment.(Int) -> Int? get() = { getColor(context, it) }
     private val <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.colorFinder: RecyclerView.Adapter<T>.(Context, Int) -> Int? get() = { context, res -> getColor(context, res) }
     /**
@@ -119,7 +119,7 @@ internal object ButterKnife {
     private val View.colorListFinder: View.(Int) -> ColorStateList? get() = { getColorStateList(context, it) }
     private val Activity.colorListFinder: Activity.(Int) -> ColorStateList? get() = { getColorStateList(baseContext, it) }
     private val Dialog.colorListFinder: Dialog.(Int) -> ColorStateList? get() = { getColorStateList(context, it) }
-    private val Fragment.colorListFinder: Fragment.(Int) -> ColorStateList? get() = { getColorStateList(context, it) }
+    private val Fragment.colorListFinder: Fragment.(Int) -> ColorStateList? get() = { getColorStateList(activity, it) }
     private val SupportFragment.colorListFinder: SupportFragment.(Int) -> ColorStateList? get() = { getColorStateList(context, it) }
     private val <T : RecyclerView.ViewHolder> RecyclerView.Adapter<T>.colorListFinder: RecyclerView.Adapter<T>.(Context, Int) -> ColorStateList? get() = { context, res -> getColorStateList(context, res) }
     /**
