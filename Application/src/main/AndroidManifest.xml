@@ -43,7 +43,7 @@
         <!-- Optionally, register CampaignTrackingReceiver and CampaignTrackingService to enable
              installation campaign reporting -->
         <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
-                  android:exported="true"/>
+                  android:exported="false"/>
         <!-- Activities -->
         <activity
             android:name=".app.AboutActivity"
